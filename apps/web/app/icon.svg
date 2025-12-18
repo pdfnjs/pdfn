@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <rect width="32" height="32" rx="8" fill="#0a0a0a"/>
+  <!-- Typographic lowercase x - two diagonal strokes with rounded ends -->
+  <path
+    d="M9 8L16 16L9 24"
+    stroke="#58c4dc"
+    stroke-width="4"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+    fill="none"
+  />
+  <path
+    d="M23 8L16 16L23 24"
+    stroke="#58c4dc"
+    stroke-width="4"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+    fill="none"
+  />
+</svg>

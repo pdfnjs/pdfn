@@ -36,3 +36,8 @@ yarn-error.log*
 # Misc
 .DS_Store
 *.pem
+
+# Project documentation - DO NOT REMOVE
+references/
+CLAUDE.md
+tasks.md
