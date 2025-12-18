@@ -76,7 +76,7 @@ app.use('/pdf', pdfServer.routes);
 ## Docker (Coming Soon)
 
 ```bash
-docker run -p 3456:3456 ghcr.io/pdfxjs/cli serve
+docker run -p 3456:3456 ghcr.io/pdfx-dev/cli serve
 ```
 
 ## License

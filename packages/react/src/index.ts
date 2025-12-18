@@ -1,5 +1,15 @@
 // @pdfx-dev/react - The React framework for PDFs
 
+// Server-only guard - fails at build time in Next.js "use client" files
+import "server-only";
+
+// Runtime guard - catches non-Next.js environments
+if (typeof window !== "undefined") {
+  throw new Error(
+    "@pdfx-dev/react is server-only. Do not import it in client components or browser code."
+  );
+}
+
 // Components
 export { Document } from "./components/Document";
 export { Page } from "./components/Page";

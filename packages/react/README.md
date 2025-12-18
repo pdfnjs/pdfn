@@ -4,14 +4,21 @@ The React framework for PDFs. Create pixel-perfect PDF documents using React com
 
 > **Alpha Release** - Core PDF generation works. Some features are still in development.
 
+> **⚠️ Server-only** - This package must be used in server environments only. Do not import it in files marked with `"use client"`.
+
 ## Requirements
 
 **Node.js only** - This package generates PDFs on the server, not in the browser.
 
 Use it in:
-- Next.js API routes / Server Actions
+- Next.js API routes / Server Actions / Server Components
 - Express, Fastify, Hono backends
 - Node.js scripts
+
+**Do NOT use in:**
+- `"use client"` components
+- Browser code
+- Client-side React
 
 ## Installation
 
@@ -32,12 +39,11 @@ npx pdfx serve
 
 ```tsx
 import { generate, Document, Page, PageNumber } from '@pdfx-dev/react';
+import { writeFileSync } from 'fs';
 
-// Set the server URL
 process.env.PDFX_HOST = 'http://localhost:3456';
 
-// Create your PDF template
-const Invoice = (
+const pdf = await generate(
   <Document title="Invoice #123">
     <Page size="A4" margin="1in" footer={<PageNumber />}>
       <h1>Invoice #123</h1>
@@ -47,9 +53,7 @@ const Invoice = (
   </Document>
 );
 
-// Generate PDF
-const pdfBuffer = await generate(Invoice);
-fs.writeFileSync('invoice.pdf', pdfBuffer);
+writeFileSync('invoice.pdf', pdf);
 ```
 
 ## Components

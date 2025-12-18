@@ -4,14 +4,21 @@ The React framework for PDFs. Pixel-perfect. Deterministic.
 
 > **Alpha Release** - Core PDF generation works. Dev UI coming soon.
 
+> **⚠️ Server-only** - Do not import in `"use client"` files. [Why?](#server-only)
+
 ## Requirements
 
 **Node.js only** - PDFX generates PDFs on the server, not in the browser.
 
 Use it in:
-- Next.js API routes / Server Actions
+- Next.js API routes / Server Actions / Server Components
 - Express, Fastify, Hono backends
 - Node.js scripts
+
+**Do NOT use in:**
+- `"use client"` components
+- Browser code
+- Client-side React
 
 ## Quick Start
 
@@ -26,10 +33,11 @@ npx pdfx serve
 
 ```tsx
 import { generate, Document, Page, PageNumber } from '@pdfx-dev/react';
+import { writeFileSync } from 'fs';
 
 process.env.PDFX_HOST = 'http://localhost:3456';
 
-const Invoice = (
+const pdf = await generate(
   <Document title="Invoice #123">
     <Page size="A4" margin="1in" footer={<PageNumber />}>
       <h1>Invoice #123</h1>
@@ -39,8 +47,7 @@ const Invoice = (
   </Document>
 );
 
-const pdf = await generate(Invoice);
-fs.writeFileSync('invoice.pdf', pdf);
+writeFileSync('invoice.pdf', pdf);
 ```
 
 ## Packages
@@ -126,6 +133,17 @@ pnpm build      # Build all packages
 pnpm test       # Run tests
 pnpm dev        # Watch mode
 ```
+
+## Server-only
+
+PDFX uses Node.js APIs (`fs`, `react-dom/server`) and cannot run in the browser. If you import it in a `"use client"` file, you'll get a build error:
+
+```
+Error: This module cannot be imported from a Client Component module.
+It should only be used from a Server Component.
+```
+
+This is intentional - it prevents runtime crashes and unclear errors.
 
 ## License
 
