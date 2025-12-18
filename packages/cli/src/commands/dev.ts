@@ -1,7 +1,7 @@
 import { Command } from "commander";
 
 export const devCommand = new Command("dev")
-  .description("Start development server with template preview")
+  .description("Start development server with template preview (coming soon)")
   .option("--port <number>", "Server port", "3456")
   .option("--templates <path>", "Templates directory", "./pdf-templates")
   .option("--no-open", "Don't open browser automatically")

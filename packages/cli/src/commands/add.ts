@@ -1,7 +1,7 @@
 import { Command } from "commander";
 
 export const addCommand = new Command("add")
-  .description("Add a starter template to your project")
+  .description("Add a starter template to your project (coming soon)")
   .argument("[template]", "Template name (e.g., invoice, receipt, report)")
   .option("--list", "List available templates")
   .option("--output <path>", "Output directory", "./pdf-templates")

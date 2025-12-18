@@ -1,6 +1,6 @@
 {
   "name": "@pdfx-dev/cli",
-  "version": "0.0.0",
+  "version": "0.0.1-alpha.1",
   "description": "CLI for PDFX - dev server and PDF generation",
   "type": "module",
   "bin": {
