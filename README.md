@@ -1,135 +1,100 @@
-# Turborepo starter
+# PDFX
 
-This Turborepo starter is maintained by the Turborepo core team.
+The React framework for PDFs. Pixel-perfect. Deterministic.
 
-## Using this example
+> **Alpha Release** - Core PDF generation works. Dev UI coming soon.
 
-Run the following command:
+## Quick Start
 
-```sh
-npx create-turbo@latest
+```bash
+# Install packages
+npm install @pdfx-dev/react
+npm install -D @pdfx-dev/cli
+
+# Start the PDF server
+npx pdfx serve
 ```
 
-## What's inside?
+```tsx
+import { generate, Document, Page, PageNumber } from '@pdfx-dev/react';
 
-This Turborepo includes the following packages/apps:
+process.env.PDFX_HOST = 'http://localhost:3456';
 
-### Apps and Packages
+const Invoice = (
+  <Document title="Invoice #123">
+    <Page size="A4" margin="1in" footer={<PageNumber />}>
+      <h1>Invoice #123</h1>
+      <p>Customer: Acme Corp</p>
+      <p>Total: $148.00</p>
+    </Page>
+  </Document>
+);
 
-- `docs`: a [Next.js](https://nextjs.org/) app
-- `web`: another [Next.js](https://nextjs.org/) app
-- `@pdfx-dev/ui`: a stub React component library shared by both `web` and `docs` applications
-- `@pdfx-dev/eslint-config`: `eslint` configurations (includes `eslint-config-next` and `eslint-config-prettier`)
-- `@pdfx-dev/typescript-config`: `tsconfig.json`s used throughout the monorepo
-
-Each package/app is 100% [TypeScript](https://www.typescriptlang.org/).
-
-### Utilities
-
-This Turborepo has some additional tools already setup for you:
-
-- [TypeScript](https://www.typescriptlang.org/) for static type checking
-- [ESLint](https://eslint.org/) for code linting
-- [Prettier](https://prettier.io) for code formatting
-
-### Build
-
-To build all apps and packages, run the following command:
-
-```
-cd my-turborepo
-
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo build
-
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo build
-yarn dlx turbo build
-pnpm exec turbo build
+const pdf = await generate(Invoice);
+fs.writeFileSync('invoice.pdf', pdf);
 ```
 
-You can build a specific package by using a [filter](https://turborepo.com/docs/crafting-your-repository/running-tasks#using-filters):
+## Packages
+
+| Package | Description | Status |
+|---------|-------------|--------|
+| [@pdfx-dev/react](./packages/react) | React components and PDF generation | Alpha |
+| [@pdfx-dev/cli](./packages/cli) | CLI and PDF server | Alpha |
+
+## Features
+
+- **React Components** - Use familiar React patterns to build PDFs
+- **Page Numbers** - Automatic page numbering with `<PageNumber />` and `<TotalPages />`
+- **Page Breaks** - Control pagination with `<PageBreak />` and `<AvoidBreak />`
+- **Headers/Footers** - Repeating headers and footers on every page
+- **Watermarks** - Add text or custom watermarks
+- **Multiple Sizes** - A4, Letter, Legal, or custom dimensions
+
+## How It Works
 
 ```
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo build --filter=docs
-
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo build --filter=docs
-yarn exec turbo build --filter=docs
-pnpm exec turbo build --filter=docs
+React Component → render() → HTML → Server → Puppeteer → PDF
 ```
 
-### Develop
+1. Write your PDF template as a React component
+2. `render()` converts it to self-contained HTML with Paged.js
+3. `generate()` sends HTML to the PDFX server
+4. Puppeteer renders the HTML and captures as PDF
 
-To develop all apps and packages, run the following command:
+## API
 
-```
-cd my-turborepo
+### `render(element)`
 
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo dev
+Converts React to HTML. No server needed.
 
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo dev
-yarn exec turbo dev
-pnpm exec turbo dev
-```
-
-You can develop a specific package by using a [filter](https://turborepo.com/docs/crafting-your-repository/running-tasks#using-filters):
-
-```
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo dev --filter=web
-
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo dev --filter=web
-yarn exec turbo dev --filter=web
-pnpm exec turbo dev --filter=web
+```ts
+const html = await render(<Document>...</Document>);
 ```
 
-### Remote Caching
+### `generate(element)`
 
-> [!TIP]
-> Vercel Remote Cache is free for all plans. Get started today at [vercel.com](https://vercel.com/signup?/signup?utm_source=remote-cache-sdk&utm_campaign=free_remote_cache).
+Converts React to PDF. Requires `PDFX_HOST`.
 
-Turborepo can use a technique known as [Remote Caching](https://turborepo.com/docs/core-concepts/remote-caching) to share cache artifacts across machines, enabling you to share build caches with your team and CI/CD pipelines.
-
-By default, Turborepo will cache locally. To enable Remote Caching you will need an account with Vercel. If you don't have an account you can [create one](https://vercel.com/signup?utm_source=turborepo-examples), then enter the following commands:
-
-```
-cd my-turborepo
-
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo login
-
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo login
-yarn exec turbo login
-pnpm exec turbo login
+```ts
+const pdf = await generate(<Document>...</Document>);
 ```
 
-This will authenticate the Turborepo CLI with your [Vercel account](https://vercel.com/docs/concepts/personal-accounts/overview).
+## CLI Commands
 
-Next, you can link your Turborepo to your Remote Cache by running the following command from the root of your Turborepo:
-
-```
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo link
-
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo link
-yarn exec turbo link
-pnpm exec turbo link
+```bash
+npx pdfx serve              # Start PDF generation server
+npx pdfx serve --port 4000  # Custom port
 ```
 
-## Useful Links
+## Development
 
-Learn more about the power of Turborepo:
+```bash
+pnpm install    # Install dependencies
+pnpm build      # Build all packages
+pnpm test       # Run tests
+pnpm dev        # Watch mode
+```
 
-- [Tasks](https://turborepo.com/docs/crafting-your-repository/running-tasks)
-- [Caching](https://turborepo.com/docs/crafting-your-repository/caching)
-- [Remote Caching](https://turborepo.com/docs/core-concepts/remote-caching)
-- [Filtering](https://turborepo.com/docs/crafting-your-repository/running-tasks#using-filters)
-- [Configuration Options](https://turborepo.com/docs/reference/configuration)
-- [CLI Usage](https://turborepo.com/docs/reference/command-line-reference)
+## License
+
+MIT
