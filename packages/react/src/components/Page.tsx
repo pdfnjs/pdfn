@@ -1,4 +1,4 @@
-import type { PageProps } from "../types";
+import type { PageProps, WatermarkConfig } from "../types";
 
 /**
  * Page - Container for page content
@@ -31,14 +31,50 @@ export function Page({
 
   return (
     <div data-pdfx-page style={pageStyle}>
-      {watermark && (
-        <div data-pdfx-watermark>
-          {typeof watermark === "string" ? watermark : watermark.content || watermark.text}
-        </div>
-      )}
+      {watermark && renderWatermark(watermark)}
       {header && <header data-pdfx-header>{header}</header>}
       <main data-pdfx-content>{children}</main>
       {footer && <footer data-pdfx-footer>{footer}</footer>}
+    </div>
+  );
+}
+
+function renderWatermark(watermark: string | WatermarkConfig) {
+  if (typeof watermark === "string") {
+    return (
+      <div data-pdfx-watermark>
+        {watermark}
+      </div>
+    );
+  }
+
+  const {
+    text,
+    content,
+    opacity = 0.1,
+    rotation = -45,
+    className,
+  } = watermark;
+
+  const watermarkStyle: React.CSSProperties = {
+    position: "absolute",
+    top: "50%",
+    left: "50%",
+    transform: `translate(-50%, -50%) rotate(${rotation}deg)`,
+    fontSize: "4rem",
+    opacity,
+    pointerEvents: "none",
+    whiteSpace: "nowrap",
+    zIndex: 1000,
+  };
+
+  return (
+    <div
+      data-pdfx-watermark
+      className={className}
+      style={watermarkStyle}
+    >
+      {content || text}
     </div>
   );
 }

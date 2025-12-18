@@ -93,4 +93,51 @@ describe("Page", () => {
     expect(html).toContain("data-pdfx-watermark");
     expect(html).toContain("DRAFT");
   });
+
+  it("renders watermark with WatermarkConfig text", () => {
+    const html = renderToStaticMarkup(
+      <Page watermark={{ text: "CONFIDENTIAL" }}>
+        <div>Content</div>
+      </Page>
+    );
+    expect(html).toContain("data-pdfx-watermark");
+    expect(html).toContain("CONFIDENTIAL");
+  });
+
+  it("renders watermark with custom opacity", () => {
+    const html = renderToStaticMarkup(
+      <Page watermark={{ text: "DRAFT", opacity: 0.2 }}>
+        <div>Content</div>
+      </Page>
+    );
+    expect(html).toContain("opacity:0.2");
+  });
+
+  it("renders watermark with custom rotation", () => {
+    const html = renderToStaticMarkup(
+      <Page watermark={{ text: "DRAFT", rotation: -30 }}>
+        <div>Content</div>
+      </Page>
+    );
+    expect(html).toContain("rotate(-30deg)");
+  });
+
+  it("renders watermark with custom className", () => {
+    const html = renderToStaticMarkup(
+      <Page watermark={{ text: "DRAFT", className: "my-watermark" }}>
+        <div>Content</div>
+      </Page>
+    );
+    expect(html).toContain('class="my-watermark"');
+  });
+
+  it("renders watermark with React content", () => {
+    const html = renderToStaticMarkup(
+      <Page watermark={{ content: <span className="custom">Custom Watermark</span> }}>
+        <div>Content</div>
+      </Page>
+    );
+    expect(html).toContain("Custom Watermark");
+    expect(html).toContain('class="custom"');
+  });
 });
