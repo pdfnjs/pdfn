@@ -47,7 +47,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/pdfxjs/pdfx.git",
+    "url": "https://github.com/pdfx-dev/pdfx.git",
     "directory": "packages/cli"
   },
   "dependencies": {

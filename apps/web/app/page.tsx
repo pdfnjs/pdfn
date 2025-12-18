@@ -22,7 +22,7 @@ export default function Home() {
 
         {/* GitHub Link */}
         <a
-          href="https://github.com/pdfxjs/pdfx"
+          href="https://github.com/pdfx-dev/pdfx"
           target="_blank"
           rel="noopener noreferrer"
           className={styles.githubLink}
