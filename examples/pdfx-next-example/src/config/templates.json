@@ -1,0 +1,64 @@
+{
+  "templates": [
+    {
+      "id": "invoice",
+      "file": "./invoice.tsx",
+      "name": "Invoice (Inline)",
+      "description": "Professional invoice with inline CSS styles",
+      "tags": ["business", "finance"],
+      "style": "inline-css",
+      "pageSize": "A4",
+      "orientation": "portrait",
+      "sampleData": {
+        "number": "INV-2024-001",
+        "customer": "Acme Corporation",
+        "date": "12/20/2024",
+        "dueDate": "1/19/2025",
+        "items": [
+          { "name": "Web Development", "description": "Frontend implementation", "qty": 40, "price": 150 },
+          { "name": "UI/UX Design", "description": "Design system & prototypes", "qty": 20, "price": 120 },
+          { "name": "API Integration", "description": "REST API development", "qty": 15, "price": 175 },
+          { "name": "Testing & QA", "description": "Unit & integration tests", "qty": 10, "price": 100 }
+        ],
+        "notes": "Payment is due within 30 days. Thank you for your business!",
+        "company": {
+          "name": "TechFlow Solutions",
+          "logo": "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCA0MCA0MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHJ4PSI4IiBmaWxsPSIjMTExODI3Ii8+PHBhdGggZD0iTTEwIDE0SDMwVjE3SDIyVjI4SDE4VjE3SDEwVjE0WiIgZmlsbD0id2hpdGUiLz48cGF0aCBkPSJNMjMgMjBIMzBWMjNIMjZWMjhIMjNWMjBaIiBmaWxsPSIjNjBBNUZBIi8+PC9zdmc+",
+          "address": "123 Innovation Drive, San Francisco, CA 94102",
+          "email": "billing@techflow.io",
+          "phone": "+1 (555) 123-4567"
+        }
+      }
+    },
+    {
+      "id": "invoice-tailwind",
+      "file": "./invoice-tailwind.tsx",
+      "name": "Invoice (Tailwind)",
+      "description": "Same invoice design using Tailwind CSS",
+      "tags": ["business", "finance", "tailwind"],
+      "style": "tailwind",
+      "pageSize": "A4",
+      "orientation": "portrait",
+      "sampleData": {
+        "number": "INV-2024-001",
+        "customer": "Acme Corporation",
+        "date": "12/20/2024",
+        "dueDate": "1/19/2025",
+        "items": [
+          { "name": "Web Development", "description": "Frontend implementation", "qty": 40, "price": 150 },
+          { "name": "UI/UX Design", "description": "Design system & prototypes", "qty": 20, "price": 120 },
+          { "name": "API Integration", "description": "REST API development", "qty": 15, "price": 175 },
+          { "name": "Testing & QA", "description": "Unit & integration tests", "qty": 10, "price": 100 }
+        ],
+        "notes": "Payment is due within 30 days. Thank you for your business!",
+        "company": {
+          "name": "TechFlow Solutions",
+          "logo": "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCA0MCA0MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHJ4PSI4IiBmaWxsPSIjMTExODI3Ii8+PHBhdGggZD0iTTEwIDE0SDMwVjE3SDIyVjI4SDE4VjE3SDEwVjE0WiIgZmlsbD0id2hpdGUiLz48cGF0aCBkPSJNMjMgMjBIMzBWMjNIMjZWMjhIMjNWMjBaIiBmaWxsPSIjNjBBNUZBIi8+PC9zdmc+",
+          "address": "123 Innovation Drive, San Francisco, CA 94102",
+          "email": "billing@techflow.io",
+          "phone": "+1 (555) 123-4567"
+        }
+      }
+    }
+  ]
+}

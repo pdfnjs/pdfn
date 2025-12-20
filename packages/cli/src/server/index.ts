@@ -1,7 +1,8 @@
 import express from "express";
-import type { Express, Request, Response } from "express";
+import type { Express, Request, Response, NextFunction } from "express";
 import { BrowserManager } from "./browser";
 import { generatePdf, type PdfGenerationOptions } from "./pdf";
+import { logger } from "../utils/logger";
 
 export interface ServerOptions {
   /** Server port (default: env.PDFX_PORT || 3456) */
@@ -22,6 +23,27 @@ export interface PDFXServer {
 interface GenerateRequestBody {
   html?: string;
   options?: PdfGenerationOptions;
+}
+
+/**
+ * Request timing middleware
+ */
+function requestLogger(req: Request, res: Response, next: NextFunction) {
+  const start = performance.now();
+
+  res.on("finish", () => {
+    const duration = performance.now() - start;
+    const extra =
+      req.path === "/generate" && res.statusCode === 200
+        ? res.getHeader("X-PDFX-Page-Count")
+          ? `${res.getHeader("X-PDFX-Page-Count")} pages`
+          : undefined
+        : undefined;
+
+    logger.request(req.method, req.path, res.statusCode, duration, extra);
+  });
+
+  next();
 }
 
 /**
@@ -59,6 +81,7 @@ export function createServer(options: ServerOptions = {}): PDFXServer {
 
   // Middleware
   app.use(express.json({ limit: "50mb" }));
+  app.use(requestLogger);
 
   // Health check
   router.get("/health", (_req: Request, res: Response) => {
@@ -73,9 +96,17 @@ export function createServer(options: ServerOptions = {}): PDFXServer {
   // PDF generation endpoint
   router.post("/generate", async (req: Request, res: Response) => {
     const { html, options: pdfOptions } = req.body as GenerateRequestBody;
+    const format = req.query.format as string | undefined;
 
     if (!html) {
       res.status(400).json({ error: "HTML content is required" });
+      return;
+    }
+
+    // Return HTML directly if format=html (for debugging)
+    if (format === "html") {
+      res.setHeader("Content-Type", "text/html; charset=utf-8");
+      res.send(html);
       return;
     }
 
@@ -99,13 +130,13 @@ export function createServer(options: ServerOptions = {}): PDFXServer {
     } catch (error) {
       const message = error instanceof Error ? error.message : "Unknown error";
 
-      // Return 503 for max concurrent reached
       if (message.includes("Server busy")) {
+        logger.warn(`Rate limited: ${browserManager.getActivePages()}/${maxConcurrent} pages in use`);
         res.status(503).json({ error: message });
         return;
       }
 
-      console.error("PDF generation error:", message);
+      logger.error(`PDF generation failed: ${message}`);
       res.status(500).json({ error: message });
     }
   });
@@ -116,25 +147,22 @@ export function createServer(options: ServerOptions = {}): PDFXServer {
     app,
     routes: router,
     start: async () => {
-      // Pre-launch browser for faster first request
+      // Pre-launch browser
+      logger.browser("launching");
       await browserManager.getBrowser();
+      logger.browser("ready");
 
       return new Promise((resolve) => {
         server = app.listen(port, () => {
-          console.log(`PDFX server running at http://localhost:${port}`);
-          console.log(`Max concurrent: ${maxConcurrent}, Timeout: ${timeout}ms`);
-          console.log("Endpoints:");
-          console.log("  POST /generate - Generate PDF from HTML");
-          console.log("  GET  /health   - Health check");
+          logger.banner(port, maxConcurrent, timeout);
           resolve();
         });
       });
     },
     stop: async () => {
-      // Close browser
       await browserManager.close();
+      logger.browser("closed");
 
-      // Close server
       if (server) {
         await new Promise<void>((resolve) => {
           server!.close(() => resolve());
@@ -142,7 +170,7 @@ export function createServer(options: ServerOptions = {}): PDFXServer {
         server = null;
       }
 
-      console.log("Server stopped");
+      logger.success("Server stopped");
     },
   };
 }

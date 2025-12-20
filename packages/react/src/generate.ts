@@ -1,6 +1,7 @@
 import { type ReactElement } from "react";
 import { render } from "./render/render";
 import type { GenerateOptions } from "./types";
+import { debug } from "./utils/debug";
 
 /**
  * Generate a PDF from a React component
@@ -51,10 +52,16 @@ Or use render() directly with your own Puppeteer setup:
     );
   }
 
+  const startTime = performance.now();
+
   // Render React to HTML
   const html = await render(element, options.render);
+  const renderTime = performance.now() - startTime;
 
   // POST to server for PDF generation
+  debug(`generate: sending to ${host}/generate`);
+  const fetchStart = performance.now();
+
   const response = await fetch(`${host}/generate`, {
     method: "POST",
     headers: {
@@ -74,5 +81,13 @@ Or use render() directly with your own Puppeteer setup:
   }
 
   const arrayBuffer = await response.arrayBuffer();
-  return Buffer.from(arrayBuffer);
+  const buffer = Buffer.from(arrayBuffer);
+  const totalTime = performance.now() - startTime;
+  const pdfTime = performance.now() - fetchStart;
+
+  debug(
+    `generate: ${Math.round(totalTime)}ms (render: ${Math.round(renderTime)}ms, pdf: ${Math.round(pdfTime)}ms, size: ${(buffer.length / 1024).toFixed(1)}KB)`
+  );
+
+  return buffer;
 }

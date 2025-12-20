@@ -1,5 +1,6 @@
 import { Command } from "commander";
 import { createServer } from "../server/index";
+import { logger } from "../utils/logger";
 
 export const serveCommand = new Command("serve")
   .description("Start production server (headless, no UI)")
@@ -15,7 +16,7 @@ export const serveCommand = new Command("serve")
 
     // Handle graceful shutdown
     const shutdown = async () => {
-      console.log("\nShutting down...");
+      logger.shutdown();
       await server.stop();
       process.exit(0);
     };

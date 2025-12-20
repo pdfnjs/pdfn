@@ -72,8 +72,6 @@ export interface WatermarkConfig {
 }
 
 export interface RenderOptions {
-  /** Tailwind config path or object */
-  tailwind?: string | object;
   /** Enable debug mode (shows page boundaries) */
   debug?: boolean;
 }

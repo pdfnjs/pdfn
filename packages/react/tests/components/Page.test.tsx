@@ -79,9 +79,10 @@ describe("Page", () => {
         <div>Content</div>
       </Page>
     );
-    // Landscape swaps width/height: 297mm x 210mm
-    expect(html).toContain("width:297mm");
-    expect(html).toContain("min-height:210mm");
+    // Landscape swaps width/height: 297mm x 210mm (stored in data attributes)
+    expect(html).toContain('data-pdfx-width="297mm"');
+    expect(html).toContain('data-pdfx-height="210mm"');
+    expect(html).toContain('data-pdfx-size="A4 Landscape"');
   });
 
   it("renders watermark when provided as string", () => {
@@ -139,5 +140,25 @@ describe("Page", () => {
     );
     expect(html).toContain("Custom Watermark");
     expect(html).toContain('class="custom"');
+  });
+
+  it("includes page size and margin data attributes", () => {
+    const html = renderToStaticMarkup(
+      <Page size="A4" margin="1in">
+        <div>Content</div>
+      </Page>
+    );
+    expect(html).toContain('data-pdfx-size="A4"');
+    expect(html).toContain('data-pdfx-margin="1in"');
+  });
+
+  it("includes custom margin in data attribute", () => {
+    const html = renderToStaticMarkup(
+      <Page size="Letter" margin={{ top: "0.5in", right: "1in", bottom: "0.5in", left: "1in" }}>
+        <div>Content</div>
+      </Page>
+    );
+    expect(html).toContain('data-pdfx-size="Letter"');
+    expect(html).toContain('data-pdfx-margin="0.5in 1in 0.5in 1in"');
   });
 });

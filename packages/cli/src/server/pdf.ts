@@ -1,4 +1,5 @@
 import type { Page, PDFOptions } from "puppeteer";
+import { debug } from "../utils/debug";
 
 export interface PdfGenerationOptions {
   /** PDF format (default: A4) */
@@ -81,9 +82,14 @@ export async function generatePdf(
     pdfCaptureTime = performance.now() - pdfStart;
 
     const totalTime = performance.now() - startTime;
+    const pdfBuffer = Buffer.from(buffer);
+
+    debug(
+      `pdf: ${Math.round(totalTime)}ms (load: ${Math.round(contentLoadTime)}ms, paged: ${Math.round(pagedJsTime)}ms, capture: ${Math.round(pdfCaptureTime)}ms) - ${pageCount} pages, ${(pdfBuffer.length / 1024).toFixed(1)}KB`
+    );
 
     return {
-      buffer: Buffer.from(buffer),
+      buffer: pdfBuffer,
       metrics: {
         total: Math.round(totalTime),
         contentLoad: Math.round(contentLoadTime),

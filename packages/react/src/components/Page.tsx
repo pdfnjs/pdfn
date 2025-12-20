@@ -27,16 +27,42 @@ export function Page({
   watermark,
   children,
 }: PageProps) {
-  const pageStyle = getPageStyles({ size, orientation, margin, background });
+  const dimensions = getPageDimensions(size, orientation);
+  const marginCss = getMarginCss(margin);
 
+  const pageStyle: React.CSSProperties = {
+    background,
+    position: "relative",
+    minHeight: "100%",
+  };
+
+  // Get size name for display
+  const sizeName = getSizeName(size, orientation);
+
+  // Store dimensions as data attributes for html.ts to extract and put in <head>
+  // This ensures Paged.js sees @page { size } before processing
   return (
-    <div data-pdfx-page style={pageStyle}>
+    <div
+      data-pdfx-page
+      data-pdfx-size={sizeName}
+      data-pdfx-margin={marginCss}
+      data-pdfx-width={dimensions.width}
+      data-pdfx-height={dimensions.height}
+      style={pageStyle}
+    >
       {watermark && renderWatermark(watermark)}
       {header && <header data-pdfx-header>{header}</header>}
       <main data-pdfx-content>{children}</main>
       {footer && <footer data-pdfx-footer>{footer}</footer>}
     </div>
   );
+}
+
+function getSizeName(size: PageProps["size"], orientation: PageProps["orientation"]): string {
+  if (Array.isArray(size)) {
+    return `Custom${orientation === "landscape" ? " Landscape" : ""}`;
+  }
+  return `${size || "A4"}${orientation === "landscape" ? " Landscape" : ""}`;
 }
 
 function renderWatermark(watermark: string | WatermarkConfig) {
@@ -79,27 +105,6 @@ function renderWatermark(watermark: string | WatermarkConfig) {
   );
 }
 
-interface PageStyleParams {
-  size: PageProps["size"];
-  orientation: PageProps["orientation"];
-  margin: PageProps["margin"];
-  background: PageProps["background"];
-}
-
-function getPageStyles({ size, orientation, margin, background }: PageStyleParams): React.CSSProperties {
-  const dimensions = getPageDimensions(size, orientation);
-  const margins = getMargins(margin);
-
-  return {
-    width: dimensions.width,
-    minHeight: dimensions.height,
-    background,
-    padding: margins,
-    boxSizing: "border-box",
-    position: "relative",
-  };
-}
-
 const PAGE_SIZES = {
   A4: { width: "210mm", height: "297mm" },
   A3: { width: "297mm", height: "420mm" },
@@ -129,7 +134,7 @@ function getPageDimensions(
   return dimensions;
 }
 
-function getMargins(margin: PageProps["margin"]): string {
+function getMarginCss(margin: PageProps["margin"]): string {
   if (typeof margin === "string") {
     return margin;
   }

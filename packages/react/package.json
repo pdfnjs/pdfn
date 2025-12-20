@@ -28,16 +28,12 @@
     "clean": "rm -rf dist coverage"
   },
   "peerDependencies": {
-    "postcss": "^8.4.0",
     "react": "^18.0.0 || ^19.0.0",
     "react-dom": "^18.0.0 || ^19.0.0",
-    "tailwindcss": "^3.4.0 || ^4.0.0"
+    "@pdfx-dev/tailwind": "workspace:*"
   },
   "peerDependenciesMeta": {
-    "tailwindcss": {
-      "optional": true
-    },
-    "postcss": {
+    "@pdfx-dev/tailwind": {
       "optional": true
     }
   },
@@ -62,6 +58,7 @@
   },
   "devDependencies": {
     "@pdfx-dev/eslint-config": "workspace:*",
+    "@pdfx-dev/tailwind": "workspace:*",
     "@pdfx-dev/typescript-config": "workspace:*",
     "@types/node": "^22.0.0",
     "@types/react": "19.2.2",

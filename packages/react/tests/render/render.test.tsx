@@ -119,8 +119,9 @@ describe("render", () => {
       { debug: true }
     );
 
-    expect(html).toContain("/* Debug mode styles */");
-    expect(html).toContain("outline: 2px dashed rgba(255, 0, 0, 0.5)");
+    expect(html).toContain("/* Debug mode");
+    expect(html).toContain(".pagedjs_sheet");
+    expect(html).toContain("outline: 2px solid rgba(0, 100, 200, 0.8)");
   });
 
   it("does not add debug styles by default", async () => {

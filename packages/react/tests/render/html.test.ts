@@ -161,8 +161,9 @@ describe("HTML Assembly", () => {
 
     it("includes debug styles when debug mode enabled", () => {
       const html = assembleHtml("<div>test</div>", { debug: true });
-      expect(html).toContain("/* Debug mode styles */");
-      expect(html).toContain("outline: 2px dashed");
+      expect(html).toContain("/* Debug mode");
+      expect(html).toContain(".pagedjs_sheet");
+      expect(html).toContain("outline: 2px solid rgba(0, 100, 200, 0.8)");
     });
 
     it("escapes HTML in metadata", () => {
@@ -171,6 +172,35 @@ describe("HTML Assembly", () => {
       });
       expect(html).toContain("&lt;script&gt;");
       expect(html).not.toContain("<script>alert");
+    });
+
+    it("extracts page configuration from data attributes", () => {
+      const content = '<div data-pdfx-page data-pdfx-width="210mm" data-pdfx-height="297mm" data-pdfx-margin="1in">content</div>';
+      const html = assembleHtml(content);
+      // @page CSS should be in the head
+      expect(html).toContain("@page {");
+      expect(html).toContain("size: 210mm 297mm");
+      expect(html).toContain("margin: 1in");
+    });
+
+    it("extracts landscape page configuration", () => {
+      const content = '<div data-pdfx-page data-pdfx-width="297mm" data-pdfx-height="210mm" data-pdfx-margin="0.5in">content</div>';
+      const html = assembleHtml(content);
+      expect(html).toContain("size: 297mm 210mm");
+      expect(html).toContain("margin: 0.5in");
+    });
+
+    it("extracts Letter size page configuration", () => {
+      const content = '<div data-pdfx-page data-pdfx-width="8.5in" data-pdfx-height="11in" data-pdfx-margin="0.75in">content</div>';
+      const html = assembleHtml(content);
+      expect(html).toContain("size: 8.5in 11in");
+      expect(html).toContain("margin: 0.75in");
+    });
+
+    it("uses default margin when not specified in data attributes", () => {
+      const content = '<div data-pdfx-page data-pdfx-width="210mm" data-pdfx-height="297mm">content</div>';
+      const html = assembleHtml(content);
+      expect(html).toContain("margin: 1in");
     });
   });
 });

@@ -1,8 +1,38 @@
 import { type ReactElement } from "react";
-import { renderToStaticMarkup } from "react-dom/server";
 import { assembleHtml, type HtmlOptions } from "./html";
-import { processTailwind, type TailwindOptions } from "./tailwind";
 import type { RenderOptions } from "../types";
+import { debug } from "../utils/debug";
+
+// Dynamic import to avoid Next.js static analysis issues
+let renderToStaticMarkup: typeof import("react-dom/server").renderToStaticMarkup;
+
+async function getRenderer() {
+  if (!renderToStaticMarkup) {
+    const ReactDOMServer = await import("react-dom/server");
+    renderToStaticMarkup = ReactDOMServer.renderToStaticMarkup;
+  }
+  return renderToStaticMarkup;
+}
+
+/**
+ * Marker attribute used by @pdfx-dev/tailwind to signal Tailwind processing is needed
+ */
+const TAILWIND_MARKER = "data-pdfx-tailwind";
+
+/**
+ * Check if HTML contains the Tailwind marker
+ */
+function hasTailwindMarker(html: string): boolean {
+  return html.includes(TAILWIND_MARKER);
+}
+
+/**
+ * Remove the Tailwind marker element from HTML
+ */
+function removeTailwindMarker(html: string): string {
+  // Remove the hidden div with the marker attribute
+  return html.replace(/<div data-pdfx-tailwind="true" style="display:none"><\/div>/g, "");
+}
 
 export interface RenderResult {
   /** The complete HTML string */
@@ -24,12 +54,15 @@ export interface RenderResult {
  * @example
  * ```tsx
  * import { render, Document, Page } from '@pdfx-dev/react';
+ * import { Tailwind } from '@pdfx-dev/tailwind';
  *
  * const html = await render(
  *   <Document title="Invoice">
- *     <Page>
- *       <h1>Invoice #001</h1>
- *     </Page>
+ *     <Tailwind>
+ *       <Page>
+ *         <h1 className="text-2xl font-bold">Invoice #001</h1>
+ *       </Page>
+ *     </Tailwind>
  *   </Document>
  * );
  * ```
@@ -46,21 +79,35 @@ export async function render(
 
   // 1. Render React to static HTML
   const reactStart = performance.now();
-  const content = renderToStaticMarkup(element);
+  const renderer = await getRenderer();
+  let content = renderer(element);
   const reactTime = performance.now() - reactStart;
 
   // 2. Extract metadata from Document component props
   const metadata = extractMetadata(element);
 
-  // 3. Process Tailwind CSS
+  // 3. Check for Tailwind marker and process if found
   const tailwindStart = performance.now();
-  const tailwindOptions: TailwindOptions = {};
-  if (typeof options.tailwind === "string") {
-    tailwindOptions.config = options.tailwind;
-  } else if (typeof options.tailwind === "object") {
-    tailwindOptions.configObject = options.tailwind;
+  let tailwindCss = "";
+
+  if (hasTailwindMarker(content)) {
+    try {
+      // Dynamically import @pdfx-dev/tailwind to process the CSS
+      const { processTailwind } = await import("@pdfx-dev/tailwind");
+      tailwindCss = await processTailwind(content);
+      debug("tailwind: processed via marker detection");
+
+      // Remove the marker element from the content
+      content = removeTailwindMarker(content);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Unknown error";
+      debug(`tailwind: processor error - ${message}`);
+      // Still remove the marker even if processing fails
+      content = removeTailwindMarker(content);
+    }
+  } else {
+    debug("tailwind: no marker found");
   }
-  const tailwindCss = await processTailwind(content, tailwindOptions);
   const tailwindTime = performance.now() - tailwindStart;
 
   // 4. Assemble final HTML
@@ -72,16 +119,11 @@ export async function render(
   };
 
   const html = assembleHtml(content, htmlOptions);
-
   const totalTime = performance.now() - startTime;
 
-  // Log metrics in development
-  if (process.env.NODE_ENV === "development") {
-    console.log(
-      `[@pdfx-dev/react] Render: ${totalTime.toFixed(0)}ms ` +
-        `(React: ${reactTime.toFixed(0)}ms, Tailwind: ${tailwindTime.toFixed(0)}ms)`
-    );
-  }
+  debug(
+    `render: ${Math.round(totalTime)}ms (react: ${Math.round(reactTime)}ms, tailwind: ${Math.round(tailwindTime)}ms)`
+  );
 
   return html;
 }
