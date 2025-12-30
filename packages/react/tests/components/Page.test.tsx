@@ -43,34 +43,37 @@ describe("Page", () => {
     expect(html).not.toContain("data-pdfx-footer");
   });
 
-  it("applies A4 dimensions by default", () => {
+  it("applies A4 dimensions by default (in points)", () => {
     const html = renderToStaticMarkup(
       <Page>
         <div>Content</div>
       </Page>
     );
-    expect(html).toContain("210mm");
-    expect(html).toContain("297mm");
+    // A4: 595.28pt x 841.89pt
+    expect(html).toContain("595.28pt");
+    expect(html).toContain("841.89pt");
   });
 
-  it("applies Letter dimensions", () => {
+  it("applies Letter dimensions (in points)", () => {
     const html = renderToStaticMarkup(
       <Page size="Letter">
         <div>Content</div>
       </Page>
     );
-    expect(html).toContain("8.5in");
-    expect(html).toContain("11in");
+    // Letter: 612pt x 792pt (exact whole numbers)
+    expect(html).toContain("612pt");
+    expect(html).toContain("792pt");
   });
 
-  it("applies custom dimensions", () => {
+  it("applies custom dimensions (converted to points)", () => {
     const html = renderToStaticMarkup(
       <Page size={["200mm", "300mm"]}>
         <div>Content</div>
       </Page>
     );
-    expect(html).toContain("200mm");
-    expect(html).toContain("300mm");
+    // Custom sizes are converted to points
+    expect(html).toContain("pt");
+    expect(html).toContain('data-pdfx-size="Custom"');
   });
 
   it("applies landscape orientation", () => {
@@ -79,9 +82,9 @@ describe("Page", () => {
         <div>Content</div>
       </Page>
     );
-    // Landscape swaps width/height: 297mm x 210mm (stored in data attributes)
-    expect(html).toContain('data-pdfx-width="297mm"');
-    expect(html).toContain('data-pdfx-height="210mm"');
+    // Landscape swaps width/height: 841.89pt x 595.28pt
+    expect(html).toContain('data-pdfx-width="841.89pt"');
+    expect(html).toContain('data-pdfx-height="595.28pt"');
     expect(html).toContain('data-pdfx-size="A4 Landscape"');
   });
 

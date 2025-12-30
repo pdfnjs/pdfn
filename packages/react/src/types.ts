@@ -36,7 +36,16 @@ export interface PageProps {
   children: ReactNode;
 }
 
-export type PageSize = "A4" | "Letter" | "Legal" | "A3" | "A5" | [string, string];
+export type PageSize =
+  | "A4"
+  | "A3"
+  | "A5"
+  | "Letter"
+  | "Legal"
+  | "Tabloid"
+  | "B4"
+  | "B5"
+  | [string, string];
 
 export interface MarginConfig {
   top?: string;

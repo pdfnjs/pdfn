@@ -66,6 +66,7 @@
     "@pdfx-dev/typescript-config": "workspace:*",
     "@types/express": "^5.0.6",
     "@types/ws": "^8.18.1",
+    "pdf-lib": "^1.17.1",
     "tsup": "^8.5.1",
     "typescript": "^5.9.3",
     "vitest": "^4.0.16"
