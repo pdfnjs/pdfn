@@ -92,7 +92,7 @@ const pdf = await generate(<Document>...</Document>);
 
 ```tsx
 <Page
-  size="A4"              // "A4" | "Letter" | "Legal" | [width, height]
+  size="A4"              // "A4" | "A3" | "A5" | "Letter" | "Legal" | "Tabloid" | "B4" | "B5" | [width, height]
   orientation="portrait" // "portrait" | "landscape"
   margin="1in"           // string or { top, right, bottom, left }
   header={<div>Header</div>}

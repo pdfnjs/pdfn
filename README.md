@@ -64,7 +64,7 @@ writeFileSync('invoice.pdf', pdf);
 - **Page Breaks** - Control pagination with `<PageBreak />` and `<AvoidBreak />`
 - **Headers/Footers** - Repeating headers and footers on every page
 - **Watermarks** - Add text or custom watermarks
-- **Multiple Sizes** - A4, Letter, Legal, or custom dimensions
+- **Multiple Sizes** - A4, A3, A5, Letter, Legal, Tabloid, B4, B5, or custom dimensions
 
 ## How It Works
 
