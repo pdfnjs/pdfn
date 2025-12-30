@@ -3,20 +3,27 @@ import { NextRequest } from "next/server";
 import templatesConfig from "@/config/templates.json";
 
 // Template imports
-import Invoice from "../../../../pdf-templates/invoice";
-import InvoiceTailwind from "../../../../pdf-templates/invoice-tailwind";
+import Invoice from "../../../../pdf-templates/invoice-tailwind";
+import Letter from "../../../../pdf-templates/letter";
+import Contract from "../../../../pdf-templates/contract";
+import Ticket from "../../../../pdf-templates/ticket";
+import Poster from "../../../../pdf-templates/poster";
 
 // Template component map
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const templateComponents: Record<string, React.ComponentType<{ data: any }>> = {
   invoice: Invoice,
-  "invoice-tailwind": InvoiceTailwind,
+  letter: Letter,
+  contract: Contract,
+  ticket: Ticket,
+  poster: Poster,
 };
 
 interface TemplateConfig {
   id: string;
   name: string;
-  style: string;
+  pageSize: string;
+  orientation: string;
   sampleData: Record<string, unknown> & { number?: string };
 }
 
@@ -41,11 +48,14 @@ function getTemplate(id: string) {
  *   ?debug=true    - Add debug overlay (grid, margin indicators)
  *
  * Examples:
- *   /api/pdf                           - Generate PDF (default template)
- *   /api/pdf?template=invoice          - Invoice with Inline CSS
- *   /api/pdf?template=invoice-tailwind - Invoice with Tailwind CSS
- *   /api/pdf?html=true                 - Preview HTML
- *   /api/pdf?debug=true                - PDF with debug grid
+ *   /api/pdf                     - Generate PDF (default template)
+ *   /api/pdf?template=invoice    - Invoice (A4)
+ *   /api/pdf?template=letter     - Business Letter (Letter)
+ *   /api/pdf?template=contract   - Contract (Legal)
+ *   /api/pdf?template=ticket     - Event Ticket (A5)
+ *   /api/pdf?template=poster     - Poster (Tabloid Landscape)
+ *   /api/pdf?html=true           - Preview HTML
+ *   /api/pdf?debug=true          - PDF with debug grid
  */
 export async function GET(request: NextRequest) {
   const searchParams = request.nextUrl.searchParams;
@@ -71,12 +81,12 @@ export async function GET(request: NextRequest) {
   }
 
   const { config, Component } = template;
-  const { sampleData, name, style } = config;
+  const { sampleData, name, pageSize, orientation } = config;
 
   const params = [wantHtml && "html", debug && "debug"].filter(Boolean).join(", ");
 
   console.log(
-    `[pdf] ${wantHtml ? "render" : "generate"} "${name}" (${style})${params ? ` [${params}]` : ""}`
+    `[pdf] ${wantHtml ? "render" : "generate"} "${name}" (${pageSize} ${orientation})${params ? ` [${params}]` : ""}`
   );
 
   try {
@@ -130,10 +140,11 @@ export async function GET(request: NextRequest) {
 export async function OPTIONS() {
   return new Response(
     JSON.stringify({
-      templates: templates.map(({ id, name, style }) => ({
+      templates: templates.map(({ id, name, pageSize, orientation }) => ({
         id,
         name,
-        style,
+        pageSize,
+        orientation,
       })),
     }),
     {

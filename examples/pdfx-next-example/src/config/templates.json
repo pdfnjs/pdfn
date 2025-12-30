@@ -3,17 +3,15 @@
     {
       "id": "invoice",
       "file": "./invoice.tsx",
-      "name": "Invoice (Inline)",
-      "description": "Professional invoice with inline CSS styles",
-      "tags": ["business", "finance"],
-      "style": "inline-css",
+      "name": "Invoice",
+      "description": "Professional invoice with itemized billing",
       "pageSize": "A4",
       "orientation": "portrait",
       "sampleData": {
         "number": "INV-2024-001",
         "customer": "Acme Corporation",
-        "date": "12/20/2024",
-        "dueDate": "1/19/2025",
+        "date": "12/30/2024",
+        "dueDate": "1/29/2025",
         "items": [
           { "name": "Web Development", "description": "Frontend implementation", "qty": 40, "price": 150 },
           { "name": "UI/UX Design", "description": "Design system & prototypes", "qty": 20, "price": 120 },
@@ -31,33 +29,126 @@
       }
     },
     {
-      "id": "invoice-tailwind",
-      "file": "./invoice-tailwind.tsx",
-      "name": "Invoice (Tailwind)",
-      "description": "Same invoice design using Tailwind CSS",
-      "tags": ["business", "finance", "tailwind"],
-      "style": "tailwind",
-      "pageSize": "A4",
+      "id": "letter",
+      "file": "./letter.tsx",
+      "name": "Letter",
+      "description": "US business correspondence",
+      "pageSize": "Letter",
       "orientation": "portrait",
       "sampleData": {
-        "number": "INV-2024-001",
-        "customer": "Acme Corporation",
-        "date": "12/20/2024",
-        "dueDate": "1/19/2025",
-        "items": [
-          { "name": "Web Development", "description": "Frontend implementation", "qty": 40, "price": 150 },
-          { "name": "UI/UX Design", "description": "Design system & prototypes", "qty": 20, "price": 120 },
-          { "name": "API Integration", "description": "REST API development", "qty": 15, "price": 175 },
-          { "name": "Testing & QA", "description": "Unit & integration tests", "qty": 10, "price": 100 }
-        ],
-        "notes": "Payment is due within 30 days. Thank you for your business!",
-        "company": {
-          "name": "TechFlow Solutions",
-          "logo": "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCA0MCA0MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHJ4PSI4IiBmaWxsPSIjMTExODI3Ii8+PHBhdGggZD0iTTEwIDE0SDMwVjE3SDIyVjI4SDE4VjE3SDEwVjE0WiIgZmlsbD0id2hpdGUiLz48cGF0aCBkPSJNMjMgMjBIMzBWMjNIMjZWMjhIMjNWMjBaIiBmaWxsPSIjNjBBNUZBIi8+PC9zdmc+",
-          "address": "123 Innovation Drive, San Francisco, CA 94102",
-          "email": "billing@techflow.io",
+        "sender": {
+          "name": "Sarah Johnson",
+          "title": "Director of Partnerships",
+          "company": "TechFlow Solutions",
+          "address": "123 Innovation Drive",
+          "city": "San Francisco, CA 94102",
+          "email": "sarah@techflow.io",
           "phone": "+1 (555) 123-4567"
+        },
+        "recipient": {
+          "name": "Michael Chen",
+          "title": "Chief Technology Officer",
+          "company": "Acme Corporation",
+          "address": "456 Enterprise Blvd, Suite 100",
+          "city": "Austin, TX 78701"
+        },
+        "date": "December 30, 2024",
+        "subject": "Strategic Partnership Proposal",
+        "body": [
+          "I hope this letter finds you well. Following our productive meeting at the Tech Summit last month, I wanted to formally present our partnership proposal for your consideration.",
+          "At TechFlow Solutions, we have developed a comprehensive suite of developer tools that we believe would complement Acme Corporation's existing product offerings. Our platform has helped over 500 companies streamline their development workflows, resulting in an average 40% reduction in time-to-market.",
+          "We propose a strategic partnership that would integrate our tools directly into your enterprise platform, providing your customers with enhanced capabilities while creating a new revenue stream for both organizations.",
+          "I would welcome the opportunity to discuss this proposal in greater detail. Please let me know if you would be available for a call next week to explore the potential synergies between our companies."
+        ],
+        "closing": "Best regards",
+        "signature": "Sarah Johnson"
+      }
+    },
+    {
+      "id": "contract",
+      "file": "./contract.tsx",
+      "name": "Contract",
+      "description": "Legal service agreement",
+      "pageSize": "Legal",
+      "orientation": "portrait",
+      "sampleData": {
+        "title": "SERVICE AGREEMENT",
+        "effectiveDate": "January 1, 2025",
+        "parties": {
+          "provider": {
+            "name": "TechFlow Solutions, Inc.",
+            "address": "123 Innovation Drive, San Francisco, CA 94102",
+            "representative": "Sarah Johnson, Director"
+          },
+          "client": {
+            "name": "Acme Corporation",
+            "address": "456 Enterprise Blvd, Suite 100, Austin, TX 78701",
+            "representative": "Michael Chen, CTO"
+          }
+        },
+        "terms": [
+          {
+            "title": "Services",
+            "content": "Provider agrees to deliver software development consulting services including technical architecture review, code quality assessment, and performance optimization recommendations as detailed in Exhibit A attached hereto."
+          },
+          {
+            "title": "Compensation",
+            "content": "Client shall pay Provider a monthly retainer of $15,000 USD, due on the first business day of each month. Additional services beyond the scope of this agreement shall be billed at $200 USD per hour."
+          },
+          {
+            "title": "Term and Termination",
+            "content": "This Agreement shall commence on the Effective Date and continue for twelve (12) months. Either party may terminate this Agreement with thirty (30) days written notice. Upon termination, Client shall pay for all services rendered through the termination date."
+          },
+          {
+            "title": "Confidentiality",
+            "content": "Both parties agree to maintain the confidentiality of any proprietary information disclosed during the course of this engagement. This obligation shall survive the termination of this Agreement for a period of three (3) years."
+          },
+          {
+            "title": "Intellectual Property",
+            "content": "All work product created by Provider specifically for Client under this Agreement shall be owned by Client upon full payment. Provider retains ownership of pre-existing tools, methodologies, and frameworks."
+          }
+        ],
+        "signatures": {
+          "provider": { "name": "Sarah Johnson", "title": "Director of Partnerships" },
+          "client": { "name": "Michael Chen", "title": "Chief Technology Officer" }
         }
+      }
+    },
+    {
+      "id": "ticket",
+      "file": "./ticket.tsx",
+      "name": "Ticket",
+      "description": "Event admission ticket",
+      "pageSize": "A5",
+      "orientation": "portrait",
+      "sampleData": {
+        "event": "TECH SUMMIT 2025",
+        "tagline": "Innovation Meets Inspiration",
+        "date": "March 15, 2025",
+        "time": "9:00 AM - 6:00 PM",
+        "venue": "Moscone Center",
+        "venueAddress": "747 Howard St, San Francisco, CA",
+        "attendee": "John Smith",
+        "ticketType": "VIP Access",
+        "ticketNumber": "TS25-VIP-001234",
+        "price": "$499.00"
+      }
+    },
+    {
+      "id": "poster",
+      "file": "./poster.tsx",
+      "name": "Poster",
+      "description": "Promotional event poster",
+      "pageSize": "Tabloid",
+      "orientation": "landscape",
+      "sampleData": {
+        "headline": "TECH SUMMIT 2025",
+        "subheadline": "Where Innovation Meets Inspiration",
+        "date": "March 15-17, 2025",
+        "venue": "Moscone Center, San Francisco",
+        "highlights": ["50+ Speakers", "100+ Sessions", "Networking"],
+        "cta": "Register Now",
+        "website": "techsummit2025.com"
       }
     }
   ]

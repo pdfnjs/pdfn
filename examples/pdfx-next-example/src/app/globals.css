@@ -25,12 +25,6 @@
   /* Primary accent - Cyan */
   --primary: #22d3ee;
   --primary-hover: #06b6d4;
-
-  /* Style colors - distinct and vibrant */
-  --style-inline: #a78bfa;      /* Purple for Inline CSS */
-  --style-inline-bg: #a78bfa20;
-  --style-tailwind: #38bdf8;    /* Sky blue for Tailwind */
-  --style-tailwind-bg: #38bdf820;
 }
 
 @theme inline {
@@ -45,10 +39,6 @@
   --color-text-muted: var(--text-muted);
   --color-primary: var(--primary);
   --color-primary-hover: var(--primary-hover);
-  --color-style-inline: var(--style-inline);
-  --color-style-inline-bg: var(--style-inline-bg);
-  --color-style-tailwind: var(--style-tailwind);
-  --color-style-tailwind-bg: var(--style-tailwind-bg);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
