@@ -111,26 +111,4 @@ describe("render", () => {
     expect(html).toContain('lang="en"');
   });
 
-  it("adds debug styles when debug option is true", async () => {
-    const html = await render(
-      <Document>
-        <Page>Content</Page>
-      </Document>,
-      { debug: true }
-    );
-
-    expect(html).toContain("/* Debug mode");
-    expect(html).toContain(".pagedjs_sheet");
-    expect(html).toContain("outline: 2px solid rgba(0, 100, 200, 0.8)");
-  });
-
-  it("does not add debug styles by default", async () => {
-    const html = await render(
-      <Document>
-        <Page>Content</Page>
-      </Document>
-    );
-
-    expect(html).not.toContain("/* Debug mode styles */");
-  });
 });

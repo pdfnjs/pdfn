@@ -4,7 +4,7 @@
   "description": "CLI for PDFX - dev server and PDF generation",
   "type": "module",
   "bin": {
-    "pdfx": "./dist/index.js"
+    "pdfx": "./dist/cli.js"
   },
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -65,6 +65,7 @@
     "@pdfx-dev/eslint-config": "workspace:*",
     "@pdfx-dev/typescript-config": "workspace:*",
     "@types/express": "^5.0.6",
+    "@types/react": "^19.2.7",
     "@types/ws": "^8.18.1",
     "pdf-lib": "^1.17.1",
     "tsup": "^8.5.1",

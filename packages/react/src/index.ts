@@ -21,7 +21,6 @@ export { RepeatableTableHeader } from "./components/RepeatableTableHeader";
 
 // Functions
 export { render } from "./render/render";
-export { generate } from "./generate";
 
 // Types
 export type * from "./types";

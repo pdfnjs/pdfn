@@ -159,13 +159,6 @@ describe("HTML Assembly", () => {
       expect(html).toContain(customCss);
     });
 
-    it("includes debug styles when debug mode enabled", () => {
-      const html = assembleHtml("<div>test</div>", { debug: true });
-      expect(html).toContain("/* Debug mode");
-      expect(html).toContain(".pagedjs_sheet");
-      expect(html).toContain("outline: 2px solid rgba(0, 100, 200, 0.8)");
-    });
-
     it("escapes HTML in metadata", () => {
       const html = assembleHtml("<div>test</div>", {
         metadata: { title: "<script>alert('xss')</script>" },

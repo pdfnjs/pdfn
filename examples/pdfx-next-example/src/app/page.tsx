@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState } from "react";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { nightOwl } from "react-syntax-highlighter/dist/esm/styles/prism";
 
@@ -361,7 +361,7 @@ export default function Home() {
   const [debug, setDebug] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [copied, setCopied] = useState(false);
-  const iframeRef = useRef<HTMLIFrameElement>(null);
+  const [pdfError, setPdfError] = useState<string | null>(null);
 
   const handleCopy = () => {
     navigator.clipboard.writeText(activeTemplate.code);
@@ -369,23 +369,42 @@ export default function Home() {
     setTimeout(() => setCopied(false), 2000);
   };
 
-  // Preview URL doesn't include debug - we toggle it via postMessage
-  const previewUrl = `/api/pdf?template=${activeTemplate.id}&html=true`;
+  // URLs with debug param when enabled
+  const previewUrl = `/api/pdf?template=${activeTemplate.id}&html=true${debug ? "&debug=true" : ""}`;
   const pdfUrl = `/api/pdf?template=${activeTemplate.id}${debug ? "&debug=true" : ""}`;
 
-  // Send debug toggle to iframe via postMessage (no reload needed)
-  useEffect(() => {
-    const iframe = iframeRef.current;
-    if (iframe?.contentWindow) {
-      iframe.contentWindow.postMessage({ type: "pdfx:debug", enabled: debug }, "*");
+  // Handle PDF download with error handling
+  const handleDownload = async () => {
+    setPdfError(null);
+    try {
+      const response = await fetch(pdfUrl);
+      if (!response.ok) {
+        const text = await response.text();
+        if (text.includes("PDFX server is not running")) {
+          setPdfError("Start the server: npx pdfx serve");
+        } else {
+          setPdfError("PDF generation failed");
+        }
+        return;
+      }
+      const blob = await response.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `${activeTemplate.name}.pdf`;
+      a.click();
+      URL.revokeObjectURL(url);
+    } catch {
+      setPdfError("Cannot connect to server");
     }
-  }, [debug]);
+  };
 
   // Handle template switch with fade transition
   const handleTemplateChange = (template: typeof templates[0]) => {
     if (template.id === activeTemplate.id) return;
     setIsLoading(true);
     setActiveTemplate(template);
+    setPdfError(null);
     setActiveTab("preview"); // Reset to preview on template change
   };
 
@@ -570,8 +589,7 @@ export default function Home() {
                         }}
                       >
                         <iframe
-                          ref={iframeRef}
-                          key={activeTemplate.id}
+                          key={`${activeTemplate.id}-${debug}`}
                           src={previewUrl}
                           title="Preview"
                           style={{
@@ -581,13 +599,7 @@ export default function Home() {
                             transformOrigin: 'top left',
                             border: 'none',
                           }}
-                          onLoad={() => {
-                            setIsLoading(false);
-                            // Send debug state after iframe loads
-                            if (debug && iframeRef.current?.contentWindow) {
-                              iframeRef.current.contentWindow.postMessage({ type: "pdfx:debug", enabled: true }, "*");
-                            }
-                          }}
+                          onLoad={() => setIsLoading(false)}
                         />
                       </div>
                     );
@@ -640,6 +652,9 @@ export default function Home() {
                       </button>
                       <span className="text-xs text-text-muted">Debug</span>
                     </label>
+                    {pdfError && (
+                      <span className="text-xs text-red-500 ml-2">{pdfError}</span>
+                    )}
                   </div>
                   <div className="flex items-center gap-3">
                     <a
@@ -658,16 +673,15 @@ export default function Home() {
                     >
                       View PDF
                     </a>
-                    <a
-                      href={pdfUrl}
-                      download
+                    <button
+                      onClick={handleDownload}
                       className="flex items-center justify-center gap-1.5 text-xs font-medium bg-primary hover:bg-primary-hover text-black px-3 py-1.5 rounded-md transition-colors min-w-[90px]"
                     >
                       <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
                       </svg>
                       Download
-                    </a>
+                    </button>
                   </div>
                 </>
               ) : (

@@ -115,7 +115,6 @@ export async function render(
     metadata,
     css: tailwindCss,
     includePagedJs: true,
-    debug: options.debug,
   };
 
   const html = assembleHtml(content, htmlOptions);

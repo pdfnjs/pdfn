@@ -80,18 +80,9 @@ export interface WatermarkConfig {
   className?: string;
 }
 
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
 export interface RenderOptions {
-  /** Enable debug mode (shows page boundaries) */
-  debug?: boolean;
-}
-
-export interface GenerateOptions {
-  /** PDFX server host (defaults to PDFX_HOST env) */
-  host?: string;
-  /** Render options */
-  render?: RenderOptions;
-  /** PDF generation options */
-  pdf?: PdfOptions;
+  // Reserved for future render options
 }
 
 export interface PdfOptions {

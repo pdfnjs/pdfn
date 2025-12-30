@@ -1,4 +1,4 @@
-import { render, generate } from "@pdfx-dev/react";
+import { generate } from "@pdfx-dev/cli";
 import { NextRequest } from "next/server";
 import templatesConfig from "@/config/templates.json";
 
@@ -92,9 +92,12 @@ export async function GET(request: NextRequest) {
   try {
     if (wantHtml) {
       // Return HTML for browser preview
-      const html = await render(<Component data={sampleData} />, { debug });
-      const duration = Math.round(performance.now() - start);
+      const html = await generate(<Component data={sampleData} />, {
+        output: "html",
+        debug,
+      });
 
+      const duration = Math.round(performance.now() - start);
       console.log(`[pdf] ✓ rendered in ${duration}ms`);
 
       return new Response(html, {
@@ -105,9 +108,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Generate PDF
-    const pdf = await generate(<Component data={sampleData} />, {
-      render: { debug },
-    });
+    const pdf = await generate(<Component data={sampleData} />, { debug });
     const duration = Math.round(performance.now() - start);
 
     console.log(`[pdf] ✓ generated in ${duration}ms (${(pdf.length / 1024).toFixed(1)}KB)`);
@@ -127,9 +128,35 @@ export async function GET(request: NextRequest) {
     const message = error instanceof Error ? error.message : "Unknown error";
     console.error(`[pdf] ✗ failed: ${message}`);
 
-    return new Response(JSON.stringify({ error: message }), {
+    // Return HTML error page so browser displays it instead of downloading JSON
+    const isServerError = message.includes("Cannot connect to PDFX server");
+    const html = `<!DOCTYPE html>
+<html>
+<head>
+  <title>PDF Generation Failed</title>
+  <style>
+    body { font-family: system-ui, sans-serif; max-width: 600px; margin: 100px auto; padding: 20px; }
+    h1 { color: #dc2626; }
+    pre { background: #f3f4f6; padding: 16px; border-radius: 8px; overflow-x: auto; white-space: pre-wrap; }
+    code { background: #e5e7eb; padding: 2px 6px; border-radius: 4px; }
+  </style>
+</head>
+<body>
+  <h1>PDF Generation Failed</h1>
+  ${isServerError ? `
+  <p>The PDFX server is not running. Start it with:</p>
+  <pre>npx pdfx serve</pre>
+  <p>Then refresh this page.</p>
+  ` : `
+  <p>Error details:</p>
+  <pre>${message}</pre>
+  `}
+</body>
+</html>`;
+
+    return new Response(html, {
       status: 500,
-      headers: { "Content-Type": "application/json" },
+      headers: { "Content-Type": "text/html" },
     });
   }
 }
