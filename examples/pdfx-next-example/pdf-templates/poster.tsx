@@ -31,6 +31,7 @@ export default function Poster({ data }: { data: PosterData }) {
               {/* Headline */}
               <h1 className="text-8xl font-black tracking-tight leading-none mb-6">
                 {data.headline}
+                {data.year && <span className="text-cyan-400"> {data.year}</span>}
               </h1>
               {data.subheadline && (
                 <p className="text-3xl text-gray-400 font-light max-w-3xl">

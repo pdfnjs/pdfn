@@ -10,19 +10,23 @@ export default function Contract({ data }: { data: ContractData }) {
     <Document title={data.title}>
       <Tailwind>
         <Page size="Legal" margin="1in">
-          {/* Title Block */}
-          <div className="text-center mb-6 pb-4 border-b-2 border-gray-900">
-            <h1 className="text-xl font-black text-gray-900 uppercase tracking-widest">
-              {data.title}
-            </h1>
-            <div className="flex justify-center gap-6 mt-3 text-xs text-gray-500">
-              <div>
-                <span className="font-semibold text-gray-700">Effective Date: </span>
-                {data.effectiveDate}
+          {/* Header */}
+          <div className="mb-6 pb-4 border-b-2 border-gray-900">
+            <div className="flex justify-between items-start mb-3">
+              <div className="text-2xl font-bold tracking-tight">
+                <span className="text-gray-600">pdf</span>
+                <span className="text-cyan-500">x</span>
               </div>
-              <div>
-                <span className="font-semibold text-gray-700">Contract No: </span>
-                SA-2025-001
+              <div className="text-xs text-gray-500 text-right">
+                <div>{data.parties.provider.address}</div>
+              </div>
+            </div>
+            <div className="flex justify-between items-end">
+              <div className="text-sm font-semibold text-gray-400 uppercase tracking-wider">
+                {data.title}
+              </div>
+              <div className="text-xs text-gray-500">
+                Effective: {data.effectiveDate}
               </div>
             </div>
           </div>

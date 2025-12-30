@@ -16,7 +16,6 @@ export interface InvoiceData {
   notes?: string;
   company: {
     name: string;
-    logo?: string;
     address: string;
     email: string;
     phone: string;
@@ -74,6 +73,7 @@ export interface ContractData {
 
 export interface TicketData {
   event: string;
+  year?: string;
   tagline?: string;
   date: string;
   time: string;
@@ -87,6 +87,7 @@ export interface TicketData {
 
 export interface PosterData {
   headline: string;
+  year?: string;
   subheadline?: string;
   date: string;
   venue: string;

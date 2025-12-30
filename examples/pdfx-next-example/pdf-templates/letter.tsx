@@ -11,15 +11,20 @@ export default function Letter({ data }: { data: LetterData }) {
       <Tailwind>
         <Page size="Letter" margin="1in">
           {/* Letterhead */}
-          <div className="flex justify-between items-start mb-6 pb-4 border-b-2 border-gray-900">
-            <div>
-              <div className="text-lg font-bold text-gray-900">{data.sender.company}</div>
-              <div className="text-xs text-gray-500 mt-0.5">{data.sender.address}</div>
-              <div className="text-xs text-gray-500">{data.sender.city}</div>
+          <div className="mb-6 pb-4 border-b-2 border-gray-900">
+            <div className="text-2xl font-bold tracking-tight mb-2">
+              <span className="text-gray-600">pdf</span>
+              <span className="text-cyan-500">x</span>
             </div>
-            <div className="text-right text-xs text-gray-500">
-              <div>{data.sender.email}</div>
-              <div>{data.sender.phone}</div>
+            <div className="flex justify-between text-xs text-gray-500">
+              <div>
+                <div>{data.sender.address}</div>
+                <div>{data.sender.city}</div>
+              </div>
+              <div className="text-right">
+                <div>{data.sender.email}</div>
+                <div>{data.sender.phone}</div>
+              </div>
             </div>
           </div>
 

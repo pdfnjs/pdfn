@@ -14,6 +14,7 @@ export default function Ticket({ data }: { data: TicketData }) {
           <div className="bg-gray-900 px-6 py-8 text-center">
             <div className="text-3xl font-black text-white tracking-wide">
               {data.event}
+              {data.year && <span className="text-cyan-400"> {data.year}</span>}
             </div>
             {data.tagline && (
               <div className="text-sm text-cyan-400 mt-2 font-medium">

@@ -3,7 +3,7 @@ import { NextRequest } from "next/server";
 import templatesConfig from "@/config/templates.json";
 
 // Template imports
-import Invoice from "../../../../pdf-templates/invoice-tailwind";
+import Invoice from "../../../../pdf-templates/invoice";
 import Letter from "../../../../pdf-templates/letter";
 import Contract from "../../../../pdf-templates/contract";
 import Ticket from "../../../../pdf-templates/ticket";

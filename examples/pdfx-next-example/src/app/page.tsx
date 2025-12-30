@@ -33,14 +33,16 @@ export default function Invoice({ data }: { data: InvoiceData }) {
         <Page size="A4" margin="1in">
           {/* Header */}
           <div className="flex justify-between mb-8">
-            <div className="flex items-start gap-3">
-              <img src={data.company.logo} className="w-11 h-11" />
-              <div>
-                <div className="text-xl font-bold">{data.company.name}</div>
-                <div className="text-xs text-gray-500">{data.company.address}</div>
+            <div>
+              <div className="text-3xl font-bold tracking-tight">
+                <span className="text-gray-600">pdf</span>
+                <span className="text-cyan-500">x</span>
               </div>
+              <div className="text-xs text-gray-500 mt-1">{data.company.address}</div>
             </div>
-            <div className="text-3xl font-bold">INVOICE</div>
+            <div className="text-2xl font-semibold text-gray-400 uppercase tracking-wider">
+              Invoice
+            </div>
           </div>
 
           {/* Items Table */}
@@ -73,7 +75,7 @@ export default function Invoice({ data }: { data: InvoiceData }) {
   },
   {
     id: "letter",
-    name: "Letter",
+    name: "Business Letter",
     pageSize: "Letter" as keyof typeof PAGE_SIZES,
     orientation: "portrait" as const,
     code: `import { Document, Page } from "@pdfx-dev/react";
@@ -85,14 +87,14 @@ export default function Letter({ data }: { data: LetterData }) {
       <Tailwind>
         <Page size="Letter" margin="1in">
           {/* Letterhead */}
-          <div className="flex justify-between items-start mb-10 pb-6 border-b-2 border-gray-900">
-            <div>
-              <div className="text-xl font-bold">{data.sender.company}</div>
-              <div className="text-xs text-gray-500 mt-1">{data.sender.address}</div>
+          <div className="mb-6 pb-4 border-b-2 border-gray-900">
+            <div className="text-2xl font-bold tracking-tight mb-2">
+              <span className="text-gray-600">pdf</span>
+              <span className="text-cyan-500">x</span>
             </div>
-            <div className="text-right text-xs text-gray-500">
+            <div className="flex justify-between text-xs text-gray-500">
+              <div>{data.sender.address}</div>
               <div>{data.sender.email}</div>
-              <div>{data.sender.phone}</div>
             </div>
           </div>
 
@@ -140,51 +142,50 @@ export default function Contract({ data }: { data: ContractData }) {
     <Document title={data.title}>
       <Tailwind>
         <Page size="Legal" margin="1in">
-          {/* Title Block */}
-          <div className="text-center mb-10 pb-6 border-b-2 border-gray-900">
-            <h1 className="text-2xl font-black uppercase tracking-widest">{data.title}</h1>
-            <div className="text-xs text-gray-500 mt-4">
-              Effective Date: {data.effectiveDate}
+          {/* Header */}
+          <div className="mb-6 pb-4 border-b-2 border-gray-900">
+            <div className="flex justify-between items-start mb-3">
+              <div className="text-2xl font-bold tracking-tight">
+                <span className="text-gray-600">pdf</span>
+                <span className="text-cyan-500">x</span>
+              </div>
+              <div className="text-xs text-gray-500">
+                {data.parties.provider.address}
+              </div>
+            </div>
+            <div className="flex justify-between text-xs">
+              <div className="font-semibold text-gray-400 uppercase tracking-wider">
+                {data.title}
+              </div>
+              <div className="text-gray-500">Effective: {data.effectiveDate}</div>
             </div>
           </div>
 
-          {/* Parties - Side by side */}
-          <div className="grid grid-cols-2 gap-6 mb-8">
-            <div className="border border-gray-200 rounded-lg p-4">
-              <div className="text-xs font-bold text-cyan-600 uppercase mb-2">Provider</div>
-              <div className="text-sm font-bold">{data.parties.provider.name}</div>
+          {/* Parties */}
+          <div className="grid grid-cols-2 gap-4 mb-6">
+            <div className="border border-gray-200 rounded-lg p-3">
+              <div className="text-xs font-bold text-cyan-600 uppercase">Provider</div>
+              <div className="text-sm font-bold mt-1">{data.parties.provider.name}</div>
             </div>
-            <div className="border border-gray-200 rounded-lg p-4">
-              <div className="text-xs font-bold text-gray-500 uppercase mb-2">Client</div>
-              <div className="text-sm font-bold">{data.parties.client.name}</div>
+            <div className="border border-gray-200 rounded-lg p-3">
+              <div className="text-xs font-bold text-gray-500 uppercase">Client</div>
+              <div className="text-sm font-bold mt-1">{data.parties.client.name}</div>
             </div>
           </div>
 
-          {/* Terms with numbered circles */}
-          <div className="space-y-5 mb-8">
+          {/* Terms */}
+          <div className="space-y-3 mb-6">
             {data.terms.map((term, i) => (
-              <div key={i} className="flex gap-4">
-                <div className="w-6 h-6 rounded-full bg-gray-900 text-white text-xs font-bold flex items-center justify-center">
+              <div key={i} className="flex gap-3">
+                <div className="w-5 h-5 rounded-full bg-gray-900 text-white text-xs font-bold flex items-center justify-center">
                   {i + 1}
                 </div>
                 <div>
-                  <h3 className="text-sm font-bold mb-1">{term.title}</h3>
-                  <p className="text-sm text-gray-600">{term.content}</p>
+                  <h3 className="text-sm font-bold">{term.title}</h3>
+                  <p className="text-xs text-gray-600">{term.content}</p>
                 </div>
               </div>
             ))}
-          </div>
-
-          {/* Signatures */}
-          <div className="grid grid-cols-2 gap-12 mt-12">
-            <div>
-              <div className="border-b-2 border-gray-900 mb-3 h-12"></div>
-              <div className="text-sm font-bold">{data.signatures.provider.name}</div>
-            </div>
-            <div>
-              <div className="border-b-2 border-gray-900 mb-3 h-12"></div>
-              <div className="text-sm font-bold">{data.signatures.client.name}</div>
-            </div>
           </div>
         </Page>
       </Tailwind>
@@ -536,42 +537,61 @@ export default function Home() {
             <div className="relative h-[520px]">
               {/* Preview */}
               {activeTab === "preview" && (
-                <div className="absolute inset-0 bg-zinc-200 dark:bg-zinc-800 p-6 flex items-center justify-center overflow-auto">
+                <div className="absolute inset-0 bg-zinc-200 dark:bg-zinc-800 p-6 flex items-center justify-center">
                   {/* Loading indicator */}
                   {isLoading && (
                     <div className="absolute inset-0 flex items-center justify-center z-10 pointer-events-none">
                       <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
                     </div>
                   )}
-                  <div
-                    className="bg-white rounded shadow-2xl overflow-hidden flex-shrink-0 transition-opacity duration-200"
-                    style={{
-                      width: '100%',
-                      maxWidth: activeTemplate.orientation === 'landscape' ? 500 : 380,
-                      aspectRatio: (() => {
-                        const size = PAGE_SIZES[activeTemplate.pageSize];
-                        const w = activeTemplate.orientation === 'landscape' ? size.height : size.width;
-                        const h = activeTemplate.orientation === 'landscape' ? size.width : size.height;
-                        return `${w} / ${h}`;
-                      })(),
-                      opacity: isLoading ? 0.4 : 1,
-                    }}
-                  >
-                    <iframe
-                      ref={iframeRef}
-                      key={activeTemplate.id}
-                      src={previewUrl}
-                      className="w-full h-full border-0"
-                      title="Preview"
-                      onLoad={() => {
-                        setIsLoading(false);
-                        // Send debug state after iframe loads
-                        if (debug && iframeRef.current?.contentWindow) {
-                          iframeRef.current.contentWindow.postMessage({ type: "pdfx:debug", enabled: true }, "*");
-                        }
-                      }}
-                    />
-                  </div>
+                  {(() => {
+                    // Container constraints (520px - 48px padding = 472px available height)
+                    const maxWidth = 600;
+                    const maxHeight = 472;
+
+                    // Get page dimensions in points, convert to pixels (1pt = 96/72 px)
+                    const PT_TO_PX = 96 / 72;
+                    const size = PAGE_SIZES[activeTemplate.pageSize];
+                    const pageW = (activeTemplate.orientation === 'landscape' ? size.height : size.width) * PT_TO_PX;
+                    const pageH = (activeTemplate.orientation === 'landscape' ? size.width : size.height) * PT_TO_PX;
+
+                    // Scale to fit within both width and height bounds
+                    const scale = Math.min(maxWidth / pageW, maxHeight / pageH);
+                    const displayW = pageW * scale;
+                    const displayH = pageH * scale;
+
+                    return (
+                      <div
+                        className="bg-white rounded shadow-2xl overflow-hidden flex-shrink-0 transition-opacity duration-200"
+                        style={{
+                          width: displayW,
+                          height: displayH,
+                          opacity: isLoading ? 0.4 : 1,
+                        }}
+                      >
+                        <iframe
+                          ref={iframeRef}
+                          key={activeTemplate.id}
+                          src={previewUrl}
+                          title="Preview"
+                          style={{
+                            width: pageW,
+                            height: pageH,
+                            transform: `scale(${scale})`,
+                            transformOrigin: 'top left',
+                            border: 'none',
+                          }}
+                          onLoad={() => {
+                            setIsLoading(false);
+                            // Send debug state after iframe loads
+                            if (debug && iframeRef.current?.contentWindow) {
+                              iframeRef.current.contentWindow.postMessage({ type: "pdfx:debug", enabled: true }, "*");
+                            }
+                          }}
+                        />
+                      </div>
+                    );
+                  })()}
                 </div>
               )}
 
@@ -628,7 +648,7 @@ export default function Home() {
                       rel="noopener noreferrer"
                       className="text-xs text-text-muted hover:text-text-secondary transition-colors"
                     >
-                      Full size
+                      Expand
                     </a>
                     <a
                       href={pdfUrl}
@@ -636,7 +656,7 @@ export default function Home() {
                       rel="noopener noreferrer"
                       className="text-xs text-text-secondary hover:text-text-primary transition-colors"
                     >
-                      Open PDF
+                      View PDF
                     </a>
                     <a
                       href={pdfUrl}

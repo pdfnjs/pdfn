@@ -26,28 +26,20 @@ export default function InvoiceTailwind({ data }: { data: InvoiceData }) {
           {/* Header */}
           <div className="flex justify-between mb-8">
             {/* Company Info */}
-            <div className="flex items-start gap-3">
-              {data.company.logo && (
-                <img
-                  src={data.company.logo}
-                  alt={data.company.name}
-                  className="w-11 h-11"
-                />
-              )}
-              <div>
-                <div className="text-xl font-bold text-gray-900">
-                  {data.company.name}
-                </div>
-                <div className="text-xs text-gray-500 mt-0.5">
-                  {data.company.address}
-                </div>
+            <div>
+              <div className="text-3xl font-bold tracking-tight">
+                <span className="text-gray-600">pdf</span>
+                <span className="text-cyan-500">x</span>
+              </div>
+              <div className="text-xs text-gray-500 mt-1">
+                {data.company.address}
               </div>
             </div>
 
             {/* Invoice Title */}
             <div className="text-right">
-              <div className="text-3xl font-bold text-gray-900">
-                INVOICE
+              <div className="text-2xl font-semibold text-gray-400 uppercase tracking-wider">
+                Invoice
               </div>
             </div>
           </div>
