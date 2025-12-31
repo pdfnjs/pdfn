@@ -1,6 +1,6 @@
 import { type ReactElement } from "react";
 import { assembleHtml, type HtmlOptions } from "./html";
-import type { RenderOptions } from "../types";
+import type { RenderOptions, FontConfig } from "../types";
 import { debug } from "../utils/debug";
 
 // Dynamic import to avoid Next.js static analysis issues
@@ -18,6 +18,7 @@ async function getRenderer() {
  * Marker attribute used by @pdfx-dev/tailwind to signal Tailwind processing is needed
  */
 const TAILWIND_MARKER = "data-pdfx-tailwind";
+const TAILWIND_CSS_ATTR = "data-pdfx-tailwind-css";
 
 /**
  * Check if HTML contains the Tailwind marker
@@ -27,11 +28,19 @@ function hasTailwindMarker(html: string): boolean {
 }
 
 /**
+ * Extract CSS path from Tailwind marker if present
+ */
+function extractTailwindCssPath(html: string): string | undefined {
+  const match = html.match(new RegExp(`${TAILWIND_CSS_ATTR}="([^"]+)"`));
+  return match?.[1];
+}
+
+/**
  * Remove the Tailwind marker element from HTML
  */
 function removeTailwindMarker(html: string): string {
-  // Remove the hidden div with the marker attribute
-  return html.replace(/<div data-pdfx-tailwind="true" style="display:none"><\/div>/g, "");
+  // Remove the hidden div with the marker attribute (with or without CSS path)
+  return html.replace(/<div data-pdfx-tailwind="true"[^>]*><\/div>/g, "");
 }
 
 export interface RenderResult {
@@ -92,10 +101,13 @@ export async function render(
 
   if (hasTailwindMarker(content)) {
     try {
+      // Extract CSS path from marker if provided
+      const cssPath = extractTailwindCssPath(content);
+
       // Dynamically import @pdfx-dev/tailwind to process the CSS
       const { processTailwind } = await import("@pdfx-dev/tailwind");
-      tailwindCss = await processTailwind(content);
-      debug("tailwind: processed via marker detection");
+      tailwindCss = await processTailwind(content, { cssPath });
+      debug(`tailwind: processed via marker detection${cssPath ? ` (css: ${cssPath})` : ""}`);
 
       // Remove the marker element from the content
       content = removeTailwindMarker(content);
@@ -110,11 +122,15 @@ export async function render(
   }
   const tailwindTime = performance.now() - tailwindStart;
 
-  // 4. Assemble final HTML
+  // 4. Extract fonts from Document if present
+  const fonts = extractFonts(content);
+
+  // 5. Assemble final HTML
   const htmlOptions: HtmlOptions = {
     metadata,
     css: tailwindCss,
     includePagedJs: true,
+    fonts,
   };
 
   const html = assembleHtml(content, htmlOptions);
@@ -143,6 +159,28 @@ function extractMetadata(element: ReactElement): HtmlOptions["metadata"] {
     return { title, author, subject, keywords, language };
   }
   return {};
+}
+
+/**
+ * Extract fonts from rendered HTML content (from Document's data-fonts attribute)
+ */
+function extractFonts(html: string): FontConfig[] {
+  const match = html.match(/data-fonts="([^"]+)"/);
+  if (!match || !match[1]) return [];
+
+  try {
+    // Decode HTML entities and parse JSON
+    const encoded = match[1];
+    const decoded = encoded
+      .replace(/&quot;/g, '"')
+      .replace(/&amp;/g, "&")
+      .replace(/&lt;/g, "<")
+      .replace(/&gt;/g, ">");
+    return JSON.parse(decoded) as FontConfig[];
+  } catch {
+    debug("fonts: failed to parse fonts data attribute");
+    return [];
+  }
 }
 
 export { type RenderOptions };

@@ -1,4 +1,4 @@
-import type { DocumentProps } from "../types";
+import type { FontConfig } from "../types";
 
 /**
  * Base CSS for PDF rendering
@@ -167,6 +167,39 @@ export interface HtmlOptions {
   css?: string;
   /** Whether to include Paged.js */
   includePagedJs?: boolean;
+  /** Google Fonts to load */
+  fonts?: FontConfig[];
+}
+
+/**
+ * Generate Google Fonts URL from font configurations
+ */
+function generateGoogleFontsLink(fonts: FontConfig[]): string {
+  if (fonts.length === 0) return "";
+
+  const families = fonts.map((font) => {
+    // URL-encode the family name (spaces become +)
+    const family = font.family.replace(/ /g, "+");
+
+    // Build weight/style specification
+    const weights = font.weights || [400, 500, 600, 700];
+    const styles = font.style ? [font.style] : ["normal"];
+
+    // Google Fonts v2 API format: Family:ital,wght@0,400;0,700;1,400
+    const specs: string[] = [];
+    for (const style of styles) {
+      const ital = style === "italic" ? "1" : "0";
+      for (const weight of weights) {
+        specs.push(`${ital},${weight}`);
+      }
+    }
+
+    return `${family}:ital,wght@${specs.join(";")}`;
+  });
+
+  return `<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?${families.map((f) => `family=${f}`).join("&")}&display=swap" rel="stylesheet">`;
 }
 
 /**
@@ -190,7 +223,7 @@ function extractPageConfig(content: string): { width?: string; height?: string; 
  * Assembles the final HTML document
  */
 export function assembleHtml(content: string, options: HtmlOptions = {}): string {
-  const { metadata = {}, css = "", includePagedJs = true } = options;
+  const { metadata = {}, css = "", includePagedJs = true, fonts = [] } = options;
   const { title = "", author = "", subject = "", keywords = [], language = "en" } = metadata;
 
   const metaTags = [
@@ -203,6 +236,9 @@ export function assembleHtml(content: string, options: HtmlOptions = {}): string
   ]
     .filter(Boolean)
     .join("\n    ");
+
+  // Generate Google Fonts link if fonts are specified
+  const fontsLink = fonts.length > 0 ? generateGoogleFontsLink(fonts) : "";
 
   // Extract page configuration from content and generate @page CSS
   // This must be in the <head> for Paged.js to see it before processing
@@ -225,6 +261,7 @@ export function assembleHtml(content: string, options: HtmlOptions = {}): string
 <html lang="${language}">
   <head>
     ${metaTags}
+    ${fontsLink}
     <style>
 ${pageCss}
 ${BASE_STYLES}

@@ -12,7 +12,7 @@ export default function Ticket({ data }: { data: TicketData }) {
         <Page size="A5" margin="0">
           {/* Header Banner with gradient effect */}
           <div className="bg-gray-900 px-6 py-8 text-center">
-            <div className="text-3xl font-black text-white tracking-wide">
+            <div className="text-4xl font-bold text-white tracking-wide font-display">
               {data.event}
               {data.year && <span className="text-cyan-400"> {data.year}</span>}
             </div>
@@ -65,7 +65,7 @@ export default function Ticket({ data }: { data: TicketData }) {
               <div className="text-xs text-gray-500 uppercase tracking-wider font-medium mb-1">
                 Admit One
               </div>
-              <div className="text-2xl font-black text-gray-900">
+              <div className="text-3xl text-gray-900 font-script font-bold">
                 {data.attendee}
               </div>
             </div>

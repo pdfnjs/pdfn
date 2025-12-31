@@ -33,8 +33,9 @@
  * ```
  */
 
-export { Tailwind, TAILWIND_MARKER } from "./Tailwind.js";
+export { Tailwind, TAILWIND_MARKER, TAILWIND_CSS_ATTR } from "./Tailwind.js";
 export type { TailwindConfig, TailwindProps } from "./Tailwind.js";
 
 // Also export the processor for advanced use cases
 export { processTailwind } from "./process.js";
+export type { ProcessOptions } from "./process.js";

@@ -196,4 +196,85 @@ describe("HTML Assembly", () => {
       expect(html).toContain("margin: 1in");
     });
   });
+
+  describe("Google Fonts", () => {
+    it("includes Google Fonts preconnect links when fonts provided", () => {
+      const html = assembleHtml("<div>test</div>", {
+        fonts: [{ family: "Inter" }],
+      });
+      expect(html).toContain('rel="preconnect"');
+      expect(html).toContain("fonts.googleapis.com");
+      expect(html).toContain("fonts.gstatic.com");
+    });
+
+    it("generates correct Google Fonts URL for single font", () => {
+      const html = assembleHtml("<div>test</div>", {
+        fonts: [{ family: "Inter" }],
+      });
+      expect(html).toContain("fonts.googleapis.com/css2");
+      expect(html).toContain("family=Inter");
+    });
+
+    it("handles font names with spaces", () => {
+      const html = assembleHtml("<div>test</div>", {
+        fonts: [{ family: "Roboto Mono" }],
+      });
+      expect(html).toContain("family=Roboto+Mono");
+    });
+
+    it("includes multiple fonts in URL", () => {
+      const html = assembleHtml("<div>test</div>", {
+        fonts: [{ family: "Inter" }, { family: "Fira Code" }],
+      });
+      expect(html).toContain("family=Inter");
+      expect(html).toContain("family=Fira+Code");
+    });
+
+    it("uses default weights when not specified", () => {
+      const html = assembleHtml("<div>test</div>", {
+        fonts: [{ family: "Inter" }],
+      });
+      // Default weights: 400, 500, 600, 700
+      expect(html).toContain("0,400");
+      expect(html).toContain("0,500");
+      expect(html).toContain("0,600");
+      expect(html).toContain("0,700");
+    });
+
+    it("uses custom weights when specified", () => {
+      const html = assembleHtml("<div>test</div>", {
+        fonts: [{ family: "Inter", weights: [300, 400, 800] }],
+      });
+      expect(html).toContain("0,300");
+      expect(html).toContain("0,400");
+      expect(html).toContain("0,800");
+    });
+
+    it("handles italic style", () => {
+      const html = assembleHtml("<div>test</div>", {
+        fonts: [{ family: "Inter", style: "italic" }],
+      });
+      // Italic uses 1,weight format
+      expect(html).toContain("1,400");
+    });
+
+    it("includes display=swap parameter", () => {
+      const html = assembleHtml("<div>test</div>", {
+        fonts: [{ family: "Inter" }],
+      });
+      expect(html).toContain("display=swap");
+    });
+
+    it("does not include fonts link when no fonts provided", () => {
+      const html = assembleHtml("<div>test</div>", {
+        fonts: [],
+      });
+      expect(html).not.toContain("fonts.googleapis.com");
+    });
+
+    it("does not include fonts link when fonts undefined", () => {
+      const html = assembleHtml("<div>test</div>");
+      expect(html).not.toContain("fonts.googleapis.com");
+    });
+  });
 });

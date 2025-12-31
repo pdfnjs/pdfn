@@ -11,8 +11,20 @@ export interface DocumentProps {
   keywords?: string[];
   /** Document language (default: "en") */
   language?: string;
-  /** Font configurations */
-  fonts?: FontConfig[];
+  /**
+   * Google Fonts to load. For non-Tailwind users.
+   *
+   * @example Simple usage
+   * ```tsx
+   * <Document fonts={["Inter", "Roboto Mono"]}>
+   * ```
+   *
+   * @example With weights
+   * ```tsx
+   * <Document fonts={[{ family: "Inter", weights: [400, 500, 700] }]}>
+   * ```
+   */
+  fonts?: (string | FontConfig)[];
   /** Document content - should contain Page components */
   children: ReactNode;
 }

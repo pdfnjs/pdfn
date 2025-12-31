@@ -111,4 +111,56 @@ describe("render", () => {
     expect(html).toContain('lang="en"');
   });
 
+  describe("fonts support", () => {
+    it("includes Google Fonts link when fonts prop specified with strings", async () => {
+      const html = await render(
+        <Document fonts={["Inter", "Roboto Mono"]}>
+          <Page>Content</Page>
+        </Document>
+      );
+
+      expect(html).toContain("fonts.googleapis.com");
+      expect(html).toContain("family=Inter");
+      expect(html).toContain("family=Roboto+Mono");
+    });
+
+    it("includes Google Fonts link when fonts prop specified with FontConfig", async () => {
+      const html = await render(
+        <Document
+          fonts={[
+            { family: "Inter", weights: [400, 700] },
+            { family: "Fira Code", weights: [400, 500] },
+          ]}
+        >
+          <Page>Content</Page>
+        </Document>
+      );
+
+      expect(html).toContain("fonts.googleapis.com");
+      expect(html).toContain("family=Inter");
+      expect(html).toContain("family=Fira+Code");
+    });
+
+    it("does not include Google Fonts link when no fonts specified", async () => {
+      const html = await render(
+        <Document>
+          <Page>Content</Page>
+        </Document>
+      );
+
+      expect(html).not.toContain("fonts.googleapis.com");
+    });
+
+    it("includes preconnect hints for Google Fonts", async () => {
+      const html = await render(
+        <Document fonts={["Inter"]}>
+          <Page>Content</Page>
+        </Document>
+      );
+
+      expect(html).toContain('rel="preconnect"');
+      expect(html).toContain("fonts.gstatic.com");
+    });
+  });
+
 });
