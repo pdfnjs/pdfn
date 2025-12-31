@@ -4,8 +4,12 @@ import type { InvoiceData } from "./types";
 
 /**
  * Professional Invoice template using Tailwind CSS classes
+ *
+ * Demonstrates:
+ * - Local image embedding (logo.svg)
+ * - Footer with company info
  */
-export default function InvoiceTailwind({ data }: { data: InvoiceData }) {
+export default function Invoice({ data }: { data: InvoiceData }) {
   const subtotal = data.items.reduce((sum, item) => sum + item.qty * item.price, 0);
   const tax = subtotal * 0.1;
   const total = subtotal + tax;

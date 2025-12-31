@@ -94,8 +94,7 @@ describe("Page", () => {
         <div>Content</div>
       </Page>
     );
-    expect(html).toContain("data-pdfx-watermark");
-    expect(html).toContain("DRAFT");
+    expect(html).toContain('data-pdfx-watermark-text="DRAFT"');
   });
 
   it("renders watermark with WatermarkConfig text", () => {
@@ -104,45 +103,36 @@ describe("Page", () => {
         <div>Content</div>
       </Page>
     );
-    expect(html).toContain("data-pdfx-watermark");
-    expect(html).toContain("CONFIDENTIAL");
+    expect(html).toContain('data-pdfx-watermark-text="CONFIDENTIAL"');
   });
 
-  it("renders watermark with custom opacity", () => {
+  it("stores watermark opacity as data attribute", () => {
     const html = renderToStaticMarkup(
       <Page watermark={{ text: "DRAFT", opacity: 0.2 }}>
         <div>Content</div>
       </Page>
     );
-    expect(html).toContain("opacity:0.2");
+    expect(html).toContain('data-pdfx-watermark-text="DRAFT"');
+    expect(html).toContain('data-pdfx-watermark-opacity="0.2"');
   });
 
-  it("renders watermark with custom rotation", () => {
+  it("stores watermark rotation as data attribute", () => {
     const html = renderToStaticMarkup(
       <Page watermark={{ text: "DRAFT", rotation: -30 }}>
         <div>Content</div>
       </Page>
     );
-    expect(html).toContain("rotate(-30deg)");
+    expect(html).toContain('data-pdfx-watermark-text="DRAFT"');
+    expect(html).toContain('data-pdfx-watermark-rotation="-30"');
   });
 
-  it("renders watermark with custom className", () => {
+  it("renders watermark with content prop", () => {
     const html = renderToStaticMarkup(
-      <Page watermark={{ text: "DRAFT", className: "my-watermark" }}>
+      <Page watermark={{ content: "Custom Watermark" }}>
         <div>Content</div>
       </Page>
     );
-    expect(html).toContain('class="my-watermark"');
-  });
-
-  it("renders watermark with React content", () => {
-    const html = renderToStaticMarkup(
-      <Page watermark={{ content: <span className="custom">Custom Watermark</span> }}>
-        <div>Content</div>
-      </Page>
-    );
-    expect(html).toContain("Custom Watermark");
-    expect(html).toContain('class="custom"');
+    expect(html).toContain('data-pdfx-watermark-text="Custom Watermark"');
   });
 
   it("includes page size and margin data attributes", () => {

@@ -49,6 +49,7 @@ export interface LetterData {
 export interface ContractData {
   title: string;
   effectiveDate: string;
+  watermark?: string; // e.g., "DRAFT", "CONFIDENTIAL"
   parties: {
     provider: {
       name: string;

@@ -234,8 +234,11 @@ describe("PDF Features Integration", () => {
         </Document>
       );
 
-      expect(html).toContain("data-pdfx-watermark");
-      expect(html).toContain("DRAFT");
+      // Watermark text stored as data attribute
+      expect(html).toContain('data-pdfx-watermark-text="DRAFT"');
+      // CSS for watermark generated in style block
+      expect(html).toContain(".pagedjs_sheet::before");
+      expect(html).toContain('content: "DRAFT"');
     });
 
     it("renders watermark with custom config", async () => {
@@ -254,20 +257,21 @@ describe("PDF Features Integration", () => {
         </Document>
       );
 
-      expect(html).toContain("data-pdfx-watermark");
-      expect(html).toContain("CONFIDENTIAL");
+      // Watermark config stored as data attributes
+      expect(html).toContain('data-pdfx-watermark-text="CONFIDENTIAL"');
+      expect(html).toContain('data-pdfx-watermark-opacity="0.2"');
+      expect(html).toContain('data-pdfx-watermark-rotation="-30"');
+      // CSS generated with custom rotation
       expect(html).toContain("rotate(-30deg)");
-      expect(html).toContain("opacity");
     });
 
-    it("renders watermark with custom className", async () => {
+    it("renders watermark text in CSS", async () => {
       const { html } = await generateHtmlAndPdf(
         <Document>
           <Page
             size="A4"
             watermark={{
               text: "SAMPLE",
-              className: "custom-watermark",
             }}
           >
             <div>Content</div>
@@ -275,7 +279,8 @@ describe("PDF Features Integration", () => {
         </Document>
       );
 
-      expect(html).toContain("custom-watermark");
+      // Watermark appears in generated CSS
+      expect(html).toContain('content: "SAMPLE"');
     });
 
     it("generates PDF with watermark", async () => {

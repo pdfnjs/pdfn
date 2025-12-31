@@ -37,17 +37,9 @@ html, body {
   position: running(footer);
 }
 
-/* Watermark */
+/* Watermark - now handled via @page CSS for multi-page support */
 [data-pdfx-watermark] {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%) rotate(-45deg);
-  font-size: 4rem;
-  opacity: 0.1;
-  pointer-events: none;
-  white-space: nowrap;
-  z-index: 1000;
+  display: none;
 }
 
 /* Page number and total pages - Paged.js counters */
@@ -203,19 +195,35 @@ function generateGoogleFontsLink(fonts: FontConfig[]): string {
 }
 
 /**
- * Extract page dimensions from rendered content
- * Looks for data-pdfx-width, data-pdfx-height, data-pdfx-margin attributes
+ * Extract page configuration from rendered content
+ * Looks for data-pdfx-* attributes
  */
-function extractPageConfig(content: string): { width?: string; height?: string; margin?: string } {
-  // Match data-pdfx-width="..."
+function extractPageConfig(content: string): {
+  width?: string;
+  height?: string;
+  margin?: string;
+  watermark?: {
+    text?: string;
+    opacity?: number;
+    rotation?: number;
+  };
+} {
   const widthMatch = content.match(/data-pdfx-width="([^"]+)"/);
   const heightMatch = content.match(/data-pdfx-height="([^"]+)"/);
   const marginMatch = content.match(/data-pdfx-margin="([^"]+)"/);
+  const watermarkTextMatch = content.match(/data-pdfx-watermark-text="([^"]+)"/);
+  const watermarkOpacityMatch = content.match(/data-pdfx-watermark-opacity="([^"]+)"/);
+  const watermarkRotationMatch = content.match(/data-pdfx-watermark-rotation="([^"]+)"/);
 
   return {
     width: widthMatch?.[1],
     height: heightMatch?.[1],
     margin: marginMatch?.[1],
+    watermark: watermarkTextMatch?.[1] ? {
+      text: watermarkTextMatch[1],
+      opacity: watermarkOpacityMatch?.[1] ? parseFloat(watermarkOpacityMatch[1]) : undefined,
+      rotation: watermarkRotationMatch?.[1] ? parseFloat(watermarkRotationMatch[1]) : undefined,
+    } : undefined,
   };
 }
 
@@ -243,14 +251,53 @@ export function assembleHtml(content: string, options: HtmlOptions = {}): string
   // Extract page configuration from content and generate @page CSS
   // This must be in the <head> for Paged.js to see it before processing
   const pageConfig = extractPageConfig(content);
-  const pageCss = pageConfig.width && pageConfig.height
-    ? `
+
+  // Build @page CSS with size, margin, and optional watermark
+  let pageCss = "";
+  if (pageConfig.width && pageConfig.height) {
+    pageCss = `
 /* Page size and margin - extracted from Page component */
 @page {
   size: ${pageConfig.width} ${pageConfig.height};
   margin: ${pageConfig.margin || "1in"};
-}`
-    : "";
+}`;
+  }
+
+  // Add watermark CSS that repeats on every page
+  if (pageConfig.watermark?.text) {
+    const rotation = pageConfig.watermark.rotation ?? -35;
+    const opacity = pageConfig.watermark.opacity ?? 0.1;
+    // Convert opacity to rgba alpha value (0.1 opacity = 0.15 alpha for visibility)
+    const alpha = Math.min(opacity * 1.5, 0.3);
+
+    pageCss += `
+
+/* Watermark - repeats on every page via @page and paged.js */
+@page {
+  background: transparent;
+}
+
+/* Watermark overlay on each paged.js page */
+.pagedjs_page {
+  position: relative;
+}
+
+.pagedjs_page > .pagedjs_sheet::before {
+  content: "${pageConfig.watermark.text}";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) rotate(${rotation}deg);
+  font-size: 5rem;
+  font-weight: 900;
+  color: rgba(156, 163, 175, ${alpha});
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  white-space: nowrap;
+  pointer-events: none;
+  z-index: 9999;
+}`;
+  }
 
   // Paged.js CDN - use polyfill version for print preview compatibility
   const pagedJsScript = includePagedJs

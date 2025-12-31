@@ -41,6 +41,10 @@ export function Page({
 
   // Store dimensions as data attributes for html.ts to extract and put in <head>
   // This ensures Paged.js sees @page { size } before processing
+  //
+  // IMPORTANT: Running elements (header/footer) must appear BEFORE the content
+  // in the DOM for paged.js to capture them for the first page.
+  // Watermark text is stored as data attribute for CSS @page rule.
   return (
     <div
       data-pdfx-page
@@ -48,12 +52,15 @@ export function Page({
       data-pdfx-margin={marginCss}
       data-pdfx-width={dimensions.width}
       data-pdfx-height={dimensions.height}
+      data-pdfx-watermark-text={typeof watermark === "string" ? watermark : watermark?.text || watermark?.content}
+      data-pdfx-watermark-opacity={typeof watermark === "object" ? watermark.opacity : undefined}
+      data-pdfx-watermark-rotation={typeof watermark === "object" ? watermark.rotation : undefined}
       style={pageStyle}
     >
-      {watermark && renderWatermark(watermark)}
+      {/* Running elements BEFORE content for paged.js to capture on page 1 */}
       {header && <header data-pdfx-header>{header}</header>}
-      <main data-pdfx-content>{children}</main>
       {footer && <footer data-pdfx-footer>{footer}</footer>}
+      <main data-pdfx-content>{children}</main>
     </div>
   );
 }

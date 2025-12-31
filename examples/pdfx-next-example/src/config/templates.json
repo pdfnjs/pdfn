@@ -75,6 +75,7 @@
       "sampleData": {
         "title": "ENTERPRISE SERVICE AGREEMENT",
         "effectiveDate": "January 1, 2026",
+        "watermark": "CONFIDENTIAL",
         "parties": {
           "provider": {
             "name": "PDFX, Inc.",
@@ -90,23 +91,43 @@
         "terms": [
           {
             "title": "Services",
-            "content": "Provider agrees to deliver the PDFX Enterprise Platform including unlimited server-side PDF generation, React component library, Tailwind CSS integration, and API access as detailed in Exhibit A."
+            "content": "Provider agrees to deliver the PDFX Enterprise Platform including unlimited server-side PDF generation, React component library, Tailwind CSS integration, and API access as detailed in Exhibit A. The Platform shall include all current features and any updates released during the term of this Agreement."
           },
           {
             "title": "Compensation",
-            "content": "Client shall pay Provider an annual license fee of $4,999 USD, due upon execution of this Agreement. Additional API usage beyond 100,000 PDFs per month shall be billed at $0.02 per PDF."
+            "content": "Client shall pay Provider an annual license fee of $4,999 USD, due upon execution of this Agreement. Additional API usage beyond 100,000 PDFs per month shall be billed at $0.02 per PDF. All fees are non-refundable and exclusive of applicable taxes."
           },
           {
             "title": "Term and Termination",
-            "content": "This Agreement shall commence on the Effective Date and continue for twelve (12) months. Either party may terminate with thirty (30) days written notice. Upon termination, Client shall pay for all services rendered."
+            "content": "This Agreement shall commence on the Effective Date and continue for twelve (12) months, automatically renewing for successive one-year terms unless either party provides written notice of non-renewal at least thirty (30) days prior to the end of the then-current term. Either party may terminate for cause with thirty (30) days written notice upon material breach."
           },
           {
             "title": "Confidentiality",
-            "content": "Both parties agree to maintain the confidentiality of any proprietary information disclosed during this engagement. This obligation shall survive termination for a period of three (3) years."
+            "content": "Both parties agree to maintain the confidentiality of any proprietary information disclosed during this engagement, including but not limited to technical specifications, business strategies, and customer data. This obligation shall survive termination for a period of three (3) years."
           },
           {
-            "title": "Support and SLA",
-            "content": "Provider guarantees 99.9% API uptime and shall provide priority technical support with 4-hour response time during business hours. Critical issues shall receive 1-hour response time 24/7."
+            "title": "Service Level Agreement",
+            "content": "Provider guarantees 99.9% API uptime measured monthly, excluding scheduled maintenance. Priority technical support shall be provided with 4-hour response time during business hours (9 AM - 6 PM PST). Critical production issues shall receive 1-hour response time 24/7/365."
+          },
+          {
+            "title": "Intellectual Property",
+            "content": "Provider retains all intellectual property rights in and to the Platform. Client is granted a non-exclusive, non-transferable license to use the Platform during the term. Any custom developments shall be owned by Provider unless otherwise agreed in writing."
+          },
+          {
+            "title": "Data Protection",
+            "content": "Provider shall implement and maintain appropriate technical and organizational measures to protect Client data against unauthorized access, loss, or alteration. Provider shall comply with applicable data protection laws including GDPR and CCPA. Provider shall notify Client within 72 hours of any data breach."
+          },
+          {
+            "title": "Limitation of Liability",
+            "content": "In no event shall either party be liable for any indirect, incidental, special, consequential, or punitive damages. Provider's total liability shall not exceed the fees paid by Client in the twelve (12) months preceding the claim. This limitation shall not apply to breaches of confidentiality or gross negligence."
+          },
+          {
+            "title": "Indemnification",
+            "content": "Provider shall indemnify and hold harmless Client from any third-party claims arising from Provider's breach of this Agreement or infringement of intellectual property rights. Client shall indemnify Provider from claims arising from Client's misuse of the Platform or violation of applicable laws."
+          },
+          {
+            "title": "Governing Law",
+            "content": "This Agreement shall be governed by and construed in accordance with the laws of the State of California, without regard to its conflict of laws principles. Any disputes shall be resolved through binding arbitration in San Francisco, California under AAA Commercial Arbitration Rules."
           }
         ],
         "signatures": {
