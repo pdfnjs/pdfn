@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { nightOwl } from "react-syntax-highlighter/dist/esm/styles/prism";
+import { templateCode } from "@/lib/template-code";
 
 // Page dimensions in points (72 dpi)
 const PAGE_SIZES = {
@@ -19,300 +20,30 @@ const templates = [
     name: "Invoice",
     pageSize: "A4" as keyof typeof PAGE_SIZES,
     orientation: "portrait" as const,
-    code: `import { Document, Page } from "@pdfx-dev/react";
-import { Tailwind } from "@pdfx-dev/tailwind";
-
-export default function Invoice({ data }: { data: InvoiceData }) {
-  const subtotal = data.items.reduce((sum, item) => sum + item.qty * item.price, 0);
-  const tax = subtotal * 0.1;
-  const total = subtotal + tax;
-
-  return (
-    <Document title={\`Invoice \${data.number}\`}>
-      <Tailwind>
-        <Page size="A4" margin="1in">
-          {/* Header */}
-          <div className="flex justify-between mb-8">
-            <div>
-              <div className="text-3xl font-bold tracking-tight">
-                <span className="text-gray-600">pdf</span>
-                <span className="text-cyan-500">x</span>
-              </div>
-              <div className="text-xs text-gray-500 mt-1">{data.company.address}</div>
-            </div>
-            <div className="text-2xl font-semibold text-gray-400 uppercase tracking-wider">
-              Invoice
-            </div>
-          </div>
-
-          {/* Items Table */}
-          <table className="w-full mb-6">
-            <thead>
-              <tr className="bg-gray-50">
-                <th className="text-left py-2.5 px-3 text-xs font-semibold">Description</th>
-                <th className="text-right py-2.5 px-3 text-xs font-semibold">Amount</th>
-              </tr>
-            </thead>
-            <tbody>
-              {data.items.map((item, i) => (
-                <tr key={i}>
-                  <td className="py-3 px-3">{item.name}</td>
-                  <td className="text-right">\${(item.qty * item.price).toFixed(2)}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-
-          {/* Total */}
-          <div className="text-right">
-            <strong className="text-base">Total: \${total.toFixed(2)}</strong>
-          </div>
-        </Page>
-      </Tailwind>
-    </Document>
-  );
-}`,
   },
   {
     id: "letter",
     name: "Business Letter",
     pageSize: "Letter" as keyof typeof PAGE_SIZES,
     orientation: "portrait" as const,
-    code: `import { Document, Page } from "@pdfx-dev/react";
-import { Tailwind } from "@pdfx-dev/tailwind";
-
-export default function Letter({ data }: { data: LetterData }) {
-  return (
-    <Document title={\`Letter - \${data.subject}\`}>
-      <Tailwind>
-        <Page size="Letter" margin="1in">
-          {/* Letterhead */}
-          <div className="mb-6 pb-4 border-b-2 border-gray-900">
-            <div className="text-2xl font-bold tracking-tight mb-2">
-              <span className="text-gray-600">pdf</span>
-              <span className="text-cyan-500">x</span>
-            </div>
-            <div className="flex justify-between text-xs text-gray-500">
-              <div>{data.sender.address}</div>
-              <div>{data.sender.email}</div>
-            </div>
-          </div>
-
-          {/* Date & Recipient */}
-          <div className="text-sm text-gray-700 mb-8">{data.date}</div>
-          <div className="mb-8">
-            <div className="text-sm font-semibold">{data.recipient.name}</div>
-            <div className="text-sm text-gray-600">{data.recipient.company}</div>
-          </div>
-
-          {/* Subject with accent border */}
-          <div className="mb-6 py-2 border-l-4 border-gray-900 pl-4">
-            <span className="text-sm font-bold uppercase">Re: </span>
-            <span className="text-sm font-medium">{data.subject}</span>
-          </div>
-
-          {/* Body */}
-          <div className="text-sm mb-6">Dear {data.recipient.name},</div>
-          <div className="space-y-4 mb-10">
-            {data.body.map((p, i) => (
-              <p key={i} className="text-sm leading-relaxed">{p}</p>
-            ))}
-          </div>
-
-          {/* Signature */}
-          <div className="text-sm mb-10">{data.closing},</div>
-          <div className="border-b border-gray-300 w-48 mb-2"></div>
-          <div className="text-sm font-bold">{data.signature}</div>
-        </Page>
-      </Tailwind>
-    </Document>
-  );
-}`,
   },
   {
     id: "contract",
     name: "Contract",
     pageSize: "Legal" as keyof typeof PAGE_SIZES,
     orientation: "portrait" as const,
-    code: `import { Document, Page } from "@pdfx-dev/react";
-import { Tailwind } from "@pdfx-dev/tailwind";
-
-export default function Contract({ data }: { data: ContractData }) {
-  return (
-    <Document title={data.title}>
-      <Tailwind>
-        <Page size="Legal" margin="1in">
-          {/* Header */}
-          <div className="mb-6 pb-4 border-b-2 border-gray-900">
-            <div className="flex justify-between items-start mb-3">
-              <div className="text-2xl font-bold tracking-tight">
-                <span className="text-gray-600">pdf</span>
-                <span className="text-cyan-500">x</span>
-              </div>
-              <div className="text-xs text-gray-500">
-                {data.parties.provider.address}
-              </div>
-            </div>
-            <div className="flex justify-between text-xs">
-              <div className="font-semibold text-gray-400 uppercase tracking-wider">
-                {data.title}
-              </div>
-              <div className="text-gray-500">Effective: {data.effectiveDate}</div>
-            </div>
-          </div>
-
-          {/* Parties */}
-          <div className="grid grid-cols-2 gap-4 mb-6">
-            <div className="border border-gray-200 rounded-lg p-3">
-              <div className="text-xs font-bold text-cyan-600 uppercase">Provider</div>
-              <div className="text-sm font-bold mt-1">{data.parties.provider.name}</div>
-            </div>
-            <div className="border border-gray-200 rounded-lg p-3">
-              <div className="text-xs font-bold text-gray-500 uppercase">Client</div>
-              <div className="text-sm font-bold mt-1">{data.parties.client.name}</div>
-            </div>
-          </div>
-
-          {/* Terms */}
-          <div className="space-y-3 mb-6">
-            {data.terms.map((term, i) => (
-              <div key={i} className="flex gap-3">
-                <div className="w-5 h-5 rounded-full bg-gray-900 text-white text-xs font-bold flex items-center justify-center">
-                  {i + 1}
-                </div>
-                <div>
-                  <h3 className="text-sm font-bold">{term.title}</h3>
-                  <p className="text-xs text-gray-600">{term.content}</p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </Page>
-      </Tailwind>
-    </Document>
-  );
-}`,
   },
   {
     id: "ticket",
     name: "Ticket",
     pageSize: "A5" as keyof typeof PAGE_SIZES,
     orientation: "portrait" as const,
-    code: `import { Document, Page } from "@pdfx-dev/react";
-import { Tailwind } from "@pdfx-dev/tailwind";
-
-export default function Ticket({ data }: { data: TicketData }) {
-  return (
-    <Document title={\`Ticket - \${data.event}\`}>
-      <Tailwind>
-        <Page size="A5" margin="0">
-          {/* Dark Header Banner */}
-          <div className="bg-gray-900 px-6 py-8 text-center">
-            <div className="text-3xl font-black text-white">{data.event}</div>
-            <div className="text-sm text-cyan-400 mt-2">{data.tagline}</div>
-          </div>
-
-          <div className="px-6 py-6">
-            {/* Floating Badge */}
-            <div className="flex justify-center -mt-10 mb-6">
-              <div className="bg-cyan-500 text-white text-xs font-bold uppercase px-5 py-2 rounded-full shadow-lg">
-                {data.ticketType}
-              </div>
-            </div>
-
-            {/* Event Details Grid */}
-            <div className="grid grid-cols-2 gap-4 mb-6">
-              <div className="bg-gray-50 rounded-lg p-4 text-center">
-                <div className="text-xs text-gray-500 uppercase">Date</div>
-                <div className="text-base font-bold mt-1">{data.date}</div>
-              </div>
-              <div className="bg-gray-50 rounded-lg p-4 text-center">
-                <div className="text-xs text-gray-500 uppercase">Time</div>
-                <div className="text-base font-bold mt-1">{data.time}</div>
-              </div>
-            </div>
-
-            {/* Attendee with tear line */}
-            <div className="border-t-2 border-dashed border-gray-300 my-6 pt-6 text-center">
-              <div className="text-xs text-gray-500 uppercase">Admit One</div>
-              <div className="text-2xl font-black">{data.attendee}</div>
-            </div>
-
-            {/* Footer */}
-            <div className="flex justify-between items-center border-t-2 border-gray-900 pt-4">
-              <div className="font-mono text-xs">{data.ticketNumber}</div>
-              <div className="font-bold text-lg">{data.price}</div>
-            </div>
-          </div>
-        </Page>
-      </Tailwind>
-    </Document>
-  );
-}`,
   },
   {
     id: "poster",
     name: "Poster",
     pageSize: "Tabloid" as keyof typeof PAGE_SIZES,
     orientation: "landscape" as const,
-    code: `import { Document, Page } from "@pdfx-dev/react";
-import { Tailwind } from "@pdfx-dev/tailwind";
-
-export default function Poster({ data }: { data: PosterData }) {
-  return (
-    <Document title={\`Poster - \${data.headline}\`}>
-      <Tailwind>
-        <Page size="Tabloid" orientation="landscape" margin="0">
-          {/* Full bleed dark background with explicit page height */}
-          <div className="bg-gray-900 text-white p-12 flex flex-col" style={{ height: "792pt" }}>
-            {/* Accent lines */}
-            <div className="flex gap-2">
-              <div className="h-1.5 w-32 bg-cyan-500 rounded-full"></div>
-              <div className="h-1.5 w-16 bg-cyan-500/50 rounded-full"></div>
-            </div>
-
-            {/* Main Content - fills available space */}
-            <div className="flex-1 flex flex-col justify-center py-8">
-              <h1 className="text-8xl font-black tracking-tight mb-6">{data.headline}</h1>
-              <p className="text-3xl text-gray-400 font-light">{data.subheadline}</p>
-
-              <div className="flex gap-16 mt-16">
-                <div>
-                  <div className="text-sm text-cyan-500 uppercase font-bold mb-3">Date</div>
-                  <div className="text-4xl font-bold">{data.date}</div>
-                </div>
-                <div>
-                  <div className="text-sm text-cyan-500 uppercase font-bold mb-3">Venue</div>
-                  <div className="text-4xl font-bold">{data.venue}</div>
-                </div>
-              </div>
-            </div>
-
-            {/* Bottom: Highlights + CTA */}
-            <div className="flex items-end justify-between">
-              <div className="flex gap-4">
-                {data.highlights.map((h, i) => (
-                  <div key={i} className="border-2 border-gray-600 px-6 py-3 rounded-full text-base font-semibold">
-                    {h}
-                  </div>
-                ))}
-              </div>
-              <div className="bg-cyan-500 text-gray-900 text-2xl font-black px-10 py-5 rounded-xl">
-                {data.cta}
-              </div>
-            </div>
-
-            {/* Bottom accent */}
-            <div className="flex justify-end gap-2 mt-8">
-              <div className="h-1.5 w-16 bg-cyan-500/50 rounded-full"></div>
-              <div className="h-1.5 w-32 bg-cyan-500 rounded-full"></div>
-            </div>
-          </div>
-        </Page>
-      </Tailwind>
-    </Document>
-  );
-}`,
   },
 ];
 
@@ -363,8 +94,11 @@ export default function Home() {
   const [copied, setCopied] = useState(false);
   const [pdfError, setPdfError] = useState<string | null>(null);
 
+  // Get code from build-time generated static data
+  const activeCode = templateCode[activeTemplate.id] || "// Template code not found";
+
   const handleCopy = () => {
-    navigator.clipboard.writeText(activeTemplate.code);
+    navigator.clipboard.writeText(activeCode);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
@@ -627,7 +361,7 @@ export default function Home() {
                       },
                     }}
                   >
-                    {activeTemplate.code}
+                    {activeCode}
                   </SyntaxHighlighter>
                 </div>
               )}

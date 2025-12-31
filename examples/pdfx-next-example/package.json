@@ -3,10 +3,11 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
-    "build": "next build",
+    "dev": "npm run generate-template-code && next dev",
+    "build": "npm run generate-template-code && next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "generate-template-code": "npx tsx scripts/generate-template-code.ts"
   },
   "dependencies": {
     "@pdfx-dev/react": "workspace:*",
