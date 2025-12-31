@@ -4,15 +4,20 @@
 
 export interface InvoiceData {
   number: string;
-  customer: string;
   date: string;
   dueDate: string;
+  customer: {
+    name: string;
+    address: string;
+    city: string;
+  };
   items: Array<{
     name: string;
     description?: string;
     qty: number;
     price: number;
   }>;
+  taxRate?: number; // e.g., 0.1 for 10%
   notes?: string;
   company: {
     name: string;

@@ -9,18 +9,32 @@
       "orientation": "portrait",
       "sampleData": {
         "number": "INV-2026-001",
-        "customer": "Acme Corporation",
-        "customerAddress": "456 Enterprise Blvd, Suite 100",
-        "customerCity": "Austin, TX 78701",
-        "date": "1/15/2026",
-        "dueDate": "2/14/2026",
+        "date": "January 15, 2026",
+        "dueDate": "February 14, 2026",
+        "customer": {
+          "name": "Acme Corporation",
+          "address": "456 Enterprise Blvd, Suite 100",
+          "city": "Austin, TX 78701"
+        },
         "items": [
-          { "name": "PDFX Pro License", "description": "Annual subscription - unlimited PDF generation", "qty": 1, "price": 499 },
-          { "name": "API Integration", "description": "Custom API setup and configuration", "qty": 5, "price": 150 },
-          { "name": "Priority Support", "description": "12-month priority support package", "qty": 1, "price": 299 },
-          { "name": "Training Session", "description": "2-hour onboarding and best practices", "qty": 2, "price": 200 }
+          { "name": "PDFX Enterprise License", "description": "Annual subscription - unlimited PDF generation", "qty": 1, "price": 4999 },
+          { "name": "API Integration Setup", "description": "Custom API configuration and endpoint setup", "qty": 1, "price": 1500 },
+          { "name": "Custom Template: Invoice", "description": "Professional invoice with company branding", "qty": 1, "price": 800 },
+          { "name": "Custom Template: Contract", "description": "Legal contract with digital signatures", "qty": 1, "price": 950 },
+          { "name": "Custom Template: Report", "description": "Monthly report with charts and graphs", "qty": 1, "price": 1200 },
+          { "name": "Training: Development Team", "description": "2-hour hands-on workshop for developers", "qty": 3, "price": 200 },
+          { "name": "Training: Executive Overview", "description": "1-hour strategic overview session", "qty": 1, "price": 150 },
+          { "name": "Data Migration Service", "description": "Import templates from legacy PDF system", "qty": 1, "price": 750 },
+          { "name": "SSO Integration", "description": "SAML/OAuth integration with corporate identity", "qty": 1, "price": 500 },
+          { "name": "Webhook Configuration", "description": "Event notifications for PDF generation", "qty": 1, "price": 300 },
+          { "name": "Custom Domain Setup", "description": "Configure docs.acmecorp.com subdomain", "qty": 1, "price": 200 },
+          { "name": "Priority Support (Monthly)", "description": "24/7 phone support with 1-hour SLA", "qty": 12, "price": 99 },
+          { "name": "Cloud Storage Add-on", "description": "Extra 100GB storage for templates", "qty": 5, "price": 25 },
+          { "name": "Compliance Audit", "description": "SOC 2 Type II compliance documentation", "qty": 1, "price": 1500 },
+          { "name": "Performance Review", "description": "Template rendering optimization analysis", "qty": 1, "price": 600 }
         ],
-        "notes": "Thank you for choosing PDFX! Payment is due within 30 days.",
+        "taxRate": 0.0875,
+        "notes": "Thank you for choosing PDFX! Payment is due within 30 days. For questions, contact billing@pdfx.dev.",
         "company": {
           "name": "PDFX",
           "address": "548 Market St, Suite 835, San Francisco, CA 94104",

@@ -66,7 +66,7 @@ writeFileSync('invoice.pdf', pdf);
 | `TotalPages` | Total page count |
 | `PageBreak` | Force a page break |
 | `AvoidBreak` | Keep content together on same page |
-| `RepeatableTableHeader` | Table header that repeats on each page |
+| `TableHeader` | Table header that repeats on each page |
 
 ## API
 

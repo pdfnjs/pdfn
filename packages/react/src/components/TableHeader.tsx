@@ -1,28 +1,28 @@
-import type { ReactNode, ThHTMLAttributes } from "react";
+import type { ReactNode } from "react";
 
-export interface RepeatableTableHeaderProps {
-  /** Table header content (th elements) */
+export interface TableHeaderProps {
+  /** Table header content (tr with th elements) */
   children: ReactNode;
   /** Additional CSS classes */
   className?: string;
 }
 
 /**
- * RepeatableTableHeader - Table header that repeats on each page
+ * TableHeader - Table header that repeats on each page
  *
- * Use this component as the thead of a table to ensure the header
- * row repeats when the table spans multiple pages.
+ * Use this component instead of <thead> to ensure the header
+ * row repeats when the table spans multiple pages in PDFs.
  *
  * @example
  * ```tsx
  * <table>
- *   <RepeatableTableHeader>
+ *   <TableHeader>
  *     <tr>
  *       <th>Item</th>
  *       <th>Price</th>
  *       <th>Qty</th>
  *     </tr>
- *   </RepeatableTableHeader>
+ *   </TableHeader>
  *   <tbody>
  *     {items.map(item => (
  *       <tr key={item.id}>
@@ -35,10 +35,10 @@ export interface RepeatableTableHeaderProps {
  * </table>
  * ```
  */
-export function RepeatableTableHeader({ children, className }: RepeatableTableHeaderProps) {
+export function TableHeader({ children, className }: TableHeaderProps) {
   return (
     <thead
-      data-pdfx-repeatable-header
+      data-pdfx-table-header
       className={className}
       style={{
         display: "table-header-group",

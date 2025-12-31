@@ -6,4 +6,4 @@ export { Page } from "./Page";
 // export { TotalPages } from "./TotalPages";
 // export { PageBreak } from "./PageBreak";
 // export { AvoidBreak } from "./AvoidBreak";
-// export { RepeatableTableHeader } from "./RepeatableTableHeader";
+// export { TableHeader } from "./TableHeader";

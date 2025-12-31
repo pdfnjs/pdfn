@@ -17,7 +17,7 @@ export { PageBreak } from "./components/PageBreak";
 export { AvoidBreak } from "./components/AvoidBreak";
 export { PageNumber } from "./components/PageNumber";
 export { TotalPages } from "./components/TotalPages";
-export { RepeatableTableHeader } from "./components/RepeatableTableHeader";
+export { TableHeader } from "./components/TableHeader";
 
 // Functions
 export { render } from "./render/render";
@@ -27,4 +27,4 @@ export type * from "./types";
 export type { AvoidBreakProps } from "./components/AvoidBreak";
 export type { PageNumberProps } from "./components/PageNumber";
 export type { TotalPagesProps } from "./components/TotalPages";
-export type { RepeatableTableHeaderProps } from "./components/RepeatableTableHeader";
+export type { TableHeaderProps } from "./components/TableHeader";

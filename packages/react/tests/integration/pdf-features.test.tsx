@@ -15,7 +15,7 @@ import { PageBreak } from "../../src/components/PageBreak";
 import { PageNumber } from "../../src/components/PageNumber";
 import { TotalPages } from "../../src/components/TotalPages";
 import { AvoidBreak } from "../../src/components/AvoidBreak";
-import { RepeatableTableHeader } from "../../src/components/RepeatableTableHeader";
+import { TableHeader } from "../../src/components/TableHeader";
 import { getPdfInfo } from "../helpers/pdf-utils";
 
 describe("PDF Features Integration", () => {
@@ -350,18 +350,18 @@ describe("PDF Features Integration", () => {
     });
   });
 
-  describe("RepeatableTableHeader", () => {
-    it("renders RepeatableTableHeader with proper attributes", async () => {
+  describe("TableHeader", () => {
+    it("renders TableHeader with proper attributes", async () => {
       const { html } = await generateHtmlAndPdf(
         <Document>
           <Page size="A4">
             <table>
-              <RepeatableTableHeader>
+              <TableHeader>
                 <tr>
                   <th>Column 1</th>
                   <th>Column 2</th>
                 </tr>
-              </RepeatableTableHeader>
+              </TableHeader>
               <tbody>
                 <tr>
                   <td>Data 1</td>
@@ -373,7 +373,7 @@ describe("PDF Features Integration", () => {
         </Document>
       );
 
-      expect(html).toContain("data-pdfx-repeatable-header");
+      expect(html).toContain("data-pdfx-table-header");
       expect(html).toContain("Column 1");
       expect(html).toContain("Column 2");
     });
@@ -392,13 +392,13 @@ describe("PDF Features Integration", () => {
         <Document>
           <Page size="A4">
             <table style={{ width: "100%", borderCollapse: "collapse" }}>
-              <RepeatableTableHeader>
+              <TableHeader>
                 <tr style={{ backgroundColor: "#f0f0f0" }}>
                   <th style={{ border: "1px solid black", padding: "8px" }}>ID</th>
                   <th style={{ border: "1px solid black", padding: "8px" }}>Value</th>
                   <th style={{ border: "1px solid black", padding: "8px" }}>Description</th>
                 </tr>
-              </RepeatableTableHeader>
+              </TableHeader>
               <tbody>{rows}</tbody>
             </table>
           </Page>
@@ -437,12 +437,12 @@ describe("PDF Features Integration", () => {
 
             <h2>Data Table</h2>
             <table style={{ width: "100%", borderCollapse: "collapse" }}>
-              <RepeatableTableHeader>
+              <TableHeader>
                 <tr>
                   <th style={{ border: "1px solid black", padding: "5px" }}>Item</th>
                   <th style={{ border: "1px solid black", padding: "5px" }}>Value</th>
                 </tr>
-              </RepeatableTableHeader>
+              </TableHeader>
               <tbody>
                 {Array.from({ length: 30 }, (_, i) => (
                   <tr key={i}>

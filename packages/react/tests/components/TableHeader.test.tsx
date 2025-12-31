@@ -1,17 +1,17 @@
 import { describe, it, expect } from "vitest";
 import { renderToStaticMarkup } from "react-dom/server";
-import { RepeatableTableHeader } from "../../src/components/RepeatableTableHeader";
+import { TableHeader } from "../../src/components/TableHeader";
 
-describe("RepeatableTableHeader", () => {
+describe("TableHeader", () => {
   it("renders children within thead element", () => {
     const html = renderToStaticMarkup(
       <table>
-        <RepeatableTableHeader>
+        <TableHeader>
           <tr>
             <th>Item</th>
             <th>Price</th>
           </tr>
-        </RepeatableTableHeader>
+        </TableHeader>
       </table>
     );
     expect(html).toContain("<thead");
@@ -22,25 +22,25 @@ describe("RepeatableTableHeader", () => {
   it("renders with correct attributes and styles for print", () => {
     const html = renderToStaticMarkup(
       <table>
-        <RepeatableTableHeader>
+        <TableHeader>
           <tr>
             <th>Column</th>
           </tr>
-        </RepeatableTableHeader>
+        </TableHeader>
       </table>
     );
-    expect(html).toContain("data-pdfx-repeatable-header");
+    expect(html).toContain("data-pdfx-table-header");
     expect(html).toContain("display:table-header-group");
   });
 
   it("applies custom className", () => {
     const html = renderToStaticMarkup(
       <table>
-        <RepeatableTableHeader className="header-row">
+        <TableHeader className="header-row">
           <tr>
             <th>Column</th>
           </tr>
-        </RepeatableTableHeader>
+        </TableHeader>
       </table>
     );
     expect(html).toContain('class="header-row"');
