@@ -72,14 +72,14 @@ export default function Ticket({ data }: { data: TicketData }) {
               <div className="text-xs text-gray-500 uppercase tracking-wider font-medium mb-1">
                 Admit One
               </div>
-              <div className="text-2xl font-black text-gray-900 font-script">
+              <div className="text-4xl font-black text-gray-900 font-script">
                 {data.attendee}
               </div>
             </div>
 
             {/* QR Code Area */}
             <div className="flex justify-center mb-5">
-              <div className="w-26 h-26 bg-white border-2 border-gray-900 rounded-xl p-2 flex items-center justify-center">
+              <div className="w-36 h-36 bg-white border-2 border-gray-900 rounded-xl p-2 flex items-center justify-center">
                 {/* Simulated QR pattern */}
                 <div className="grid grid-cols-5 gap-1 w-full h-full">
                   {[...Array(25)].map((_, i) => (
