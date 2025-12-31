@@ -1,5 +1,6 @@
 import { type ReactElement } from "react";
 import { assembleHtml, type HtmlOptions } from "./html";
+import { processImages } from "./images";
 import type { RenderOptions, FontConfig } from "../types";
 import { debug } from "../utils/debug";
 
@@ -122,10 +123,15 @@ export async function render(
   }
   const tailwindTime = performance.now() - tailwindStart;
 
-  // 4. Extract fonts from Document if present
+  // 4. Process images - embed relative paths as base64
+  const imagesStart = performance.now();
+  content = processImages(content);
+  const imagesTime = performance.now() - imagesStart;
+
+  // 5. Extract fonts from Document if present
   const fonts = extractFonts(content);
 
-  // 5. Assemble final HTML
+  // 6. Assemble final HTML
   const htmlOptions: HtmlOptions = {
     metadata,
     css: tailwindCss,
@@ -137,7 +143,7 @@ export async function render(
   const totalTime = performance.now() - startTime;
 
   debug(
-    `render: ${Math.round(totalTime)}ms (react: ${Math.round(reactTime)}ms, tailwind: ${Math.round(tailwindTime)}ms)`
+    `render: ${Math.round(totalTime)}ms (react: ${Math.round(reactTime)}ms, tailwind: ${Math.round(tailwindTime)}ms, images: ${Math.round(imagesTime)}ms)`
   );
 
   return html;

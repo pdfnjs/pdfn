@@ -27,10 +27,8 @@ export default function InvoiceTailwind({ data }: { data: InvoiceData }) {
           <div className="flex justify-between mb-8">
             {/* Company Info */}
             <div>
-              <div className="text-3xl font-bold tracking-tight">
-                <span className="text-gray-600">pdf</span>
-                <span className="text-cyan-500">x</span>
-              </div>
+              {/* Local image - will be embedded as base64 */}
+              <img src="./pdf-templates/assets/logo.svg" alt="Company Logo" className="h-10 mb-1" />
               <div className="text-xs text-gray-500 mt-1">
                 {data.company.address}
               </div>
