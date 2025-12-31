@@ -7,7 +7,7 @@
     "build": "npm run generate-template-code && next build",
     "start": "next start",
     "lint": "eslint",
-    "generate-template-code": "npx tsx scripts/generate-template-code.ts"
+    "generate-template-code": "tsx scripts/generate-template-code.ts"
   },
   "dependencies": {
     "@pdfx-dev/react": "workspace:*",
@@ -27,6 +27,7 @@
     "eslint-config-next": "16.1.0",
     "postcss": "^8",
     "tailwindcss": "^4",
+    "tsx": "^4",
     "typescript": "^5"
   }
 }
