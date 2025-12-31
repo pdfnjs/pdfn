@@ -167,6 +167,45 @@ describe("Image Processing", () => {
       fs.unlinkSync(jpgPath);
       fs.unlinkSync(svgPath);
     });
+
+    it("removes React 19 preload hints for embedded images", () => {
+      const html = `
+        <link rel="preload" as="image" href="./test.png"/>
+        <img src="./test.png">
+      `;
+      const result = processImages(html, fixturesDir);
+
+      // Image should be embedded
+      expect(result).toContain("data:image/png;base64,");
+      // Preload hint should be removed
+      expect(result).not.toContain('rel="preload"');
+      expect(result).not.toContain("./test.png");
+    });
+
+    it("preserves preload hints for non-embedded images", () => {
+      const html = `
+        <link rel="preload" as="image" href="https://example.com/image.png"/>
+        <img src="https://example.com/image.png">
+      `;
+      const result = processImages(html, fixturesDir);
+
+      // Preload hint should be preserved for remote images
+      expect(result).toContain('rel="preload"');
+      expect(result).toContain("https://example.com/image.png");
+    });
+
+    it("handles preload hints with various attribute orders", () => {
+      const html = `
+        <link as="image" rel="preload" href="./test.png" data-ref="123"/>
+        <img src="./test.png">
+      `;
+      const result = processImages(html, fixturesDir);
+
+      // Image should be embedded
+      expect(result).toContain("data:image/png;base64,");
+      // Preload hint should be removed
+      expect(result).not.toContain('rel="preload"');
+    });
   });
 
   describe("processCssImages", () => {

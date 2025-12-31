@@ -92,12 +92,18 @@ function resolvePath(src: string, basePath: string): string {
 /**
  * Process all images in HTML and embed relative ones as base64
  *
+ * Also removes React 19's automatic preload hints for images we embed,
+ * since they're no longer needed with inline data URIs.
+ *
  * @param html - The HTML content to process
  * @param basePath - Base path for resolving relative image paths (defaults to cwd)
  * @returns HTML with relative images embedded as data URIs
  */
 export function processImages(html: string, basePath?: string): string {
   const resolveFrom = basePath || process.cwd();
+
+  // Track which images we embed so we can remove their preload hints
+  const embeddedPaths = new Set<string>();
 
   // Match img tags with src attribute
   // Handles: <img src="..."> and <img ... src="..." ...>
@@ -106,7 +112,7 @@ export function processImages(html: string, basePath?: string): string {
   let processedCount = 0;
   let skippedCount = 0;
 
-  const result = html.replace(imgRegex, (match, before, src, after) => {
+  let result = html.replace(imgRegex, (match, before, src, after) => {
     // Skip non-relative paths
     if (!isRelativePath(src)) {
       skippedCount++;
@@ -121,6 +127,7 @@ export function processImages(html: string, basePath?: string): string {
 
     if (dataUri) {
       processedCount++;
+      embeddedPaths.add(src);
       return `<img ${before}src="${dataUri}"${after}>`;
     }
 
@@ -128,6 +135,29 @@ export function processImages(html: string, basePath?: string): string {
     debug(`images: keeping original src for missing file: ${src}`);
     return match;
   });
+
+  // Remove React 19's preload hints for images we've embedded
+  // These are no longer needed since the image is inline as data URI
+  if (embeddedPaths.size > 0) {
+    // Match <link> tags that have rel="preload", as="image", and href="..."
+    // Attributes can appear in any order
+    const linkRegex = /<link\s+([^>]*?)\/?>/gi;
+    result = result.replace(linkRegex, (match, attrs) => {
+      // Check if this is a preload link for an image
+      const isPreload = /rel=["']preload["']/i.test(attrs);
+      const isImage = /as=["']image["']/i.test(attrs);
+      const hrefMatch = attrs.match(/href=["']([^"']+)["']/i);
+
+      if (isPreload && isImage && hrefMatch) {
+        const href = hrefMatch[1];
+        if (embeddedPaths.has(href)) {
+          debug(`images: removed preload hint for embedded image: ${href}`);
+          return "";
+        }
+      }
+      return match;
+    });
+  }
 
   if (processedCount > 0 || skippedCount > 0) {
     debug(`images: embedded ${processedCount}, skipped ${skippedCount}`);
