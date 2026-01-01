@@ -5,7 +5,7 @@ import { Tailwind } from "@pdfx-dev/tailwind";
  * Business Letter template - US Letter size
  *
  * Demonstrates:
- * - Professional letterhead with company branding
+ * - Professional letterhead
  * - Proper business letter format
  * - Single page layout
  */
@@ -38,11 +38,11 @@ export default function Letter({
   sender = {
     name: "Alex Chen",
     title: "Head of Partnerships",
-    company: "PDFX",
-    address: "548 Market St, Suite 835",
-    city: "San Francisco, CA 94104",
-    email: "alex@pdfx.dev",
-    phone: "+1 (415) 555-0132",
+    company: "Your Company",
+    address: "123 Business St, Suite 100",
+    city: "San Francisco, CA 94102",
+    email: "alex@yourcompany.com",
+    phone: "+1 (555) 123-4567",
   },
   recipient = {
     name: "Sarah Johnson",
@@ -51,13 +51,12 @@ export default function Letter({
     address: "456 Enterprise Blvd, Suite 100",
     city: "Austin, TX 78701",
   },
-  date = "January 15, 2026",
-  subject = "PDFX Enterprise Partnership Proposal",
+  date = "January 15, 2025",
+  subject = "Partnership Proposal",
   body = [
-    "I hope this letter finds you well. Following our conversation at React Summit last month, I wanted to formally present our enterprise partnership proposal for your consideration.",
-    "PDFX provides server-side PDF generation using React components and Tailwind CSS. Our solution has helped over 500 companies streamline their document workflows, reducing development time by an average of 60%.",
-    "We believe PDFX would be an excellent fit for Acme Corporation's document generation needs. Our enterprise plan includes unlimited PDF generation, priority support, and custom integrations tailored to your existing infrastructure.",
-    "I would welcome the opportunity to schedule a technical demo with your team. Please let me know if you would be available for a call next week to discuss how PDFX can help Acme Corporation.",
+    "I hope this letter finds you well. Following our conversation last month, I wanted to formally present our partnership proposal for your consideration.",
+    "Our solution has helped over 500 companies streamline their workflows, reducing development time by an average of 60%. We believe our platform would be an excellent fit for your needs.",
+    "I would welcome the opportunity to schedule a technical demo with your team. Please let me know if you would be available for a call next week.",
   ],
   closing = "Best regards",
   signature = "Alex Chen",
@@ -70,8 +69,8 @@ export default function Letter({
           <div className="mb-6 pb-3 border-b-2 border-gray-800">
             <div className="flex justify-between items-start">
               <div>
-                <img src="./pdf-templates/assets/logo.svg" alt="Company Logo" className="h-8 mb-2" />
-                <div className="text-xs text-gray-500">
+                <div className="text-xl font-bold text-gray-900">{sender.company}</div>
+                <div className="text-xs text-gray-500 mt-1">
                   {sender.address} • {sender.city}
                 </div>
               </div>

@@ -11,7 +11,7 @@ import Poster from "../../../../pdf-templates/poster";
 
 // Template component map
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-const templateComponents: Record<string, React.ComponentType<{ data: any }>> = {
+const templateComponents: Record<string, React.ComponentType<any>> = {
   invoice: Invoice,
   letter: Letter,
   contract: Contract,
@@ -24,7 +24,6 @@ interface TemplateConfig {
   name: string;
   pageSize: string;
   orientation: string;
-  sampleData: Record<string, unknown> & { number?: string };
 }
 
 const templates = templatesConfig.templates as TemplateConfig[];
@@ -81,7 +80,7 @@ export async function GET(request: NextRequest) {
   }
 
   const { config, Component } = template;
-  const { sampleData, name, pageSize, orientation } = config;
+  const { name, pageSize, orientation } = config;
 
   const params = [wantHtml && "html", debug && "debug"].filter(Boolean).join(", ");
 
@@ -92,7 +91,8 @@ export async function GET(request: NextRequest) {
   try {
     if (wantHtml) {
       // Return HTML for browser preview
-      const html = await generate(<Component data={sampleData} />, {
+      // Call component with empty props - defaults provide sample data
+      const html = await generate(<Component />, {
         output: "html",
         debug,
       });
@@ -108,20 +108,20 @@ export async function GET(request: NextRequest) {
     }
 
     // Generate PDF
-    const pdf = await generate(<Component data={sampleData} />, { debug });
+    // Call component with empty props - defaults provide sample data
+    const pdf = await generate(<Component />, { debug });
     const duration = Math.round(performance.now() - start);
 
     console.log(`[pdf] ✓ generated in ${duration}ms (${(pdf.length / 1024).toFixed(1)}KB)`);
 
     // Build a descriptive filename
-    const docNumber = sampleData.number || templateId;
-    const filename = `${name}-${docNumber}.pdf`.replace(/\s+/g, "-");
+    const filename = `${name}-${templateId}.pdf`.replace(/\s+/g, "-");
 
     return new Response(new Uint8Array(pdf), {
       headers: {
         "Content-Type": "application/pdf",
         "Content-Disposition": `inline; filename="${filename}"`,
-        "X-PDF-Title": `${name} ${docNumber}`,
+        "X-PDF-Title": name,
       },
     });
   } catch (error) {

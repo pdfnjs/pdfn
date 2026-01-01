@@ -5,7 +5,6 @@ import { Tailwind } from "@pdfx-dev/tailwind";
  * Professional Invoice template using Tailwind CSS
  *
  * Demonstrates:
- * - Local image embedding (logo.svg)
  * - TableHeader for multi-page tables
  * - PageNumber and TotalPages in footer
  * - Configurable tax rate
@@ -37,38 +36,26 @@ interface InvoiceProps {
 }
 
 export default function Invoice({
-  number = "INV-2026-001",
-  date = "January 15, 2026",
-  dueDate = "February 14, 2026",
+  number = "INV-2025-001",
+  date = "January 15, 2025",
+  dueDate = "February 14, 2025",
   customer = {
     name: "Acme Corporation",
     address: "456 Enterprise Blvd, Suite 100",
     city: "Austin, TX 78701",
   },
   items = [
-    { name: "PDFX Enterprise License", description: "Annual subscription - unlimited PDF generation", qty: 1, price: 4999 },
-    { name: "API Integration Setup", description: "Custom API configuration and endpoint setup", qty: 1, price: 1500 },
-    { name: "Custom Template: Invoice", description: "Professional invoice with company branding", qty: 1, price: 800 },
-    { name: "Custom Template: Contract", description: "Legal contract with digital signatures", qty: 1, price: 950 },
-    { name: "Custom Template: Report", description: "Monthly report with charts and graphs", qty: 1, price: 1200 },
-    { name: "Training: Development Team", description: "2-hour hands-on workshop for developers", qty: 3, price: 200 },
-    { name: "Training: Executive Overview", description: "1-hour strategic overview session", qty: 1, price: 150 },
-    { name: "Data Migration Service", description: "Import templates from legacy PDF system", qty: 1, price: 750 },
-    { name: "SSO Integration", description: "SAML/OAuth integration with corporate identity", qty: 1, price: 500 },
-    { name: "Webhook Configuration", description: "Event notifications for PDF generation", qty: 1, price: 300 },
-    { name: "Custom Domain Setup", description: "Configure docs.acmecorp.com subdomain", qty: 1, price: 200 },
-    { name: "Priority Support (Monthly)", description: "24/7 phone support with 1-hour SLA", qty: 12, price: 99 },
-    { name: "Cloud Storage Add-on", description: "Extra 100GB storage for templates", qty: 5, price: 25 },
-    { name: "Compliance Audit", description: "SOC 2 Type II compliance documentation", qty: 1, price: 1500 },
-    { name: "Performance Review", description: "Template rendering optimization analysis", qty: 1, price: 600 },
+    { name: "Web Development", description: "Frontend development with React", qty: 40, price: 150 },
+    { name: "API Integration", description: "REST API setup and configuration", qty: 20, price: 175 },
+    { name: "UI/UX Design", description: "User interface design", qty: 15, price: 125 },
   ],
-  taxRate = 0.0875,
-  notes = "Thank you for choosing PDFX! Payment is due within 30 days. For questions, contact billing@pdfx.dev.",
+  taxRate = 0.1,
+  notes = "Payment is due within 30 days. Thank you for your business!",
   company = {
-    name: "PDFX",
-    address: "548 Market St, Suite 835, San Francisco, CA 94104",
-    email: "billing@pdfx.dev",
-    phone: "+1 (415) 555-0132",
+    name: "Your Company",
+    address: "123 Business St, San Francisco, CA 94102",
+    email: "hello@yourcompany.com",
+    phone: "+1 (555) 123-4567",
   },
 }: InvoiceProps) {
   const subtotal = items.reduce((sum, item) => sum + item.qty * item.price, 0);
@@ -98,8 +85,8 @@ export default function Invoice({
           {/* Header */}
           <div className="flex justify-between items-start mb-8">
             <div>
-              <img src="./pdf-templates/assets/logo.svg" alt="Company Logo" className="h-10 mb-2" />
-              <div className="text-xs text-gray-500">{company.address}</div>
+              <div className="text-2xl font-bold text-gray-900">{company.name}</div>
+              <div className="text-xs text-gray-500 mt-1">{company.address}</div>
             </div>
             <div className="text-right">
               <div className="text-3xl font-bold text-gray-900 tracking-tight">INVOICE</div>
@@ -177,7 +164,7 @@ export default function Invoice({
                   <td className="py-2 text-right text-gray-900">{formatCurrency(subtotal)}</td>
                 </tr>
                 <tr>
-                  <td className="py-2 text-gray-600">Tax ({(taxRate * 100).toFixed(2)}%)</td>
+                  <td className="py-2 text-gray-600">Tax ({(taxRate * 100).toFixed(0)}%)</td>
                   <td className="py-2 text-right text-gray-900">{formatCurrency(tax)}</td>
                 </tr>
                 <tr className="border-t-2 border-gray-800">

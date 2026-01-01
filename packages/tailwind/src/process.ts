@@ -25,6 +25,10 @@ export interface ProcessOptions {
 // Cache compilers by CSS content hash for reuse
 const compilerCache = new Map<string, Awaited<ReturnType<typeof compile>>>();
 let tailwindRoot: string | null = null;
+let autoDetectedCssPath: string | null | undefined = undefined; // undefined = not yet checked
+
+// Only log verbose output if PDFX_DEBUG is set
+const DEBUG = process.env.PDFX_DEBUG === "true";
 
 /**
  * Common CSS file locations to auto-detect
@@ -75,6 +79,11 @@ function findTailwindRoot(): string {
  * Auto-detect user's CSS file from common locations
  */
 function autoDetectCssPath(): string | null {
+  // Return cached result if we've already checked
+  if (autoDetectedCssPath !== undefined) {
+    return autoDetectedCssPath;
+  }
+
   const cwd = process.cwd();
 
   for (const relativePath of COMMON_CSS_PATHS) {
@@ -83,12 +92,16 @@ function autoDetectCssPath(): string | null {
       const content = fs.readFileSync(fullPath, "utf8");
       // Check if it looks like a Tailwind CSS file
       if (content.includes("tailwindcss") || content.includes("@tailwind")) {
-        console.log(`[pdfx:tailwind] Auto-detected CSS: ${relativePath}`);
+        if (DEBUG) {
+          console.log(`[pdfx:tailwind] Auto-detected CSS: ${relativePath}`);
+        }
+        autoDetectedCssPath = fullPath;
         return fullPath;
       }
     }
   }
 
+  autoDetectedCssPath = null;
   return null;
 }
 
@@ -139,7 +152,9 @@ function getBaseCss(options: ProcessOptions = {}): { css: string; source: string
   }
 
   // 3. Fall back to vanilla Tailwind
-  console.log("[pdfx:tailwind] Using vanilla Tailwind (no custom CSS found)");
+  if (DEBUG) {
+    console.log("[pdfx:tailwind] Using vanilla Tailwind (no custom CSS found)");
+  }
   return {
     css: '@import "tailwindcss";',
     source: "vanilla",
@@ -269,10 +284,12 @@ export async function processTailwind(html: string, options: ProcessOptions = {}
     const css = compiler.build(candidates);
 
     const duration = Math.round(performance.now() - startTime);
-    console.log(
-      `[pdfx:tailwind] Generated ${css.length} bytes in ${duration}ms ` +
-      `(${candidates.length} classes, source: ${source})`
-    );
+    if (DEBUG) {
+      console.log(
+        `[pdfx:tailwind] Generated ${css.length} bytes in ${duration}ms ` +
+        `(${candidates.length} classes, source: ${source})`
+      );
+    }
 
     return css;
   } catch (error) {

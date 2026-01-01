@@ -6,8 +6,7 @@ import { Tailwind } from "@pdfx-dev/tailwind";
  *
  * Demonstrates:
  * - Watermark (e.g., "CONFIDENTIAL", "DRAFT")
- * - Repeating header on each page
- * - Repeating footer with page numbers
+ * - Repeating header and footer
  * - Multi-page content with numbered terms
  * - AvoidBreak for signature block
  */
@@ -39,18 +38,18 @@ interface ContractProps {
 }
 
 export default function Contract({
-  title = "ENTERPRISE SERVICE AGREEMENT",
-  effectiveDate = "January 1, 2026",
-  watermark = "CONFIDENTIAL",
+  title = "SERVICE AGREEMENT",
+  effectiveDate = "January 1, 2025",
+  watermark = "DRAFT",
   parties = {
     provider: {
-      name: "PDFX, Inc.",
-      address: "548 Market St, Suite 835, San Francisco, CA 94104",
-      representative: "Alex Chen, Head of Partnerships",
+      name: "Your Company, Inc.",
+      address: "123 Business St, San Francisco, CA 94102",
+      representative: "Alex Chen, CEO",
     },
     client: {
       name: "Acme Corporation",
-      address: "456 Enterprise Blvd, Suite 100, Austin, TX 78701",
+      address: "456 Enterprise Blvd, Austin, TX 78701",
       representative: "Sarah Johnson, CTO",
     },
   },
@@ -58,57 +57,27 @@ export default function Contract({
     {
       title: "Services",
       content:
-        "Provider agrees to deliver the PDFX Enterprise Platform including unlimited server-side PDF generation, React component library, Tailwind CSS integration, and API access as detailed in Exhibit A. The Platform shall include all current features and any updates released during the term of this Agreement.",
+        "Provider agrees to deliver the Platform including all features and any updates released during the term of this Agreement.",
     },
     {
       title: "Compensation",
       content:
-        "Client shall pay Provider an annual license fee of $4,999 USD, due upon execution of this Agreement. Additional API usage beyond 100,000 PDFs per month shall be billed at $0.02 per PDF. All fees are non-refundable and exclusive of applicable taxes.",
+        "Client shall pay Provider an annual license fee as specified in the Order Form. All fees are non-refundable and exclusive of applicable taxes.",
     },
     {
       title: "Term and Termination",
       content:
-        "This Agreement shall commence on the Effective Date and continue for twelve (12) months, automatically renewing for successive one-year terms unless either party provides written notice of non-renewal at least thirty (30) days prior to the end of the then-current term. Either party may terminate for cause with thirty (30) days written notice upon material breach.",
+        "This Agreement shall commence on the Effective Date and continue for twelve (12) months, automatically renewing unless either party provides written notice at least thirty (30) days prior.",
     },
     {
       title: "Confidentiality",
       content:
-        "Both parties agree to maintain the confidentiality of any proprietary information disclosed during this engagement, including but not limited to technical specifications, business strategies, and customer data. This obligation shall survive termination for a period of three (3) years.",
-    },
-    {
-      title: "Service Level Agreement",
-      content:
-        "Provider guarantees 99.9% API uptime measured monthly, excluding scheduled maintenance. Priority technical support shall be provided with 4-hour response time during business hours (9 AM - 6 PM PST). Critical production issues shall receive 1-hour response time 24/7/365.",
-    },
-    {
-      title: "Intellectual Property",
-      content:
-        "Provider retains all intellectual property rights in and to the Platform. Client is granted a non-exclusive, non-transferable license to use the Platform during the term. Any custom developments shall be owned by Provider unless otherwise agreed in writing.",
-    },
-    {
-      title: "Data Protection",
-      content:
-        "Provider shall implement and maintain appropriate technical and organizational measures to protect Client data against unauthorized access, loss, or alteration. Provider shall comply with applicable data protection laws including GDPR and CCPA. Provider shall notify Client within 72 hours of any data breach.",
-    },
-    {
-      title: "Limitation of Liability",
-      content:
-        "In no event shall either party be liable for any indirect, incidental, special, consequential, or punitive damages. Provider's total liability shall not exceed the fees paid by Client in the twelve (12) months preceding the claim. This limitation shall not apply to breaches of confidentiality or gross negligence.",
-    },
-    {
-      title: "Indemnification",
-      content:
-        "Provider shall indemnify and hold harmless Client from any third-party claims arising from Provider's breach of this Agreement or infringement of intellectual property rights. Client shall indemnify Provider from claims arising from Client's misuse of the Platform or violation of applicable laws.",
-    },
-    {
-      title: "Governing Law",
-      content:
-        "This Agreement shall be governed by and construed in accordance with the laws of the State of California, without regard to its conflict of laws principles. Any disputes shall be resolved through binding arbitration in San Francisco, California under AAA Commercial Arbitration Rules.",
+        "Both parties agree to maintain the confidentiality of any proprietary information disclosed during this engagement. This obligation shall survive termination for three (3) years.",
     },
   ],
   signatures = {
-    provider: { name: "Alex Chen", title: "Head of Partnerships" },
-    client: { name: "Sarah Johnson", title: "Chief Technology Officer" },
+    provider: { name: "Alex Chen", title: "CEO" },
+    client: { name: "Sarah Johnson", title: "CTO" },
   },
 }: ContractProps) {
   return (
@@ -128,12 +97,8 @@ export default function Contract({
           }
           header={
             <div className="flex justify-between items-center pb-3 border-b border-gray-300 mb-6">
-              <div className="flex items-center gap-3">
-                <img src="./pdf-templates/assets/logo.svg" alt="Logo" className="h-6" />
-                <div className="text-xs text-gray-400">|</div>
-                <div className="text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                  {title}
-                </div>
+              <div className="text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                {title}
               </div>
               <div className="text-xs text-gray-500">Effective: {effectiveDate}</div>
             </div>
@@ -225,7 +190,9 @@ export default function Contract({
                   Service Provider
                 </div>
                 <div className="border-b-2 border-gray-800 mb-2 h-10"></div>
-                <div className="text-sm font-bold text-gray-900">{signatures.provider.name}</div>
+                <div className="text-sm font-bold text-gray-900">
+                  {signatures.provider.name}
+                </div>
                 <div className="text-xs text-gray-600">{signatures.provider.title}</div>
                 <div className="mt-3 flex gap-4 text-xs text-gray-500">
                   <div>Date: _______________</div>

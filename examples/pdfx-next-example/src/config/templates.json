@@ -6,42 +6,7 @@
       "name": "Invoice",
       "description": "Professional invoice with itemized billing",
       "pageSize": "A4",
-      "orientation": "portrait",
-      "sampleData": {
-        "number": "INV-2026-001",
-        "date": "January 15, 2026",
-        "dueDate": "February 14, 2026",
-        "customer": {
-          "name": "Acme Corporation",
-          "address": "456 Enterprise Blvd, Suite 100",
-          "city": "Austin, TX 78701"
-        },
-        "items": [
-          { "name": "PDFX Enterprise License", "description": "Annual subscription - unlimited PDF generation", "qty": 1, "price": 4999 },
-          { "name": "API Integration Setup", "description": "Custom API configuration and endpoint setup", "qty": 1, "price": 1500 },
-          { "name": "Custom Template: Invoice", "description": "Professional invoice with company branding", "qty": 1, "price": 800 },
-          { "name": "Custom Template: Contract", "description": "Legal contract with digital signatures", "qty": 1, "price": 950 },
-          { "name": "Custom Template: Report", "description": "Monthly report with charts and graphs", "qty": 1, "price": 1200 },
-          { "name": "Training: Development Team", "description": "2-hour hands-on workshop for developers", "qty": 3, "price": 200 },
-          { "name": "Training: Executive Overview", "description": "1-hour strategic overview session", "qty": 1, "price": 150 },
-          { "name": "Data Migration Service", "description": "Import templates from legacy PDF system", "qty": 1, "price": 750 },
-          { "name": "SSO Integration", "description": "SAML/OAuth integration with corporate identity", "qty": 1, "price": 500 },
-          { "name": "Webhook Configuration", "description": "Event notifications for PDF generation", "qty": 1, "price": 300 },
-          { "name": "Custom Domain Setup", "description": "Configure docs.acmecorp.com subdomain", "qty": 1, "price": 200 },
-          { "name": "Priority Support (Monthly)", "description": "24/7 phone support with 1-hour SLA", "qty": 12, "price": 99 },
-          { "name": "Cloud Storage Add-on", "description": "Extra 100GB storage for templates", "qty": 5, "price": 25 },
-          { "name": "Compliance Audit", "description": "SOC 2 Type II compliance documentation", "qty": 1, "price": 1500 },
-          { "name": "Performance Review", "description": "Template rendering optimization analysis", "qty": 1, "price": 600 }
-        ],
-        "taxRate": 0.0875,
-        "notes": "Thank you for choosing PDFX! Payment is due within 30 days. For questions, contact billing@pdfx.dev.",
-        "company": {
-          "name": "PDFX",
-          "address": "548 Market St, Suite 835, San Francisco, CA 94104",
-          "email": "billing@pdfx.dev",
-          "phone": "+1 (415) 555-0132"
-        }
-      }
+      "orientation": "portrait"
     },
     {
       "id": "letter",
@@ -49,35 +14,7 @@
       "name": "Business Letter",
       "description": "US business correspondence",
       "pageSize": "Letter",
-      "orientation": "portrait",
-      "sampleData": {
-        "sender": {
-          "name": "Alex Chen",
-          "title": "Head of Partnerships",
-          "company": "PDFX",
-          "address": "548 Market St, Suite 835",
-          "city": "San Francisco, CA 94104",
-          "email": "alex@pdfx.dev",
-          "phone": "+1 (415) 555-0132"
-        },
-        "recipient": {
-          "name": "Sarah Johnson",
-          "title": "Chief Technology Officer",
-          "company": "Acme Corporation",
-          "address": "456 Enterprise Blvd, Suite 100",
-          "city": "Austin, TX 78701"
-        },
-        "date": "January 15, 2026",
-        "subject": "PDFX Enterprise Partnership Proposal",
-        "body": [
-          "I hope this letter finds you well. Following our conversation at React Summit last month, I wanted to formally present our enterprise partnership proposal for your consideration.",
-          "PDFX provides server-side PDF generation using React components and Tailwind CSS. Our solution has helped over 500 companies streamline their document workflows, reducing development time by an average of 60%.",
-          "We believe PDFX would be an excellent fit for Acme Corporation's document generation needs. Our enterprise plan includes unlimited PDF generation, priority support, and custom integrations tailored to your existing infrastructure.",
-          "I would welcome the opportunity to schedule a technical demo with your team. Please let me know if you would be available for a call next week to discuss how PDFX can help Acme Corporation."
-        ],
-        "closing": "Best regards",
-        "signature": "Alex Chen"
-      }
+      "orientation": "portrait"
     },
     {
       "id": "contract",
@@ -85,70 +22,7 @@
       "name": "Contract",
       "description": "Legal service agreement",
       "pageSize": "Legal",
-      "orientation": "portrait",
-      "sampleData": {
-        "title": "ENTERPRISE SERVICE AGREEMENT",
-        "effectiveDate": "January 1, 2026",
-        "watermark": "CONFIDENTIAL",
-        "parties": {
-          "provider": {
-            "name": "PDFX, Inc.",
-            "address": "548 Market St, Suite 835, San Francisco, CA 94104",
-            "representative": "Alex Chen, Head of Partnerships"
-          },
-          "client": {
-            "name": "Acme Corporation",
-            "address": "456 Enterprise Blvd, Suite 100, Austin, TX 78701",
-            "representative": "Sarah Johnson, CTO"
-          }
-        },
-        "terms": [
-          {
-            "title": "Services",
-            "content": "Provider agrees to deliver the PDFX Enterprise Platform including unlimited server-side PDF generation, React component library, Tailwind CSS integration, and API access as detailed in Exhibit A. The Platform shall include all current features and any updates released during the term of this Agreement."
-          },
-          {
-            "title": "Compensation",
-            "content": "Client shall pay Provider an annual license fee of $4,999 USD, due upon execution of this Agreement. Additional API usage beyond 100,000 PDFs per month shall be billed at $0.02 per PDF. All fees are non-refundable and exclusive of applicable taxes."
-          },
-          {
-            "title": "Term and Termination",
-            "content": "This Agreement shall commence on the Effective Date and continue for twelve (12) months, automatically renewing for successive one-year terms unless either party provides written notice of non-renewal at least thirty (30) days prior to the end of the then-current term. Either party may terminate for cause with thirty (30) days written notice upon material breach."
-          },
-          {
-            "title": "Confidentiality",
-            "content": "Both parties agree to maintain the confidentiality of any proprietary information disclosed during this engagement, including but not limited to technical specifications, business strategies, and customer data. This obligation shall survive termination for a period of three (3) years."
-          },
-          {
-            "title": "Service Level Agreement",
-            "content": "Provider guarantees 99.9% API uptime measured monthly, excluding scheduled maintenance. Priority technical support shall be provided with 4-hour response time during business hours (9 AM - 6 PM PST). Critical production issues shall receive 1-hour response time 24/7/365."
-          },
-          {
-            "title": "Intellectual Property",
-            "content": "Provider retains all intellectual property rights in and to the Platform. Client is granted a non-exclusive, non-transferable license to use the Platform during the term. Any custom developments shall be owned by Provider unless otherwise agreed in writing."
-          },
-          {
-            "title": "Data Protection",
-            "content": "Provider shall implement and maintain appropriate technical and organizational measures to protect Client data against unauthorized access, loss, or alteration. Provider shall comply with applicable data protection laws including GDPR and CCPA. Provider shall notify Client within 72 hours of any data breach."
-          },
-          {
-            "title": "Limitation of Liability",
-            "content": "In no event shall either party be liable for any indirect, incidental, special, consequential, or punitive damages. Provider's total liability shall not exceed the fees paid by Client in the twelve (12) months preceding the claim. This limitation shall not apply to breaches of confidentiality or gross negligence."
-          },
-          {
-            "title": "Indemnification",
-            "content": "Provider shall indemnify and hold harmless Client from any third-party claims arising from Provider's breach of this Agreement or infringement of intellectual property rights. Client shall indemnify Provider from claims arising from Client's misuse of the Platform or violation of applicable laws."
-          },
-          {
-            "title": "Governing Law",
-            "content": "This Agreement shall be governed by and construed in accordance with the laws of the State of California, without regard to its conflict of laws principles. Any disputes shall be resolved through binding arbitration in San Francisco, California under AAA Commercial Arbitration Rules."
-          }
-        ],
-        "signatures": {
-          "provider": { "name": "Alex Chen", "title": "Head of Partnerships" },
-          "client": { "name": "Sarah Johnson", "title": "Chief Technology Officer" }
-        }
-      }
+      "orientation": "portrait"
     },
     {
       "id": "ticket",
@@ -156,20 +30,7 @@
       "name": "Ticket",
       "description": "Event admission ticket",
       "pageSize": "A5",
-      "orientation": "portrait",
-      "sampleData": {
-        "event": "React PDF Summit",
-        "year": "2026",
-        "tagline": "Build What's Next",
-        "date": "March 15, 2026",
-        "time": "9:00 AM - 6:00 PM",
-        "venue": "Moscone Center",
-        "venueAddress": "747 Howard St, San Francisco, CA",
-        "attendee": "John Smith",
-        "ticketType": "VIP Access",
-        "ticketNumber": "RPS26-VIP-001234",
-        "price": "$599.00"
-      }
+      "orientation": "portrait"
     },
     {
       "id": "poster",
@@ -177,17 +38,7 @@
       "name": "Poster",
       "description": "Promotional event poster",
       "pageSize": "Tabloid",
-      "orientation": "landscape",
-      "sampleData": {
-        "headline": "React PDF Summit",
-        "year": "2026",
-        "subheadline": "Innovation Meets Inspiration",
-        "date": "March 15-17, 2026",
-        "venue": "Moscone Center, San Francisco",
-        "highlights": ["50+ Speakers", "React & PDFs", "Workshops"],
-        "cta": "Get Tickets",
-        "website": "summit.pdfx.dev"
-      }
+      "orientation": "landscape"
     }
   ]
 }

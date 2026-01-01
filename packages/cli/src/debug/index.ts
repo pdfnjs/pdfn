@@ -22,8 +22,9 @@ html.pdfx-debug .pagedjs_sheet {
   outline-offset: -2px;
 }
 
-/* Grid overlay on the full page */
-html.pdfx-debug .pagedjs_sheet::before {
+/* Grid overlay on the full page - 1cm squares */
+/* Uses ::after to avoid conflict with watermark which uses ::before */
+html.pdfx-debug .pagedjs_sheet::after {
   content: "";
   position: absolute;
   top: 0;
@@ -32,9 +33,10 @@ html.pdfx-debug .pagedjs_sheet::before {
   bottom: 0;
   pointer-events: none;
   z-index: 99998;
+  background-size: 10mm 10mm;
   background-image:
-    repeating-linear-gradient(to right, rgba(0, 120, 200, 0.2) 0, rgba(0, 120, 200, 0.2) 1px, transparent 1px, transparent 10mm),
-    repeating-linear-gradient(to bottom, rgba(0, 120, 200, 0.2) 0, rgba(0, 120, 200, 0.2) 1px, transparent 1px, transparent 10mm);
+    linear-gradient(to right, rgba(0, 120, 200, 0.15) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(0, 120, 200, 0.15) 1px, transparent 1px);
 }
 
 

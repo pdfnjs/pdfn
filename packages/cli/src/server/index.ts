@@ -83,6 +83,27 @@ export function createServer(options: ServerOptions = {}): PDFXServer {
   app.use(express.json({ limit: "50mb" }));
   app.use(requestLogger);
 
+  // Landing page - helpful message for browser visitors
+  router.get("/", (_req: Request, res: Response) => {
+    res.type("text/plain").send(`PDFX Server
+
+This is a headless API server for PDF generation.
+
+Endpoints:
+  POST /generate    Generate PDF from HTML
+  GET  /health      Health check
+
+Usage:
+  curl -X POST http://localhost:${port}/generate \\
+    -H "Content-Type: application/json" \\
+    -d '{"html": "<html>...</html>"}' \\
+    -o output.pdf
+
+For development with live preview, use:
+  npx pdfx dev
+`);
+  });
+
   // Health check
   router.get("/health", (_req: Request, res: Response) => {
     res.json({

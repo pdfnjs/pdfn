@@ -8,10 +8,6 @@ import { Tailwind } from "@pdfx-dev/tailwind";
  * - Compact page size (A5: 148mm x 210mm)
  * - Creative visual design with banner
  * - QR code placeholder
- *
- * Note: font-display and font-script are custom fonts configured in globals.css
- * - font-display: "Playfair Display" (elegant serif)
- * - font-script: "Great Vibes" (handwritten style)
  */
 
 interface TicketProps {
@@ -29,16 +25,16 @@ interface TicketProps {
 }
 
 export default function Ticket({
-  event = "React PDF Summit",
-  year = "2026",
-  tagline = "Build What's Next",
-  date = "March 15, 2026",
+  event = "Tech Conference",
+  year = "2025",
+  tagline = "Innovation Meets Inspiration",
+  date = "March 15, 2025",
   time = "9:00 AM - 6:00 PM",
-  venue = "Moscone Center",
-  venueAddress = "747 Howard St, San Francisco, CA",
+  venue = "Convention Center",
+  venueAddress = "123 Main St, San Francisco, CA",
   attendee = "John Smith",
   ticketType = "VIP Access",
-  ticketNumber = "RPS26-VIP-001234",
+  ticketNumber = "TC25-VIP-001234",
   price = "$599.00",
 }: TicketProps) {
   return (
@@ -47,7 +43,7 @@ export default function Ticket({
         <Page size="A5" margin="0">
           {/* Header Banner */}
           <div className="bg-gray-900 px-6 py-7 text-center">
-            <div className="text-3xl font-black text-white tracking-wide font-display">
+            <div className="text-3xl font-black text-white tracking-wide">
               {event}
               {year && <span className="text-cyan-400"> {year}</span>}
             </div>
@@ -104,7 +100,7 @@ export default function Ticket({
               <div className="text-xs text-gray-500 uppercase tracking-wider font-medium mb-1">
                 Admit One
               </div>
-              <div className="text-4xl font-black text-gray-900 font-script">{attendee}</div>
+              <div className="text-4xl font-black text-gray-900">{attendee}</div>
             </div>
 
             {/* QR Code Area */}

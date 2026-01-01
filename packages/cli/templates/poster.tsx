@@ -9,9 +9,6 @@ import { Tailwind } from "@pdfx-dev/tailwind";
  * - Landscape orientation
  * - Full-bleed design (margin: 0)
  * - Bold typography and visual hierarchy
- *
- * Note: font-display is a custom font configured in globals.css
- * - font-display: "Playfair Display" (elegant serif)
  */
 
 interface PosterProps {
@@ -26,14 +23,14 @@ interface PosterProps {
 }
 
 export default function Poster({
-  headline = "React PDF Summit",
-  year = "2026",
+  headline = "Tech Conference",
+  year = "2025",
   subheadline = "Innovation Meets Inspiration",
-  date = "March 15-17, 2026",
-  venue = "Moscone Center, San Francisco",
-  highlights = ["50+ Speakers", "React & PDFs", "Workshops"],
+  date = "March 15-17, 2025",
+  venue = "Convention Center, San Francisco",
+  highlights = ["50+ Speakers", "Workshops", "Networking"],
   cta = "Get Tickets",
-  website = "summit.pdfx.dev",
+  website = "techconf2025.com",
 }: PosterProps) {
   // Tabloid landscape dimensions
   const pageHeight = "792pt"; // 11 inches
@@ -49,7 +46,7 @@ export default function Poster({
           >
             {/* Top Section: Logo and Accent */}
             <div className="flex justify-between items-start mb-4">
-              <img src="./pdf-templates/assets/logo.svg" alt="Logo" className="h-8 invert" />
+              <div className="text-2xl font-black text-white">PDFX</div>
               <div className="flex gap-2">
                 <div className="h-1.5 w-32 bg-cyan-500 rounded-full"></div>
                 <div className="h-1.5 w-16 bg-cyan-500/50 rounded-full"></div>
@@ -60,7 +57,7 @@ export default function Poster({
             {/* Main Content - Vertically Centered */}
             <div className="flex-1 flex flex-col justify-center">
               {/* Headline */}
-              <h1 className="text-8xl font-black tracking-tight leading-none mb-6 font-display">
+              <h1 className="text-8xl font-black tracking-tight leading-none mb-6">
                 {headline}
                 {year && <span className="text-cyan-400"> {year}</span>}
               </h1>
