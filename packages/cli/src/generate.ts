@@ -1,6 +1,6 @@
 import type { ReactElement } from "react";
 import { render, type RenderOptions, type PdfOptions } from "@pdfx-dev/react";
-import { injectDebugSupport } from "./debug";
+import { injectDebugSupport, type DebugOptions } from "./debug";
 
 export interface GenerateOptions extends RenderOptions {
   /**
@@ -13,8 +13,9 @@ export interface GenerateOptions extends RenderOptions {
   /**
    * Enable debug mode (shows page boundaries, margins, grid)
    * Works for both HTML and PDF output
+   * Can be a boolean (true enables all) or an object with specific options
    */
-  debug?: boolean;
+  debug?: boolean | DebugOptions;
 
   /**
    * PDFX server host (required for PDF output)

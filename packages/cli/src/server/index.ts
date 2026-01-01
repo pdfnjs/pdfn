@@ -1,7 +1,7 @@
 import express from "express";
 import type { Express, Request, Response, NextFunction } from "express";
 import { BrowserManager } from "./browser";
-import { generatePdf, type PdfGenerationOptions } from "./pdf";
+import { generatePdf, type PdfGenerationOptions, type PdfResult } from "./pdf";
 import { logger } from "../utils/logger";
 
 export interface ServerOptions {
@@ -27,20 +27,37 @@ interface GenerateRequestBody {
 
 /**
  * Request timing middleware
+ * Logs all requests, with extra PDF details for /generate
  */
 function requestLogger(req: Request, res: Response, next: NextFunction) {
+  // Skip noisy requests
+  const skipPaths = ["/favicon.ico", "/robots.txt"];
+  if (skipPaths.includes(req.path)) {
+    next();
+    return;
+  }
+
   const start = performance.now();
 
   res.on("finish", () => {
     const duration = performance.now() - start;
-    const extra =
-      req.path === "/generate" && res.statusCode === 200
-        ? res.getHeader("X-PDFX-Page-Count")
-          ? `${res.getHeader("X-PDFX-Page-Count")} pages`
-          : undefined
-        : undefined;
+
+    // For /generate, include page count and size in request line
+    let extra: string | undefined;
+    if (req.path === "/generate" && res.statusCode === 200) {
+      const pages = res.getHeader("X-PDFX-Page-Count");
+      const size = Number(res.getHeader("X-PDFX-PDF-Size")) || 0;
+      const sizeKB = (size / 1024).toFixed(1);
+      extra = `${pages} pages • ${sizeKB}KB`;
+    }
 
     logger.request(req.method, req.path, res.statusCode, duration, extra);
+
+    // Log PDF details if available
+    const pdfResult = (res as any)._pdfResult as PdfResult | undefined;
+    if (pdfResult) {
+      logger.pdfDetails(pdfResult);
+    }
   });
 
   next();
@@ -139,6 +156,9 @@ For development with live preview, use:
         });
       });
 
+      // Attach result for request logger to log details
+      (res as any)._pdfResult = result;
+
       // Set response headers with metrics
       res.setHeader("Content-Type", "application/pdf");
       res.setHeader("X-PDFX-Total-Time", result.metrics.total.toString());
@@ -146,6 +166,7 @@ For development with live preview, use:
       res.setHeader("X-PDFX-PagedJs-Time", result.metrics.pagedJs.toString());
       res.setHeader("X-PDFX-PDF-Capture", result.metrics.pdfCapture.toString());
       res.setHeader("X-PDFX-Page-Count", result.metrics.pageCount.toString());
+      res.setHeader("X-PDFX-PDF-Size", result.metrics.pdfSize.toString());
 
       res.send(result.buffer);
     } catch (error) {

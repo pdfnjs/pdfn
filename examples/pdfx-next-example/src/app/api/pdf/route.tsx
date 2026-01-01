@@ -44,7 +44,7 @@ function getTemplate(id: string) {
  * Query params:
  *   ?template=id   - Template to use (default: invoice)
  *   ?html=true     - Return HTML instead of PDF (for preview)
- *   ?debug=true    - Add debug overlay (grid, margin indicators)
+ *   ?debug=grid,margins,headers,breaks - Add debug overlays (comma-separated)
  *
  * Examples:
  *   /api/pdf                     - Generate PDF (default template)
@@ -54,14 +54,32 @@ function getTemplate(id: string) {
  *   /api/pdf?template=ticket     - Event Ticket (A5)
  *   /api/pdf?template=poster     - Poster (Tabloid Landscape)
  *   /api/pdf?html=true           - Preview HTML
- *   /api/pdf?debug=true          - PDF with debug grid
+ *   /api/pdf?debug=grid,margins  - PDF with debug overlays
  */
 export async function GET(request: NextRequest) {
   const searchParams = request.nextUrl.searchParams;
   const templateId = searchParams.get("template") || "invoice";
   const wantHtml = searchParams.get("html") === "true";
-  const debug = searchParams.get("debug") === "true";
+  const debugParam = searchParams.get("debug");
   const start = performance.now();
+
+  // Parse debug options
+  let debug: boolean | { grid?: boolean; margins?: boolean; headers?: boolean; breaks?: boolean } = false;
+  if (debugParam) {
+    if (debugParam === "true") {
+      // Legacy support: debug=true enables all
+      debug = { grid: true, margins: true, headers: true, breaks: true };
+    } else {
+      // Parse comma-separated options
+      const options = debugParam.split(",").map(s => s.trim());
+      debug = {
+        grid: options.includes("grid"),
+        margins: options.includes("margins"),
+        headers: options.includes("headers"),
+        breaks: options.includes("breaks"),
+      };
+    }
+  }
 
   // Get template
   const template = getTemplate(templateId);
@@ -82,7 +100,8 @@ export async function GET(request: NextRequest) {
   const { config, Component } = template;
   const { name, pageSize, orientation } = config;
 
-  const params = [wantHtml && "html", debug && "debug"].filter(Boolean).join(", ");
+  const debugOptions = typeof debug === "object" ? Object.entries(debug).filter(([, v]) => v).map(([k]) => k) : [];
+  const params = [wantHtml && "html", debugOptions.length > 0 && `debug:${debugOptions.join(",")}`].filter(Boolean).join(", ");
 
   console.log(
     `[pdf] ${wantHtml ? "render" : "generate"} "${name}" (${pageSize} ${orientation})${params ? ` [${params}]` : ""}`
@@ -103,6 +122,7 @@ export async function GET(request: NextRequest) {
       return new Response(html, {
         headers: {
           "Content-Type": "text/html; charset=utf-8",
+          "X-Render-Time": duration.toString(),
         },
       });
     }

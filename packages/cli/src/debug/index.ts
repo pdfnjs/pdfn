@@ -2,29 +2,45 @@
  * Debug utilities for PDFX
  *
  * Provides visual debugging overlays for PDF preview:
- * - Page boundaries
- * - Margin indicators
- * - Grid overlay
+ * - Grid overlay (1cm squares)
+ * - Margin boundaries
  * - Header/footer highlights
+ * - Page number badges
  */
 
 /**
- * Debug CSS styles for Paged.js structure visualization
- * Activated by adding 'pdfx-debug' class to the <html> element
+ * Debug overlay options
  */
-export const PDFX_DEBUG_CSS = `
-/* Debug mode - targets Paged.js structure */
-/* Hidden by default, activated by adding 'pdfx-debug' class to html */
-
-/* Page border on the sheet (full page including margins) */
-html.pdfx-debug .pagedjs_sheet {
-  outline: 2px solid rgba(0, 100, 200, 0.8) !important;
-  outline-offset: -2px;
+export interface DebugOptions {
+  grid?: boolean;
+  margins?: boolean;
+  headers?: boolean;
+  breaks?: boolean;
 }
 
-/* Grid overlay on the full page - 1cm squares */
-/* Uses ::after to avoid conflict with watermark which uses ::before */
-html.pdfx-debug .pagedjs_sheet::after {
+/**
+ * Default debug options (all disabled)
+ */
+export const DEFAULT_DEBUG_OPTIONS: DebugOptions = {
+  grid: false,
+  margins: false,
+  headers: false,
+  breaks: false,
+};
+
+/**
+ * Debug CSS styles for Paged.js structure visualization
+ * Each feature is controlled by a separate class on the <html> element:
+ * - pdfx-debug-grid: 1cm grid overlay
+ * - pdfx-debug-margins: Page and content boundaries
+ * - pdfx-debug-headers: Header/footer highlights
+ * - pdfx-debug-breaks: Page number badges
+ */
+export const PDFX_DEBUG_CSS = `
+/* ========================================
+   GRID OVERLAY - 1cm squares
+   ======================================== */
+html.pdfx-debug-grid .pagedjs_sheet::after {
   content: "";
   position: absolute;
   top: 0;
@@ -39,12 +55,11 @@ html.pdfx-debug .pagedjs_sheet::after {
     linear-gradient(to bottom, rgba(0, 120, 200, 0.15) 1px, transparent 1px);
 }
 
-
-/* Grid scale label - plain text in top-left corner */
-html.pdfx-debug .pagedjs_margin-top-left-corner-holder {
+/* Grid scale label */
+html.pdfx-debug-grid .pagedjs_margin-top-left-corner-holder {
   position: relative;
 }
-html.pdfx-debug .pagedjs_margin-top-left-corner-holder::after {
+html.pdfx-debug-grid .pagedjs_margin-top-left-corner-holder::after {
   content: "Grid: 1cm × 1cm";
   position: absolute;
   top: 4px;
@@ -58,58 +73,88 @@ html.pdfx-debug .pagedjs_margin-top-left-corner-holder::after {
   white-space: nowrap;
 }
 
-/* Margin boundaries - red dashed line around the content area */
-html.pdfx-debug .pagedjs_pagebox {
+/* ========================================
+   MARGINS - Page and content boundaries
+   ======================================== */
+/* Page border on the sheet */
+html.pdfx-debug-margins .pagedjs_sheet {
+  outline: 2px solid rgba(0, 100, 200, 0.8) !important;
+  outline-offset: -2px;
+}
+
+/* Content area boundary - red dashed */
+html.pdfx-debug-margins .pagedjs_pagebox {
   outline: 1px dashed rgba(255, 0, 0, 0.6) !important;
 }
 
-/* Header/footer area indicators in margin boxes */
-html.pdfx-debug .pagedjs_margin-top,
-html.pdfx-debug .pagedjs_margin-top-left-corner-holder,
-html.pdfx-debug .pagedjs_margin-top-right-corner-holder {
+/* Top margin - green */
+html.pdfx-debug-margins .pagedjs_margin-top,
+html.pdfx-debug-margins .pagedjs_margin-top-left-corner-holder,
+html.pdfx-debug-margins .pagedjs_margin-top-right-corner-holder {
   background: rgba(0, 200, 100, 0.1) !important;
 }
 
-html.pdfx-debug .pagedjs_margin-bottom,
-html.pdfx-debug .pagedjs_margin-bottom-left-corner-holder,
-html.pdfx-debug .pagedjs_margin-bottom-right-corner-holder {
+/* Bottom margin - blue */
+html.pdfx-debug-margins .pagedjs_margin-bottom,
+html.pdfx-debug-margins .pagedjs_margin-bottom-left-corner-holder,
+html.pdfx-debug-margins .pagedjs_margin-bottom-right-corner-holder {
   background: rgba(100, 100, 255, 0.1) !important;
 }
 
-html.pdfx-debug .pagedjs_margin-left,
-html.pdfx-debug .pagedjs_margin-right {
+/* Left/right margins - orange */
+html.pdfx-debug-margins .pagedjs_margin-left,
+html.pdfx-debug-margins .pagedjs_margin-right {
   background: rgba(255, 150, 0, 0.1) !important;
   outline: 1px dashed rgba(255, 150, 0, 0.4) !important;
 }
 
-/* Content area header/footer */
-html.pdfx-debug [data-pdfx-header] {
+/* ========================================
+   HEADERS/FOOTERS - Content highlights
+   ======================================== */
+html.pdfx-debug-headers [data-pdfx-header] {
   background: rgba(0, 200, 100, 0.15);
   outline: 1px dashed rgba(0, 200, 100, 0.5);
 }
 
-html.pdfx-debug [data-pdfx-footer] {
+html.pdfx-debug-headers [data-pdfx-footer] {
   background: rgba(100, 100, 255, 0.15);
   outline: 1px dashed rgba(100, 100, 255, 0.5);
 }
 
-/* Debug legend - only in browser preview, not in PDF */
-@media screen {
-  html.pdfx-debug body::after {
-    content: "DEBUG MODE | Blue border: page edge | Red dashed: content boundary | Green: top margin | Blue: bottom margin | Orange: side margins";
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    background: rgba(0, 0, 0, 0.9);
-    color: #fff;
-    font-size: 11px;
-    font-family: system-ui, sans-serif;
-    padding: 8px 12px;
-    z-index: 999999;
-  }
+/* ========================================
+   PAGE NUMBERS - Debug page indicators
+   ======================================== */
+html.pdfx-debug-breaks .pagedjs_page {
+  position: relative;
+}
+html.pdfx-debug-breaks .pagedjs_page::after {
+  content: "Page " attr(data-page-number);
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background: rgba(0, 0, 0, 0.75);
+  color: #fff;
+  font-size: 11px;
+  font-family: system-ui, sans-serif;
+  font-weight: 500;
+  padding: 3px 8px;
+  border-radius: 4px;
+  z-index: 99999;
+  pointer-events: none;
 }
 `;
+
+/**
+ * Build debug classes string from options
+ */
+function buildDebugClasses(options: DebugOptions): string {
+  const classes: string[] = [];
+  if (options.grid) classes.push("pdfx-debug-grid");
+  if (options.margins) classes.push("pdfx-debug-margins");
+  if (options.headers) classes.push("pdfx-debug-headers");
+  if (options.breaks) classes.push("pdfx-debug-breaks");
+  return classes.join(" ");
+}
 
 /**
  * Inject debug overlay into an HTML string
@@ -118,22 +163,36 @@ html.pdfx-debug [data-pdfx-footer] {
  *
  * @internal Used by generate() - not exported publicly
  * @param html - The HTML string to inject debug support into
- * @param enabled - Whether to enable debug mode (default: false)
+ * @param options - Debug options (true for defaults, false for none, or specific options)
  * @returns HTML string, with debug CSS injected if enabled
  */
-export function injectDebugSupport(html: string, enabled = false): string {
-  if (!enabled) {
+export function injectDebugSupport(
+  html: string,
+  options: boolean | DebugOptions = false
+): string {
+  // Handle boolean for backwards compatibility
+  if (options === false) {
     return html;
   }
 
+  const debugOptions: DebugOptions =
+    options === true ? DEFAULT_DEBUG_OPTIONS : options;
+
+  // Check if any option is enabled
+  const hasAnyOption = Object.values(debugOptions).some((v) => v === true);
+  if (!hasAnyOption) {
+    return html;
+  }
+
+  const debugClasses = buildDebugClasses(debugOptions);
   const cssInjection = `<style id="pdfx-debug-styles">${PDFX_DEBUG_CSS}</style>`;
 
   let result = html;
 
-  // Add debug class to html element
-  result = result.replace("<html", '<html class="pdfx-debug"');
+  // Add debug classes to html element
+  result = result.replace("<html", `<html class="${debugClasses}"`);
   // Handle case where html already has a class
-  result = result.replace('class="pdfx-debug" class="', 'class="pdfx-debug ');
+  result = result.replace(`class="${debugClasses}" class="`, `class="${debugClasses} `);
 
   // Inject CSS before </head>
   if (result.includes("</head>")) {

@@ -9,7 +9,7 @@ import chokidar from "chokidar";
 import { createServer as createHttpServer } from "http";
 import { BrowserManager } from "../server/browser";
 import { generatePdf } from "../server/pdf";
-import { injectDebugSupport } from "../debug";
+import { injectDebugSupport, type DebugOptions } from "../debug";
 import chalk from "chalk";
 
 interface TemplateInfo {
@@ -182,6 +182,12 @@ function createPreviewHTML(templates: TemplateInfo[], activeTemplate: string | n
       height: calc(100vh - 57px);
     }
 
+    .main-wrapper {
+      flex: 1;
+      display: flex;
+      overflow: hidden;
+    }
+
     .sidebar {
       width: 200px;
       background: var(--surface-1);
@@ -246,6 +252,12 @@ function createPreviewHTML(templates: TemplateInfo[], activeTemplate: string | n
       border-bottom: 1px solid var(--border);
     }
 
+    .context-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
     .file-name {
       font-family: ui-monospace, SFMono-Regular, monospace;
       font-size: 13px;
@@ -263,6 +275,12 @@ function createPreviewHTML(templates: TemplateInfo[], activeTemplate: string | n
     .page-info {
       font-size: 12px;
       color: var(--text-muted);
+    }
+
+    .context-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
     }
 
     /* Preview area */
@@ -335,80 +353,160 @@ function createPreviewHTML(templates: TemplateInfo[], activeTemplate: string | n
       to { transform: rotate(360deg); }
     }
 
-    /* Control bar - bottom */
-    .control-bar {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 10px 16px;
+    /* Inspector panel - right side */
+    .inspector-panel {
+      width: 200px;
       background: var(--surface-1);
-      border-top: 1px solid var(--border);
+      border-left: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      overflow-y: auto;
     }
 
-    .control-left {
+    .inspector-title {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--text);
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .inspector-content {
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+
+    .inspector-section {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .inspector-section-title {
+      font-size: 10px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--text-muted);
       display: flex;
       align-items: center;
-      gap: 16px;
+      gap: 6px;
     }
 
-    .debug-toggle {
+    .metrics-note {
+      font-size: 10px;
+      color: var(--text-muted);
+      margin-top: 8px;
+      font-style: italic;
+    }
+
+    /* Metrics display */
+    .metrics-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .metric-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+    }
+
+    .metric-label {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    .metric-value {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--primary);
+      font-variant-numeric: tabular-nums;
+    }
+
+    /* Overlay checkboxes */
+    .overlay-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .overlay-checkbox {
       display: flex;
       align-items: center;
       gap: 8px;
       cursor: pointer;
-      user-select: none;
+      font-size: 13px;
+      color: var(--text-secondary);
     }
 
-    .toggle-track {
-      width: 32px;
+    .overlay-checkbox:hover {
+      color: var(--text);
+    }
+
+    .overlay-checkbox input {
+      appearance: none;
+      width: 16px;
       height: 16px;
+      border: 1px solid #444;
+      border-radius: 3px;
       background: var(--surface-2);
-      border: 1px solid #333;
-      border-radius: 8px;
+      cursor: pointer;
       position: relative;
-      transition: all 0.2s;
+      flex-shrink: 0;
     }
 
-    .toggle-track:hover { border-color: #444; }
-    .toggle-track.active { background: var(--primary); border-color: var(--primary); }
+    .overlay-checkbox input:hover {
+      border-color: #555;
+    }
 
-    .toggle-thumb {
+    .overlay-checkbox input:checked {
+      background: var(--primary);
+      border-color: var(--primary);
+    }
+
+    .overlay-checkbox input:checked::after {
+      content: "";
       position: absolute;
-      top: 1px;
-      left: 2px;
-      width: 12px;
-      height: 12px;
-      background: white;
-      border-radius: 50%;
-      transition: left 0.2s;
-      box-shadow: 0 1px 2px rgba(0,0,0,0.2);
+      left: 5px;
+      top: 2px;
+      width: 4px;
+      height: 8px;
+      border: solid #000;
+      border-width: 0 2px 2px 0;
+      transform: rotate(45deg);
     }
 
-    .toggle-track.active .toggle-thumb { left: 16px; }
-
-    .toggle-label {
-      font-size: 12px;
-      color: var(--text-muted);
-    }
-
-    .control-right {
-      display: flex;
+    .debug-link {
+      display: inline-flex;
       align-items: center;
-      gap: 12px;
-    }
-
-    .metrics {
+      gap: 4px;
+      margin-top: 8px;
       font-size: 12px;
       color: var(--text-muted);
+      text-decoration: none;
+      transition: color 0.15s;
     }
 
-    .metrics span { color: var(--primary); font-weight: 600; }
+    .debug-link:hover {
+      color: var(--primary);
+    }
 
+    .debug-link svg {
+      opacity: 0.7;
+    }
+
+    /* Buttons */
     .btn {
-      padding: 6px 12px;
+      padding: 6px 10px;
       background: var(--surface-2);
       border: 1px solid #333;
-      border-radius: 6px;
+      border-radius: 5px;
       color: #ccc;
       font-size: 12px;
       cursor: pointer;
@@ -416,7 +514,7 @@ function createPreviewHTML(templates: TemplateInfo[], activeTemplate: string | n
       text-decoration: none;
       display: inline-flex;
       align-items: center;
-      gap: 6px;
+      gap: 5px;
     }
 
     .btn:hover { background: #333; border-color: #444; }
@@ -450,43 +548,93 @@ function createPreviewHTML(templates: TemplateInfo[], activeTemplate: string | n
       }
     </aside>
 
-    <main class="main">
-      <!-- Context bar: filename + page info -->
-      <div class="context-bar">
-        <div class="file-name" id="file-name"></div>
-        <div class="page-info" id="page-info"></div>
-      </div>
-
-      <!-- Preview area -->
-      <div class="preview-area" id="preview-area">
-        ${
-          activeTemplate
-            ? '<div class="loading-spinner"><div class="spinner"></div><span>Loading preview...</span></div>'
-            : '<div class="empty-state"><h2>Select a template</h2><p>Choose a template from the sidebar to preview</p></div>'
-        }
-      </div>
-
-      <!-- Control bar: debug + metrics + download -->
-      <div class="control-bar">
-        <div class="control-left">
-          <div class="debug-toggle" id="debug-toggle">
-            <div class="toggle-track" id="toggle-track">
-              <div class="toggle-thumb"></div>
-            </div>
-            <span class="toggle-label">Debug</span>
+    <div class="main-wrapper">
+      <main class="main">
+        <!-- Context bar: filename + page info + actions -->
+        <div class="context-bar">
+          <div class="context-left">
+            <div class="file-name" id="file-name"></div>
+            <div class="page-info" id="page-info"></div>
+          </div>
+          <div class="context-actions">
+            <a class="btn" id="view-pdf" href="#" target="_blank" title="View PDF in browser">
+              <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
+              </svg>
+              View PDF
+            </a>
+            <button class="btn btn-primary" id="download-pdf" title="Download PDF">
+              <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+              </svg>
+              Download
+            </button>
           </div>
         </div>
-        <div class="control-right">
-          <div class="metrics" id="metrics"></div>
-          <button class="btn btn-primary" id="download-pdf">
-            <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
-            </svg>
-            Download
-          </button>
+
+        <!-- Preview area -->
+        <div class="preview-area" id="preview-area">
+          ${
+            activeTemplate
+              ? '<div class="loading-spinner"><div class="spinner"></div><span>Loading preview...</span></div>'
+              : '<div class="empty-state"><h2>Select a template</h2><p>Choose a template from the sidebar to preview</p></div>'
+          }
         </div>
-      </div>
-    </main>
+      </main>
+
+      <!-- Inspector panel: right side -->
+      <aside class="inspector-panel" id="inspector-panel">
+        <div class="inspector-title">Inspector</div>
+        <div class="inspector-content">
+          <div class="inspector-section">
+            <div class="inspector-section-title">Performance</div>
+            <div class="metrics-grid">
+              <div class="metric-item">
+                <div class="metric-label">Render</div>
+                <div class="metric-value" id="metric-render">--</div>
+              </div>
+              <div class="metric-item">
+                <div class="metric-label">Pagination</div>
+                <div class="metric-value" id="metric-pagination">--</div>
+              </div>
+              <div class="metric-item">
+                <div class="metric-label">Pages</div>
+                <div class="metric-value" id="metric-pages">--</div>
+              </div>
+            </div>
+            <div class="metrics-note">Measured in browser. Times vary on server.</div>
+          </div>
+
+          <div class="inspector-section">
+            <div class="inspector-section-title">Debug</div>
+            <div class="overlay-list">
+              <label class="overlay-checkbox">
+                <input type="checkbox" id="overlay-grid">
+                Grid (1cm)
+              </label>
+              <label class="overlay-checkbox">
+                <input type="checkbox" id="overlay-margins">
+                Margins
+              </label>
+              <label class="overlay-checkbox">
+                <input type="checkbox" id="overlay-headers">
+                Headers/Footers
+              </label>
+              <label class="overlay-checkbox">
+                <input type="checkbox" id="overlay-breaks">
+                Page numbers
+              </label>
+            </div>
+            <a class="debug-link" id="view-html" href="#" target="_blank">
+              View HTML
+              <svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
+              </svg>
+            </a>
+          </div>
+        </div>
+      </aside>
+    </div>
   </div>
 
   <script>
@@ -500,11 +648,70 @@ function createPreviewHTML(templates: TemplateInfo[], activeTemplate: string | n
     };
 
     const PT_TO_PX = 96 / 72;
+    const STORAGE_KEY = 'pdfx-inspector';
 
     let ws;
     let currentTemplate = ${activeTemplate ? `"${activeTemplate}"` : "null"};
-    let debug = false;
     let templateInfo = {};
+
+    // Inspector state with defaults (all overlays off by default)
+    let inspectorState = {
+      overlays: {
+        grid: false,
+        margins: false,
+        headers: false,
+        breaks: false,
+      }
+    };
+
+    // Load state from localStorage
+    function loadState() {
+      try {
+        const saved = localStorage.getItem(STORAGE_KEY);
+        if (saved) {
+          const parsed = JSON.parse(saved);
+          inspectorState = { ...inspectorState, ...parsed };
+        }
+      } catch (e) {}
+    }
+
+    // Save state to localStorage
+    function saveState() {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(inspectorState));
+      } catch (e) {}
+    }
+
+    // Apply state to UI
+    function applyState() {
+      // Overlay checkboxes
+      document.getElementById('overlay-grid').checked = inspectorState.overlays.grid;
+      document.getElementById('overlay-margins').checked = inspectorState.overlays.margins;
+      document.getElementById('overlay-headers').checked = inspectorState.overlays.headers;
+      document.getElementById('overlay-breaks').checked = inspectorState.overlays.breaks;
+    }
+
+    // Get debug query string from overlay state
+    function getDebugQuery() {
+      const { overlays } = inspectorState;
+      const hasAny = Object.values(overlays).some(v => v);
+      if (!hasAny) return '';
+
+      const params = new URLSearchParams();
+      if (overlays.grid) params.set('grid', '1');
+      if (overlays.margins) params.set('margins', '1');
+      if (overlays.headers) params.set('headers', '1');
+      if (overlays.breaks) params.set('breaks', '1');
+
+      return '?' + params.toString();
+    }
+
+    // Check if any overlay is enabled
+    function hasAnyOverlay() {
+      return Object.values(inspectorState.overlays).some(v => v);
+    }
+
+    loadState();
 
     function connect() {
       ws = new WebSocket('ws://' + location.host);
@@ -529,6 +736,19 @@ function createPreviewHTML(templates: TemplateInfo[], activeTemplate: string | n
     }
 
     connect();
+
+    // Listen for metrics from iframe (postMessage from PDFX script)
+    window.addEventListener('message', function(event) {
+      if (event.data && event.data.type === 'pdfx:metrics') {
+        const metrics = event.data.metrics;
+        if (metrics.paginationTime !== undefined) {
+          document.getElementById('metric-pagination').textContent = metrics.paginationTime + 'ms';
+        }
+        if (metrics.pages !== undefined) {
+          document.getElementById('metric-pages').textContent = metrics.pages;
+        }
+      }
+    });
 
     function detectPageInfo(html) {
       let pageSize = 'A4';
@@ -591,17 +811,24 @@ function createPreviewHTML(templates: TemplateInfo[], activeTemplate: string | n
       previewArea.innerHTML = '<div class="loading-spinner"><div class="spinner"></div><span>Rendering...</span></div>';
 
       try {
-        const htmlRes = await fetch('/api/template/' + templateId + '/html' + (debug ? '?debug=true' : ''));
+        const debugQuery = getDebugQuery();
+        const htmlRes = await fetch('/api/template/' + templateId + '/html' + debugQuery);
         const html = await htmlRes.text();
 
         templateInfo = detectPageInfo(html);
         document.getElementById('page-info').textContent =
           templateInfo.pageSize + ' · ' + templateInfo.orientation;
 
+        // Update metrics (render time from server, pagination from iframe postMessage)
         const renderTime = htmlRes.headers.get('X-Render-Time');
+
         if (renderTime) {
-          document.getElementById('metrics').innerHTML = 'Rendered in <span>' + renderTime + 'ms</span>';
+          document.getElementById('metric-render').textContent = renderTime + 'ms';
         }
+
+        // Reset pagination metrics (will be updated via postMessage from iframe)
+        document.getElementById('metric-pagination').textContent = '--';
+        document.getElementById('metric-pages').textContent = '--';
 
         const { pageW, pageH, scale } = calculateScale(templateInfo.pageSize, templateInfo.orientation);
         const displayW = pageW * scale;
@@ -626,9 +853,16 @@ function createPreviewHTML(templates: TemplateInfo[], activeTemplate: string | n
         frame.appendChild(iframe);
         previewArea.appendChild(frame);
 
+        // Set up action buttons
+        const pdfUrl = '/api/template/' + templateId + '/pdf' + debugQuery;
+        const htmlUrl = '/api/template/' + templateId + '/html' + debugQuery;
+
+        document.getElementById('view-pdf').href = pdfUrl;
+        document.getElementById('view-html').href = htmlUrl;
+
         document.getElementById('download-pdf').onclick = () => {
           const link = document.createElement('a');
-          link.href = '/api/template/' + templateId + '/pdf' + (debug ? '?debug=true' : '');
+          link.href = pdfUrl;
           link.download = templateId + '.pdf';
           link.click();
         };
@@ -642,11 +876,15 @@ function createPreviewHTML(templates: TemplateInfo[], activeTemplate: string | n
       btn.addEventListener('click', () => loadPreview(btn.dataset.template));
     });
 
-    document.getElementById('debug-toggle').onclick = () => {
-      debug = !debug;
-      document.getElementById('toggle-track').classList.toggle('active', debug);
-      if (currentTemplate) loadPreview(currentTemplate);
-    };
+    // Overlay checkbox handlers
+    const overlayCheckboxes = ['grid', 'margins', 'headers', 'breaks'];
+    overlayCheckboxes.forEach(name => {
+      document.getElementById('overlay-' + name).onchange = (e) => {
+        inspectorState.overlays[name] = e.target.checked;
+        saveState();
+        if (currentTemplate) loadPreview(currentTemplate);
+      };
+    });
 
     let resizeTimeout;
     window.addEventListener('resize', () => {
@@ -656,6 +894,8 @@ function createPreviewHTML(templates: TemplateInfo[], activeTemplate: string | n
       }, 150);
     });
 
+    // Apply saved state and load first template
+    applyState();
     ${activeTemplate ? `loadPreview("${activeTemplate}");` : ""}
   </script>
 </body>
@@ -696,10 +936,22 @@ async function startDevServer(options: DevServerOptions) {
   }
 
   // Create Vite server for template compilation
+  // Custom logger to silence Vite's default output (we handle our own logging)
+  const viteLogger = {
+    info: () => {},
+    warn: () => {},
+    error: (msg: string) => console.error(chalk.red("  ✗ Vite:"), msg),
+    warnOnce: () => {},
+    hasWarned: false,
+    clearScreen: () => {},
+    hasErrorLogged: () => false,
+  };
+
   const vite = await createViteServer({
     root: process.cwd(),
     server: { middlewareMode: true },
     appType: "custom",
+    customLogger: viteLogger,
     optimizeDeps: {
       include: ["react", "react-dom"],
     },
@@ -738,19 +990,61 @@ async function startDevServer(options: DevServerOptions) {
     persistent: true,
   });
 
-  watcher.on("change", async (path) => {
-    console.log(chalk.dim(`  File changed: ${path}`));
+  // Helper to check if a file is a template (matches what we show in sidebar)
+  function isTemplateFile(filePath: string): boolean {
+    const fileName = filePath.split("/").pop() || "";
+    // Must be a .tsx file in the root of templates dir (not in subdirectories)
+    if (!fileName.endsWith(".tsx")) return false;
+    // Check if it's a direct child of templates dir
+    const relativePath = filePath.replace(absoluteTemplatesDir + "/", "");
+    if (relativePath.includes("/")) return false;
+    return true;
+  }
+
+  // Helper to check if file is a code file (tsx/ts/js/jsx)
+  function isCodeFile(filePath: string): boolean {
+    return /\.(tsx?|jsx?)$/.test(filePath);
+  }
+
+  // Suppress logging during initial scan
+  let watcherReady = false;
+
+  watcher.on("ready", () => {
+    watcherReady = true;
+  });
+
+  watcher.on("change", async (filePath) => {
+    if (!watcherReady) return;
+    const fileName = filePath.split("/").pop() || filePath;
+    // Log all code file changes (templates and components)
+    if (isCodeFile(filePath)) {
+      console.log(chalk.blue("  ↻"), chalk.white(fileName), chalk.dim("changed"));
+    }
     templates = await scanTemplates(absoluteTemplatesDir);
     broadcast({ type: "reload" });
   });
 
-  watcher.on("add", async () => {
+  watcher.on("add", async (filePath) => {
+    if (!watcherReady) return;
+    const oldCount = templates.length;
     templates = await scanTemplates(absoluteTemplatesDir);
+    // Only log if a new template was actually added (not components)
+    if (templates.length > oldCount && isTemplateFile(filePath)) {
+      const fileName = filePath.split("/").pop() || filePath;
+      console.log(chalk.green("  +"), chalk.white(fileName), chalk.dim("added"));
+    }
     broadcast({ type: "reload" });
   });
 
-  watcher.on("unlink", async () => {
+  watcher.on("unlink", async (filePath) => {
+    if (!watcherReady) return;
+    const oldCount = templates.length;
+    const fileName = filePath.split("/").pop() || filePath;
     templates = await scanTemplates(absoluteTemplatesDir);
+    // Only log if a template was actually removed (not components)
+    if (templates.length < oldCount && isTemplateFile(filePath)) {
+      console.log(chalk.red("  -"), chalk.white(fileName), chalk.dim("removed"));
+    }
     broadcast({ type: "reload" });
   });
 
@@ -778,13 +1072,30 @@ async function startDevServer(options: DevServerOptions) {
 
   // Helper: Render a template to HTML using Vite
   // Templates use default parameter values for sample data (React Email pattern)
-  async function renderTemplate(template: TemplateInfo, debug = false): Promise<string> {
+  async function renderTemplate(
+    template: TemplateInfo,
+    debugOptions: boolean | DebugOptions = false
+  ): Promise<string> {
     const mod = await vite.ssrLoadModule(template.path);
     const Component = mod.default;
     const { render } = await vite.ssrLoadModule("@pdfx-dev/react");
     // Call with empty props - component's default parameter values provide sample data
     const rawHtml = await render(Component({}));
-    return injectDebugSupport(rawHtml, debug);
+    return injectDebugSupport(rawHtml, debugOptions);
+  }
+
+  // Parse debug options from query params
+  function parseDebugOptions(query: Record<string, unknown>): DebugOptions | false {
+    const options: DebugOptions = {
+      grid: query.grid === "1",
+      margins: query.margins === "1",
+      headers: query.headers === "1",
+      breaks: query.breaks === "1",
+    };
+
+    // Return false if no options enabled
+    const hasAny = Object.values(options).some((v) => v);
+    return hasAny ? options : false;
   }
 
   // API: Get rendered HTML
@@ -797,16 +1108,39 @@ async function startDevServer(options: DevServerOptions) {
 
     try {
       const start = performance.now();
-      const html = await renderTemplate(template, req.query.debug === "true");
+      const debugOptions = parseDebugOptions(req.query as Record<string, unknown>);
+      const html = await renderTemplate(template, debugOptions);
       const duration = Math.round(performance.now() - start);
 
+      // Count pages from rendered HTML (look for pagedjs page markers)
+      const pageMatches = html.match(/class="pagedjs_page"/g);
+      const pageCount = pageMatches ? pageMatches.length : 1;
+
+      // Log render
+      console.log(
+        chalk.green("  ✓"),
+        chalk.white(template.file),
+        chalk.dim("→ HTML"),
+        chalk.cyan(`${duration}ms`)
+      );
+
       res.setHeader("X-Render-Time", duration.toString());
+      res.setHeader("X-Page-Count", pageCount.toString());
+      // Note: Pagination time is measured client-side after Paged.js runs
       res.type("text/html").send(html);
     } catch (error) {
-      console.error(chalk.red("  Render error:"), error);
+      console.log(chalk.red("  ✗"), chalk.white(template.file), chalk.red("render failed"));
+      console.error(chalk.dim("   "), error);
       res.status(500).send(`Error rendering template: ${error}`);
     }
   });
+
+  // Helper: Format bytes for display
+  function formatBytes(bytes: number): string {
+    if (bytes < 1024) return bytes + "B";
+    if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + "KB";
+    return (bytes / (1024 * 1024)).toFixed(2) + "MB";
+  }
 
   // API: Generate PDF
   app.get("/api/template/:id/pdf", async (req: Request, res: Response) => {
@@ -817,17 +1151,137 @@ async function startDevServer(options: DevServerOptions) {
     }
 
     try {
-      const html = await renderTemplate(template);
+      const debugOptions = parseDebugOptions(req.query as Record<string, unknown>);
+      const html = await renderTemplate(template, debugOptions);
       const result = await browserManager.withPage(async (page) => {
         return generatePdf(page, html, { timeout: 30000 });
       });
+
+      // Log PDF generation
+      const { metrics, warnings, assets } = result;
+      console.log(
+        chalk.green("  ✓"),
+        chalk.white(template.file),
+        chalk.dim("→ PDF"),
+        chalk.cyan(`${metrics.total}ms`),
+        chalk.dim("•"),
+        chalk.white(`${metrics.pageCount} page${metrics.pageCount > 1 ? "s" : ""}`),
+        chalk.dim("•"),
+        chalk.white(formatBytes(metrics.pdfSize))
+      );
+
+      // Log timing breakdown
+      console.log(
+        chalk.dim("      load"),
+        chalk.white(`${metrics.contentLoad}ms`),
+        chalk.dim("→ paginate"),
+        chalk.white(`${metrics.pagedJs}ms`),
+        chalk.dim("→ capture"),
+        chalk.white(`${metrics.pdfCapture}ms`)
+      );
+
+      // Log asset summary
+      if (assets.length > 0) {
+        const images = assets.filter((a) => a.type === "image");
+        const fonts = assets.filter((a) => a.type === "font");
+        const parts: string[] = [];
+        if (images.length > 0) parts.push(`${images.length} image${images.length > 1 ? "s" : ""}`);
+        if (fonts.length > 0) parts.push(`${fonts.length} font${fonts.length > 1 ? "s" : ""}`);
+        if (parts.length > 0) {
+          console.log(chalk.dim("      " + parts.join(" • ")));
+        }
+      }
+
+      // Log warnings
+      if (warnings.length > 0) {
+        warnings.forEach((w) => {
+          console.log(chalk.yellow("    ⚠"), chalk.yellow(w));
+        });
+      }
+
+      // Add metrics headers
+      res.setHeader("X-PDF-Total-Time", metrics.total.toString());
+      res.setHeader("X-PDF-Pages", metrics.pageCount.toString());
+      res.setHeader("X-PDF-Size", metrics.pdfSize.toString());
+      res.setHeader("X-PDF-Capture-Time", metrics.pdfCapture.toString());
+      res.setHeader("X-PDF-Assets", result.assets.length.toString());
+      res.setHeader("X-PDF-Warnings", warnings.length.toString());
 
       res.setHeader("Content-Type", "application/pdf");
       res.setHeader("Content-Disposition", `inline; filename="${template.id}.pdf"`);
       res.send(result.buffer);
     } catch (error) {
-      console.error(chalk.red("  PDF error:"), error);
+      console.log(chalk.red("  ✗"), chalk.white(template.file), chalk.red("PDF generation failed"));
+      console.error(chalk.dim("   "), error);
       res.status(500).send(`Error generating PDF: ${error}`);
+    }
+  });
+
+  // API: Generate PDF and return metrics (JSON)
+  app.get("/api/template/:id/pdf-metrics", async (req: Request, res: Response) => {
+    const template = templates.find((t) => t.id === req.params.id);
+    if (!template) {
+      res.status(404).json({ error: "Template not found" });
+      return;
+    }
+
+    try {
+      const debugOptions = parseDebugOptions(req.query as Record<string, unknown>);
+      const html = await renderTemplate(template, debugOptions);
+      const result = await browserManager.withPage(async (page) => {
+        return generatePdf(page, html, { timeout: 30000 });
+      });
+
+      // Log (same as PDF endpoint)
+      const { metrics, warnings, assets } = result;
+      console.log(
+        chalk.green("  ✓"),
+        chalk.white(template.file),
+        chalk.dim("→ PDF metrics"),
+        chalk.cyan(`${metrics.total}ms`),
+        chalk.dim("•"),
+        chalk.white(`${metrics.pageCount} page${metrics.pageCount > 1 ? "s" : ""}`),
+        chalk.dim("•"),
+        chalk.white(formatBytes(metrics.pdfSize))
+      );
+
+      // Log timing breakdown
+      console.log(
+        chalk.dim("      load"),
+        chalk.white(`${metrics.contentLoad}ms`),
+        chalk.dim("→ paginate"),
+        chalk.white(`${metrics.pagedJs}ms`),
+        chalk.dim("→ capture"),
+        chalk.white(`${metrics.pdfCapture}ms`)
+      );
+
+      // Log asset summary
+      if (assets.length > 0) {
+        const images = assets.filter((a) => a.type === "image");
+        const fonts = assets.filter((a) => a.type === "font");
+        const parts: string[] = [];
+        if (images.length > 0) parts.push(`${images.length} image${images.length > 1 ? "s" : ""}`);
+        if (fonts.length > 0) parts.push(`${fonts.length} font${fonts.length > 1 ? "s" : ""}`);
+        if (parts.length > 0) {
+          console.log(chalk.dim("      " + parts.join(" • ")));
+        }
+      }
+
+      if (warnings.length > 0) {
+        warnings.forEach((w) => {
+          console.log(chalk.yellow("    ⚠"), chalk.yellow(w));
+        });
+      }
+
+      res.json({
+        metrics: result.metrics,
+        assets: result.assets,
+        warnings: result.warnings,
+      });
+    } catch (error) {
+      console.log(chalk.red("  ✗"), chalk.white(template.file), chalk.red("PDF metrics failed"));
+      console.error(chalk.dim("   "), error);
+      res.status(500).json({ error: `Error generating PDF: ${error}` });
     }
   });
 

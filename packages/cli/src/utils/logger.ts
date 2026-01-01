@@ -1,3 +1,5 @@
+import type { PdfResult } from "../server/pdf";
+
 /**
  * Simple logger with colors and formatting for CLI output
  */
@@ -134,7 +136,44 @@ export const logger = {
   },
 
   /**
-   * Log PDF generation metrics
+   * Log PDF details (timing breakdown, assets, warnings)
+   * Used after the request line has been logged
+   */
+  pdfDetails: (result: PdfResult) => {
+    const { metrics, assets, warnings } = result;
+
+    // Timing breakdown
+    console.log(
+      `${c.dim("         load")} ${formatMs(metrics.contentLoad)} ${c.dim("→ paginate")} ${formatMs(metrics.pagedJs)} ${c.dim("→ capture")} ${formatMs(metrics.pdfCapture)}`
+    );
+
+    // Asset summary if any
+    if (assets.length > 0) {
+      const assetsByType = assets.reduce((acc, a) => {
+        if (!acc[a.type]) acc[a.type] = { count: 0, size: 0 };
+        acc[a.type].count++;
+        acc[a.type].size += a.size;
+        return acc;
+      }, {} as Record<string, { count: number; size: number }>);
+
+      const parts: string[] = [];
+      for (const [type, data] of Object.entries(assetsByType)) {
+        const sizeStr = data.size > 0 ? ` (${(data.size / 1024).toFixed(0)}KB)` : "";
+        parts.push(`${data.count} ${type}${data.count > 1 ? "s" : ""}${sizeStr}`);
+      }
+      if (parts.length > 0) {
+        console.log(c.dim(`         assets: ${parts.join(", ")}`));
+      }
+    }
+
+    // Warnings
+    for (const w of warnings) {
+      console.log(`         ${c.yellow("⚠")} ${c.yellow(w)}`);
+    }
+  },
+
+  /**
+   * Log PDF generation metrics (simple format for inline use)
    */
   pdf: (metrics: {
     total: number;

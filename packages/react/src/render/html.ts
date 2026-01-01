@@ -119,7 +119,11 @@ tr {
 export const PDFX_SCRIPT = `
 window.PDFX = {
   ready: false,
-  metrics: {},
+  metrics: {
+    start: performance.now(),
+    pages: 0,
+    paginationTime: 0
+  },
   on: function(event, callback) {
     window.addEventListener('pdfx:' + event, function(e) {
       callback(e.detail);
@@ -133,21 +137,40 @@ window.PDFX = {
   },
   mark: function(name) {
     this.metrics[name] = performance.now();
+  },
+  // Send metrics to parent window (for dev server)
+  notifyParent: function() {
+    if (window.parent && window.parent !== window) {
+      window.parent.postMessage({
+        type: 'pdfx:metrics',
+        metrics: this.metrics
+      }, '*');
+    }
   }
 };
 
 // Signal when ready (after Paged.js if present, otherwise immediately)
 if (typeof Paged !== 'undefined') {
+  // Mark when Paged.js starts processing
+  window.PDFX.mark('pagedjs_start');
+
   // Handler for PDFX ready state
   class PagedHandler extends Paged.Handler {
     constructor(chunker, polisher, caller) {
       super(chunker, polisher, caller);
     }
     afterRendered(pages) {
-      window.PDFX.ready = true;
-      window.PDFX.metrics.pages = pages.length;
+      // Update all metrics first
       window.PDFX.mark('pagedjs_complete');
+      window.PDFX.metrics.pages = pages.length;
+      window.PDFX.metrics.paginationTime = Math.round(
+        window.PDFX.metrics.pagedjs_complete - window.PDFX.metrics.pagedjs_start
+      );
+
+      // Now mark as ready and notify
+      window.PDFX.ready = true;
       window.PDFX.emit('ready', { pages: pages.length });
+      window.PDFX.notifyParent();
     }
   }
 
@@ -288,14 +311,21 @@ if (typeof Paged !== 'undefined') {
   Paged.registerHandlers(RepeatTableHeadersHandler);
 } else {
   // No Paged.js, ready immediately after DOM load
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', function() {
-      window.PDFX.ready = true;
-      window.PDFX.emit('ready', {});
-    });
-  } else {
+  function signalReady() {
+    // Update metrics first
+    window.PDFX.metrics.pages = 1;
+    window.PDFX.metrics.paginationTime = 0;
+
+    // Now mark as ready and notify
     window.PDFX.ready = true;
-    window.PDFX.emit('ready', {});
+    window.PDFX.emit('ready', { pages: 1 });
+    window.PDFX.notifyParent();
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', signalReady);
+  } else {
+    signalReady();
   }
 }
 `;

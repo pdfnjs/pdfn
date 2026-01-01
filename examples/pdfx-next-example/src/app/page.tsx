@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { nightOwl } from "react-syntax-highlighter/dist/esm/styles/prism";
 import { templateCode } from "@/lib/template-code";
@@ -13,6 +13,14 @@ const PAGE_SIZES = {
   Legal: { width: 612, height: 1008 },
   Tabloid: { width: 792, height: 1224 },
 };
+
+// Debug overlay options
+interface DebugOptions {
+  grid: boolean;
+  margins: boolean;
+  headers: boolean;
+  breaks: boolean;
+}
 
 const templates = [
   {
@@ -89,13 +97,42 @@ const features = [
 export default function Home() {
   const [activeTemplate, setActiveTemplate] = useState(templates[0]);
   const [activeTab, setActiveTab] = useState<"preview" | "code">("preview");
-  const [debug, setDebug] = useState(false);
+  const [debugOptions, setDebugOptions] = useState<DebugOptions>({
+    grid: false,
+    margins: false,
+    headers: false,
+    breaks: false,
+  });
   const [isLoading, setIsLoading] = useState(false);
   const [copied, setCopied] = useState(false);
   const [pdfError, setPdfError] = useState<string | null>(null);
+  const [metrics, setMetrics] = useState<{
+    render: number | null;
+    pagination: number | null;
+    pages: number | null;
+  }>({ render: null, pagination: null, pages: null });
+  const iframeRef = useRef<HTMLIFrameElement>(null);
 
   // Get code from build-time generated static data
   const activeCode = templateCode[activeTemplate.id] || "// Template code not found";
+
+  // Check if any debug option is enabled
+  const hasDebug = Object.values(debugOptions).some(v => v);
+
+  // Listen for metrics from iframe
+  useEffect(() => {
+    const handleMessage = (event: MessageEvent) => {
+      if (event.data?.type === "pdfx:metrics") {
+        setMetrics(prev => ({
+          ...prev,
+          pagination: event.data.metrics.paginationTime ?? prev.pagination,
+          pages: event.data.metrics.pages ?? prev.pages,
+        }));
+      }
+    };
+    window.addEventListener("message", handleMessage);
+    return () => window.removeEventListener("message", handleMessage);
+  }, []);
 
   const handleCopy = () => {
     navigator.clipboard.writeText(activeCode);
@@ -103,9 +140,17 @@ export default function Home() {
     setTimeout(() => setCopied(false), 2000);
   };
 
+  // Build debug query params
+  const debugParams = hasDebug
+    ? `&debug=${Object.entries(debugOptions)
+        .filter(([, v]) => v)
+        .map(([k]) => k)
+        .join(",")}`
+    : "";
+
   // URLs with debug param when enabled
-  const previewUrl = `/api/pdf?template=${activeTemplate.id}&html=true${debug ? "&debug=true" : ""}`;
-  const pdfUrl = `/api/pdf?template=${activeTemplate.id}${debug ? "&debug=true" : ""}`;
+  const previewUrl = `/api/pdf?template=${activeTemplate.id}&html=true${debugParams}`;
+  const pdfUrl = `/api/pdf?template=${activeTemplate.id}${debugParams}`;
 
   // Handle PDF download with error handling
   const handleDownload = async () => {
@@ -139,7 +184,23 @@ export default function Home() {
     setIsLoading(true);
     setActiveTemplate(template);
     setPdfError(null);
+    setMetrics({ render: null, pagination: null, pages: null });
     setActiveTab("preview"); // Reset to preview on template change
+  };
+
+  // Handle iframe load - capture render time from response header
+  const handleIframeLoad = async () => {
+    setIsLoading(false);
+    // Try to get render time from a HEAD request
+    try {
+      const response = await fetch(previewUrl, { method: "HEAD" });
+      const renderTime = response.headers.get("X-Render-Time");
+      if (renderTime) {
+        setMetrics(prev => ({ ...prev, render: parseInt(renderTime, 10) }));
+      }
+    } catch {
+      // Ignore errors
+    }
   };
 
   const scrollToDemo = () => {
@@ -218,7 +279,7 @@ export default function Home() {
 
       {/* Demo Section */}
       <section id="demo" className="py-20 px-6 scroll-mt-20">
-        <div className="max-w-4xl mx-auto">
+        <div className="max-w-6xl mx-auto">
           <div className="text-center mb-12">
             <h2 className="text-3xl font-bold text-text-primary mb-4">
               Simple, familiar API
@@ -255,197 +316,312 @@ export default function Home() {
             })}
           </div>
 
-          {/* Preview Card */}
-          <div className="bg-surface-1 border border-border rounded-xl overflow-hidden">
-            {/* Tab Bar */}
-            <div className="px-4 py-3 border-b border-border flex items-center justify-between">
-              <div className="flex items-center gap-1">
-                <button
-                  onClick={() => setActiveTab("preview")}
-                  className={`px-4 py-2 text-sm font-medium rounded-md transition-colors ${
-                    activeTab === "preview"
-                      ? "bg-surface-2 text-text-primary"
-                      : "text-text-muted hover:text-text-secondary"
-                  }`}
-                >
-                  Preview
-                </button>
-                <button
-                  onClick={() => setActiveTab("code")}
-                  className={`px-4 py-2 text-sm font-medium rounded-md transition-colors ${
-                    activeTab === "code"
-                      ? "bg-surface-2 text-text-primary"
-                      : "text-text-muted hover:text-text-secondary"
-                  }`}
-                >
-                  Code
-                </button>
-              </div>
-              <div className="text-xs text-text-muted font-mono">
-                {activeTemplate.pageSize} · {activeTemplate.orientation}
-              </div>
-            </div>
-
-            {/* Content Area - Fixed height to prevent layout shift */}
-            <div className="relative h-[520px]">
-              {/* Preview */}
-              {activeTab === "preview" && (
-                <div className="absolute inset-0 bg-zinc-200 dark:bg-zinc-800 p-6 flex items-center justify-center">
-                  {/* Loading indicator */}
-                  {isLoading && (
-                    <div className="absolute inset-0 flex items-center justify-center z-10 pointer-events-none">
-                      <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
-                    </div>
-                  )}
-                  {(() => {
-                    // Container constraints (520px - 48px padding = 472px available height)
-                    const maxWidth = 600;
-                    const maxHeight = 472;
-
-                    // Get page dimensions in points, convert to pixels (1pt = 96/72 px)
-                    const PT_TO_PX = 96 / 72;
-                    const size = PAGE_SIZES[activeTemplate.pageSize];
-                    const pageW = (activeTemplate.orientation === 'landscape' ? size.height : size.width) * PT_TO_PX;
-                    const pageH = (activeTemplate.orientation === 'landscape' ? size.width : size.height) * PT_TO_PX;
-
-                    // Scale to fit within both width and height bounds
-                    const scale = Math.min(maxWidth / pageW, maxHeight / pageH);
-                    const displayW = pageW * scale;
-                    const displayH = pageH * scale;
-
-                    return (
-                      <div
-                        className="bg-white rounded shadow-2xl overflow-hidden flex-shrink-0 transition-opacity duration-200"
-                        style={{
-                          width: displayW,
-                          height: displayH,
-                          opacity: isLoading ? 0.4 : 1,
-                        }}
-                      >
-                        <iframe
-                          key={`${activeTemplate.id}-${debug}`}
-                          src={previewUrl}
-                          title="Preview"
-                          style={{
-                            width: pageW,
-                            height: pageH,
-                            transform: `scale(${scale})`,
-                            transformOrigin: 'top left',
-                            border: 'none',
-                          }}
-                          onLoad={() => setIsLoading(false)}
-                        />
-                      </div>
-                    );
-                  })()}
-                </div>
-              )}
-
-              {/* Code */}
-              {activeTab === "code" && (
-                <div className="absolute inset-0 overflow-auto">
-                  <SyntaxHighlighter
-                    language="tsx"
-                    style={nightOwl}
-                    customStyle={{
-                      margin: 0,
-                      padding: "1.25rem",
-                      background: "var(--surface-1)",
-                      fontSize: "0.875rem",
-                      lineHeight: "1.6",
-                      minHeight: "100%",
-                    }}
-                    codeTagProps={{
-                      style: {
-                        fontFamily: "var(--font-geist-mono), ui-monospace, monospace",
-                      },
-                    }}
+          {/* Main Content: Preview + Inspector */}
+          <div className="flex flex-col lg:flex-row gap-4">
+            {/* Preview/Code Panel */}
+            <div className="flex-1 bg-surface-1 border border-border rounded-xl overflow-hidden min-w-0">
+              {/* Tab Bar */}
+              <div className="px-4 py-3 border-b border-border flex items-center justify-between">
+                <div className="flex items-center gap-1">
+                  <button
+                    onClick={() => setActiveTab("preview")}
+                    className={`px-4 py-2 text-sm font-medium rounded-md transition-colors ${
+                      activeTab === "preview"
+                        ? "bg-surface-2 text-text-primary"
+                        : "text-text-muted hover:text-text-secondary"
+                    }`}
                   >
-                    {activeCode}
-                  </SyntaxHighlighter>
+                    Preview
+                  </button>
+                  <button
+                    onClick={() => setActiveTab("code")}
+                    className={`px-4 py-2 text-sm font-medium rounded-md transition-colors ${
+                      activeTab === "code"
+                        ? "bg-surface-2 text-text-primary"
+                        : "text-text-muted hover:text-text-secondary"
+                    }`}
+                  >
+                    Code
+                  </button>
                 </div>
-              )}
-            </div>
+                <div className="text-xs text-text-muted font-mono">
+                  {activeTemplate.pageSize} · {activeTemplate.orientation}
+                </div>
+              </div>
 
-            {/* Control Bar - Contextual controls based on active tab */}
-            <div className="px-4 py-3 border-t border-border flex items-center justify-between bg-surface-1">
-              {activeTab === "preview" ? (
-                <>
-                  {/* Preview mode: Debug toggle + actions */}
-                  <div className="flex items-center gap-4">
-                    <label className="flex items-center gap-2 cursor-pointer">
-                      <button
-                        onClick={() => setDebug(!debug)}
-                        className="w-8 h-4 rounded-full transition-colors relative"
-                        style={{ backgroundColor: debug ? "var(--primary)" : "var(--surface-2)" }}
-                      >
-                        <span
-                          className="absolute top-0.5 w-3 h-3 rounded-full bg-white shadow transition-all"
-                          style={{ left: debug ? 17 : 2 }}
-                        />
-                      </button>
-                      <span className="text-xs text-text-muted">Debug</span>
-                    </label>
-                    {pdfError && (
-                      <span className="text-xs text-red-500 ml-2">{pdfError}</span>
+              {/* Content Area */}
+              <div className="relative h-[600px]">
+                {/* Preview */}
+                {activeTab === "preview" && (
+                  <div className="absolute inset-0 bg-zinc-200 dark:bg-zinc-800 p-6 flex items-center justify-center">
+                    {isLoading && (
+                      <div className="absolute inset-0 flex items-center justify-center z-10 pointer-events-none">
+                        <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+                      </div>
                     )}
+                    {(() => {
+                      const maxWidth = 800; // Wide enough for landscape pages
+                      const maxHeight = 552; // 600 - 48px padding
+                      const PT_TO_PX = 96 / 72;
+                      const size = PAGE_SIZES[activeTemplate.pageSize];
+                      const pageW = (activeTemplate.orientation === 'landscape' ? size.height : size.width) * PT_TO_PX;
+                      const pageH = (activeTemplate.orientation === 'landscape' ? size.width : size.height) * PT_TO_PX;
+                      const scale = Math.min(maxWidth / pageW, maxHeight / pageH);
+                      const displayW = pageW * scale;
+                      const displayH = pageH * scale;
+                      const scalePercent = Math.round(scale * 100);
+
+                      return (
+                        <>
+                          <div
+                            className="bg-white rounded shadow-2xl overflow-hidden flex-shrink-0 transition-opacity duration-200"
+                            style={{ width: displayW, height: displayH, opacity: isLoading ? 0.4 : 1 }}
+                          >
+                            <iframe
+                              ref={iframeRef}
+                              key={`${activeTemplate.id}-${debugParams}`}
+                              src={previewUrl}
+                              title="Preview"
+                              style={{
+                                width: pageW,
+                                height: pageH,
+                                transform: `scale(${scale})`,
+                                transformOrigin: 'top left',
+                                border: 'none',
+                              }}
+                              onLoad={handleIframeLoad}
+                            />
+                          </div>
+                          {/* Scale indicator - positioned on container, not PDF */}
+                          <div className="absolute bottom-3 right-3 bg-black/50 text-white/80 text-[10px] px-1.5 py-0.5 rounded font-mono">
+                            {scalePercent}%
+                          </div>
+                        </>
+                      );
+                    })()}
                   </div>
-                  <div className="flex items-center gap-3">
-                    <a
-                      href={previewUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-xs text-text-muted hover:text-text-secondary transition-colors"
+                )}
+
+                {/* Code */}
+                {activeTab === "code" && (
+                  <div className="absolute inset-0 overflow-auto">
+                    <SyntaxHighlighter
+                      language="tsx"
+                      style={nightOwl}
+                      customStyle={{
+                        margin: 0,
+                        padding: "1.25rem",
+                        background: "var(--surface-1)",
+                        fontSize: "0.875rem",
+                        lineHeight: "1.6",
+                        minHeight: "100%",
+                      }}
+                      codeTagProps={{
+                        style: { fontFamily: "var(--font-geist-mono), ui-monospace, monospace" },
+                      }}
                     >
-                      Expand
-                    </a>
-                    <a
-                      href={pdfUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-xs text-text-secondary hover:text-text-primary transition-colors"
-                    >
-                      View PDF
-                    </a>
+                      {activeCode}
+                    </SyntaxHighlighter>
+                  </div>
+                )}
+              </div>
+
+              {/* Mobile Controls - Only visible on small screens */}
+              <div className="lg:hidden px-4 py-3 border-t border-border flex items-center justify-between">
+                {activeTab === "preview" ? (
+                  <>
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs text-text-muted">Debug:</span>
+                      {["grid", "margins"].map((key) => (
+                        <button
+                          key={key}
+                          onClick={() => setDebugOptions(prev => ({ ...prev, [key]: !prev[key as keyof DebugOptions] }))}
+                          className={`text-xs px-2 py-1 rounded ${
+                            debugOptions[key as keyof DebugOptions]
+                              ? "bg-primary/20 text-primary"
+                              : "bg-surface-2 text-text-muted"
+                          }`}
+                        >
+                          {key}
+                        </button>
+                      ))}
+                    </div>
                     <button
                       onClick={handleDownload}
-                      className="flex items-center justify-center gap-1.5 text-xs font-medium bg-primary hover:bg-primary-hover text-black px-3 py-1.5 rounded-md transition-colors min-w-[90px]"
+                      className="flex items-center gap-1.5 text-xs font-medium bg-primary hover:bg-primary-hover text-black px-3 py-1.5 rounded-md transition-colors"
                     >
                       <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
                       </svg>
                       Download
                     </button>
-                  </div>
-                </>
-              ) : (
-                <>
-                  {/* Code mode: Filename + copy button */}
-                  <div className="text-xs text-text-muted font-mono">
-                    {activeTemplate.id}.tsx
-                  </div>
-                  <button
-                    onClick={handleCopy}
-                    className="flex items-center justify-center gap-1.5 text-xs font-medium bg-primary hover:bg-primary-hover text-black px-3 py-1.5 rounded-md transition-colors min-w-[90px]"
-                  >
-                    {copied ? (
-                      <>
-                        <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                        </svg>
-                        Copied!
-                      </>
-                    ) : (
-                      <>
-                        <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
-                        </svg>
-                        Copy
-                      </>
-                    )}
-                  </button>
-                </>
-              )}
+                  </>
+                ) : (
+                  <>
+                    <span className="text-xs text-text-muted font-mono">{activeTemplate.id}.tsx</span>
+                    <button
+                      onClick={handleCopy}
+                      className="flex items-center gap-1.5 text-xs font-medium bg-primary hover:bg-primary-hover text-black px-3 py-1.5 rounded-md transition-colors"
+                    >
+                      {copied ? "Copied!" : "Copy"}
+                    </button>
+                  </>
+                )}
+              </div>
+            </div>
+
+            {/* Inspector Panel - Hidden on mobile */}
+            <div className="hidden lg:flex w-52 bg-surface-1 border border-border rounded-xl overflow-hidden flex-col">
+              <div className="px-4 py-3 border-b border-border">
+                <span className="text-sm font-semibold text-text-primary">
+                  {activeTab === "preview" ? "Inspector" : "File"}
+                </span>
+              </div>
+
+              <div className="flex-1 overflow-y-auto p-4 space-y-6">
+                {activeTab === "preview" ? (
+                  <>
+                    {/* Performance Section */}
+                    <div>
+                      <div className="text-xs font-medium text-text-muted uppercase tracking-wider mb-3">
+                        Performance
+                      </div>
+                      <div className="space-y-2">
+                        <div className="flex justify-between items-center">
+                          <span className="text-xs text-text-secondary">Render</span>
+                          <span className="text-xs font-mono text-text-primary">
+                            {metrics.render !== null ? `${metrics.render}ms` : "--"}
+                          </span>
+                        </div>
+                        <div className="flex justify-between items-center">
+                          <span className="text-xs text-text-secondary">Pagination</span>
+                          <span className="text-xs font-mono text-text-primary">
+                            {metrics.pagination !== null ? `${metrics.pagination}ms` : "--"}
+                          </span>
+                        </div>
+                        <div className="flex justify-between items-center">
+                          <span className="text-xs text-text-secondary">Pages</span>
+                          <span className="text-xs font-mono text-text-primary">
+                            {metrics.pages !== null ? metrics.pages : "--"}
+                          </span>
+                        </div>
+                      </div>
+                      <div className="text-[10px] text-text-muted italic mt-2">
+                        Measured in browser. Times vary on server.
+                      </div>
+                    </div>
+
+                    {/* Debug Section */}
+                    <div>
+                      <div className="text-xs font-medium text-text-muted uppercase tracking-wider mb-3">
+                        Debug
+                      </div>
+                      <div className="space-y-2">
+                        {[
+                          { key: "grid", label: "Grid (1cm)" },
+                          { key: "margins", label: "Margins" },
+                          { key: "headers", label: "Headers/Footers" },
+                          { key: "breaks", label: "Page numbers" },
+                        ].map(({ key, label }) => (
+                          <label key={key} className="flex items-center gap-2 cursor-pointer">
+                            <input
+                              type="checkbox"
+                              checked={debugOptions[key as keyof DebugOptions]}
+                              onChange={(e) =>
+                                setDebugOptions((prev) => ({ ...prev, [key]: e.target.checked }))
+                              }
+                              className="w-3.5 h-3.5 rounded border-border bg-surface-2 text-primary focus:ring-primary focus:ring-offset-0"
+                            />
+                            <span className="text-xs text-text-secondary">{label}</span>
+                          </label>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Actions Section */}
+                    <div>
+                      <div className="text-xs font-medium text-text-muted uppercase tracking-wider mb-3">
+                        Actions
+                      </div>
+                      <div className="space-y-2">
+                        <a
+                          href={previewUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex items-center gap-2 text-xs text-text-secondary hover:text-text-primary transition-colors"
+                        >
+                          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                          </svg>
+                          Open in new tab
+                        </a>
+                        <a
+                          href={pdfUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex items-center gap-2 text-xs text-text-secondary hover:text-text-primary transition-colors"
+                        >
+                          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                          </svg>
+                          View PDF
+                        </a>
+                        <button
+                          onClick={handleDownload}
+                          className="w-full flex items-center justify-center gap-1.5 text-xs font-medium bg-primary hover:bg-primary-hover text-black px-3 py-2 rounded-md transition-colors"
+                        >
+                          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                          </svg>
+                          Download PDF
+                        </button>
+                        {pdfError && (
+                          <div className="text-xs text-red-500 mt-1">{pdfError}</div>
+                        )}
+                      </div>
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    {/* Code mode: File info */}
+                    <div>
+                      <div className="text-xs font-medium text-text-muted uppercase tracking-wider mb-3">
+                        File
+                      </div>
+                      <div className="text-xs font-mono text-text-primary bg-surface-2 px-2 py-1.5 rounded">
+                        {activeTemplate.id}.tsx
+                      </div>
+                    </div>
+
+                    {/* Actions Section */}
+                    <div>
+                      <div className="text-xs font-medium text-text-muted uppercase tracking-wider mb-3">
+                        Actions
+                      </div>
+                      <button
+                        onClick={handleCopy}
+                        className="w-full flex items-center justify-center gap-1.5 text-xs font-medium bg-primary hover:bg-primary-hover text-black px-3 py-2 rounded-md transition-colors"
+                      >
+                        {copied ? (
+                          <>
+                            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                            </svg>
+                            Copied!
+                          </>
+                        ) : (
+                          <>
+                            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                            </svg>
+                            Copy Code
+                          </>
+                        )}
+                      </button>
+                    </div>
+                  </>
+                )}
+              </div>
             </div>
           </div>
         </div>

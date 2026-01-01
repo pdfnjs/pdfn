@@ -46,8 +46,11 @@ describe("HTML Assembly", () => {
       expect(PDFX_SCRIPT).toContain("ready: false");
     });
 
-    it("includes metrics object", () => {
-      expect(PDFX_SCRIPT).toContain("metrics: {}");
+    it("includes metrics object with timing properties", () => {
+      expect(PDFX_SCRIPT).toContain("metrics: {");
+      expect(PDFX_SCRIPT).toContain("start: performance.now()");
+      expect(PDFX_SCRIPT).toContain("pages: 0");
+      expect(PDFX_SCRIPT).toContain("paginationTime: 0");
     });
 
     it("includes on method for event listeners", () => {
