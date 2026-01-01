@@ -1,59 +1,68 @@
 # PDFX + Next.js Example
 
-Generate PDFs from React components using PDFX in a Next.js application.
+Interactive demo of PDFX - generate PDFs from React components in a Next.js application.
 
-## Setup
+## Features
 
-1. Install dependencies:
+- Multiple PDF templates (Invoice, Ticket, Report, Poster)
+- Live preview with debug overlays
+- Template code viewer
+- Download PDF functionality
+- Responsive design
+
+## Quick Start
+
 ```bash
-npm install
+# Install dependencies
+pnpm install
+
+# Start the PDFX server (in a separate terminal)
+node ../../packages/cli/dist/cli.js serve
+
+# Start the Next.js dev server
+pnpm dev
 ```
 
-2. Copy environment variables:
-```bash
-cp .env.example .env.local
-```
-
-3. Start the PDFX server (in a separate terminal):
-```bash
-npx pdfx serve
-```
-
-4. Start the Next.js dev server:
-```bash
-npm run dev
-```
-
-5. Open http://localhost:3000 and click "Generate PDF"
+Open http://localhost:3000 to view the demo.
 
 ## Project Structure
 
 ```
-src/app/
-├── page.tsx           # Home page with PDF generation buttons
-└── api/pdf/
-    └── route.tsx      # API route that generates the PDF
+src/
+├── app/
+│   ├── page.tsx           # Demo page with preview and inspector
+│   └── api/pdf/
+│       └── route.tsx      # API route for PDF generation
+├── lib/
+│   └── template-code.ts   # Auto-generated template source code
+└── ...
+
+pdf-templates/
+├── invoice.tsx            # Invoice template
+├── ticket.tsx             # Event ticket template
+├── report.tsx             # Multi-page report template
+├── poster.tsx             # Large format poster template
+└── components/            # Shared template components
 ```
 
 ## How It Works
 
-The API route (`/api/pdf`) uses `@pdfx-dev/react` to:
-
-1. Define a PDF template using React components
-2. Call `generate()` which renders the React to HTML
-3. Sends the HTML to the PDFX server (running on port 3456)
-4. Returns the PDF as a response
+1. Templates are React components in `pdf-templates/`
+2. The API route uses `generate()` from `@pdfx-dev/cli` to convert React to PDF
+3. The demo page shows a live preview with an inspector panel
 
 ```tsx
-import { generate, Document, Page } from '@pdfx-dev/react';
+// api/pdf/route.tsx
+import { Document, Page } from '@pdfx-dev/react';
+import { generate } from '@pdfx-dev/cli';
 
-export async function GET() {
+export async function GET(request: Request) {
+  const { searchParams } = new URL(request.url);
+  const template = searchParams.get('template') || 'invoice';
+
   const pdf = await generate(
-    <Document>
-      <Page size="A4">
-        <h1>Hello World</h1>
-      </Page>
-    </Document>
+    <Template />,
+    { debug: searchParams.get('debug') }
   );
 
   return new Response(pdf, {
@@ -62,6 +71,33 @@ export async function GET() {
 }
 ```
 
+## Templates
+
+Each template uses default parameters for sample data (React Email pattern):
+
+```tsx
+export default function Invoice({
+  data = { id: 'INV-001', customer: 'Acme Corp', total: 148 }
+}: { data?: InvoiceData }) {
+  return (
+    <Document>
+      <Page size="A4">
+        <h1>Invoice #{data.id}</h1>
+      </Page>
+    </Document>
+  );
+}
+```
+
+## Debug Mode
+
+Add debug overlays to visualize page structure:
+
+- Grid overlay
+- Margin highlights
+- Header/footer highlights
+- Page break indicators
+
 ## Important
 
 PDFX is **server-only**. The `generate()` function can only be used in:
@@ -69,4 +105,4 @@ PDFX is **server-only**. The `generate()` function can only be used in:
 - Server Actions
 - Server Components
 
-Do NOT import `@pdfx-dev/react` in files marked with `"use client"`.
+Do NOT import `@pdfx-dev/react` or `@pdfx-dev/cli` in files marked with `"use client"`.

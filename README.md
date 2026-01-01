@@ -2,8 +2,6 @@
 
 The React framework for PDFs. Pixel-perfect. Deterministic.
 
-> **Alpha Release** - Core PDF generation works. Dev UI coming soon.
-
 > **⚠️ Server-only** - Do not import in `"use client"` files. [Why?](#server-only)
 
 ## Requirements
@@ -27,12 +25,41 @@ Use it in:
 npm install @pdfx-dev/react
 npm install -D @pdfx-dev/cli
 
-# Start the PDF server
-npx pdfx serve
+# Start the dev server with preview UI
+npx pdfx dev
 ```
 
+Create a template in `pdf-templates/invoice.tsx`:
+
 ```tsx
-import { generate, Document, Page, PageNumber } from '@pdfx-dev/react';
+import { Document, Page, PageNumber } from '@pdfx-dev/react';
+
+interface InvoiceData {
+  id: string;
+  customer: string;
+  total: number;
+}
+
+export default function Invoice({
+  data = { id: 'INV-001', customer: 'Acme Corp', total: 148 }
+}: { data?: InvoiceData }) {
+  return (
+    <Document title={`Invoice ${data.id}`}>
+      <Page size="A4" margin="1in" footer={<PageNumber />}>
+        <h1>Invoice #{data.id}</h1>
+        <p>Customer: {data.customer}</p>
+        <p>Total: ${data.total.toFixed(2)}</p>
+      </Page>
+    </Document>
+  );
+}
+```
+
+Generate PDFs programmatically:
+
+```tsx
+import { Document, Page, PageNumber } from '@pdfx-dev/react';
+import { generate } from '@pdfx-dev/cli';
 import { writeFileSync } from 'fs';
 
 process.env.PDFX_HOST = 'http://localhost:3456';
@@ -52,10 +79,11 @@ writeFileSync('invoice.pdf', pdf);
 
 ## Packages
 
-| Package | Description | Status |
-|---------|-------------|--------|
-| [@pdfx-dev/react](./packages/react) | React components and PDF generation | Alpha |
-| [@pdfx-dev/cli](./packages/cli) | CLI and PDF server | Alpha |
+| Package | Description |
+|---------|-------------|
+| [@pdfx-dev/react](./packages/react) | React components and `render()` |
+| [@pdfx-dev/cli](./packages/cli) | CLI, server, and `generate()` |
+| [@pdfx-dev/tailwind](./packages/tailwind) | Tailwind CSS support (optional) |
 
 ## Features
 
@@ -63,8 +91,13 @@ writeFileSync('invoice.pdf', pdf);
 - **Page Numbers** - Automatic page numbering with `<PageNumber />` and `<TotalPages />`
 - **Page Breaks** - Control pagination with `<PageBreak />` and `<AvoidBreak />`
 - **Headers/Footers** - Repeating headers and footers on every page
+- **Table Headers** - Repeat table headers across pages with `<TableHeader />`
 - **Watermarks** - Add text or custom watermarks
 - **Multiple Sizes** - A4, A3, A5, Letter, Legal, Tabloid, B4, B5, or custom dimensions
+- **Tailwind CSS** - Full Tailwind v4 support with `@pdfx-dev/tailwind`
+- **Google Fonts** - Easy font loading via `fonts` prop or Tailwind CSS
+- **Local Images** - Automatic base64 embedding for relative image paths
+- **Debug Mode** - Visual overlays for margins, grid, headers, and page breaks
 
 ## How It Works
 
@@ -79,34 +112,59 @@ React Component → render() → HTML → Server → Puppeteer → PDF
 
 ## API
 
-### `render(element)`
+### Components (from `@pdfx-dev/react`)
+
+| Component | Description |
+|-----------|-------------|
+| `Document` | Root wrapper with metadata (title, author, fonts) |
+| `Page` | Page container with size, margins, header/footer |
+| `PageNumber` | Current page number |
+| `TotalPages` | Total page count |
+| `PageBreak` | Force a page break |
+| `AvoidBreak` | Keep content together on same page |
+| `TableHeader` | Table header that repeats on each page |
+
+### Functions
+
+#### `render(element)` - from `@pdfx-dev/react`
 
 Converts React to HTML. No server needed.
 
 ```ts
-const html = await render(<Document>...</Document>);
+import { render, Document, Page } from '@pdfx-dev/react';
+
+const html = await render(<Document><Page>...</Page></Document>);
 ```
 
-### `generate(element)`
+#### `generate(element)` - from `@pdfx-dev/cli`
 
 Converts React to PDF. Requires `PDFX_HOST`.
 
 ```ts
-const pdf = await generate(<Document>...</Document>);
+import { Document, Page } from '@pdfx-dev/react';
+import { generate } from '@pdfx-dev/cli';
+
+const pdf = await generate(<Document><Page>...</Page></Document>);
 ```
 
 ## CLI Commands
 
 ```bash
-npx pdfx serve              # Start PDF generation server
-npx pdfx serve --port 4000  # Custom port
+# Development - preview UI with hot reload
+npx pdfx dev
+npx pdfx dev --port 4000
+
+# Production - headless server
+npx pdfx serve
+npx pdfx serve --port 3456 --max-concurrent 10
 ```
 
 ## Usage with Next.js
 
 ```tsx
 // app/api/invoice/route.ts
-import { generate, Document, Page } from '@pdfx-dev/react';
+import { Document, Page } from '@pdfx-dev/react';
+import { generate } from '@pdfx-dev/cli';
 
 export async function POST(req: Request) {
   const data = await req.json();
@@ -122,6 +180,25 @@ export async function POST(req: Request) {
   return new Response(pdf, {
     headers: { 'Content-Type': 'application/pdf' }
   });
+}
+```
+
+## Tailwind CSS
+
+```tsx
+import { Document, Page } from '@pdfx-dev/react';
+import { Tailwind } from '@pdfx-dev/tailwind';
+
+export default function Invoice() {
+  return (
+    <Tailwind>
+      <Document>
+        <Page size="A4">
+          <h1 className="text-2xl font-bold text-blue-600">Invoice</h1>
+        </Page>
+      </Document>
+    </Tailwind>
+  );
 }
 ```
 

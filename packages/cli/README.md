@@ -2,8 +2,6 @@
 
 CLI and server for PDFX - PDF generation from React components.
 
-> **Alpha Release** - The `serve` command works. `dev` and `add` commands are coming soon.
-
 ## Installation
 
 ```bash
@@ -12,9 +10,32 @@ npm install -D @pdfx-dev/cli
 
 ## Commands
 
+### `pdfx dev`
+
+Start the development server with a preview UI and hot reload.
+
+```bash
+npx pdfx dev
+npx pdfx dev --port 4000
+npx pdfx dev --templates ./src/pdf
+```
+
+**Options:**
+
+| Option | Default | Description |
+|--------|---------|-------------|
+| `--port` | 3456 | Server port |
+| `--templates` | `./pdf-templates` | Templates directory |
+
+The dev server:
+- Auto-discovers templates in your templates directory
+- Provides a live preview UI with hot reload
+- Shows performance metrics and debug overlays
+- Exposes `/generate` endpoint for PDF generation
+
 ### `pdfx serve`
 
-Start the PDF generation server.
+Start the production server (headless, no UI).
 
 ```bash
 npx pdfx serve
@@ -45,35 +66,102 @@ GET /health
 # Returns: { "status": "ok", "browser": "connected", ... }
 ```
 
-## Usage with @pdfx-dev/react
+## Programmatic API
+
+### `generate(element, options?)`
+
+Generate a PDF from a React element. Requires `PDFX_HOST` environment variable.
 
 ```tsx
-import { generate, Document, Page } from '@pdfx-dev/react';
+import { Document, Page } from '@pdfx-dev/react';
+import { generate } from '@pdfx-dev/cli';
 
 process.env.PDFX_HOST = 'http://localhost:3456';
 
 const pdf = await generate(
   <Document>
-    <Page>
+    <Page size="A4">
       <h1>Hello World</h1>
     </Page>
   </Document>
 );
 ```
 
-## Embedding in Your Server
+**Options:**
+
+```ts
+interface GenerateOptions {
+  output?: 'pdf' | 'html';  // Output format (default: 'pdf')
+  debug?: boolean | DebugOptions;  // Enable debug overlays
+  host?: string;  // Override PDFX_HOST
+  pdf?: {
+    printBackground?: boolean;  // Print background graphics (default: true)
+    preferCSSPageSize?: boolean;  // Use CSS page size (default: true)
+  };
+}
+
+interface DebugOptions {
+  grid?: boolean;     // Show grid overlay
+  margins?: boolean;  // Highlight margins
+  headers?: boolean;  // Highlight headers/footers
+  breaks?: boolean;   // Show page break indicators
+}
+```
+
+**Examples:**
+
+```tsx
+// Generate PDF (default)
+const pdf = await generate(<Invoice data={data} />);
+
+// Generate HTML for preview
+const html = await generate(<Invoice data={data} />, { output: 'html' });
+
+// Generate with debug overlays
+const pdf = await generate(<Invoice data={data} />, {
+  debug: { grid: true, margins: true }
+});
+```
+
+### Embedding in Your Server
 
 ```ts
 import { createServer } from '@pdfx-dev/cli/server';
 
-const pdfServer = createServer({ port: 3456 });
-await pdfServer.start();
+const server = createServer({
+  port: 3456,
+  maxConcurrent: 10,
+  timeout: 30000
+});
 
-// Or mount routes in Express
-app.use('/pdf', pdfServer.routes);
+await server.start();
 ```
 
-## Docker (Coming Soon)
+## Usage with Next.js
+
+```tsx
+// app/api/invoice/route.ts
+import { Document, Page } from '@pdfx-dev/react';
+import { generate } from '@pdfx-dev/cli';
+
+export async function POST(req: Request) {
+  const data = await req.json();
+
+  const pdf = await generate(
+    <Document>
+      <Page size="A4">
+        <h1>Invoice #{data.id}</h1>
+      </Page>
+    </Document>
+  );
+
+  return new Response(pdf, {
+    headers: { 'Content-Type': 'application/pdf' }
+  });
+}
+```
+
+## Docker
 
 ```bash
 docker run -p 3456:3456 ghcr.io/pdfx-dev/cli serve

@@ -1,24 +1,8 @@
 # @pdfx-dev/react
 
-The React framework for PDFs. Create pixel-perfect PDF documents using React components.
-
-> **Alpha Release** - Core PDF generation works. Some features are still in development.
+React components for building PDF documents. Use familiar React patterns to create pixel-perfect PDFs.
 
 > **⚠️ Server-only** - This package must be used in server environments only. Do not import it in files marked with `"use client"`.
-
-## Requirements
-
-**Node.js only** - This package generates PDFs on the server, not in the browser.
-
-Use it in:
-- Next.js API routes / Server Actions / Server Components
-- Express, Fastify, Hono backends
-- Node.js scripts
-
-**Do NOT use in:**
-- `"use client"` components
-- Browser code
-- Client-side React
 
 ## Installation
 
@@ -29,21 +13,10 @@ npm install -D @pdfx-dev/cli
 
 ## Quick Start
 
-### 1. Start the PDF server
-
-```bash
-npx pdfx serve
-```
-
-### 2. Generate a PDF
-
 ```tsx
-import { generate, Document, Page, PageNumber } from '@pdfx-dev/react';
-import { writeFileSync } from 'fs';
+import { render, Document, Page, PageNumber } from '@pdfx-dev/react';
 
-process.env.PDFX_HOST = 'http://localhost:3456';
-
-const pdf = await generate(
+const html = await render(
   <Document title="Invoice #123">
     <Page size="A4" margin="1in" footer={<PageNumber />}>
       <h1>Invoice #123</h1>
@@ -52,15 +25,28 @@ const pdf = await generate(
     </Page>
   </Document>
 );
+```
 
-writeFileSync('invoice.pdf', pdf);
+To generate a PDF, use `generate()` from `@pdfx-dev/cli`:
+
+```tsx
+import { Document, Page } from '@pdfx-dev/react';
+import { generate } from '@pdfx-dev/cli';
+
+const pdf = await generate(
+  <Document>
+    <Page size="A4">
+      <h1>Hello World</h1>
+    </Page>
+  </Document>
+);
 ```
 
 ## Components
 
 | Component | Description |
 |-----------|-------------|
-| `Document` | Root wrapper with metadata (title, author, etc.) |
+| `Document` | Root wrapper with metadata (title, author, fonts) |
 | `Page` | Page container with size, margins, header/footer |
 | `PageNumber` | Current page number |
 | `TotalPages` | Total page count |
@@ -72,23 +58,32 @@ writeFileSync('invoice.pdf', pdf);
 
 ### `render(element)`
 
-Converts a React element to a self-contained HTML string.
+Converts a React element to a self-contained HTML string. No server required.
 
 ```ts
 import { render } from '@pdfx-dev/react';
+
 const html = await render(<Document>...</Document>);
 ```
 
-### `generate(element)`
+This is useful for:
+- Previewing PDFs in a browser
+- Custom PDF generation pipelines
+- Testing templates
 
-Converts a React element to a PDF buffer. Requires `PDFX_HOST` environment variable.
+### Document Props
 
-```ts
-import { generate } from '@pdfx-dev/react';
-const pdf = await generate(<Document>...</Document>);
+```tsx
+<Document
+  title="Invoice"           // PDF title metadata
+  author="ACME Corp"        // PDF author metadata
+  fonts={['Inter', 'Roboto Mono']}  // Google Fonts to load
+>
+  {children}
+</Document>
 ```
 
-## Page Props
+### Page Props
 
 ```tsx
 <Page
@@ -103,28 +98,114 @@ const pdf = await generate(<Document>...</Document>);
 </Page>
 ```
 
-## Usage with Next.js
+### Page Sizes
+
+| Size | Dimensions (portrait) |
+|------|----------------------|
+| A3 | 297mm × 420mm |
+| A4 | 210mm × 297mm |
+| A5 | 148mm × 210mm |
+| Letter | 8.5in × 11in |
+| Legal | 8.5in × 14in |
+| Tabloid | 11in × 17in |
+| B4 | 250mm × 353mm |
+| B5 | 176mm × 250mm |
+| Custom | `[width, height]` e.g. `['6in', '9in']` |
+
+## Examples
+
+### Multi-page with Page Numbers
 
 ```tsx
-// app/api/invoice/route.ts
-import { generate, Document, Page } from '@pdfx-dev/react';
-
-export async function POST(req: Request) {
-  const data = await req.json();
-
-  const pdf = await generate(
-    <Document>
-      <Page size="A4">
-        <h1>Invoice #{data.id}</h1>
-      </Page>
-    </Document>
-  );
-
-  return new Response(pdf, {
-    headers: { 'Content-Type': 'application/pdf' }
-  });
-}
+<Document>
+  <Page
+    size="A4"
+    header={<div>Company Name</div>}
+    footer={<div>Page <PageNumber /> of <TotalPages /></div>}
+  >
+    <h1>Report</h1>
+    <p>Content that spans multiple pages...</p>
+  </Page>
+</Document>
 ```
+
+### Controlled Page Breaks
+
+```tsx
+<Document>
+  <Page size="A4">
+    <h1>Chapter 1</h1>
+    <p>Content...</p>
+
+    <PageBreak />
+
+    <h1>Chapter 2</h1>
+    <p>More content...</p>
+  </Page>
+</Document>
+```
+
+### Keep Content Together
+
+```tsx
+<Document>
+  <Page size="A4">
+    <AvoidBreak>
+      <h2>Section Title</h2>
+      <p>This paragraph stays with its heading.</p>
+    </AvoidBreak>
+  </Page>
+</Document>
+```
+
+### Repeating Table Headers
+
+```tsx
+<Document>
+  <Page size="A4">
+    <table>
+      <TableHeader>
+        <tr>
+          <th>Item</th>
+          <th>Price</th>
+        </tr>
+      </TableHeader>
+      <tbody>
+        {items.map(item => (
+          <tr key={item.id}>
+            <td>{item.name}</td>
+            <td>${item.price}</td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  </Page>
+</Document>
+```
+
+### Google Fonts
+
+```tsx
+<Document fonts={['Playfair Display', { name: 'Roboto', weights: [400, 700] }]}>
+  <Page size="A4">
+    <h1 style={{ fontFamily: 'Playfair Display' }}>Elegant Title</h1>
+  </Page>
+</Document>
+```
+
+## Server-only
+
+This package uses Node.js APIs (`fs`, `react-dom/server`) and cannot run in the browser. Importing it in a `"use client"` file will cause a build error:
+
+```
+Error: This module cannot be imported from a Client Component module.
+It should only be used from a Server Component.
+```
+
+Use it in:
+- Next.js API routes / Server Actions / Server Components
+- Express, Fastify, Hono backends
+- Node.js scripts
 
 ## License
 
