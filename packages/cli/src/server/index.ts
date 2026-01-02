@@ -1,7 +1,8 @@
 import express from "express";
 import type { Express, Request, Response, NextFunction } from "express";
 import { BrowserManager } from "./browser";
-import { generatePdf, type PdfGenerationOptions, type PdfResult } from "./pdf";
+import { type PdfResult } from "./pdf";
+import { createGenerateHandler } from "./routes";
 import { logger } from "../utils/logger";
 
 export interface ServerOptions {
@@ -20,10 +21,6 @@ export interface PDFXServer {
   routes: express.Router;
 }
 
-interface GenerateRequestBody {
-  html?: string;
-  options?: PdfGenerationOptions;
-}
 
 /**
  * Request timing middleware
@@ -131,57 +128,20 @@ For development with live preview, use:
     });
   });
 
-  // PDF generation endpoint
-  router.post("/generate", async (req: Request, res: Response) => {
-    const { html, options: pdfOptions } = req.body as GenerateRequestBody;
-    const format = req.query.format as string | undefined;
-
-    if (!html) {
-      res.status(400).json({ error: "HTML content is required" });
-      return;
-    }
-
-    // Return HTML directly if format=html (for debugging)
-    if (format === "html") {
-      res.setHeader("Content-Type", "text/html; charset=utf-8");
-      res.send(html);
-      return;
-    }
-
-    try {
-      const result = await browserManager.withPage(async (page) => {
-        return generatePdf(page, html, {
-          ...pdfOptions,
-          timeout,
-        });
-      });
-
-      // Attach result for request logger to log details
-      (res as any)._pdfResult = result;
-
-      // Set response headers with metrics
-      res.setHeader("Content-Type", "application/pdf");
-      res.setHeader("X-PDFX-Total-Time", result.metrics.total.toString());
-      res.setHeader("X-PDFX-Content-Load", result.metrics.contentLoad.toString());
-      res.setHeader("X-PDFX-PagedJs-Time", result.metrics.pagedJs.toString());
-      res.setHeader("X-PDFX-PDF-Capture", result.metrics.pdfCapture.toString());
-      res.setHeader("X-PDFX-Page-Count", result.metrics.pageCount.toString());
-      res.setHeader("X-PDFX-PDF-Size", result.metrics.pdfSize.toString());
-
-      res.send(result.buffer);
-    } catch (error) {
-      const message = error instanceof Error ? error.message : "Unknown error";
-
-      if (message.includes("Server busy")) {
-        logger.warn(`Rate limited: ${browserManager.getActivePages()}/${maxConcurrent} pages in use`);
-        res.status(503).json({ error: message });
-        return;
-      }
-
-      logger.error(`PDF generation failed: ${message}`);
-      res.status(500).json({ error: message });
-    }
-  });
+  // PDF generation endpoint (shared handler)
+  router.post(
+    "/generate",
+    createGenerateHandler(browserManager, {
+      timeout,
+      onError: (message) => {
+        if (message.includes("Server busy")) {
+          logger.warn(`Rate limited: ${browserManager.getActivePages()}/${maxConcurrent} pages in use`);
+        } else {
+          logger.error(`PDF generation failed: ${message}`);
+        }
+      },
+    })
+  );
 
   app.use(router);
 

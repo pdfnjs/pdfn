@@ -9,6 +9,7 @@ import chokidar from "chokidar";
 import { createServer as createHttpServer } from "http";
 import { BrowserManager } from "../server/browser";
 import { generatePdf } from "../server/pdf";
+import { createGenerateHandler } from "../server/routes";
 import { injectDebugSupport, type DebugOptions } from "../debug";
 import chalk from "chalk";
 
@@ -1289,6 +1290,32 @@ async function startDevServer(options: DevServerOptions) {
   app.get("/health", (_req: Request, res: Response) => {
     res.json({ status: "ok", templates: templates.length });
   });
+
+  // POST /generate - Same endpoint as serve command (shared handler)
+  // This allows the dev server to be used with generate() from external apps
+  app.use(express.json({ limit: "50mb" }));
+
+  app.post(
+    "/generate",
+    createGenerateHandler(browserManager, {
+      timeout: 30000,
+      onSuccess: (result) => {
+        const { metrics } = result;
+        console.log(
+          chalk.green("  ✓"),
+          chalk.dim("/generate"),
+          chalk.cyan(`${metrics.total}ms`),
+          chalk.dim("•"),
+          chalk.white(`${metrics.pageCount} page${metrics.pageCount > 1 ? "s" : ""}`),
+          chalk.dim("•"),
+          chalk.white(formatBytes(metrics.pdfSize))
+        );
+      },
+      onError: (message) => {
+        console.log(chalk.red("  ✗"), chalk.dim("/generate"), chalk.red(message));
+      },
+    })
+  );
 
   // Start server
   await new Promise<void>((resolve) => {
