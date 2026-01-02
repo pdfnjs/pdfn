@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
+import { describe, it, expect, beforeEach, afterEach } from "vitest";
 import { createServer } from "../../src/server/index";
 import { BrowserManager } from "../../src/server/browser";
 
@@ -8,9 +8,17 @@ describe("Server", () => {
       const server = createServer();
 
       expect(server).toHaveProperty("app");
-      expect(server).toHaveProperty("routes");
       expect(server).toHaveProperty("start");
       expect(server).toHaveProperty("stop");
+    });
+
+    it("app is an express application", () => {
+      const server = createServer();
+      // Express apps have these properties
+      expect(typeof server.app.use).toBe("function");
+      expect(typeof server.app.get).toBe("function");
+      expect(typeof server.app.post).toBe("function");
+      expect(typeof server.app.listen).toBe("function");
     });
 
     it("start is a function", () => {
@@ -36,32 +44,6 @@ describe("Server", () => {
     it("accepts custom maxConcurrent option", () => {
       const server = createServer({ maxConcurrent: 10 });
       expect(server).toBeDefined();
-    });
-  });
-
-  describe("Routes", () => {
-    it("has routes defined", () => {
-      const server = createServer();
-      expect(server.routes).toBeDefined();
-      expect(server.routes.stack).toBeDefined();
-    });
-
-    it("has health route", () => {
-      const server = createServer();
-      const routes = server.routes.stack;
-      const healthRoute = routes.find(
-        (r: any) => r.route?.path === "/health" && r.route?.methods?.get
-      );
-      expect(healthRoute).toBeDefined();
-    });
-
-    it("has generate route", () => {
-      const server = createServer();
-      const routes = server.routes.stack;
-      const generateRoute = routes.find(
-        (r: any) => r.route?.path === "/generate" && r.route?.methods?.post
-      );
-      expect(generateRoute).toBeDefined();
     });
   });
 });

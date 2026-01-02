@@ -104,7 +104,7 @@ export default function Poster({
 
               {/* CTA */}
               <div className="text-right">
-                <div className="inline-block bg-cyan-500 text-gray-900 text-2xl font-black px-10 py-5 rounded-xl shadow-lg">
+                <div className="inline-block bg-cyan-500 text-gray-900 text-2xl font-black px-10 py-5 rounded-xl">
                   {cta}
                 </div>
                 <div className="text-base text-gray-500 mt-4 font-mono tracking-wide">

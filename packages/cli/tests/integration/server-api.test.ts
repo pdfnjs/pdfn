@@ -112,7 +112,6 @@ describe("Server API - Without Starting Server", () => {
     const server = createServer({ port: 9999 });
 
     expect(server.app).toBeDefined();
-    expect(server.routes).toBeDefined();
     expect(typeof server.start).toBe("function");
     expect(typeof server.stop).toBe("function");
   });

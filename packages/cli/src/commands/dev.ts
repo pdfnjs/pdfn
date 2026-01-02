@@ -1,15 +1,13 @@
 import { Command } from "commander";
 import { existsSync, readdirSync, readFileSync } from "fs";
 import { join, resolve } from "path";
-import express from "express";
-import type { Express, Request, Response } from "express";
+import type { Request, Response } from "express";
 import { createServer as createViteServer } from "vite";
 import { WebSocketServer, WebSocket } from "ws";
 import chokidar from "chokidar";
 import { createServer as createHttpServer } from "http";
-import { BrowserManager } from "../server/browser";
+import { createBaseServer } from "../server/base";
 import { generatePdf } from "../server/pdf";
-import { createGenerateHandler } from "../server/routes";
 import { injectDebugSupport, type DebugOptions } from "../debug";
 import chalk from "chalk";
 
@@ -914,8 +912,25 @@ async function startDevServer(options: DevServerOptions) {
   console.log(chalk.dim(`  Templates: ${absoluteTemplatesDir}`));
   console.log(chalk.dim(`  Found: ${templates.length} template(s)\n`));
 
-  // Create Express app
-  const app: Express = express();
+  // Create base server with shared /generate and /health endpoints
+  const { app, browserManager } = createBaseServer({
+    enableLogging: false, // Dev uses custom logging per route
+    onSuccess: (result) => {
+      const { metrics } = result;
+      console.log(
+        chalk.green("  ✓"),
+        chalk.dim("/generate"),
+        chalk.cyan(`${metrics.total}ms`),
+        chalk.dim("•"),
+        chalk.white(`${metrics.pageCount} page${metrics.pageCount > 1 ? "s" : ""}`),
+        chalk.dim("•"),
+        chalk.white(formatBytes(metrics.pdfSize))
+      );
+    },
+    onError: (message) => {
+      console.log(chalk.red("  ✗"), chalk.dim("/generate"), chalk.red(message));
+    },
+  });
   const server = createHttpServer(app);
 
   // Create WebSocket server for hot reload
@@ -982,8 +997,6 @@ async function startDevServer(options: DevServerOptions) {
     ],
   });
 
-  // Browser manager for PDF generation
-  const browserManager = new BrowserManager({ maxConcurrent: 2, timeout: 30000 });
 
   // Watch for template changes
   const watcher = chokidar.watch(absoluteTemplatesDir, {
@@ -1286,37 +1299,6 @@ async function startDevServer(options: DevServerOptions) {
     }
   });
 
-  // Health check
-  app.get("/health", (_req: Request, res: Response) => {
-    res.json({ status: "ok", templates: templates.length });
-  });
-
-  // POST /generate - Same endpoint as serve command (shared handler)
-  // This allows the dev server to be used with generate() from external apps
-  app.use(express.json({ limit: "50mb" }));
-
-  app.post(
-    "/generate",
-    createGenerateHandler(browserManager, {
-      timeout: 30000,
-      onSuccess: (result) => {
-        const { metrics } = result;
-        console.log(
-          chalk.green("  ✓"),
-          chalk.dim("/generate"),
-          chalk.cyan(`${metrics.total}ms`),
-          chalk.dim("•"),
-          chalk.white(`${metrics.pageCount} page${metrics.pageCount > 1 ? "s" : ""}`),
-          chalk.dim("•"),
-          chalk.white(formatBytes(metrics.pdfSize))
-        );
-      },
-      onError: (message) => {
-        console.log(chalk.red("  ✗"), chalk.dim("/generate"), chalk.red(message));
-      },
-    })
-  );
-
   // Start server
   await new Promise<void>((resolve) => {
     server.listen(port, () => resolve());
@@ -1350,7 +1332,7 @@ async function startDevServer(options: DevServerOptions) {
 
 export const devCommand = new Command("dev")
   .description("Start development server with live preview")
-  .option("--port <number>", "Server port", "3456")
+  .option("--port <number>", "Server port (env: PDFX_PORT)", process.env.PDFX_PORT ?? "3456")
   .option("--templates <path>", "Templates directory", "./pdf-templates")
   .option("--no-open", "Don't open browser automatically")
   .action(async (options) => {

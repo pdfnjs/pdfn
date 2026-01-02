@@ -58,7 +58,7 @@ export default function Ticket({
           <div className="px-6 py-5">
             {/* Ticket Type Badge */}
             <div className="flex justify-center -mt-10 mb-5">
-              <div className="bg-cyan-500 text-gray-900 text-xs font-bold uppercase px-5 py-2 rounded-full tracking-widest shadow-lg">
+              <div className="bg-cyan-500 text-gray-900 text-xs font-bold uppercase px-5 py-2 rounded-full tracking-widest">
                 {ticketType}
               </div>
             </div>
