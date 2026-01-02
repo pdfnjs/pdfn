@@ -1,5 +1,5 @@
-import { Document, Page } from "@pdfx-dev/react";
-import { Tailwind } from "@pdfx-dev/tailwind";
+import { Document, Page } from "@pdfn/react";
+import { Tailwind } from "@pdfn/tailwind";
 
 /**
  * Event Poster template - Tabloid size, Landscape orientation
@@ -46,7 +46,7 @@ export default function Poster({
           >
             {/* Top Section: Logo and Accent */}
             <div className="flex justify-between items-start mb-4">
-              <div className="text-2xl font-black text-white">PDFX</div>
+              <div className="text-2xl font-black text-white">PDFN</div>
               <div className="flex gap-2">
                 <div className="h-1.5 w-32 bg-cyan-500 rounded-full"></div>
                 <div className="h-1.5 w-16 bg-cyan-500/50 rounded-full"></div>

@@ -4,8 +4,8 @@ import { serveCommand } from "./commands/serve.js";
 import { addCommand } from "./commands/add.js";
 
 const program = new Command()
-  .name("pdfx")
-  .description("PDFX CLI - PDF generation tools\n\n  Alpha: 'serve' command works. 'dev' and 'add' coming soon.")
+  .name("pdfn")
+  .description("PDFN CLI - PDF generation tools\n\n  Alpha: 'serve' command works. 'dev' and 'add' coming soon.")
   .version("0.0.1-alpha.1");
 
 program.addCommand(devCommand);

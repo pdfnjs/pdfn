@@ -1,5 +1,5 @@
 /**
- * Tailwind CSS Processing for PDFX
+ * Tailwind CSS Processing for PDFN
  *
  * Uses Tailwind v4's compile() API with static imports.
  * This works in bundled environments like Next.js because
@@ -27,8 +27,8 @@ const compilerCache = new Map<string, Awaited<ReturnType<typeof compile>>>();
 let tailwindRoot: string | null = null;
 let autoDetectedCssPath: string | null | undefined = undefined; // undefined = not yet checked
 
-// Only log verbose output if PDFX_DEBUG is set
-const DEBUG = process.env.PDFX_DEBUG === "true";
+// Only log verbose output if PDFN_DEBUG is set
+const DEBUG = process.env.PDFN_DEBUG === "true";
 
 /**
  * Common CSS file locations to auto-detect
@@ -93,7 +93,7 @@ function autoDetectCssPath(): string | null {
       // Check if it looks like a Tailwind CSS file
       if (content.includes("tailwindcss") || content.includes("@tailwind")) {
         if (DEBUG) {
-          console.log(`[pdfx:tailwind] Auto-detected CSS: ${relativePath}`);
+          console.log(`[pdfn:tailwind] Auto-detected CSS: ${relativePath}`);
         }
         autoDetectedCssPath = fullPath;
         return fullPath;
@@ -121,7 +121,7 @@ function getUserCss(cssPath: string): string {
   // Check if it has Tailwind import
   if (!content.includes("tailwindcss") && !content.includes("@tailwind")) {
     console.warn(
-      `[pdfx:tailwind] Warning: ${cssPath} doesn't appear to import Tailwind CSS.\n` +
+      `[pdfn:tailwind] Warning: ${cssPath} doesn't appear to import Tailwind CSS.\n` +
       `Expected to find @import "tailwindcss"; or @tailwind directives.`
     );
   }
@@ -153,7 +153,7 @@ function getBaseCss(options: ProcessOptions = {}): { css: string; source: string
 
   // 3. Fall back to vanilla Tailwind
   if (DEBUG) {
-    console.log("[pdfx:tailwind] Using vanilla Tailwind (no custom CSS found)");
+    console.log("[pdfn:tailwind] Using vanilla Tailwind (no custom CSS found)");
   }
   return {
     css: '@import "tailwindcss";',
@@ -229,7 +229,7 @@ async function getCompiler(baseCss: string): Promise<Awaited<ReturnType<typeof c
         return { path: twPath, content, base: path.dirname(twPath) };
       }
 
-      console.warn(`[pdfx:tailwind] Could not load stylesheet: ${id}`);
+      console.warn(`[pdfn:tailwind] Could not load stylesheet: ${id}`);
       throw new Error(`Could not load stylesheet: ${id}`);
     },
     loadModule: async (id: string, _base: string, resourceHint: "plugin" | "config") => {
@@ -286,7 +286,7 @@ export async function processTailwind(html: string, options: ProcessOptions = {}
     const duration = Math.round(performance.now() - startTime);
     if (DEBUG) {
       console.log(
-        `[pdfx:tailwind] Generated ${css.length} bytes in ${duration}ms ` +
+        `[pdfn:tailwind] Generated ${css.length} bytes in ${duration}ms ` +
         `(${candidates.length} classes, source: ${source})`
       );
     }
@@ -294,7 +294,7 @@ export async function processTailwind(html: string, options: ProcessOptions = {}
     return css;
   } catch (error) {
     const message = error instanceof Error ? error.message : "Unknown error";
-    console.error(`[pdfx:tailwind] Error: ${message}`);
+    console.error(`[pdfn:tailwind] Error: ${message}`);
     throw error;
   }
 }

@@ -47,20 +47,20 @@ export function Page({
   // Watermark text is stored as data attribute for CSS @page rule.
   return (
     <div
-      data-pdfx-page
-      data-pdfx-size={sizeName}
-      data-pdfx-margin={marginCss}
-      data-pdfx-width={dimensions.width}
-      data-pdfx-height={dimensions.height}
-      data-pdfx-watermark-text={typeof watermark === "string" ? watermark : watermark?.text || watermark?.content}
-      data-pdfx-watermark-opacity={typeof watermark === "object" ? watermark.opacity : undefined}
-      data-pdfx-watermark-rotation={typeof watermark === "object" ? watermark.rotation : undefined}
+      data-pdfn-page
+      data-pdfn-size={sizeName}
+      data-pdfn-margin={marginCss}
+      data-pdfn-width={dimensions.width}
+      data-pdfn-height={dimensions.height}
+      data-pdfn-watermark-text={typeof watermark === "string" ? watermark : watermark?.text || watermark?.content}
+      data-pdfn-watermark-opacity={typeof watermark === "object" ? watermark.opacity : undefined}
+      data-pdfn-watermark-rotation={typeof watermark === "object" ? watermark.rotation : undefined}
       style={pageStyle}
     >
       {/* Running elements BEFORE content for paged.js to capture on page 1 */}
-      {header && <header data-pdfx-header>{header}</header>}
-      {footer && <footer data-pdfx-footer>{footer}</footer>}
-      <main data-pdfx-content>{children}</main>
+      {header && <header data-pdfn-header>{header}</header>}
+      {footer && <footer data-pdfn-footer>{footer}</footer>}
+      <main data-pdfn-content>{children}</main>
     </div>
   );
 }
@@ -75,7 +75,7 @@ function getSizeName(size: PageProps["size"], orientation: PageProps["orientatio
 function renderWatermark(watermark: string | WatermarkConfig) {
   if (typeof watermark === "string") {
     return (
-      <div data-pdfx-watermark>
+      <div data-pdfn-watermark>
         {watermark}
       </div>
     );
@@ -103,7 +103,7 @@ function renderWatermark(watermark: string | WatermarkConfig) {
 
   return (
     <div
-      data-pdfx-watermark
+      data-pdfn-watermark
       className={className}
       style={watermarkStyle}
     >

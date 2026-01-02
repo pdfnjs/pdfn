@@ -119,7 +119,7 @@ function createPreviewHTML(templates: TemplateInfo[], activeTemplate: string | n
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>PDFX Dev Server</title>
+  <title>PDFN Dev Server</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -530,7 +530,7 @@ function createPreviewHTML(templates: TemplateInfo[], activeTemplate: string | n
 </head>
 <body>
   <header class="header">
-    <div class="logo">pdf<span>x</span> <span style="font-weight: 400; color: var(--text-muted); font-size: 14px; margin-left: 8px;">dev</span></div>
+    <div class="logo">pdf<span>n</span> <span style="font-weight: 400; color: var(--text-muted); font-size: 14px; margin-left: 8px;">dev</span></div>
     <div class="status">
       <div class="status-dot" id="status-dot"></div>
       <span id="status-text">Connected</span>
@@ -543,7 +543,7 @@ function createPreviewHTML(templates: TemplateInfo[], activeTemplate: string | n
       ${
         templates.length > 0
           ? templateList
-          : '<div class="empty-state"><p>No templates found</p><code>pdfx add invoice</code></div>'
+          : '<div class="empty-state"><p>No templates found</p><code>pdfn add invoice</code></div>'
       }
     </aside>
 
@@ -647,7 +647,7 @@ function createPreviewHTML(templates: TemplateInfo[], activeTemplate: string | n
     };
 
     const PT_TO_PX = 96 / 72;
-    const STORAGE_KEY = 'pdfx-inspector';
+    const STORAGE_KEY = 'pdfn-inspector';
 
     let ws;
     let currentTemplate = ${activeTemplate ? `"${activeTemplate}"` : "null"};
@@ -736,9 +736,9 @@ function createPreviewHTML(templates: TemplateInfo[], activeTemplate: string | n
 
     connect();
 
-    // Listen for metrics from iframe (postMessage from PDFX script)
+    // Listen for metrics from iframe (postMessage from PDFN script)
     window.addEventListener('message', function(event) {
-      if (event.data && event.data.type === 'pdfx:metrics') {
+      if (event.data && event.data.type === 'pdfn:metrics') {
         const metrics = event.data.metrics;
         if (metrics.paginationTime !== undefined) {
           document.getElementById('metric-pagination').textContent = metrics.paginationTime + 'ms';
@@ -908,7 +908,7 @@ async function startDevServer(options: DevServerOptions) {
   // Scan templates
   let templates = await scanTemplates(absoluteTemplatesDir);
 
-  console.log(chalk.bold("\n  PDFX Dev Server\n"));
+  console.log(chalk.bold("\n  PDFN Dev Server\n"));
   console.log(chalk.dim(`  Templates: ${absoluteTemplatesDir}`));
   console.log(chalk.dim(`  Found: ${templates.length} template(s)\n`));
 
@@ -976,7 +976,7 @@ async function startDevServer(options: DevServerOptions) {
     },
     ssr: {
       // Don't externalize these - we need to transform them
-      noExternal: ["@pdfx-dev/react", "@pdfx-dev/tailwind", "server-only"],
+      noExternal: ["@pdfn/react", "@pdfn/tailwind", "server-only"],
     },
     plugins: [
       {
@@ -1092,7 +1092,7 @@ async function startDevServer(options: DevServerOptions) {
   ): Promise<string> {
     const mod = await vite.ssrLoadModule(template.path);
     const Component = mod.default;
-    const { render } = await vite.ssrLoadModule("@pdfx-dev/react");
+    const { render } = await vite.ssrLoadModule("@pdfn/react");
     // Call with empty props - component's default parameter values provide sample data
     const rawHtml = await render(Component({}));
     return injectDebugSupport(rawHtml, debugOptions);
@@ -1332,7 +1332,7 @@ async function startDevServer(options: DevServerOptions) {
 
 export const devCommand = new Command("dev")
   .description("Start development server with live preview")
-  .option("--port <number>", "Server port (env: PDFX_PORT)", process.env.PDFX_PORT ?? "3456")
+  .option("--port <number>", "Server port (env: PDFN_PORT)", process.env.PDFN_PORT ?? "3456")
   .option("--templates <path>", "Templates directory", "./pdf-templates")
   .option("--no-open", "Don't open browser automatically")
   .action(async (options) => {

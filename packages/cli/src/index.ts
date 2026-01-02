@@ -1,4 +1,4 @@
-// @pdfx-dev/cli - PDF generation tools
+// pdfn - PDF generation tools
 
 // Main API
 export { generate } from "./generate";

@@ -3,41 +3,41 @@ import { createBaseServer } from "./base";
 import { logger } from "../utils/logger";
 
 export interface ServerOptions {
-  /** Server port (default: env.PDFX_PORT || 3456) */
+  /** Server port (default: env.PDFN_PORT || 3456) */
   port?: number;
-  /** Max concurrent pages (default: env.PDFX_MAX_CONCURRENT || 5) */
+  /** Max concurrent pages (default: env.PDFN_MAX_CONCURRENT || 5) */
   maxConcurrent?: number;
-  /** Request timeout in ms (default: env.PDFX_TIMEOUT || 30000) */
+  /** Request timeout in ms (default: env.PDFN_TIMEOUT || 30000) */
   timeout?: number;
 }
 
-export interface PDFXServer {
+export interface PDFNServer {
   app: Express;
   start: () => Promise<void>;
   stop: () => Promise<void>;
 }
 
 /**
- * Create a PDFX server instance
+ * Create a PDFN server instance
  *
  * Configuration priority: options > environment variables > defaults
  *
  * Environment variables:
- * - PDFX_PORT: Server port (default: 3456)
- * - PDFX_MAX_CONCURRENT: Max concurrent pages (default: 5)
- * - PDFX_TIMEOUT: Request timeout in ms (default: 30000)
+ * - PDFN_PORT: Server port (default: 3456)
+ * - PDFN_MAX_CONCURRENT: Max concurrent pages (default: 5)
+ * - PDFN_TIMEOUT: Request timeout in ms (default: 30000)
  *
  * @example
  * ```ts
- * import { createServer } from '@pdfx-dev/cli/server';
+ * import { createServer } from 'pdfn/server';
  *
  * const server = createServer({ port: 3456, maxConcurrent: 10 });
  * await server.start();
  * ```
  */
-export function createServer(options: ServerOptions = {}): PDFXServer {
+export function createServer(options: ServerOptions = {}): PDFNServer {
   const port =
-    options.port ?? parseInt(process.env.PDFX_PORT ?? "3456", 10);
+    options.port ?? parseInt(process.env.PDFN_PORT ?? "3456", 10);
 
   // Create base server with shared middleware and routes
   const { app, browserManager, maxConcurrent, timeout } = createBaseServer({
@@ -63,7 +63,7 @@ export function createServer(options: ServerOptions = {}): PDFXServer {
 
   // Landing page - helpful message for browser visitors
   app.get("/", (_req: Request, res: Response) => {
-    res.type("text/plain").send(`PDFX Server
+    res.type("text/plain").send(`PDFN Server
 
 This is a headless API server for PDF generation.
 
@@ -78,7 +78,7 @@ Usage:
     -o output.pdf
 
 For development with live preview, use:
-  npx @pdfx-dev/cli dev
+  npx pdfn dev
 `);
   });
 

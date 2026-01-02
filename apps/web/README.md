@@ -1,6 +1,6 @@
-# PDFX Website
+# PDFN Website
 
-The official website and interactive demo for PDFX - The React framework for PDFs.
+The official website and interactive demo for PDFN - The React framework for PDFs.
 
 ## Features
 
@@ -15,8 +15,8 @@ The official website and interactive demo for PDFX - The React framework for PDF
 # From monorepo root
 pnpm install
 
-# Start the PDFX server (required for PDF generation)
-pnpm --filter @pdfx-dev/cli exec pdfx serve
+# Start the PDFN server (required for PDF generation)
+pnpm --filter pdfn exec pdfn serve
 
 # In another terminal, start the website
 pnpm --filter web dev
@@ -47,12 +47,12 @@ pdf-templates/
 ## How It Works
 
 1. Templates are React components in `pdf-templates/`
-2. The API route uses `generate()` from `@pdfx-dev/cli` to convert React to PDF
+2. The API route uses `generate()` from `pdfn` to convert React to PDF
 3. The demo page shows a live preview with an inspector panel
 
 ```tsx
 // api/pdf/route.tsx
-import { generate } from '@pdfx-dev/cli';
+import { generate } from 'pdfn';
 import Invoice from '../../../pdf-templates/invoice';
 
 export async function GET(request: Request) {
@@ -84,7 +84,7 @@ export default function Invoice({
 
 ## Deployment
 
-The site will be deployed to https://pdfx.dev
+The site will be deployed to https://pdfn.dev
 
 ```bash
 pnpm --filter web build

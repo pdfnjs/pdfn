@@ -1,11 +1,11 @@
-# @pdfx-dev/tailwind
+# @pdfn/tailwind
 
-Tailwind CSS support for PDFX. Use Tailwind classes in your PDF templates.
+Tailwind CSS support for PDFN. Use Tailwind classes in your PDF templates.
 
 ## Installation
 
 ```bash
-npm install @pdfx-dev/tailwind
+npm install @pdfn/tailwind
 ```
 
 ## Quick Start
@@ -13,8 +13,8 @@ npm install @pdfx-dev/tailwind
 Wrap your content with the `<Tailwind>` component:
 
 ```tsx
-import { Document, Page } from '@pdfx-dev/react';
-import { Tailwind } from '@pdfx-dev/tailwind';
+import { Document, Page } from '@pdfn/react';
+import { Tailwind } from '@pdfn/tailwind';
 
 export default function Invoice() {
   return (
@@ -80,7 +80,7 @@ Falls back to vanilla Tailwind if no CSS file is found.
 Low-level function for advanced use cases:
 
 ```ts
-import { processTailwind } from '@pdfx-dev/tailwind';
+import { processTailwind } from '@pdfn/tailwind';
 
 const css = await processTailwind(html, {
   css: './src/app/globals.css'

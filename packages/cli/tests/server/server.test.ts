@@ -54,8 +54,8 @@ describe("BrowserManager", () => {
 
     beforeEach(() => {
       // Clear env before each test
-      delete process.env.PDFX_MAX_CONCURRENT;
-      delete process.env.PDFX_TIMEOUT;
+      delete process.env.PDFN_MAX_CONCURRENT;
+      delete process.env.PDFN_TIMEOUT;
     });
 
     afterEach(() => {
@@ -79,8 +79,8 @@ describe("BrowserManager", () => {
     });
 
     it("uses env variables when options not provided", () => {
-      process.env.PDFX_MAX_CONCURRENT = "15";
-      process.env.PDFX_TIMEOUT = "45000";
+      process.env.PDFN_MAX_CONCURRENT = "15";
+      process.env.PDFN_TIMEOUT = "45000";
 
       const manager = new BrowserManager();
       expect(manager.getMaxConcurrent()).toBe(15);
@@ -88,8 +88,8 @@ describe("BrowserManager", () => {
     });
 
     it("options take priority over env variables", () => {
-      process.env.PDFX_MAX_CONCURRENT = "15";
-      process.env.PDFX_TIMEOUT = "45000";
+      process.env.PDFN_MAX_CONCURRENT = "15";
+      process.env.PDFN_TIMEOUT = "45000";
 
       const manager = new BrowserManager({
         maxConcurrent: 20,

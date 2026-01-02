@@ -29,7 +29,7 @@ describe("TableHeader", () => {
         </TableHeader>
       </table>
     );
-    expect(html).toContain("data-pdfx-table-header");
+    expect(html).toContain("data-pdfn-table-header");
     expect(html).toContain("display:table-header-group");
   });
 

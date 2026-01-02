@@ -1,5 +1,5 @@
 {
-  "extends": "@pdfx-dev/typescript-config/react-library.json",
+  "extends": "@pdfn/typescript-config/react-library.json",
   "compilerOptions": {
     "outDir": "dist",
     "rootDir": "src",

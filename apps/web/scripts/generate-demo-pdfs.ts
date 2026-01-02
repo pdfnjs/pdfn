@@ -4,14 +4,14 @@
  * Usage: pnpm generate-demo-pdfs
  *
  * Requires:
- * 1. PDFX server running: pnpm --filter @pdfx-dev/cli exec pdfx serve
+ * 1. PDFN server running: pnpm --filter pdfn exec pdfn serve
  * 2. Next.js dev server running: pnpm --filter web dev
  */
 
 import { existsSync, mkdirSync, rmSync, writeFileSync, readdirSync, statSync } from "fs";
 import { join } from "path";
 
-const PDFX_HOST = process.env.PDFX_HOST || "http://localhost:3456";
+const PDFN_HOST = process.env.PDFN_HOST || "http://localhost:3456";
 const NEXTJS_HOST = process.env.NEXTJS_HOST || "http://localhost:3000";
 const OUTPUT_DIR = join(process.cwd(), "public", "pdfs");
 
@@ -54,19 +54,19 @@ async function generatePdf(
 }
 
 async function main() {
-  console.log("\n📄 PDFX Demo PDF Generator\n");
-  console.log(`  PDFX Server: ${PDFX_HOST}`);
+  console.log("\n📄 PDFN Demo PDF Generator\n");
+  console.log(`  PDFN Server: ${PDFN_HOST}`);
   console.log(`  Next.js Server: ${NEXTJS_HOST}`);
   console.log(`  Output: ${OUTPUT_DIR}\n`);
 
-  // Check if PDFX server is running
+  // Check if PDFN server is running
   try {
-    const health = await fetch(`${PDFX_HOST}/health`);
+    const health = await fetch(`${PDFN_HOST}/health`);
     if (!health.ok) throw new Error("Health check failed");
-    console.log("  ✓ PDFX server is running");
+    console.log("  ✓ PDFN server is running");
   } catch {
-    console.error("  ✗ PDFX server is not running");
-    console.error(`    Start it with: pnpm --filter @pdfx-dev/cli exec pdfx serve\n`);
+    console.error("  ✗ PDFN server is not running");
+    console.error(`    Start it with: pnpm --filter pdfn exec pdfn serve\n`);
     process.exit(1);
   }
 

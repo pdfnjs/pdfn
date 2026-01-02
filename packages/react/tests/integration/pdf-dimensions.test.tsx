@@ -49,7 +49,7 @@ describe("PDF Page Dimensions", () => {
 
       // Wait for Paged.js to finish processing
       await page.waitForFunction(
-        () => (window as unknown as { PDFX?: { ready?: boolean } }).PDFX?.ready === true,
+        () => (window as unknown as { PDFN?: { ready?: boolean } }).PDFN?.ready === true,
         { timeout: 30000 }
       );
 

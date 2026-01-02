@@ -1,29 +1,29 @@
-# @pdfx-dev/cli
+# pdfn
 
-CLI and server for PDFX - PDF generation from React components.
+CLI and server for PDFN - PDF generation from React components.
 
 ## Installation
 
 ```bash
-npm install -D @pdfx-dev/cli
+npm install -D pdfn
 ```
 
 ## Commands
 
-After installing, you can use `pdfx-dev` directly or `npx @pdfx-dev/cli`:
+After installing, you can use `pdfn` directly or `npx pdfn`:
 
-### `pdfx-dev dev`
+### `pdfn dev`
 
 Start the development server with a preview UI and hot reload.
 
 ```bash
-npx @pdfx-dev/cli dev
-npx @pdfx-dev/cli dev --port 4000
-npx @pdfx-dev/cli dev --templates ./src/pdf
-npx @pdfx-dev/cli dev --no-open     # Don't auto-open browser
+npx pdfn dev
+npx pdfn dev --port 4000
+npx pdfn dev --templates ./src/pdf
+npx pdfn dev --no-open     # Don't auto-open browser
 
 # Or after installing:
-pdfx-dev dev
+pdfn dev
 ```
 
 **Options:**
@@ -40,44 +40,44 @@ The dev server:
 - Shows performance metrics and debug overlays
 - Exposes `/generate` endpoint for PDF generation
 
-### `pdfx-dev serve`
+### `pdfn serve`
 
 Start the production server (headless, no UI).
 
 ```bash
-npx @pdfx-dev/cli serve
-npx @pdfx-dev/cli serve --port 3456
-npx @pdfx-dev/cli serve --max-concurrent 10
+npx pdfn serve
+npx pdfn serve --port 3456
+npx pdfn serve --max-concurrent 10
 
 # Or after installing:
-pdfx-dev serve
+pdfn serve
 ```
 
 **Options:**
 
 | Option | Env Variable | Default | Description |
 |--------|--------------|---------|-------------|
-| `--port` | `PDFX_PORT` | 3456 | Server port |
-| `--max-concurrent` | `PDFX_MAX_CONCURRENT` | 5 | Max concurrent PDF generations |
-| `--timeout` | `PDFX_TIMEOUT` | 30000 | Request timeout in ms |
+| `--port` | `PDFN_PORT` | 3456 | Server port |
+| `--max-concurrent` | `PDFN_MAX_CONCURRENT` | 5 | Max concurrent PDF generations |
+| `--timeout` | `PDFN_TIMEOUT` | 30000 | Request timeout in ms |
 
-### `pdfx-dev add`
+### `pdfn add`
 
 Add starter templates to your project.
 
 ```bash
-npx @pdfx-dev/cli add invoice       # Add invoice template
-npx @pdfx-dev/cli add --list        # Show available templates
+npx pdfn add invoice       # Add invoice template
+npx pdfn add --list        # Show available templates
 
 # Or after installing:
-pdfx-dev add invoice
-pdfx-dev add letter
-pdfx-dev add contract
-pdfx-dev add ticket
-pdfx-dev add poster
-pdfx-dev add --list
-pdfx-dev add invoice --output ./src/templates
-pdfx-dev add invoice --force
+pdfn add invoice
+pdfn add letter
+pdfn add contract
+pdfn add ticket
+pdfn add poster
+pdfn add --list
+pdfn add invoice --output ./src/templates
+pdfn add invoice --force
 ```
 
 **Available Templates:**
@@ -108,13 +108,13 @@ GET /health
 
 ### `generate(element, options?)`
 
-Generate a PDF from a React element. Requires `PDFX_HOST` environment variable.
+Generate a PDF from a React element. Requires `PDFN_HOST` environment variable.
 
 ```tsx
-import { Document, Page } from '@pdfx-dev/react';
-import { generate } from '@pdfx-dev/cli';
+import { Document, Page } from '@pdfn/react';
+import { generate } from 'pdfn';
 
-process.env.PDFX_HOST = 'http://localhost:3456';
+process.env.PDFN_HOST = 'http://localhost:3456';
 
 const pdf = await generate(
   <Document>
@@ -131,7 +131,7 @@ const pdf = await generate(
 interface GenerateOptions {
   output?: 'pdf' | 'html';  // Output format (default: 'pdf')
   debug?: boolean | DebugOptions;  // Enable debug overlays
-  host?: string;  // Override PDFX_HOST
+  host?: string;  // Override PDFN_HOST
   pdf?: {
     printBackground?: boolean;  // Print background graphics (default: true)
     preferCSSPageSize?: boolean;  // Use CSS page size (default: true)
@@ -164,7 +164,7 @@ const pdf = await generate(<Invoice data={data} />, {
 ### Embedding in Your Server
 
 ```ts
-import { createServer } from '@pdfx-dev/cli/server';
+import { createServer } from 'pdfn/server';
 
 const server = createServer({
   port: 3456,
@@ -179,8 +179,8 @@ await server.start();
 
 ```tsx
 // app/api/invoice/route.ts
-import { Document, Page } from '@pdfx-dev/react';
-import { generate } from '@pdfx-dev/cli';
+import { Document, Page } from '@pdfn/react';
+import { generate } from 'pdfn';
 
 export async function POST(req: Request) {
   const data = await req.json();
@@ -205,7 +205,7 @@ Docker support coming soon.
 
 ```bash
 # Coming soon
-docker run -p 3456:3456 ghcr.io/pdfx-dev/cli serve
+docker run -p 3456:3456 ghcr.io/pdfnjs/cli serve
 ```
 
 ## License

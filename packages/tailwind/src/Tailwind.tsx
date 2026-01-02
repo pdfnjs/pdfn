@@ -45,15 +45,15 @@ export interface TailwindProps {
 /**
  * Marker attribute used to detect Tailwind wrapper in rendered HTML
  */
-export const TAILWIND_MARKER = "data-pdfx-tailwind";
+export const TAILWIND_MARKER = "data-pdfn-tailwind";
 
 /**
  * Attribute to store CSS path for processTailwind
  */
-export const TAILWIND_CSS_ATTR = "data-pdfx-tailwind-css";
+export const TAILWIND_CSS_ATTR = "data-pdfn-tailwind-css";
 
 /**
- * Tailwind wrapper component for PDFX
+ * Tailwind wrapper component for PDFN
  *
  * Wrap your Page content with this component to enable Tailwind CSS processing.
  * The component renders a hidden marker element that the render() function
@@ -61,8 +61,8 @@ export const TAILWIND_CSS_ATTR = "data-pdfx-tailwind-css";
  *
  * @example Basic usage
  * ```tsx
- * import { Document, Page } from '@pdfx-dev/react';
- * import { Tailwind } from '@pdfx-dev/tailwind';
+ * import { Document, Page } from '@pdfn/react';
+ * import { Tailwind } from '@pdfn/tailwind';
  *
  * export default function Invoice() {
  *   return (

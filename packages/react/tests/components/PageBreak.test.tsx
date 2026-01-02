@@ -7,7 +7,7 @@ describe("PageBreak", () => {
     const html = renderToStaticMarkup(<PageBreak />);
 
     // Data attribute for styling/selection
-    expect(html).toContain("data-pdfx-page-break");
+    expect(html).toContain("data-pdfn-page-break");
 
     // Modern CSS for page breaks
     expect(html).toContain("break-after:page");

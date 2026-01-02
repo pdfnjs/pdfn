@@ -3,9 +3,9 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { TotalPages } from "../../src/components/TotalPages";
 
 describe("TotalPages", () => {
-  it("renders with data-pdfx-total-pages attribute", () => {
+  it("renders with data-pdfn-total-pages attribute", () => {
     const html = renderToStaticMarkup(<TotalPages />);
-    expect(html).toContain("data-pdfx-total-pages");
+    expect(html).toContain("data-pdfn-total-pages");
     expect(html).toContain("<span");
   });
 

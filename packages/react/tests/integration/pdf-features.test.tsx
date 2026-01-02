@@ -44,7 +44,7 @@ describe("PDF Features Integration", () => {
 
       // Wait for Paged.js to finish processing
       await page.waitForFunction(
-        () => (window as unknown as { PDFX?: { ready?: boolean } }).PDFX?.ready === true,
+        () => (window as unknown as { PDFN?: { ready?: boolean } }).PDFN?.ready === true,
         { timeout: 30000 }
       );
 
@@ -69,7 +69,7 @@ describe("PDF Features Integration", () => {
     try {
       await page.setContent(html, { waitUntil: "networkidle0" });
       await page.waitForFunction(
-        () => (window as unknown as { PDFX?: { ready?: boolean } }).PDFX?.ready === true,
+        () => (window as unknown as { PDFN?: { ready?: boolean } }).PDFN?.ready === true,
         { timeout: 30000 }
       );
 
@@ -97,7 +97,7 @@ describe("PDF Features Integration", () => {
         </Document>
       );
 
-      expect(html).toContain("data-pdfx-header");
+      expect(html).toContain("data-pdfn-header");
       expect(html).toContain("Company Header");
     });
 
@@ -113,7 +113,7 @@ describe("PDF Features Integration", () => {
         </Document>
       );
 
-      expect(html).toContain("data-pdfx-footer");
+      expect(html).toContain("data-pdfn-footer");
       expect(html).toContain("Page Footer");
     });
 
@@ -168,7 +168,7 @@ describe("PDF Features Integration", () => {
         </Document>
       );
 
-      expect(html).toContain("data-pdfx-page-number");
+      expect(html).toContain("data-pdfn-page-number");
       // CSS counter should be applied via styles
       expect(html).toContain("counter(page)");
     });
@@ -182,7 +182,7 @@ describe("PDF Features Integration", () => {
         </Document>
       );
 
-      expect(html).toContain("data-pdfx-total-pages");
+      expect(html).toContain("data-pdfn-total-pages");
       expect(html).toContain("counter(pages)");
     });
 
@@ -235,7 +235,7 @@ describe("PDF Features Integration", () => {
       );
 
       // Watermark text stored as data attribute
-      expect(html).toContain('data-pdfx-watermark-text="DRAFT"');
+      expect(html).toContain('data-pdfn-watermark-text="DRAFT"');
       // CSS for watermark generated in style block
       expect(html).toContain(".pagedjs_sheet::before");
       expect(html).toContain('content: "DRAFT"');
@@ -258,9 +258,9 @@ describe("PDF Features Integration", () => {
       );
 
       // Watermark config stored as data attributes
-      expect(html).toContain('data-pdfx-watermark-text="CONFIDENTIAL"');
-      expect(html).toContain('data-pdfx-watermark-opacity="0.2"');
-      expect(html).toContain('data-pdfx-watermark-rotation="-30"');
+      expect(html).toContain('data-pdfn-watermark-text="CONFIDENTIAL"');
+      expect(html).toContain('data-pdfn-watermark-opacity="0.2"');
+      expect(html).toContain('data-pdfn-watermark-rotation="-30"');
       // CSS generated with custom rotation
       expect(html).toContain("rotate(-30deg)");
     });
@@ -311,7 +311,7 @@ describe("PDF Features Integration", () => {
         </Document>
       );
 
-      expect(html).toContain("data-pdfx-avoid-break");
+      expect(html).toContain("data-pdfn-avoid-break");
       expect(html).toContain("break-inside");
     });
 
@@ -373,7 +373,7 @@ describe("PDF Features Integration", () => {
         </Document>
       );
 
-      expect(html).toContain("data-pdfx-table-header");
+      expect(html).toContain("data-pdfn-table-header");
       expect(html).toContain("Column 1");
       expect(html).toContain("Column 2");
     });
@@ -414,7 +414,7 @@ describe("PDF Features Integration", () => {
   describe("Combined features", () => {
     it("generates complex PDF with all features", async () => {
       const pdf = await generatePdf(
-        <Document title="Complex Document" author="PDFX Test">
+        <Document title="Complex Document" author="PDFN Test">
           <Page
             size="A4"
             header={<div style={{ borderBottom: "1px solid #ccc", padding: "10px" }}>Company Name</div>}

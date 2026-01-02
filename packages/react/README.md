@@ -1,4 +1,4 @@
-# @pdfx-dev/react
+# @pdfn/react
 
 React components for building PDF documents. Use familiar React patterns to create pixel-perfect PDFs.
 
@@ -7,14 +7,14 @@ React components for building PDF documents. Use familiar React patterns to crea
 ## Installation
 
 ```bash
-npm install @pdfx-dev/react
-npm install -D @pdfx-dev/cli
+npm install @pdfn/react
+npm install -D pdfn
 ```
 
 ## Quick Start
 
 ```tsx
-import { render, Document, Page, PageNumber } from '@pdfx-dev/react';
+import { render, Document, Page, PageNumber } from '@pdfn/react';
 
 const html = await render(
   <Document title="Invoice #123">
@@ -27,11 +27,11 @@ const html = await render(
 );
 ```
 
-To generate a PDF, use `generate()` from `@pdfx-dev/cli`:
+To generate a PDF, use `generate()` from `pdfn`:
 
 ```tsx
-import { Document, Page } from '@pdfx-dev/react';
-import { generate } from '@pdfx-dev/cli';
+import { Document, Page } from '@pdfn/react';
+import { generate } from 'pdfn';
 
 const pdf = await generate(
   <Document>
@@ -61,7 +61,7 @@ const pdf = await generate(
 Converts a React element to a self-contained HTML string. No server required.
 
 ```ts
-import { render } from '@pdfx-dev/react';
+import { render } from '@pdfn/react';
 
 const html = await render(<Document>...</Document>);
 ```

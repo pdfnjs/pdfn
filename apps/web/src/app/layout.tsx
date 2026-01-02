@@ -13,8 +13,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "PDFX + Next.js Example",
-  description: "Generate PDFs from React components with PDFX",
+  title: "PDFN + Next.js Example",
+  description: "Generate PDFs from React components with PDFN",
 };
 
 export default function RootLayout({

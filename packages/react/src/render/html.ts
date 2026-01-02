@@ -19,53 +19,53 @@ html, body {
 }
 
 /* Page styles */
-[data-pdfx-page] {
+[data-pdfn-page] {
   position: relative;
   display: flex;
   flex-direction: column;
 }
 
-[data-pdfx-content] {
+[data-pdfn-content] {
   flex: 1;
 }
 
-[data-pdfx-header] {
+[data-pdfn-header] {
   position: running(header);
 }
 
-[data-pdfx-footer] {
+[data-pdfn-footer] {
   position: running(footer);
 }
 
 /* Watermark - now handled via @page CSS for multi-page support */
-[data-pdfx-watermark] {
+[data-pdfn-watermark] {
   display: none;
 }
 
 /* Page number and total pages - Paged.js counters */
-[data-pdfx-page-number]::after {
+[data-pdfn-page-number]::after {
   content: counter(page);
 }
 
-[data-pdfx-total-pages]::after {
+[data-pdfn-total-pages]::after {
   content: counter(pages);
 }
 
 /* Page break */
-[data-pdfx-page-break] {
+[data-pdfn-page-break] {
   break-after: page;
   page-break-after: always;
   height: 0;
 }
 
 /* Avoid break */
-[data-pdfx-avoid-break] {
+[data-pdfn-avoid-break] {
   break-inside: avoid;
   page-break-inside: avoid;
 }
 
 /* Table header - repeats on each page with paged.js */
-[data-pdfx-table-header] {
+[data-pdfn-table-header] {
   display: table-header-group;
   break-inside: avoid;
 }
@@ -93,11 +93,11 @@ tr {
     background: white;
   }
 
-  [data-pdfx-page] {
+  [data-pdfn-page] {
     page-break-after: always;
   }
 
-  [data-pdfx-page]:last-child {
+  [data-pdfn-page]:last-child {
     page-break-after: auto;
   }
 }
@@ -116,8 +116,8 @@ tr {
 /**
  * Paged.js configuration and event system
  */
-export const PDFX_SCRIPT = `
-window.PDFX = {
+export const PDFN_SCRIPT = `
+window.PDFN = {
   ready: false,
   metrics: {
     start: performance.now(),
@@ -125,15 +125,15 @@ window.PDFX = {
     paginationTime: 0
   },
   on: function(event, callback) {
-    window.addEventListener('pdfx:' + event, function(e) {
+    window.addEventListener('pdfn:' + event, function(e) {
       callback(e.detail);
     });
   },
   off: function(event, callback) {
-    window.removeEventListener('pdfx:' + event, callback);
+    window.removeEventListener('pdfn:' + event, callback);
   },
   emit: function(event, data) {
-    window.dispatchEvent(new CustomEvent('pdfx:' + event, { detail: data }));
+    window.dispatchEvent(new CustomEvent('pdfn:' + event, { detail: data }));
   },
   mark: function(name) {
     this.metrics[name] = performance.now();
@@ -142,7 +142,7 @@ window.PDFX = {
   notifyParent: function() {
     if (window.parent && window.parent !== window) {
       window.parent.postMessage({
-        type: 'pdfx:metrics',
+        type: 'pdfn:metrics',
         metrics: this.metrics
       }, '*');
     }
@@ -152,25 +152,25 @@ window.PDFX = {
 // Signal when ready (after Paged.js if present, otherwise immediately)
 if (typeof Paged !== 'undefined') {
   // Mark when Paged.js starts processing
-  window.PDFX.mark('pagedjs_start');
+  window.PDFN.mark('pagedjs_start');
 
-  // Handler for PDFX ready state
+  // Handler for PDFN ready state
   class PagedHandler extends Paged.Handler {
     constructor(chunker, polisher, caller) {
       super(chunker, polisher, caller);
     }
     afterRendered(pages) {
       // Update all metrics first
-      window.PDFX.mark('pagedjs_complete');
-      window.PDFX.metrics.pages = pages.length;
-      window.PDFX.metrics.paginationTime = Math.round(
-        window.PDFX.metrics.pagedjs_complete - window.PDFX.metrics.pagedjs_start
+      window.PDFN.mark('pagedjs_complete');
+      window.PDFN.metrics.pages = pages.length;
+      window.PDFN.metrics.paginationTime = Math.round(
+        window.PDFN.metrics.pagedjs_complete - window.PDFN.metrics.pagedjs_start
       );
 
       // Now mark as ready and notify
-      window.PDFX.ready = true;
-      window.PDFX.emit('ready', { pages: pages.length });
-      window.PDFX.notifyParent();
+      window.PDFN.ready = true;
+      window.PDFN.emit('ready', { pages: pages.length });
+      window.PDFN.notifyParent();
     }
   }
 
@@ -313,13 +313,13 @@ if (typeof Paged !== 'undefined') {
   // No Paged.js, ready immediately after DOM load
   function signalReady() {
     // Update metrics first
-    window.PDFX.metrics.pages = 1;
-    window.PDFX.metrics.paginationTime = 0;
+    window.PDFN.metrics.pages = 1;
+    window.PDFN.metrics.paginationTime = 0;
 
     // Now mark as ready and notify
-    window.PDFX.ready = true;
-    window.PDFX.emit('ready', { pages: 1 });
-    window.PDFX.notifyParent();
+    window.PDFN.ready = true;
+    window.PDFN.emit('ready', { pages: 1 });
+    window.PDFN.notifyParent();
   }
 
   if (document.readyState === 'loading') {
@@ -380,7 +380,7 @@ function generateGoogleFontsLink(fonts: FontConfig[]): string {
 
 /**
  * Extract page configuration from rendered content
- * Looks for data-pdfx-* attributes
+ * Looks for data-pdfn-* attributes
  */
 function extractPageConfig(content: string): {
   width?: string;
@@ -392,12 +392,12 @@ function extractPageConfig(content: string): {
     rotation?: number;
   };
 } {
-  const widthMatch = content.match(/data-pdfx-width="([^"]+)"/);
-  const heightMatch = content.match(/data-pdfx-height="([^"]+)"/);
-  const marginMatch = content.match(/data-pdfx-margin="([^"]+)"/);
-  const watermarkTextMatch = content.match(/data-pdfx-watermark-text="([^"]+)"/);
-  const watermarkOpacityMatch = content.match(/data-pdfx-watermark-opacity="([^"]+)"/);
-  const watermarkRotationMatch = content.match(/data-pdfx-watermark-rotation="([^"]+)"/);
+  const widthMatch = content.match(/data-pdfn-width="([^"]+)"/);
+  const heightMatch = content.match(/data-pdfn-height="([^"]+)"/);
+  const marginMatch = content.match(/data-pdfn-margin="([^"]+)"/);
+  const watermarkTextMatch = content.match(/data-pdfn-watermark-text="([^"]+)"/);
+  const watermarkOpacityMatch = content.match(/data-pdfn-watermark-opacity="([^"]+)"/);
+  const watermarkRotationMatch = content.match(/data-pdfn-watermark-rotation="([^"]+)"/);
 
   return {
     width: widthMatch?.[1],
@@ -503,7 +503,7 @@ ${css}
   <body>
     ${content}
     <script>
-${PDFX_SCRIPT}
+${PDFN_SCRIPT}
     </script>
   </body>
 </html>`;

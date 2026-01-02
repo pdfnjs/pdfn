@@ -38,7 +38,7 @@ export interface TableHeaderProps {
 export function TableHeader({ children, className }: TableHeaderProps) {
   return (
     <thead
-      data-pdfx-table-header
+      data-pdfn-table-header
       className={className}
       style={{
         display: "table-header-group",

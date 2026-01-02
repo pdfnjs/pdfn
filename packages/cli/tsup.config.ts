@@ -19,7 +19,7 @@ export default defineConfig([
     dts: true,
     clean: true,
     sourcemap: true,
-    external: ["puppeteer", "vite", "@pdfx-dev/react"],
+    external: ["puppeteer", "vite", "@pdfn/react"],
   },
   // Server utilities (advanced use)
   {

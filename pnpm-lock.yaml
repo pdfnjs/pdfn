@@ -20,18 +20,18 @@ importers:
 
   apps/web:
     dependencies:
-      '@pdfx-dev/cli':
-        specifier: workspace:*
-        version: link:../../packages/cli
-      '@pdfx-dev/react':
+      '@pdfn/react':
         specifier: workspace:*
         version: link:../../packages/react
-      '@pdfx-dev/tailwind':
+      '@pdfn/tailwind':
         specifier: workspace:*
         version: link:../../packages/tailwind
       next:
         specifier: 16.1.0
         version: 16.1.0(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
+      pdfn:
+        specifier: workspace:*
+        version: link:../../packages/cli
       react:
         specifier: 19.2.3
         version: 19.2.3
@@ -78,7 +78,7 @@ importers:
 
   packages/cli:
     dependencies:
-      '@pdfx-dev/react':
+      '@pdfn/react':
         specifier: workspace:*
         version: link:../react
       chalk:
@@ -109,10 +109,10 @@ importers:
         specifier: ^8.18.3
         version: 8.18.3
     devDependencies:
-      '@pdfx-dev/eslint-config':
+      '@pdfn/eslint-config':
         specifier: workspace:*
         version: link:../eslint-config
-      '@pdfx-dev/typescript-config':
+      '@pdfn/typescript-config':
         specifier: workspace:*
         version: link:../typescript-config
       '@types/express':
@@ -182,13 +182,13 @@ importers:
         specifier: ^0.0.1
         version: 0.0.1
     devDependencies:
-      '@pdfx-dev/eslint-config':
+      '@pdfn/eslint-config':
         specifier: workspace:*
         version: link:../eslint-config
-      '@pdfx-dev/tailwind':
+      '@pdfn/tailwind':
         specifier: workspace:*
         version: link:../tailwind
-      '@pdfx-dev/typescript-config':
+      '@pdfn/typescript-config':
         specifier: workspace:*
         version: link:../typescript-config
       '@types/node':
@@ -237,10 +237,10 @@ importers:
         specifier: ^4.0.0
         version: 4.1.18
     devDependencies:
-      '@pdfx-dev/eslint-config':
+      '@pdfn/eslint-config':
         specifier: workspace:*
         version: link:../eslint-config
-      '@pdfx-dev/typescript-config':
+      '@pdfn/typescript-config':
         specifier: workspace:*
         version: link:../typescript-config
       '@types/node':

@@ -1,5 +1,5 @@
-import { Document, Page } from "@pdfx-dev/react";
-import { Tailwind } from "@pdfx-dev/tailwind";
+import { Document, Page } from "@pdfn/react";
+import { Tailwind } from "@pdfn/tailwind";
 
 /**
  * Business Letter template - US Letter size

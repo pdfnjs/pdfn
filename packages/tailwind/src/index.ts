@@ -1,12 +1,12 @@
 /**
- * @pdfx-dev/tailwind - Tailwind CSS support for PDFX
+ * @pdfn/tailwind - Tailwind CSS support for PDFN
  *
  * Wrap your content with the Tailwind component to enable Tailwind CSS processing.
  *
  * @example
  * ```tsx
- * import { Document, Page } from '@pdfx-dev/react';
- * import { Tailwind } from '@pdfx-dev/tailwind';
+ * import { Document, Page } from '@pdfn/react';
+ * import { Tailwind } from '@pdfn/tailwind';
  *
  * export default function Invoice() {
  *   return (

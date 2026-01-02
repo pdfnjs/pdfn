@@ -1,9 +1,9 @@
 import puppeteer, { Browser, Page } from "puppeteer";
 
 export interface BrowserManagerOptions {
-  /** Max concurrent pages (default: env.PDFX_MAX_CONCURRENT || 5) */
+  /** Max concurrent pages (default: env.PDFN_MAX_CONCURRENT || 5) */
   maxConcurrent?: number;
-  /** Request timeout in ms (default: env.PDFX_TIMEOUT || 30000) */
+  /** Request timeout in ms (default: env.PDFN_TIMEOUT || 30000) */
   timeout?: number;
 }
 
@@ -25,9 +25,9 @@ export class BrowserManager {
   constructor(options: BrowserManagerOptions = {}) {
     this.maxConcurrent =
       options.maxConcurrent ??
-      parseInt(process.env.PDFX_MAX_CONCURRENT ?? "5", 10);
+      parseInt(process.env.PDFN_MAX_CONCURRENT ?? "5", 10);
     this.timeout =
-      options.timeout ?? parseInt(process.env.PDFX_TIMEOUT ?? "30000", 10);
+      options.timeout ?? parseInt(process.env.PDFN_TIMEOUT ?? "30000", 10);
   }
 
   /**

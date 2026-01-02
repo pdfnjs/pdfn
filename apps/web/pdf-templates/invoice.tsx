@@ -1,5 +1,5 @@
-import { Document, Page, TableHeader, PageNumber, TotalPages } from "@pdfx-dev/react";
-import { Tailwind } from "@pdfx-dev/tailwind";
+import { Document, Page, TableHeader, PageNumber, TotalPages } from "@pdfn/react";
+import { Tailwind } from "@pdfn/tailwind";
 
 /**
  * Professional Invoice template using Tailwind CSS
@@ -46,7 +46,7 @@ export default function Invoice({
     city: "Austin, TX 78701",
   },
   items = [
-    { name: "PDFX Enterprise License", description: "Annual subscription - unlimited PDF generation", qty: 1, price: 4999 },
+    { name: "PDFN Enterprise License", description: "Annual subscription - unlimited PDF generation", qty: 1, price: 4999 },
     { name: "API Integration Setup", description: "Custom API configuration and endpoint setup", qty: 1, price: 1500 },
     { name: "Custom Template: Invoice", description: "Professional invoice with company branding", qty: 1, price: 800 },
     { name: "Custom Template: Contract", description: "Legal contract with digital signatures", qty: 1, price: 950 },
@@ -63,11 +63,11 @@ export default function Invoice({
     { name: "Performance Review", description: "Template rendering optimization analysis", qty: 1, price: 600 },
   ],
   taxRate = 0.0875,
-  notes = "Thank you for choosing PDFX! Payment is due within 30 days. For questions, contact billing@pdfx.dev.",
+  notes = "Thank you for choosing PDFN! Payment is due within 30 days. For questions, contact billing@pdfn.dev.",
   company = {
-    name: "PDFX",
+    name: "PDFN",
     address: "548 Market St, Suite 835, San Francisco, CA 94104",
-    email: "billing@pdfx.dev",
+    email: "billing@pdfn.dev",
     phone: "+1 (415) 555-0132",
   },
 }: InvoiceProps) {

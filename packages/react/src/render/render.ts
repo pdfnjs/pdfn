@@ -16,10 +16,10 @@ async function getRenderer() {
 }
 
 /**
- * Marker attribute used by @pdfx-dev/tailwind to signal Tailwind processing is needed
+ * Marker attribute used by @pdfn/tailwind to signal Tailwind processing is needed
  */
-const TAILWIND_MARKER = "data-pdfx-tailwind";
-const TAILWIND_CSS_ATTR = "data-pdfx-tailwind-css";
+const TAILWIND_MARKER = "data-pdfn-tailwind";
+const TAILWIND_CSS_ATTR = "data-pdfn-tailwind-css";
 
 /**
  * Check if HTML contains the Tailwind marker
@@ -41,7 +41,7 @@ function extractTailwindCssPath(html: string): string | undefined {
  */
 function removeTailwindMarker(html: string): string {
   // Remove the hidden div with the marker attribute (with or without CSS path)
-  return html.replace(/<div data-pdfx-tailwind="true"[^>]*><\/div>/g, "");
+  return html.replace(/<div data-pdfn-tailwind="true"[^>]*><\/div>/g, "");
 }
 
 export interface RenderResult {
@@ -63,8 +63,8 @@ export interface RenderResult {
  *
  * @example
  * ```tsx
- * import { render, Document, Page } from '@pdfx-dev/react';
- * import { Tailwind } from '@pdfx-dev/tailwind';
+ * import { render, Document, Page } from '@pdfn/react';
+ * import { Tailwind } from '@pdfn/tailwind';
  *
  * const html = await render(
  *   <Document title="Invoice">
@@ -105,8 +105,8 @@ export async function render(
       // Extract CSS path from marker if provided
       const cssPath = extractTailwindCssPath(content);
 
-      // Dynamically import @pdfx-dev/tailwind to process the CSS
-      const { processTailwind } = await import("@pdfx-dev/tailwind");
+      // Dynamically import @pdfn/tailwind to process the CSS
+      const { processTailwind } = await import("@pdfn/tailwind");
       tailwindCss = await processTailwind(content, { cssPath });
       debug(`tailwind: processed via marker detection${cssPath ? ` (css: ${cssPath})` : ""}`);
 

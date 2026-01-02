@@ -40,8 +40,8 @@ describe("render", () => {
     );
 
     expect(html).toContain("Hello World");
-    expect(html).toContain("data-pdfx-document");
-    expect(html).toContain("data-pdfx-page");
+    expect(html).toContain("data-pdfn-document");
+    expect(html).toContain("data-pdfn-page");
   });
 
   it("includes base print styles", async () => {
@@ -52,8 +52,8 @@ describe("render", () => {
     );
 
     expect(html).toContain("print-color-adjust: exact");
-    expect(html).toContain("[data-pdfx-page]");
-    expect(html).toContain("[data-pdfx-content]");
+    expect(html).toContain("[data-pdfn-page]");
+    expect(html).toContain("[data-pdfn-content]");
   });
 
   it("includes page number CSS counters", async () => {
@@ -63,22 +63,22 @@ describe("render", () => {
       </Document>
     );
 
-    expect(html).toContain("[data-pdfx-page-number]::after");
+    expect(html).toContain("[data-pdfn-page-number]::after");
     expect(html).toContain("content: counter(page)");
-    expect(html).toContain("[data-pdfx-total-pages]::after");
+    expect(html).toContain("[data-pdfn-total-pages]::after");
     expect(html).toContain("content: counter(pages)");
   });
 
-  it("includes PDFX event system script", async () => {
+  it("includes PDFN event system script", async () => {
     const html = await render(
       <Document>
         <Page>Content</Page>
       </Document>
     );
 
-    expect(html).toContain("window.PDFX");
-    expect(html).toContain("PDFX.ready");
-    expect(html).toContain("PDFX.emit");
+    expect(html).toContain("window.PDFN");
+    expect(html).toContain("PDFN.ready");
+    expect(html).toContain("PDFN.emit");
   });
 
   it("includes Paged.js by default", async () => {

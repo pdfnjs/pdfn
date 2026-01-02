@@ -1,5 +1,5 @@
 /**
- * Image Processing for PDFX
+ * Image Processing for PDFN
  *
  * Embeds local images as base64 data URIs for self-contained HTML output.
  */

@@ -3,9 +3,9 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { PageNumber } from "../../src/components/PageNumber";
 
 describe("PageNumber", () => {
-  it("renders with data-pdfx-page-number attribute", () => {
+  it("renders with data-pdfn-page-number attribute", () => {
     const html = renderToStaticMarkup(<PageNumber />);
-    expect(html).toContain("data-pdfx-page-number");
+    expect(html).toContain("data-pdfn-page-number");
     expect(html).toContain("<span");
   });
 

@@ -1,7 +1,7 @@
 {
-  "name": "@pdfx-dev/tailwind",
-  "version": "0.0.1-alpha.1",
-  "description": "Tailwind CSS support for PDFX",
+  "name": "@pdfn/tailwind",
+  "version": "0.0.1",
+  "description": "Tailwind CSS support for PDFN",
   "type": "module",
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",
@@ -32,8 +32,8 @@
     "tailwindcss": "^4.0.0"
   },
   "devDependencies": {
-    "@pdfx-dev/eslint-config": "workspace:*",
-    "@pdfx-dev/typescript-config": "workspace:*",
+    "@pdfn/eslint-config": "workspace:*",
+    "@pdfn/typescript-config": "workspace:*",
     "@types/node": "^22.0.0",
     "@types/react": "^19.0.0",
     "tsup": "^8.5.1",
@@ -46,14 +46,15 @@
   ],
   "license": "MIT",
   "keywords": [
-    "pdfx",
+    "pdfn",
     "tailwind",
     "pdf",
     "css"
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/pdfx-dev/pdfx.git",
+    "url": "https://github.com/pdfnjs/pdfn.git",
     "directory": "packages/tailwind"
-  }
+  },
+  "homepage": "https://pdfn.dev"
 }

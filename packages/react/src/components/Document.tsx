@@ -55,7 +55,7 @@ export function Document({
 }: DocumentProps) {
   return (
     <div
-      data-pdfx-document
+      data-pdfn-document
       data-title={title}
       data-author={author}
       data-subject={subject}

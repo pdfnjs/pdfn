@@ -122,7 +122,7 @@ export default function Home() {
   // Listen for metrics from iframe
   useEffect(() => {
     const handleMessage = (event: MessageEvent) => {
-      if (event.data?.type === "pdfx:metrics") {
+      if (event.data?.type === "pdfn:metrics") {
         setMetrics(prev => ({
           ...prev,
           pagination: event.data.metrics.paginationTime ?? prev.pagination,
@@ -159,8 +159,8 @@ export default function Home() {
       const response = await fetch(pdfUrl);
       if (!response.ok) {
         const text = await response.text();
-        if (text.includes("PDFX server is not running")) {
-          setPdfError("Start the server: npx @pdfx-dev/cli serve");
+        if (text.includes("PDFN server is not running")) {
+          setPdfError("Start the server: npx pdfn serve");
         } else {
           setPdfError("PDF generation failed");
         }
@@ -214,17 +214,17 @@ export default function Home() {
         <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
           <span className="text-2xl font-bold tracking-tight">
             <span className="text-text-muted">pdf</span>
-            <span className="text-primary">x</span>
+            <span className="text-primary">n</span>
           </span>
           <div className="flex items-center gap-6">
             <button onClick={scrollToDemo} className="text-text-secondary hover:text-text-primary transition-colors">
               Demo
             </button>
-            <a href="https://github.com/pdfx-dev/pdfx" target="_blank" rel="noopener noreferrer"
+            <a href="https://github.com/pdfnjs/pdfn" target="_blank" rel="noopener noreferrer"
                className="text-text-secondary hover:text-text-primary transition-colors">
               GitHub
             </a>
-            <a href="https://pdfx.dev/docs" target="_blank" rel="noopener noreferrer"
+            <a href="https://pdfn.dev/docs" target="_blank" rel="noopener noreferrer"
                className="text-text-secondary hover:text-text-primary transition-colors">
               Docs
             </a>
@@ -244,7 +244,7 @@ export default function Home() {
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
             <code className="bg-surface-1 border border-border rounded-lg px-5 py-3 text-lg font-mono text-text-primary">
-              npm i @pdfx-dev/react
+              npm i @pdfn/react
             </code>
             <button
               onClick={scrollToDemo}
@@ -285,7 +285,7 @@ export default function Home() {
               Simple, familiar API
             </h2>
             <p className="text-xl text-text-secondary">
-              If you know React, you already know PDFX
+              If you know React, you already know PDFN
             </p>
           </div>
 
@@ -638,10 +638,10 @@ export default function Home() {
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
             <code className="bg-background border border-border rounded-lg px-5 py-3 font-mono text-text-primary">
-              npx @pdfx-dev/cli dev
+              npx pdfn dev
             </code>
             <a
-              href="https://pdfx.dev/docs/getting-started"
+              href="https://pdfn.dev/docs/getting-started"
               className="bg-primary hover:bg-primary-hover text-black font-semibold px-6 py-3 rounded-lg transition-colors"
             >
               Read the docs
@@ -655,7 +655,7 @@ export default function Home() {
         <div className="max-w-6xl mx-auto flex items-center justify-between text-sm text-text-muted">
           <span>
             <span className="text-text-secondary">pdf</span>
-            <span className="text-primary">x</span>
+            <span className="text-primary">n</span>
             {" "}— The React Framework for PDFs
           </span>
           <span>MIT License</span>

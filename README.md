@@ -1,4 +1,4 @@
-# PDFX
+# PDFN
 
 The React framework for PDFs. Pixel-perfect. Deterministic.
 
@@ -6,7 +6,7 @@ The React framework for PDFs. Pixel-perfect. Deterministic.
 
 ## Requirements
 
-**Node.js only** - PDFX generates PDFs on the server, not in the browser.
+**Node.js only** - PDFN generates PDFs on the server, not in the browser.
 
 Use it in:
 - Next.js API routes / Server Actions / Server Components
@@ -22,17 +22,17 @@ Use it in:
 
 ```bash
 # Install packages
-npm install @pdfx-dev/react
-npm install -D @pdfx-dev/cli
+npm install @pdfn/react
+npm install -D pdfn
 
 # Start the dev server with preview UI
-npx @pdfx-dev/cli dev
+npx pdfn dev
 ```
 
 Create a template in `pdf-templates/invoice.tsx`:
 
 ```tsx
-import { Document, Page, PageNumber } from '@pdfx-dev/react';
+import { Document, Page, PageNumber } from '@pdfn/react';
 
 interface InvoiceData {
   id: string;
@@ -58,11 +58,11 @@ export default function Invoice({
 Generate PDFs programmatically:
 
 ```tsx
-import { Document, Page, PageNumber } from '@pdfx-dev/react';
-import { generate } from '@pdfx-dev/cli';
+import { Document, Page, PageNumber } from '@pdfn/react';
+import { generate } from 'pdfn';
 import { writeFileSync } from 'fs';
 
-process.env.PDFX_HOST = 'http://localhost:3456';
+process.env.PDFN_HOST = 'http://localhost:3456';
 
 const pdf = await generate(
   <Document title="Invoice #123">
@@ -81,9 +81,9 @@ writeFileSync('invoice.pdf', pdf);
 
 | Package | Description |
 |---------|-------------|
-| [@pdfx-dev/react](./packages/react) | React components and `render()` |
-| [@pdfx-dev/cli](./packages/cli) | CLI, server, and `generate()` |
-| [@pdfx-dev/tailwind](./packages/tailwind) | Tailwind CSS support (optional) |
+| [@pdfn/react](./packages/react) | React components and `render()` |
+| [pdfn](./packages/cli) | CLI, server, and `generate()` |
+| [@pdfn/tailwind](./packages/tailwind) | Tailwind CSS support (optional) |
 
 ## Features
 
@@ -94,7 +94,7 @@ writeFileSync('invoice.pdf', pdf);
 - **Table Headers** - Repeat table headers across pages with `<TableHeader />`
 - **Watermarks** - Add text or custom watermarks
 - **Multiple Sizes** - A4, A3, A5, Letter, Legal, Tabloid, B4, B5, or custom dimensions
-- **Tailwind CSS** - Full Tailwind v4 support with `@pdfx-dev/tailwind`
+- **Tailwind CSS** - Full Tailwind v4 support with `@pdfn/tailwind`
 - **Google Fonts** - Easy font loading via `fonts` prop or Tailwind CSS
 - **Local Images** - Automatic base64 embedding for relative image paths
 - **Debug Mode** - Visual overlays for margins, grid, headers, and page breaks
@@ -107,12 +107,12 @@ React Component → render() → HTML → Server → Puppeteer → PDF
 
 1. Write your PDF template as a React component
 2. `render()` converts it to self-contained HTML with Paged.js
-3. `generate()` sends HTML to the PDFX server
+3. `generate()` sends HTML to the PDFN server
 4. Puppeteer renders the HTML and captures as PDF
 
 ## API
 
-### Components (from `@pdfx-dev/react`)
+### Components (from `@pdfn/react`)
 
 | Component | Description |
 |-----------|-------------|
@@ -126,23 +126,23 @@ React Component → render() → HTML → Server → Puppeteer → PDF
 
 ### Functions
 
-#### `render(element)` - from `@pdfx-dev/react`
+#### `render(element)` - from `@pdfn/react`
 
 Converts React to HTML. No server needed.
 
 ```ts
-import { render, Document, Page } from '@pdfx-dev/react';
+import { render, Document, Page } from '@pdfn/react';
 
 const html = await render(<Document><Page>...</Page></Document>);
 ```
 
-#### `generate(element)` - from `@pdfx-dev/cli`
+#### `generate(element)` - from `pdfn`
 
-Converts React to PDF. Requires `PDFX_HOST`.
+Converts React to PDF. Requires `PDFN_HOST`.
 
 ```ts
-import { Document, Page } from '@pdfx-dev/react';
-import { generate } from '@pdfx-dev/cli';
+import { Document, Page } from '@pdfn/react';
+import { generate } from 'pdfn';
 
 const pdf = await generate(<Document><Page>...</Page></Document>);
 ```
@@ -151,30 +151,30 @@ const pdf = await generate(<Document><Page>...</Page></Document>);
 
 ```bash
 # Development - preview UI with hot reload
-npx @pdfx-dev/cli dev
-npx @pdfx-dev/cli dev --port 4000
-npx @pdfx-dev/cli dev --no-open     # Don't auto-open browser
+npx pdfn dev
+npx pdfn dev --port 4000
+npx pdfn dev --no-open     # Don't auto-open browser
 
 # Production - headless server
-npx @pdfx-dev/cli serve
-npx @pdfx-dev/cli serve --port 3456 --max-concurrent 10
+npx pdfn serve
+npx pdfn serve --port 3456 --max-concurrent 10
 
 # Add starter templates
-npx @pdfx-dev/cli add invoice       # Add invoice template
-npx @pdfx-dev/cli add --list        # Show available templates
+npx pdfn add invoice       # Add invoice template
+npx pdfn add --list        # Show available templates
 
-# After installing @pdfx-dev/cli, you can use the shorter command:
-pdfx-dev dev
-pdfx-dev serve
-pdfx-dev add invoice
+# After installing pdfn, you can use the shorter command:
+pdfn dev
+pdfn serve
+pdfn add invoice
 ```
 
 ## Usage with Next.js
 
 ```tsx
 // app/api/invoice/route.ts
-import { Document, Page } from '@pdfx-dev/react';
-import { generate } from '@pdfx-dev/cli';
+import { Document, Page } from '@pdfn/react';
+import { generate } from 'pdfn';
 
 export async function POST(req: Request) {
   const data = await req.json();
@@ -196,8 +196,8 @@ export async function POST(req: Request) {
 ## Tailwind CSS
 
 ```tsx
-import { Document, Page } from '@pdfx-dev/react';
-import { Tailwind } from '@pdfx-dev/tailwind';
+import { Document, Page } from '@pdfn/react';
+import { Tailwind } from '@pdfn/tailwind';
 
 export default function Invoice() {
   return (
@@ -223,7 +223,7 @@ pnpm dev        # Watch mode
 
 ## Server-only
 
-PDFX uses Node.js APIs (`fs`, `react-dom/server`) and cannot run in the browser. If you import it in a `"use client"` file, you'll get a build error:
+PDFN uses Node.js APIs (`fs`, `react-dom/server`) and cannot run in the browser. If you import it in a `"use client"` file, you'll get a build error:
 
 ```
 Error: This module cannot be imported from a Client Component module.

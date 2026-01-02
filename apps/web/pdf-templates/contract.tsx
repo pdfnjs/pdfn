@@ -1,5 +1,5 @@
-import { Document, Page, PageNumber, TotalPages, AvoidBreak } from "@pdfx-dev/react";
-import { Tailwind } from "@pdfx-dev/tailwind";
+import { Document, Page, PageNumber, TotalPages, AvoidBreak } from "@pdfn/react";
+import { Tailwind } from "@pdfn/tailwind";
 
 /**
  * Service Agreement Contract template - Legal size (taller page)
@@ -44,7 +44,7 @@ export default function Contract({
   watermark = "CONFIDENTIAL",
   parties = {
     provider: {
-      name: "PDFX, Inc.",
+      name: "PDFN, Inc.",
       address: "548 Market St, Suite 835, San Francisco, CA 94104",
       representative: "Alex Chen, Head of Partnerships",
     },
@@ -58,7 +58,7 @@ export default function Contract({
     {
       title: "Services",
       content:
-        "Provider agrees to deliver the PDFX Enterprise Platform including unlimited server-side PDF generation, React component library, Tailwind CSS integration, and API access as detailed in Exhibit A. The Platform shall include all current features and any updates released during the term of this Agreement.",
+        "Provider agrees to deliver the PDFN Enterprise Platform including unlimited server-side PDF generation, React component library, Tailwind CSS integration, and API access as detailed in Exhibit A. The Platform shall include all current features and any updates released during the term of this Agreement.",
     },
     {
       title: "Compensation",

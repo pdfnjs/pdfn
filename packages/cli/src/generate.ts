@@ -1,5 +1,5 @@
 import type { ReactElement } from "react";
-import { render, type RenderOptions, type PdfOptions } from "@pdfx-dev/react";
+import { render, type RenderOptions, type PdfOptions } from "@pdfn/react";
 import { injectDebugSupport, type DebugOptions } from "./debug";
 
 export interface GenerateOptions extends RenderOptions {
@@ -18,8 +18,8 @@ export interface GenerateOptions extends RenderOptions {
   debug?: boolean | DebugOptions;
 
   /**
-   * PDFX server host (required for PDF output)
-   * Defaults to PDFX_HOST environment variable
+   * PDFN server host (required for PDF output)
+   * Defaults to PDFN_HOST environment variable
    */
   host?: string;
 
@@ -50,12 +50,12 @@ export function generate(
  *
  * This is the main function for converting React components to PDF documents.
  * It renders the React element to HTML, optionally injects debug overlays,
- * and either returns the HTML or sends it to the PDFX server for PDF generation.
+ * and either returns the HTML or sends it to the PDFN server for PDF generation.
  *
  * @example
  * ```tsx
- * import { Document, Page } from '@pdfx-dev/react';
- * import { generate } from '@pdfx-dev/cli';
+ * import { Document, Page } from '@pdfn/react';
+ * import { generate } from 'pdfn';
  *
  * // Generate PDF (default)
  * const pdf = await generate(
@@ -98,26 +98,26 @@ export async function generate(
     return html;
   }
 
-  // PDF generation requires PDFX server
-  const pdfxHost = host ?? process.env.PDFX_HOST;
+  // PDF generation requires PDFN server
+  const pdfnHost = host ?? process.env.PDFN_HOST;
 
-  if (!pdfxHost) {
+  if (!pdfnHost) {
     throw new Error(
-      `PDFX_HOST is required for PDF generation.
+      `PDFN_HOST is required for PDF generation.
 
-Set it to a PDFX server:
-  • Development: PDFX_HOST=http://localhost:3456 (run: npx @pdfx-dev/cli dev)
-  • Production:  PDFX_HOST=http://your-server:3456 (Docker)
+Set it to a PDFN server:
+  • Development: PDFN_HOST=http://localhost:3456 (run: npx pdfn dev)
+  • Production:  PDFN_HOST=http://your-server:3456 (Docker)
 
 Or use output: 'html' to get HTML without a server:
   const html = await generate(<MyDoc />, { output: 'html' });`
     );
   }
 
-  // POST to PDFX server
+  // POST to PDFN server
   let response: Response;
   try {
-    response = await fetch(`${pdfxHost}/generate`, {
+    response = await fetch(`${pdfnHost}/generate`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ html, options: pdfOptions }),
@@ -125,19 +125,19 @@ Or use output: 'html' to get HTML without a server:
   } catch (error) {
     const message = error instanceof Error ? error.message : "Unknown error";
     throw new Error(
-      `Cannot connect to PDFX server at ${pdfxHost}
+      `Cannot connect to PDFN server at ${pdfnHost}
 
 ${message}
 
 Make sure the server is running:
-  npx @pdfx-dev/cli serve`
+  npx pdfn serve`
     );
   }
 
   if (!response.ok) {
     const errorText = await response.text();
     throw new Error(
-      `PDFX server error: ${response.status} ${response.statusText}\n${errorText}`
+      `PDFN server error: ${response.status} ${response.statusText}\n${errorText}`
     );
   }
 

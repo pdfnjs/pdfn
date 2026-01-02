@@ -9,14 +9,14 @@
  * These tests focus on server endpoint behavior only.
  */
 import { describe, it, expect, beforeAll, afterAll } from "vitest";
-import { createServer, type PDFXServer } from "../../src/server/index";
+import { createServer, type PDFNServer } from "../../src/server/index";
 
 const TEST_PORT = 3458; // Use different port to avoid conflicts
 const BASE_URL = `http://localhost:${TEST_PORT}`;
 
 // Run tests sequentially
 describe("Server API Integration", { sequential: true }, () => {
-  let server: PDFXServer;
+  let server: PDFNServer;
 
   beforeAll(async () => {
     server = createServer({

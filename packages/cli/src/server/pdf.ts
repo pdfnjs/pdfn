@@ -201,17 +201,17 @@ export async function generatePdf(
     });
     contentLoadTime = performance.now() - contentStart;
 
-    // Wait for PDFX.ready to be true (Paged.js completion)
+    // Wait for PDFN.ready to be true (Paged.js completion)
     const pagedStart = performance.now();
     await page.waitForFunction(
-      () => (window as any).PDFX?.ready === true,
+      () => (window as any).PDFN?.ready === true,
       { timeout }
     );
     pagedJsTime = performance.now() - pagedStart;
 
-    // Get page count from PDFX metrics
+    // Get page count from PDFN metrics
     pageCount = await page.evaluate(() => {
-      return (window as any).PDFX?.metrics?.pages ?? 1;
+      return (window as any).PDFN?.metrics?.pages ?? 1;
     });
 
     // Generate PDF

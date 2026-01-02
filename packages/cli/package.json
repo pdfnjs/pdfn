@@ -1,10 +1,10 @@
 {
-  "name": "@pdfx-dev/cli",
-  "version": "0.0.1-alpha.1",
-  "description": "CLI for PDFX - dev server and PDF generation",
+  "name": "pdfn",
+  "version": "0.0.1",
+  "description": "CLI for PDFN - dev server and PDF generation",
   "type": "module",
   "bin": {
-    "pdfx-dev": "./dist/cli.js"
+    "pdfn": "./dist/cli.js"
   },
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -47,11 +47,12 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/pdfx-dev/pdfx.git",
+    "url": "https://github.com/pdfnjs/pdfn.git",
     "directory": "packages/cli"
   },
+  "homepage": "https://pdfn.dev",
   "dependencies": {
-    "@pdfx-dev/react": "workspace:*",
+    "@pdfn/react": "workspace:*",
     "chalk": "^5.6.2",
     "chokidar": "^5.0.0",
     "commander": "^14.0.2",
@@ -63,8 +64,8 @@
     "ws": "^8.18.3"
   },
   "devDependencies": {
-    "@pdfx-dev/eslint-config": "workspace:*",
-    "@pdfx-dev/typescript-config": "workspace:*",
+    "@pdfn/eslint-config": "workspace:*",
+    "@pdfn/typescript-config": "workspace:*",
     "@types/express": "^5.0.6",
     "@types/react": "^19.2.7",
     "@types/ws": "^8.18.1",

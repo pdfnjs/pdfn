@@ -9,7 +9,7 @@ describe("Page", () => {
         <div>Content</div>
       </Page>
     );
-    expect(html).toContain("data-pdfx-content");
+    expect(html).toContain("data-pdfn-content");
     expect(html).toContain("Content");
   });
 
@@ -19,7 +19,7 @@ describe("Page", () => {
         <div>Content</div>
       </Page>
     );
-    expect(html).toContain("data-pdfx-header");
+    expect(html).toContain("data-pdfn-header");
     expect(html).toContain("Header");
   });
 
@@ -29,7 +29,7 @@ describe("Page", () => {
         <div>Content</div>
       </Page>
     );
-    expect(html).toContain("data-pdfx-footer");
+    expect(html).toContain("data-pdfn-footer");
     expect(html).toContain("Footer");
   });
 
@@ -39,8 +39,8 @@ describe("Page", () => {
         <div>Content</div>
       </Page>
     );
-    expect(html).not.toContain("data-pdfx-header");
-    expect(html).not.toContain("data-pdfx-footer");
+    expect(html).not.toContain("data-pdfn-header");
+    expect(html).not.toContain("data-pdfn-footer");
   });
 
   it("applies A4 dimensions by default (in points)", () => {
@@ -73,7 +73,7 @@ describe("Page", () => {
     );
     // Custom sizes are converted to points
     expect(html).toContain("pt");
-    expect(html).toContain('data-pdfx-size="Custom"');
+    expect(html).toContain('data-pdfn-size="Custom"');
   });
 
   it("applies landscape orientation", () => {
@@ -83,9 +83,9 @@ describe("Page", () => {
       </Page>
     );
     // Landscape swaps width/height: 841.89pt x 595.28pt
-    expect(html).toContain('data-pdfx-width="841.89pt"');
-    expect(html).toContain('data-pdfx-height="595.28pt"');
-    expect(html).toContain('data-pdfx-size="A4 Landscape"');
+    expect(html).toContain('data-pdfn-width="841.89pt"');
+    expect(html).toContain('data-pdfn-height="595.28pt"');
+    expect(html).toContain('data-pdfn-size="A4 Landscape"');
   });
 
   it("renders watermark when provided as string", () => {
@@ -94,7 +94,7 @@ describe("Page", () => {
         <div>Content</div>
       </Page>
     );
-    expect(html).toContain('data-pdfx-watermark-text="DRAFT"');
+    expect(html).toContain('data-pdfn-watermark-text="DRAFT"');
   });
 
   it("renders watermark with WatermarkConfig text", () => {
@@ -103,7 +103,7 @@ describe("Page", () => {
         <div>Content</div>
       </Page>
     );
-    expect(html).toContain('data-pdfx-watermark-text="CONFIDENTIAL"');
+    expect(html).toContain('data-pdfn-watermark-text="CONFIDENTIAL"');
   });
 
   it("stores watermark opacity as data attribute", () => {
@@ -112,8 +112,8 @@ describe("Page", () => {
         <div>Content</div>
       </Page>
     );
-    expect(html).toContain('data-pdfx-watermark-text="DRAFT"');
-    expect(html).toContain('data-pdfx-watermark-opacity="0.2"');
+    expect(html).toContain('data-pdfn-watermark-text="DRAFT"');
+    expect(html).toContain('data-pdfn-watermark-opacity="0.2"');
   });
 
   it("stores watermark rotation as data attribute", () => {
@@ -122,8 +122,8 @@ describe("Page", () => {
         <div>Content</div>
       </Page>
     );
-    expect(html).toContain('data-pdfx-watermark-text="DRAFT"');
-    expect(html).toContain('data-pdfx-watermark-rotation="-30"');
+    expect(html).toContain('data-pdfn-watermark-text="DRAFT"');
+    expect(html).toContain('data-pdfn-watermark-rotation="-30"');
   });
 
   it("renders watermark with content prop", () => {
@@ -132,7 +132,7 @@ describe("Page", () => {
         <div>Content</div>
       </Page>
     );
-    expect(html).toContain('data-pdfx-watermark-text="Custom Watermark"');
+    expect(html).toContain('data-pdfn-watermark-text="Custom Watermark"');
   });
 
   it("includes page size and margin data attributes", () => {
@@ -141,8 +141,8 @@ describe("Page", () => {
         <div>Content</div>
       </Page>
     );
-    expect(html).toContain('data-pdfx-size="A4"');
-    expect(html).toContain('data-pdfx-margin="1in"');
+    expect(html).toContain('data-pdfn-size="A4"');
+    expect(html).toContain('data-pdfn-margin="1in"');
   });
 
   it("includes custom margin in data attribute", () => {
@@ -151,7 +151,7 @@ describe("Page", () => {
         <div>Content</div>
       </Page>
     );
-    expect(html).toContain('data-pdfx-size="Letter"');
-    expect(html).toContain('data-pdfx-margin="0.5in 1in 0.5in 1in"');
+    expect(html).toContain('data-pdfn-size="Letter"');
+    expect(html).toContain('data-pdfn-margin="0.5in 1in 0.5in 1in"');
   });
 });

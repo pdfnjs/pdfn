@@ -1,11 +1,11 @@
-import { generate } from "@pdfx-dev/cli";
+import { generate } from "pdfn";
 import { NextRequest } from "next/server";
 import { existsSync, readFileSync } from "fs";
 import { join } from "path";
 import templatesConfig from "@/config/templates.json";
 
 // PDF cache settings
-const USE_CACHE = process.env.PDFX_USE_CACHE !== "false"; // Default: true
+const USE_CACHE = process.env.PDFN_USE_CACHE !== "false"; // Default: true
 const CACHE_DIR = join(process.cwd(), "public", "pdfs");
 
 // Template imports
@@ -196,7 +196,7 @@ export async function GET(request: NextRequest) {
     console.error(`[pdf] ✗ failed: ${message}`);
 
     // Return HTML error page so browser displays it instead of downloading JSON
-    const isServerError = message.includes("Cannot connect to PDFX server");
+    const isServerError = message.includes("Cannot connect to PDFN server");
     const html = `<!DOCTYPE html>
 <html>
 <head>
@@ -211,8 +211,8 @@ export async function GET(request: NextRequest) {
 <body>
   <h1>PDF Generation Failed</h1>
   ${isServerError ? `
-  <p>The PDFX server is not running. Start it with:</p>
-  <pre>npx @pdfx-dev/cli serve</pre>
+  <p>The PDFN server is not running. Start it with:</p>
+  <pre>npx pdfn serve</pre>
   <p>Then refresh this page.</p>
   ` : `
   <p>Error details:</p>

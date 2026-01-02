@@ -1,5 +1,5 @@
-import { Document, Page } from "@pdfx-dev/react";
-import { Tailwind } from "@pdfx-dev/tailwind";
+import { Document, Page } from "@pdfn/react";
+import { Tailwind } from "@pdfn/tailwind";
 
 /**
  * Business Letter template - US Letter size
@@ -38,10 +38,10 @@ export default function Letter({
   sender = {
     name: "Alex Chen",
     title: "Head of Partnerships",
-    company: "PDFX",
+    company: "PDFN",
     address: "548 Market St, Suite 835",
     city: "San Francisco, CA 94104",
-    email: "alex@pdfx.dev",
+    email: "alex@pdfn.dev",
     phone: "+1 (415) 555-0132",
   },
   recipient = {
@@ -52,12 +52,12 @@ export default function Letter({
     city: "Austin, TX 78701",
   },
   date = "January 15, 2026",
-  subject = "PDFX Enterprise Partnership Proposal",
+  subject = "PDFN Enterprise Partnership Proposal",
   body = [
     "I hope this letter finds you well. Following our conversation at React Summit last month, I wanted to formally present our enterprise partnership proposal for your consideration.",
-    "PDFX provides server-side PDF generation using React components and Tailwind CSS. Our solution has helped over 500 companies streamline their document workflows, reducing development time by an average of 60%.",
-    "We believe PDFX would be an excellent fit for Acme Corporation's document generation needs. Our enterprise plan includes unlimited PDF generation, priority support, and custom integrations tailored to your existing infrastructure.",
-    "I would welcome the opportunity to schedule a technical demo with your team. Please let me know if you would be available for a call next week to discuss how PDFX can help Acme Corporation.",
+    "PDFN provides server-side PDF generation using React components and Tailwind CSS. Our solution has helped over 500 companies streamline their document workflows, reducing development time by an average of 60%.",
+    "We believe PDFN would be an excellent fit for Acme Corporation's document generation needs. Our enterprise plan includes unlimited PDF generation, priority support, and custom integrations tailored to your existing infrastructure.",
+    "I would welcome the opportunity to schedule a technical demo with your team. Please let me know if you would be available for a call next week to discuss how PDFN can help Acme Corporation.",
   ],
   closing = "Best regards",
   signature = "Alex Chen",

@@ -56,15 +56,15 @@ export const addCommand = new Command("add")
         console.log(`  ${chalk.cyan(id.padEnd(12))} ${info.description} ${chalk.dim(`(${info.pageSize})`)}`);
       }
 
-      console.log(chalk.dim("\nUsage: pdfx add <template>"));
-      console.log(chalk.dim("Example: pdfx add invoice\n"));
+      console.log(chalk.dim("\nUsage: pdfn add <template>"));
+      console.log(chalk.dim("Example: pdfn add invoice\n"));
       return;
     }
 
     // Validate template
     if (!TEMPLATES[template]) {
       console.error(chalk.red(`\nError: Unknown template "${template}"`));
-      console.log(chalk.dim("Run 'pdfx add --list' to see available templates\n"));
+      console.log(chalk.dim("Run 'pdfn add --list' to see available templates\n"));
       process.exit(1);
     }
 
@@ -104,7 +104,7 @@ export const addCommand = new Command("add")
       // Show next steps
       console.log(chalk.bold("Next steps:"));
       console.log(chalk.dim(`  1. Edit ${outputFile} to customize`));
-      console.log(chalk.dim(`  2. Run 'npx @pdfx-dev/cli dev' to preview\n`));
+      console.log(chalk.dim(`  2. Run 'npx pdfn dev' to preview\n`));
     } catch (error) {
       console.error(chalk.red(`\nError copying template: ${error}`));
       process.exit(1);

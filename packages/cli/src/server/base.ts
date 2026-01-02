@@ -5,9 +5,9 @@ import { createGenerateHandler } from "./routes";
 import { type PdfResult } from "./pdf";
 
 export interface BaseServerOptions {
-  /** Max concurrent pages (default: env.PDFX_MAX_CONCURRENT || 5) */
+  /** Max concurrent pages (default: env.PDFN_MAX_CONCURRENT || 5) */
   maxConcurrent?: number;
-  /** Request timeout in ms (default: env.PDFX_TIMEOUT || 30000) */
+  /** Request timeout in ms (default: env.PDFN_TIMEOUT || 30000) */
   timeout?: number;
   /** Enable request logging (default: true) */
   enableLogging?: boolean;
@@ -29,7 +29,7 @@ export interface BaseServer {
 }
 
 /**
- * Create a base PDFX server with common middleware and routes.
+ * Create a base PDFN server with common middleware and routes.
  *
  * This is shared between `dev` and `serve` commands.
  * Returns the Express app and BrowserManager for further customization.
@@ -43,9 +43,9 @@ export interface BaseServer {
 export function createBaseServer(options: BaseServerOptions = {}): BaseServer {
   const maxConcurrent =
     options.maxConcurrent ??
-    parseInt(process.env.PDFX_MAX_CONCURRENT ?? "5", 10);
+    parseInt(process.env.PDFN_MAX_CONCURRENT ?? "5", 10);
   const timeout =
-    options.timeout ?? parseInt(process.env.PDFX_TIMEOUT ?? "30000", 10);
+    options.timeout ?? parseInt(process.env.PDFN_TIMEOUT ?? "30000", 10);
   const enableLogging = options.enableLogging ?? true;
 
   const app = express();
@@ -75,8 +75,8 @@ export function createBaseServer(options: BaseServerOptions = {}): BaseServer {
         // For /generate, include page count and size
         let extra: string | undefined;
         if (req.path === "/generate" && res.statusCode === 200) {
-          const pages = res.getHeader("X-PDFX-Page-Count");
-          const size = Number(res.getHeader("X-PDFX-PDF-Size")) || 0;
+          const pages = res.getHeader("X-PDFN-Page-Count");
+          const size = Number(res.getHeader("X-PDFN-PDF-Size")) || 0;
           const sizeKB = (size / 1024).toFixed(1);
           extra = `${pages} pages • ${sizeKB}KB`;
         }

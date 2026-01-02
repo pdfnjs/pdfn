@@ -4,9 +4,9 @@ import { logger } from "../utils/logger";
 
 export const serveCommand = new Command("serve")
   .description("Start production server (headless, no UI)")
-  .option("--port <number>", "Server port (env: PDFX_PORT)", "3456")
-  .option("--max-concurrent <number>", "Max concurrent pages (env: PDFX_MAX_CONCURRENT)", "5")
-  .option("--timeout <ms>", "Request timeout in ms (env: PDFX_TIMEOUT)", "30000")
+  .option("--port <number>", "Server port (env: PDFN_PORT)", "3456")
+  .option("--max-concurrent <number>", "Max concurrent pages (env: PDFN_MAX_CONCURRENT)", "5")
+  .option("--timeout <ms>", "Request timeout in ms (env: PDFN_TIMEOUT)", "30000")
   .action(async (options) => {
     const port = parseInt(options.port, 10);
     const maxConcurrent = parseInt(options.maxConcurrent, 10);

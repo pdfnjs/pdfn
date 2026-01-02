@@ -16,7 +16,7 @@
 export function PageBreak() {
   return (
     <div
-      data-pdfx-page-break
+      data-pdfn-page-break
       style={{
         breakAfter: "page",
         pageBreakAfter: "always", // Legacy support

@@ -25,7 +25,7 @@ export function TotalPages({ className }: TotalPagesProps) {
   // The CSS is injected by the render pipeline
   return (
     <span
-      data-pdfx-total-pages
+      data-pdfn-total-pages
       className={className}
       style={{
         // CSS counter content will be set by Paged.js stylesheet

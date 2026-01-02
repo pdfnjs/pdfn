@@ -25,7 +25,7 @@ export interface AvoidBreakProps {
 export function AvoidBreak({ children, className }: AvoidBreakProps) {
   return (
     <div
-      data-pdfx-avoid-break
+      data-pdfn-avoid-break
       className={className}
       style={{
         breakInside: "avoid",

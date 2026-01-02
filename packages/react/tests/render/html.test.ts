@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { assembleHtml, BASE_STYLES, PDFX_SCRIPT } from "../../src/render/html";
+import { assembleHtml, BASE_STYLES, PDFN_SCRIPT } from "../../src/render/html";
 
 describe("HTML Assembly", () => {
   describe("BASE_STYLES", () => {
@@ -9,19 +9,19 @@ describe("HTML Assembly", () => {
     });
 
     it("includes page counter styles", () => {
-      expect(BASE_STYLES).toContain("[data-pdfx-page-number]::after");
+      expect(BASE_STYLES).toContain("[data-pdfn-page-number]::after");
       expect(BASE_STYLES).toContain("content: counter(page)");
-      expect(BASE_STYLES).toContain("[data-pdfx-total-pages]::after");
+      expect(BASE_STYLES).toContain("[data-pdfn-total-pages]::after");
       expect(BASE_STYLES).toContain("content: counter(pages)");
     });
 
     it("includes page break styles", () => {
-      expect(BASE_STYLES).toContain("[data-pdfx-page-break]");
+      expect(BASE_STYLES).toContain("[data-pdfn-page-break]");
       expect(BASE_STYLES).toContain("break-after: page");
     });
 
     it("includes avoid break styles", () => {
-      expect(BASE_STYLES).toContain("[data-pdfx-avoid-break]");
+      expect(BASE_STYLES).toContain("[data-pdfn-avoid-break]");
       expect(BASE_STYLES).toContain("break-inside: avoid");
     });
 
@@ -37,55 +37,55 @@ describe("HTML Assembly", () => {
     });
   });
 
-  describe("PDFX_SCRIPT (Event System)", () => {
-    it("creates window.PDFX object", () => {
-      expect(PDFX_SCRIPT).toContain("window.PDFX = {");
+  describe("PDFN_SCRIPT (Event System)", () => {
+    it("creates window.PDFN object", () => {
+      expect(PDFN_SCRIPT).toContain("window.PDFN = {");
     });
 
     it("includes ready flag", () => {
-      expect(PDFX_SCRIPT).toContain("ready: false");
+      expect(PDFN_SCRIPT).toContain("ready: false");
     });
 
     it("includes metrics object with timing properties", () => {
-      expect(PDFX_SCRIPT).toContain("metrics: {");
-      expect(PDFX_SCRIPT).toContain("start: performance.now()");
-      expect(PDFX_SCRIPT).toContain("pages: 0");
-      expect(PDFX_SCRIPT).toContain("paginationTime: 0");
+      expect(PDFN_SCRIPT).toContain("metrics: {");
+      expect(PDFN_SCRIPT).toContain("start: performance.now()");
+      expect(PDFN_SCRIPT).toContain("pages: 0");
+      expect(PDFN_SCRIPT).toContain("paginationTime: 0");
     });
 
     it("includes on method for event listeners", () => {
-      expect(PDFX_SCRIPT).toContain("on: function(event, callback)");
-      expect(PDFX_SCRIPT).toContain("addEventListener");
+      expect(PDFN_SCRIPT).toContain("on: function(event, callback)");
+      expect(PDFN_SCRIPT).toContain("addEventListener");
     });
 
     it("includes off method for removing listeners", () => {
-      expect(PDFX_SCRIPT).toContain("off: function(event, callback)");
-      expect(PDFX_SCRIPT).toContain("removeEventListener");
+      expect(PDFN_SCRIPT).toContain("off: function(event, callback)");
+      expect(PDFN_SCRIPT).toContain("removeEventListener");
     });
 
     it("includes emit method for dispatching events", () => {
-      expect(PDFX_SCRIPT).toContain("emit: function(event, data)");
-      expect(PDFX_SCRIPT).toContain("CustomEvent");
+      expect(PDFN_SCRIPT).toContain("emit: function(event, data)");
+      expect(PDFN_SCRIPT).toContain("CustomEvent");
     });
 
     it("includes mark method for timing metrics", () => {
-      expect(PDFX_SCRIPT).toContain("mark: function(name)");
-      expect(PDFX_SCRIPT).toContain("performance.now()");
+      expect(PDFN_SCRIPT).toContain("mark: function(name)");
+      expect(PDFN_SCRIPT).toContain("performance.now()");
     });
 
     it("hooks into Paged.js completion", () => {
-      expect(PDFX_SCRIPT).toContain("Paged.Handler");
-      expect(PDFX_SCRIPT).toContain("afterRendered");
-      expect(PDFX_SCRIPT).toContain("window.PDFX.ready = true");
+      expect(PDFN_SCRIPT).toContain("Paged.Handler");
+      expect(PDFN_SCRIPT).toContain("afterRendered");
+      expect(PDFN_SCRIPT).toContain("window.PDFN.ready = true");
     });
 
     it("emits ready event after Paged.js completes", () => {
-      expect(PDFX_SCRIPT).toContain("window.PDFX.emit('ready'");
+      expect(PDFN_SCRIPT).toContain("window.PDFN.emit('ready'");
     });
 
     it("handles case when Paged.js is not present", () => {
-      expect(PDFX_SCRIPT).toContain("typeof Paged !== 'undefined'");
-      expect(PDFX_SCRIPT).toContain("DOMContentLoaded");
+      expect(PDFN_SCRIPT).toContain("typeof Paged !== 'undefined'");
+      expect(PDFN_SCRIPT).toContain("DOMContentLoaded");
     });
   });
 
@@ -112,9 +112,9 @@ describe("HTML Assembly", () => {
       expect(html).toContain(BASE_STYLES);
     });
 
-    it("includes PDFX script", () => {
+    it("includes PDFN script", () => {
       const html = assembleHtml("<div>test</div>");
-      expect(html).toContain("window.PDFX");
+      expect(html).toContain("window.PDFN");
     });
 
     it("includes Paged.js CDN script by default", () => {
@@ -171,7 +171,7 @@ describe("HTML Assembly", () => {
     });
 
     it("extracts page configuration from data attributes", () => {
-      const content = '<div data-pdfx-page data-pdfx-width="210mm" data-pdfx-height="297mm" data-pdfx-margin="1in">content</div>';
+      const content = '<div data-pdfn-page data-pdfn-width="210mm" data-pdfn-height="297mm" data-pdfn-margin="1in">content</div>';
       const html = assembleHtml(content);
       // @page CSS should be in the head
       expect(html).toContain("@page {");
@@ -180,21 +180,21 @@ describe("HTML Assembly", () => {
     });
 
     it("extracts landscape page configuration", () => {
-      const content = '<div data-pdfx-page data-pdfx-width="297mm" data-pdfx-height="210mm" data-pdfx-margin="0.5in">content</div>';
+      const content = '<div data-pdfn-page data-pdfn-width="297mm" data-pdfn-height="210mm" data-pdfn-margin="0.5in">content</div>';
       const html = assembleHtml(content);
       expect(html).toContain("size: 297mm 210mm");
       expect(html).toContain("margin: 0.5in");
     });
 
     it("extracts Letter size page configuration", () => {
-      const content = '<div data-pdfx-page data-pdfx-width="8.5in" data-pdfx-height="11in" data-pdfx-margin="0.75in">content</div>';
+      const content = '<div data-pdfn-page data-pdfn-width="8.5in" data-pdfn-height="11in" data-pdfn-margin="0.75in">content</div>';
       const html = assembleHtml(content);
       expect(html).toContain("size: 8.5in 11in");
       expect(html).toContain("margin: 0.75in");
     });
 
     it("uses default margin when not specified in data attributes", () => {
-      const content = '<div data-pdfx-page data-pdfx-width="210mm" data-pdfx-height="297mm">content</div>';
+      const content = '<div data-pdfn-page data-pdfn-width="210mm" data-pdfn-height="297mm">content</div>';
       const html = assembleHtml(content);
       expect(html).toContain("margin: 1in");
     });

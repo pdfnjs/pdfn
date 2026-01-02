@@ -64,12 +64,12 @@ export function createGenerateHandler(
 
       // Set response headers with metrics
       res.setHeader("Content-Type", "application/pdf");
-      res.setHeader("X-PDFX-Total-Time", result.metrics.total.toString());
-      res.setHeader("X-PDFX-Content-Load", result.metrics.contentLoad.toString());
-      res.setHeader("X-PDFX-PagedJs-Time", result.metrics.pagedJs.toString());
-      res.setHeader("X-PDFX-PDF-Capture", result.metrics.pdfCapture.toString());
-      res.setHeader("X-PDFX-Page-Count", result.metrics.pageCount.toString());
-      res.setHeader("X-PDFX-PDF-Size", result.metrics.pdfSize.toString());
+      res.setHeader("X-PDFN-Total-Time", result.metrics.total.toString());
+      res.setHeader("X-PDFN-Content-Load", result.metrics.contentLoad.toString());
+      res.setHeader("X-PDFN-PagedJs-Time", result.metrics.pagedJs.toString());
+      res.setHeader("X-PDFN-PDF-Capture", result.metrics.pdfCapture.toString());
+      res.setHeader("X-PDFN-Page-Count", result.metrics.pageCount.toString());
+      res.setHeader("X-PDFN-PDF-Size", result.metrics.pdfSize.toString());
 
       // Attach result for logging middleware (used by serve command)
       (res as any)._pdfResult = result;

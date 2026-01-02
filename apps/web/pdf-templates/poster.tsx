@@ -1,5 +1,5 @@
-import { Document, Page } from "@pdfx-dev/react";
-import { Tailwind } from "@pdfx-dev/tailwind";
+import { Document, Page } from "@pdfn/react";
+import { Tailwind } from "@pdfn/tailwind";
 
 /**
  * Event Poster template - Tabloid size, Landscape orientation
@@ -33,7 +33,7 @@ export default function Poster({
   venue = "Moscone Center, San Francisco",
   highlights = ["50+ Speakers", "React & PDFs", "Workshops"],
   cta = "Get Tickets",
-  website = "summit.pdfx.dev",
+  website = "summit.pdfn.dev",
 }: PosterProps) {
   // Tabloid landscape dimensions
   const pageHeight = "792pt"; // 11 inches

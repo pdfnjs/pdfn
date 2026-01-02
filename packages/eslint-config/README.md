@@ -1,6 +1,6 @@
-# @pdfx-dev/eslint-config
+# @pdfn/eslint-config
 
-Internal ESLint configurations for PDFX packages.
+Internal ESLint configurations for PDFN packages.
 
 ## Configs
 
@@ -12,6 +12,6 @@ Internal ESLint configurations for PDFX packages.
 
 ```js
 // eslint.config.js
-import { config } from "@pdfx-dev/eslint-config/base";
+import { config } from "@pdfn/eslint-config/base";
 export default config;
 ```

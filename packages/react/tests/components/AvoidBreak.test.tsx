@@ -14,7 +14,7 @@ describe("AvoidBreak", () => {
     expect(html).toContain("Keep together");
 
     // Data attribute for styling/selection
-    expect(html).toContain("data-pdfx-avoid-break");
+    expect(html).toContain("data-pdfn-avoid-break");
 
     // Modern CSS for avoiding breaks
     expect(html).toContain("break-inside:avoid");

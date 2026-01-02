@@ -36,7 +36,7 @@ describe("Document", () => {
         </Page>
       </Document>
     );
-    expect(html).toContain("data-pdfx-document");
+    expect(html).toContain("data-pdfn-document");
   });
 
   it("sets default language to en", () => {

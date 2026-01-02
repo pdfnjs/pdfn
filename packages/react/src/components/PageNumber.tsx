@@ -28,7 +28,7 @@ export function PageNumber({ className }: PageNumberProps) {
   // The CSS is injected by the render pipeline
   return (
     <span
-      data-pdfx-page-number
+      data-pdfn-page-number
       className={className}
       style={{
         // CSS counter content will be set by Paged.js stylesheet

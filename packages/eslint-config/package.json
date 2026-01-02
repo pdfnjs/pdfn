@@ -1,5 +1,5 @@
 {
-  "name": "@pdfx-dev/eslint-config",
+  "name": "@pdfn/eslint-config",
   "version": "0.0.0",
   "type": "module",
   "private": true,

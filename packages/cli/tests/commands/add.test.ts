@@ -52,7 +52,7 @@ describe("add command", () => {
 
     const content = readFileSync(templatePath, "utf-8");
     expect(content).toContain("Invoice");
-    expect(content).toContain("@pdfx-dev/react");
+    expect(content).toContain("@pdfn/react");
   });
 
   it("adds letter template", () => {
