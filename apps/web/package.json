@@ -7,7 +7,8 @@
     "build": "npm run generate-template-code && next build",
     "start": "next start",
     "lint": "eslint",
-    "generate-template-code": "tsx scripts/generate-template-code.ts"
+    "generate-template-code": "tsx scripts/generate-template-code.ts",
+    "generate-demo-pdfs": "tsx scripts/generate-demo-pdfs.ts"
   },
   "dependencies": {
     "@pdfx-dev/cli": "workspace:*",

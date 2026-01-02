@@ -1,6 +1,12 @@
 import { generate } from "@pdfx-dev/cli";
 import { NextRequest } from "next/server";
+import { existsSync, readFileSync } from "fs";
+import { join } from "path";
 import templatesConfig from "@/config/templates.json";
+
+// PDF cache settings
+const USE_CACHE = process.env.PDFX_USE_CACHE !== "false"; // Default: true
+const CACHE_DIR = join(process.cwd(), "public", "pdfs");
 
 // Template imports
 import Invoice from "../../../../pdf-templates/invoice";
@@ -36,6 +42,28 @@ function getTemplate(id: string) {
   if (!Component) return null;
 
   return { config, Component };
+}
+
+/**
+ * Check if a cached PDF exists for the given template and debug settings
+ * Returns the cached PDF buffer if found, null otherwise
+ */
+function getCachedPdf(templateId: string, hasDebug: boolean): Buffer | null {
+  if (!USE_CACHE) return null;
+
+  // Cache key: template.pdf or template-debug.pdf
+  const filename = hasDebug ? `${templateId}-debug.pdf` : `${templateId}.pdf`;
+  const cachePath = join(CACHE_DIR, filename);
+
+  if (existsSync(cachePath)) {
+    try {
+      return readFileSync(cachePath);
+    } catch {
+      return null;
+    }
+  }
+
+  return null;
 }
 
 /**
@@ -127,7 +155,26 @@ export async function GET(request: NextRequest) {
       });
     }
 
-    // Generate PDF
+    // Check cache first (only for default data requests)
+    const hasDebug = typeof debug === "object" && Object.values(debug).some(Boolean);
+    const cachedPdf = getCachedPdf(templateId, hasDebug);
+
+    if (cachedPdf) {
+      const duration = Math.round(performance.now() - start);
+      console.log(`[pdf] ✓ served from cache in ${duration}ms (${(cachedPdf.length / 1024).toFixed(1)}KB)`);
+
+      const filename = `${name}-${templateId}.pdf`.replace(/\s+/g, "-");
+      return new Response(new Uint8Array(cachedPdf), {
+        headers: {
+          "Content-Type": "application/pdf",
+          "Content-Disposition": `inline; filename="${filename}"`,
+          "X-PDF-Title": name,
+          "X-PDF-Cache": "hit",
+        },
+      });
+    }
+
+    // Generate PDF dynamically
     // Call component with empty props - defaults provide sample data
     const pdf = await generate(<Component />, { debug });
     const duration = Math.round(performance.now() - start);
