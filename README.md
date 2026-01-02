@@ -26,7 +26,7 @@ npm install @pdfx-dev/react
 npm install -D @pdfx-dev/cli
 
 # Start the dev server with preview UI
-npx pdfx dev
+npx @pdfx-dev/cli dev
 ```
 
 Create a template in `pdf-templates/invoice.tsx`:
@@ -151,12 +151,22 @@ const pdf = await generate(<Document><Page>...</Page></Document>);
 
 ```bash
 # Development - preview UI with hot reload
-npx pdfx dev
-npx pdfx dev --port 4000
+npx @pdfx-dev/cli dev
+npx @pdfx-dev/cli dev --port 4000
+npx @pdfx-dev/cli dev --no-open     # Don't auto-open browser
 
 # Production - headless server
-npx pdfx serve
-npx pdfx serve --port 3456 --max-concurrent 10
+npx @pdfx-dev/cli serve
+npx @pdfx-dev/cli serve --port 3456 --max-concurrent 10
+
+# Add starter templates
+npx @pdfx-dev/cli add invoice       # Add invoice template
+npx @pdfx-dev/cli add --list        # Show available templates
+
+# After installing @pdfx-dev/cli, you can use the shorter command:
+pdfx-dev dev
+pdfx-dev serve
+pdfx-dev add invoice
 ```
 
 ## Usage with Next.js

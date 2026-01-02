@@ -104,7 +104,7 @@ export const addCommand = new Command("add")
       // Show next steps
       console.log(chalk.bold("Next steps:"));
       console.log(chalk.dim(`  1. Edit ${outputFile} to customize`));
-      console.log(chalk.dim(`  2. Run 'npx pdfx dev' to preview\n`));
+      console.log(chalk.dim(`  2. Run 'npx @pdfx-dev/cli dev' to preview\n`));
     } catch (error) {
       console.error(chalk.red(`\nError copying template: ${error}`));
       process.exit(1);

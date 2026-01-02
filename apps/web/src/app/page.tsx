@@ -160,7 +160,7 @@ export default function Home() {
       if (!response.ok) {
         const text = await response.text();
         if (text.includes("PDFX server is not running")) {
-          setPdfError("Start the server: npx pdfx serve");
+          setPdfError("Start the server: npx @pdfx-dev/cli serve");
         } else {
           setPdfError("PDF generation failed");
         }

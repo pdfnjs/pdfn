@@ -130,7 +130,7 @@ Or use output: 'html' to get HTML without a server:
 ${message}
 
 Make sure the server is running:
-  npx pdfx serve`
+  npx @pdfx-dev/cli serve`
     );
   }
 

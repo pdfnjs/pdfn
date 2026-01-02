@@ -75,8 +75,11 @@ This is useful for:
 
 ```tsx
 <Document
-  title="Invoice"           // PDF title metadata
-  author="ACME Corp"        // PDF author metadata
+  title="Invoice"              // PDF title metadata
+  author="ACME Corp"           // PDF author metadata
+  subject="Invoice for Q4"     // PDF subject metadata
+  keywords={['invoice', 'q4']} // PDF keywords metadata
+  language="en"                // Document language (default: "en")
   fonts={['Inter', 'Roboto Mono']}  // Google Fonts to load
 >
   {children}
@@ -90,6 +93,7 @@ This is useful for:
   size="A4"              // "A4" | "A3" | "A5" | "Letter" | "Legal" | "Tabloid" | "B4" | "B5" | [width, height]
   orientation="portrait" // "portrait" | "landscape"
   margin="1in"           // string or { top, right, bottom, left }
+  background="#f5f5f5"   // Page background color
   header={<div>Header</div>}
   footer={<PageNumber />}
   watermark="DRAFT"      // string or WatermarkConfig
@@ -186,7 +190,7 @@ This is useful for:
 ### Google Fonts
 
 ```tsx
-<Document fonts={['Playfair Display', { name: 'Roboto', weights: [400, 700] }]}>
+<Document fonts={['Playfair Display', { family: 'Roboto', weights: [400, 700] }]}>
   <Page size="A4">
     <h1 style={{ fontFamily: 'Playfair Display' }}>Elegant Title</h1>
   </Page>

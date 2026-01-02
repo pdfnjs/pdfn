@@ -4,7 +4,7 @@
   "description": "CLI for PDFX - dev server and PDF generation",
   "type": "module",
   "bin": {
-    "pdfx": "./dist/cli.js"
+    "pdfx-dev": "./dist/cli.js"
   },
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",

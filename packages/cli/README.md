@@ -10,14 +10,20 @@ npm install -D @pdfx-dev/cli
 
 ## Commands
 
-### `pdfx dev`
+After installing, you can use `pdfx-dev` directly or `npx @pdfx-dev/cli`:
+
+### `pdfx-dev dev`
 
 Start the development server with a preview UI and hot reload.
 
 ```bash
-npx pdfx dev
-npx pdfx dev --port 4000
-npx pdfx dev --templates ./src/pdf
+npx @pdfx-dev/cli dev
+npx @pdfx-dev/cli dev --port 4000
+npx @pdfx-dev/cli dev --templates ./src/pdf
+npx @pdfx-dev/cli dev --no-open     # Don't auto-open browser
+
+# Or after installing:
+pdfx-dev dev
 ```
 
 **Options:**
@@ -26,6 +32,7 @@ npx pdfx dev --templates ./src/pdf
 |--------|---------|-------------|
 | `--port` | 3456 | Server port |
 | `--templates` | `./pdf-templates` | Templates directory |
+| `--no-open` | false | Don't auto-open browser |
 
 The dev server:
 - Auto-discovers templates in your templates directory
@@ -33,15 +40,17 @@ The dev server:
 - Shows performance metrics and debug overlays
 - Exposes `/generate` endpoint for PDF generation
 
-### `pdfx serve`
+### `pdfx-dev serve`
 
 Start the production server (headless, no UI).
 
 ```bash
-npx pdfx serve
-npx pdfx serve --port 3456
-npx pdfx serve --max-concurrent 10
-npx pdfx serve --timeout 60000
+npx @pdfx-dev/cli serve
+npx @pdfx-dev/cli serve --port 3456
+npx @pdfx-dev/cli serve --max-concurrent 10
+
+# Or after installing:
+pdfx-dev serve
 ```
 
 **Options:**
@@ -51,6 +60,35 @@ npx pdfx serve --timeout 60000
 | `--port` | `PDFX_PORT` | 3456 | Server port |
 | `--max-concurrent` | `PDFX_MAX_CONCURRENT` | 5 | Max concurrent PDF generations |
 | `--timeout` | `PDFX_TIMEOUT` | 30000 | Request timeout in ms |
+
+### `pdfx-dev add`
+
+Add starter templates to your project.
+
+```bash
+npx @pdfx-dev/cli add invoice       # Add invoice template
+npx @pdfx-dev/cli add --list        # Show available templates
+
+# Or after installing:
+pdfx-dev add invoice
+pdfx-dev add letter
+pdfx-dev add contract
+pdfx-dev add ticket
+pdfx-dev add poster
+pdfx-dev add --list
+pdfx-dev add invoice --output ./src/templates
+pdfx-dev add invoice --force
+```
+
+**Available Templates:**
+
+| Template | Description | Page Size |
+|----------|-------------|-----------|
+| `invoice` | Professional invoice with itemized billing | A4 |
+| `letter` | US business correspondence | Letter |
+| `contract` | Legal service agreement with terms | Legal |
+| `ticket` | Event admission ticket with QR placeholder | A5 |
+| `poster` | Event poster (landscape) | Tabloid |
 
 ### Server Endpoints
 
@@ -163,7 +201,10 @@ export async function POST(req: Request) {
 
 ## Docker
 
+Docker support coming soon.
+
 ```bash
+# Coming soon
 docker run -p 3456:3456 ghcr.io/pdfx-dev/cli serve
 ```
 

@@ -212,7 +212,7 @@ export async function GET(request: NextRequest) {
   <h1>PDF Generation Failed</h1>
   ${isServerError ? `
   <p>The PDFX server is not running. Start it with:</p>
-  <pre>npx pdfx serve</pre>
+  <pre>npx @pdfx-dev/cli serve</pre>
   <p>Then refresh this page.</p>
   ` : `
   <p>Error details:</p>

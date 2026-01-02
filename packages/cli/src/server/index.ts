@@ -78,7 +78,7 @@ Usage:
     -o output.pdf
 
 For development with live preview, use:
-  npx pdfx dev
+  npx @pdfx-dev/cli dev
 `);
   });
 
