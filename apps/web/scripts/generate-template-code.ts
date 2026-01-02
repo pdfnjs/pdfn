@@ -29,8 +29,7 @@ function generateTemplateCode() {
   }
 
   const output = `// Auto-generated from pdf-templates/*.tsx - DO NOT EDIT MANUALLY
-// Generated at: ${new Date().toISOString()}
-// Run: npm run generate-template-code
+// Run: pnpm generate-template-code
 
 export const templateCode: Record<string, string> = ${JSON.stringify(codeMap, null, 2)};
 `;
