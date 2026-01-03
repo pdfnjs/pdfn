@@ -879,10 +879,101 @@ export default function Home() {
         </div>
       </section>
 
+      {/* Tradeoffs */}
+      <section className="py-20 px-6 bg-surface-1">
+        <div className="max-w-3xl mx-auto">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-bold text-text-primary mb-4">
+              Tradeoffs
+            </h2>
+            <p className="text-xl text-text-secondary">
+              The cost of full CSS support
+            </p>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Chromium dependency */}
+            <div className="bg-background border border-border rounded-xl p-6">
+              <div className="flex items-center gap-3 mb-3">
+                <div className="w-8 h-8 rounded-full bg-yellow-500/10 flex items-center justify-center flex-shrink-0">
+                  <svg className="w-4 h-4 text-yellow-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                </div>
+                <h3 className="font-semibold text-text-primary">Chromium dependency</h3>
+              </div>
+              <p className="text-sm text-text-secondary">
+                PDF generation requires headless Chrome. For serverless, use @sparticuz/chromium or services like Browserless.
+              </p>
+            </div>
+            {/* File size */}
+            <div className="bg-background border border-border rounded-xl p-6">
+              <div className="flex items-center gap-3 mb-3">
+                <div className="w-8 h-8 rounded-full bg-yellow-500/10 flex items-center justify-center flex-shrink-0">
+                  <svg className="w-4 h-4 text-yellow-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                </div>
+                <h3 className="font-semibold text-text-primary">File size</h3>
+              </div>
+              <p className="text-sm text-text-secondary">
+                Fonts are fully embedded, images are base64-encoded. Pre-compress assets for smaller PDFs.
+              </p>
+            </div>
+          </div>
+          <p className="text-sm text-text-muted text-center mt-8">
+            No server? Try <span className="text-text-secondary">@react-pdf/renderer</span>. Generating 100k+ PDFs/hour? Consider <span className="text-text-secondary">PDFKit</span>.
+          </p>
+        </div>
+      </section>
+
+      {/* Roadmap */}
+      <section className="py-20 px-6">
+        <div className="max-w-2xl mx-auto">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-bold text-text-primary mb-4">
+              What&apos;s next
+            </h2>
+            <p className="text-xl text-text-secondary">
+              Actively working on these
+            </p>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="flex items-start gap-3 bg-surface-1 border border-border rounded-lg p-4">
+              <div className="w-2 h-2 rounded-full bg-primary mt-2 flex-shrink-0" />
+              <div>
+                <span className="text-text-primary font-medium">Font subsetting</span>
+                <p className="text-sm text-text-muted">Smaller PDFs by stripping unused glyphs</p>
+              </div>
+            </div>
+            <div className="flex items-start gap-3 bg-surface-1 border border-border rounded-lg p-4">
+              <div className="w-2 h-2 rounded-full bg-primary mt-2 flex-shrink-0" />
+              <div>
+                <span className="text-text-primary font-medium">Image optimization</span>
+                <p className="text-sm text-text-muted">Auto-compress images before embedding</p>
+              </div>
+            </div>
+            <div className="flex items-start gap-3 bg-surface-1 border border-border rounded-lg p-4">
+              <div className="w-2 h-2 rounded-full bg-primary mt-2 flex-shrink-0" />
+              <div>
+                <span className="text-text-primary font-medium">PDF/A support</span>
+                <p className="text-sm text-text-muted">Archival compliance via post-processing</p>
+              </div>
+            </div>
+            <div className="flex items-start gap-3 bg-surface-1 border border-border rounded-lg p-4">
+              <div className="w-2 h-2 rounded-full bg-primary mt-2 flex-shrink-0" />
+              <div>
+                <span className="text-text-primary font-medium">More templates</span>
+                <p className="text-sm text-text-muted">Complex tables, reports, certificates</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* OSS Credibility */}
-      <section className="py-16 px-6">
+      <section className="py-16 px-6 bg-surface-1">
         <div className="max-w-2xl mx-auto text-center">
-          <div className="inline-flex items-center gap-2 bg-surface-1 border border-border rounded-full px-4 py-2 mb-4">
+          <div className="inline-flex items-center gap-2 bg-background border border-border rounded-full px-4 py-2 mb-4">
             <svg className="w-4 h-4 text-text-muted" fill="currentColor" viewBox="0 0 24 24">
               <path fillRule="evenodd" clipRule="evenodd" d="M12 2C6.477 2 2 6.477 2 12c0 4.42 2.87 8.17 6.84 9.5.5.08.66-.23.66-.5v-1.69c-2.77.6-3.36-1.34-3.36-1.34-.46-1.16-1.11-1.47-1.11-1.47-.91-.62.07-.6.07-.6 1 .07 1.53 1.03 1.53 1.03.87 1.52 2.34 1.07 2.91.83.09-.65.35-1.09.63-1.34-2.22-.25-4.55-1.11-4.55-4.92 0-1.11.38-2 1.03-2.71-.1-.25-.45-1.29.1-2.64 0 0 .84-.27 2.75 1.02.79-.22 1.65-.33 2.5-.33.85 0 1.71.11 2.5.33 1.91-1.29 2.75-1.02 2.75-1.02.55 1.35.2 2.39.1 2.64.65.71 1.03 1.6 1.03 2.71 0 3.82-2.34 4.66-4.57 4.91.36.31.69.92.69 1.85V21c0 .27.16.59.67.5C19.14 20.16 22 16.42 22 12A10 10 0 0012 2z" />
             </svg>
