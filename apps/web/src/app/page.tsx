@@ -55,45 +55,6 @@ const templates = [
   },
 ];
 
-const features = [
-  {
-    title: "React Components",
-    description: "Build PDFs with familiar React patterns. Props, mapping, conditionals.",
-    icon: (
-      <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
-      </svg>
-    ),
-  },
-  {
-    title: "Tailwind Support",
-    description: "Style with Tailwind classes. JIT compilation built-in.",
-    icon: (
-      <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01" />
-      </svg>
-    ),
-  },
-  {
-    title: "Pixel Perfect",
-    description: "What you see in the browser is what you get in the PDF.",
-    icon: (
-      <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-      </svg>
-    ),
-  },
-  {
-    title: "Multiple Sizes",
-    description: "A4, Letter, Legal, Tabloid, A5, and custom dimensions.",
-    icon: (
-      <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-      </svg>
-    ),
-  },
-];
-
 export default function Home() {
   const [activeTemplate, setActiveTemplate] = useState(templates[0]);
   const [activeTab, setActiveTab] = useState<"preview" | "code">("preview");
@@ -159,7 +120,7 @@ export default function Home() {
       const response = await fetch(pdfUrl);
       if (!response.ok) {
         const text = await response.text();
-        if (text.includes("PDFN server is not running")) {
+        if (text.includes("pdfn server is not running")) {
           setPdfError("Start the server: npx pdfn serve");
         } else {
           setPdfError("PDF generation failed");
@@ -204,31 +165,45 @@ export default function Home() {
   };
 
   const scrollToDemo = () => {
-    document.getElementById("demo")?.scrollIntoView({ behavior: "smooth" });
+    const demo = document.getElementById("demo");
+    if (demo) {
+      // Demo section has py-20 (80px) top padding before the title
+      // We want the title to appear ~32px from viewport top
+      const sectionPadding = 80; // py-20
+      const viewportOffset = 32; // desired space from viewport top
+      const top = demo.offsetTop + sectionPadding - viewportOffset;
+      window.scrollTo({ top, behavior: "smooth" });
+    }
   };
 
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
-      <header className="border-b border-border sticky top-0 bg-background/80 backdrop-blur-sm z-40">
+      <header className="border-b border-border">
         <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
           <span className="text-2xl font-bold tracking-tight">
             <span className="text-text-muted">pdf</span>
             <span className="text-primary">n</span>
           </span>
-          <div className="flex items-center gap-6">
-            <button onClick={scrollToDemo} className="text-text-secondary hover:text-text-primary transition-colors">
-              Demo
-            </button>
-            <a href="https://github.com/pdfnjs/pdfn" target="_blank" rel="noopener noreferrer"
-               className="text-text-secondary hover:text-text-primary transition-colors">
-              GitHub
+          <nav className="flex items-center gap-6">
+            <a href="/components" className="text-text-secondary hover:text-text-primary transition-colors">
+              Components
             </a>
-            <a href="https://pdfn.dev/docs" target="_blank" rel="noopener noreferrer"
-               className="text-text-secondary hover:text-text-primary transition-colors">
+            <a href="/templates" className="text-text-secondary hover:text-text-primary transition-colors">
+              Templates
+            </a>
+            <a href="/docs" className="text-text-secondary hover:text-text-primary transition-colors">
               Docs
             </a>
-          </div>
+            <div className="w-px h-5 bg-border" />
+            <a href="https://github.com/pdfnjs/pdfn" target="_blank" rel="noopener noreferrer"
+               className="text-text-secondary hover:text-text-primary transition-colors"
+               aria-label="GitHub">
+              <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                <path fillRule="evenodd" clipRule="evenodd" d="M12 2C6.477 2 2 6.477 2 12c0 4.42 2.87 8.17 6.84 9.5.5.08.66-.23.66-.5v-1.69c-2.77.6-3.36-1.34-3.36-1.34-.46-1.16-1.11-1.47-1.11-1.47-.91-.62.07-.6.07-.6 1 .07 1.53 1.03 1.53 1.03.87 1.52 2.34 1.07 2.91.83.09-.65.35-1.09.63-1.34-2.22-.25-4.55-1.11-4.55-4.92 0-1.11.38-2 1.03-2.71-.1-.25-.45-1.29.1-2.64 0 0 .84-.27 2.75 1.02.79-.22 1.65-.33 2.5-.33.85 0 1.71.11 2.5.33 1.91-1.29 2.75-1.02 2.75-1.02.55 1.35.2 2.39.1 2.64.65.71 1.03 1.6 1.03 2.71 0 3.82-2.34 4.66-4.57 4.91.36.31.69.92.69 1.85V21c0 .27.16.59.67.5C19.14 20.16 22 16.42 22 12A10 10 0 0012 2z" />
+              </svg>
+            </a>
+          </nav>
         </div>
       </header>
 
@@ -238,41 +213,40 @@ export default function Home() {
           <h1 className="text-5xl md:text-6xl font-bold text-text-primary mb-6 leading-tight">
             The React Framework<br />for PDFs
           </h1>
-          <p className="text-xl text-text-secondary mb-10 max-w-2xl mx-auto">
-            Build beautiful, pixel-perfect PDFs using React components and Tailwind CSS.
-            What you see is what you ship.
+          <p className="text-xl text-text-secondary mb-4 max-w-2xl mx-auto">
+            PDF generation with React and Tailwind. Preview locally. Generate the same output everywhere.
+          </p>
+          <p className="text-sm text-text-muted mb-10 max-w-2xl mx-auto">
+            React → print-ready HTML → Headless Chromium (layout + pagination) → PDF
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-            <code className="bg-surface-1 border border-border rounded-lg px-5 py-3 text-lg font-mono text-text-primary">
-              npm i @pdfn/react
-            </code>
             <button
               onClick={scrollToDemo}
               className="bg-primary hover:bg-primary-hover text-black font-semibold px-6 py-3 rounded-lg transition-colors"
             >
-              See it in action
+              Try live demo
             </button>
-          </div>
-        </div>
-      </section>
-
-      {/* Features */}
-      <section className="py-16 px-6 bg-surface-1">
-        <div className="max-w-6xl mx-auto">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {features.map((feature) => (
-              <div key={feature.title} className="bg-background border border-border rounded-xl p-6">
-                <div className="w-12 h-12 rounded-lg bg-primary/10 text-primary flex items-center justify-center mb-4">
-                  {feature.icon}
-                </div>
-                <h3 className="text-lg font-semibold text-text-primary mb-2">
-                  {feature.title}
-                </h3>
-                <p className="text-text-secondary text-sm">
-                  {feature.description}
-                </p>
-              </div>
-            ))}
+            <button
+              onClick={() => {
+                navigator.clipboard.writeText("npm i @pdfn/react");
+                setCopied(true);
+                setTimeout(() => setCopied(false), 2000);
+              }}
+              className="group bg-surface-1 border border-border hover:border-border-hover rounded-lg px-5 py-3 text-lg font-mono text-text-primary flex items-center gap-3 transition-colors"
+            >
+              <span>npm i @pdfn/react</span>
+              <span className="text-text-muted group-hover:text-text-secondary transition-colors">
+                {copied ? (
+                  <svg className="w-4 h-4 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  </svg>
+                ) : (
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                  </svg>
+                )}
+              </span>
+            </button>
           </div>
         </div>
       </section>
@@ -285,7 +259,7 @@ export default function Home() {
               Simple, familiar API
             </h2>
             <p className="text-xl text-text-secondary">
-              If you know React, you already know PDFN
+              If you know React, you already know pdfn
             </p>
           </div>
 
@@ -472,10 +446,11 @@ export default function Home() {
 
             {/* Inspector Panel - Hidden on mobile */}
             <div className="hidden lg:flex w-52 bg-surface-1 border border-border rounded-xl overflow-hidden flex-col">
-              <div className="px-4 py-3 border-b border-border">
+              <div className="px-4 py-3 border-b border-border flex items-center justify-between">
                 <span className="text-sm font-semibold text-text-primary">
                   {activeTab === "preview" ? "Inspector" : "File"}
                 </span>
+                <span className="text-[10px] text-text-muted bg-surface-2 px-1.5 py-0.5 rounded">Dev tools</span>
               </div>
 
               <div className="flex-1 overflow-y-auto p-4 space-y-6">
@@ -507,7 +482,7 @@ export default function Home() {
                         </div>
                       </div>
                       <div className="text-[10px] text-text-muted italic mt-2">
-                        Measured in browser. Times vary on server.
+                        Measured in browser preview. Times vary in production.
                       </div>
                     </div>
 
@@ -580,6 +555,13 @@ export default function Home() {
                         )}
                       </div>
                     </div>
+
+                    {/* Disclaimer */}
+                    <div className="pt-4 mt-auto border-t border-border">
+                      <p className="text-[10px] text-text-muted italic">
+                        Inspector is local-only and not included in production output.
+                      </p>
+                    </div>
                   </>
                 ) : (
                   <>
@@ -627,26 +609,289 @@ export default function Home() {
         </div>
       </section>
 
-      {/* CTA */}
+      {/* How it works */}
+      <section className="py-20 px-6 bg-surface-1">
+        <div className="max-w-4xl mx-auto">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-bold text-text-primary mb-4">
+              How it works
+            </h2>
+            <p className="text-text-secondary max-w-2xl mx-auto">
+              Write React → render to print-ready HTML → generate PDF via headless Chromium.<br />
+              Same input, same output, every time.
+            </p>
+          </div>
+          <div className="flex flex-col md:flex-row items-center justify-center gap-4 md:gap-8">
+            {/* Step 1 */}
+            <div className="flex flex-col items-center text-center">
+              <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center mb-3">
+                <span className="text-xl font-bold text-primary">1</span>
+              </div>
+              <div className="font-medium text-text-primary mb-1">Write React</div>
+              <div className="text-sm text-text-muted">Components + Tailwind</div>
+            </div>
+            {/* Arrow */}
+            <div className="hidden md:block text-text-muted">
+              <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+              </svg>
+            </div>
+            <div className="md:hidden text-text-muted">
+              <svg className="w-6 h-6 rotate-90" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+              </svg>
+            </div>
+            {/* Step 2 */}
+            <div className="flex flex-col items-center text-center">
+              <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center mb-3">
+                <span className="text-xl font-bold text-primary">2</span>
+              </div>
+              <div className="font-medium text-text-primary mb-1">Preview live</div>
+              <div className="text-sm text-text-muted">Dev server with hot reload</div>
+            </div>
+            {/* Arrow */}
+            <div className="hidden md:block text-text-muted">
+              <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+              </svg>
+            </div>
+            <div className="md:hidden text-text-muted">
+              <svg className="w-6 h-6 rotate-90" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+              </svg>
+            </div>
+            {/* Step 3 */}
+            <div className="flex flex-col items-center text-center">
+              <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center mb-3">
+                <span className="text-xl font-bold text-primary">3</span>
+              </div>
+              <div className="font-medium text-text-primary mb-1">Generate PDF</div>
+              <div className="text-sm text-text-muted">Headless Chromium (layout + pagination)</div>
+            </div>
+          </div>
+          <p className="text-sm text-text-muted text-center mt-8">
+            pdfn waits for layout and pagination to stabilize before generating the PDF.
+          </p>
+        </div>
+      </section>
+
+      {/* Why pdfn */}
+      <section className="py-20 px-6">
+        <div className="max-w-4xl mx-auto">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-bold text-text-primary mb-4">
+              Why pdfn?
+            </h2>
+            <p className="text-xl text-text-secondary">
+              Stop fighting your PDF toolchain
+            </p>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+            <div className="flex items-start gap-4">
+              <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+                <svg className="w-4 h-4 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                </svg>
+              </div>
+              <div>
+                <div className="font-medium text-text-primary mb-1">React and Tailwind</div>
+                <div className="text-sm text-text-muted">Write PDFs like you write web UIs. No new syntax to learn</div>
+              </div>
+            </div>
+            <div className="flex items-start gap-4">
+              <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+                <svg className="w-4 h-4 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                </svg>
+              </div>
+              <div>
+                <div className="font-medium text-text-primary mb-1">Pagination that just works</div>
+                <div className="text-sm text-text-muted">Tables with repeating headers, page breaks, keep-together blocks</div>
+              </div>
+            </div>
+            <div className="flex items-start gap-4">
+              <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+                <svg className="w-4 h-4 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                </svg>
+              </div>
+              <div>
+                <div className="font-medium text-text-primary mb-1">What you see is what you get</div>
+                <div className="text-sm text-text-muted">Preview matches output. No @media print surprises</div>
+              </div>
+            </div>
+            <div className="flex items-start gap-4">
+              <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+                <svg className="w-4 h-4 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                </svg>
+              </div>
+              <div>
+                <div className="font-medium text-text-primary mb-1">Headless-friendly</div>
+                <div className="text-sm text-text-muted">Works with Puppeteer, Playwright, Browserless, or your own setup</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Quick Start */}
       <section className="py-20 px-6 bg-surface-1">
         <div className="max-w-3xl mx-auto text-center">
           <h2 className="text-3xl font-bold text-text-primary mb-4">
-            Ready to build better PDFs?
+            Get started in seconds
           </h2>
-          <p className="text-xl text-text-secondary mb-8">
-            Get started in minutes
+          <p className="text-xl text-text-secondary mb-10">
+            Three commands to your first PDF
           </p>
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-            <code className="bg-background border border-border rounded-lg px-5 py-3 font-mono text-text-primary">
-              npx pdfn dev
-            </code>
-            <a
-              href="https://pdfn.dev/docs/getting-started"
-              className="bg-primary hover:bg-primary-hover text-black font-semibold px-6 py-3 rounded-lg transition-colors"
-            >
-              Read the docs
-            </a>
+          <div className="flex flex-col gap-3 max-w-md mx-auto font-mono text-left">
+            <div className="bg-background border border-border rounded-lg px-5 py-3 flex items-center justify-between group">
+              <span className="text-text-primary">npm i @pdfn/react</span>
+              <span className="text-text-muted text-sm"># Install</span>
+            </div>
+            <div className="bg-background border border-border rounded-lg px-5 py-3 flex items-center justify-between group">
+              <span className="text-text-primary">npx pdfn add invoice</span>
+              <span className="text-text-muted text-sm"># Add template</span>
+            </div>
+            <div className="bg-background border border-border rounded-lg px-5 py-3 flex items-center justify-between group">
+              <span className="text-text-primary">npx pdfn dev</span>
+              <span className="text-text-muted text-sm"># Start dev server</span>
+            </div>
           </div>
+        </div>
+      </section>
+
+      {/* Features */}
+      <section className="py-20 px-6">
+        <div className="max-w-5xl mx-auto">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-bold text-text-primary mb-4">
+              Built for developers
+            </h2>
+            <p className="text-xl text-text-secondary max-w-2xl mx-auto mb-3">
+              Library + Dev Server + Your Production Setup
+            </p>
+            <p className="text-sm text-text-muted max-w-xl mx-auto mb-2">
+              pdfn generates HTML. You choose how to render it to PDF.
+            </p>
+            <p className="text-xs text-text-muted max-w-xl mx-auto">
+              There is no required runtime, service, or hosted component.
+            </p>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {/* Library */}
+            <div className="bg-background border border-border rounded-xl p-6">
+              <div className="flex items-center gap-2 mb-2">
+                <h3 className="text-lg font-semibold text-text-primary">@pdfn/react</h3>
+                <span className="text-xs bg-primary/10 text-primary px-2 py-0.5 rounded">library</span>
+              </div>
+              <p className="text-sm text-text-muted mb-4">Pure React components. No CLI required.</p>
+              <ul className="space-y-2.5 text-text-secondary text-sm">
+                <li className="flex items-start gap-2">
+                  <svg className="w-4 h-4 text-primary mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  </svg>
+                  <span>TypeScript + Tailwind</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <svg className="w-4 h-4 text-primary mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  </svg>
+                  <span>8 page sizes + custom</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <svg className="w-4 h-4 text-primary mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  </svg>
+                  <span>Headers, footers, watermarks, and more</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <svg className="w-4 h-4 text-primary mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  </svg>
+                  <span>Automatic pagination</span>
+                </li>
+              </ul>
+            </div>
+            {/* Dev Server */}
+            <div className="bg-background border border-border rounded-xl p-6">
+              <div className="flex items-center gap-2 mb-2">
+                <h3 className="text-lg font-semibold text-text-primary">pdfn dev</h3>
+                <span className="text-xs bg-primary/10 text-primary px-2 py-0.5 rounded">CLI</span>
+              </div>
+              <p className="text-sm text-text-muted mb-4">Local development with live preview.</p>
+              <ul className="space-y-2.5 text-text-secondary text-sm">
+                <li className="flex items-start gap-2">
+                  <svg className="w-4 h-4 text-primary mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  </svg>
+                  <span>Hot reload on save</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <svg className="w-4 h-4 text-primary mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  </svg>
+                  <span>One-click PDF download</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <svg className="w-4 h-4 text-primary mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  </svg>
+                  <span>Debug overlays</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <svg className="w-4 h-4 text-primary mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  </svg>
+                  <span>PDF generation + performance metrics</span>
+                </li>
+              </ul>
+            </div>
+            {/* Production */}
+            <div className="bg-background border border-border rounded-xl p-6">
+              <div className="flex items-center gap-2 mb-2">
+                <h3 className="text-lg font-semibold text-text-primary">Production</h3>
+                <span className="text-xs bg-surface-2 text-text-muted px-2 py-0.5 rounded">flexible</span>
+              </div>
+              <p className="text-sm text-text-muted mb-4">Use any headless Chromium. Your infrastructure, your choice.</p>
+              <ul className="space-y-2.5 text-text-secondary text-sm">
+                <li className="flex items-start gap-2">
+                  <svg className="w-4 h-4 text-primary mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  </svg>
+                  <span>Puppeteer / Playwright</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <svg className="w-4 h-4 text-primary mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  </svg>
+                  <span>Browserless, Gotenberg</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <svg className="w-4 h-4 text-primary mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  </svg>
+                  <span>Docker, AWS Lambda</span>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* OSS Credibility */}
+      <section className="py-16 px-6">
+        <div className="max-w-2xl mx-auto text-center">
+          <div className="inline-flex items-center gap-2 bg-surface-1 border border-border rounded-full px-4 py-2 mb-4">
+            <svg className="w-4 h-4 text-text-muted" fill="currentColor" viewBox="0 0 24 24">
+              <path fillRule="evenodd" clipRule="evenodd" d="M12 2C6.477 2 2 6.477 2 12c0 4.42 2.87 8.17 6.84 9.5.5.08.66-.23.66-.5v-1.69c-2.77.6-3.36-1.34-3.36-1.34-.46-1.16-1.11-1.47-1.11-1.47-.91-.62.07-.6.07-.6 1 .07 1.53 1.03 1.53 1.03.87 1.52 2.34 1.07 2.91.83.09-.65.35-1.09.63-1.34-2.22-.25-4.55-1.11-4.55-4.92 0-1.11.38-2 1.03-2.71-.1-.25-.45-1.29.1-2.64 0 0 .84-.27 2.75 1.02.79-.22 1.65-.33 2.5-.33.85 0 1.71.11 2.5.33 1.91-1.29 2.75-1.02 2.75-1.02.55 1.35.2 2.39.1 2.64.65.71 1.03 1.6 1.03 2.71 0 3.82-2.34 4.66-4.57 4.91.36.31.69.92.69 1.85V21c0 .27.16.59.67.5C19.14 20.16 22 16.42 22 12A10 10 0 0012 2z" />
+            </svg>
+            <span className="text-sm text-text-secondary">Open Source</span>
+            <span className="text-xs bg-surface-2 text-text-muted px-2 py-0.5 rounded">MIT</span>
+          </div>
+          <p className="text-text-muted">
+            Designed to be self-hosted.
+          </p>
         </div>
       </section>
 
@@ -658,7 +903,13 @@ export default function Home() {
             <span className="text-primary">n</span>
             {" "}— The React Framework for PDFs
           </span>
-          <span>MIT License</span>
+          <div className="flex items-center gap-4">
+            <a href="https://github.com/pdfnjs/pdfn" target="_blank" rel="noopener noreferrer"
+               className="hover:text-text-secondary transition-colors">
+              GitHub
+            </a>
+            <span>MIT License</span>
+          </div>
         </div>
       </footer>
     </div>

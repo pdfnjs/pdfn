@@ -196,7 +196,7 @@ export async function GET(request: NextRequest) {
     console.error(`[pdf] ✗ failed: ${message}`);
 
     // Return HTML error page so browser displays it instead of downloading JSON
-    const isServerError = message.includes("Cannot connect to PDFN server");
+    const isServerError = message.includes("Cannot connect to pdfn server");
     const html = `<!DOCTYPE html>
 <html>
 <head>
@@ -211,7 +211,7 @@ export async function GET(request: NextRequest) {
 <body>
   <h1>PDF Generation Failed</h1>
   ${isServerError ? `
-  <p>The PDFN server is not running. Start it with:</p>
+  <p>The pdfn server is not running. Start it with:</p>
   <pre>npx pdfn serve</pre>
   <p>Then refresh this page.</p>
   ` : `
