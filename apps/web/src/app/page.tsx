@@ -239,7 +239,7 @@ export default function Home() {
               <span>npm i @pdfn/react</span>
               <span className="text-text-muted group-hover:text-text-secondary transition-colors">
                 {copied ? (
-                  <svg className="w-4 h-4 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-4 h-4 text-success" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                   </svg>
                 ) : (
@@ -553,7 +553,7 @@ export default function Home() {
                           Download PDF
                         </button>
                         {pdfError && (
-                          <div className="text-xs text-red-500 mt-1">{pdfError}</div>
+                          <div className="text-xs text-error mt-1">{pdfError}</div>
                         )}
                       </div>
                     </div>
@@ -578,7 +578,7 @@ export default function Home() {
                         <div className="text-xs">
                           {consoleMessages.length === 0 ? (
                             <div className="flex items-center gap-2 text-text-muted">
-                              <svg className="w-3.5 h-3.5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <svg className="w-3.5 h-3.5 text-success" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                               </svg>
                               No issues
@@ -589,7 +589,7 @@ export default function Home() {
                                 <div
                                   key={i}
                                   className={`flex items-start gap-2 ${
-                                    msg.type === "error" ? "text-red-500" : "text-yellow-500"
+                                    msg.type === "error" ? "text-error" : "text-warning"
                                   }`}
                                 >
                                   <span className="flex-shrink-0">{msg.type === "error" ? "✗" : "⚠"}</span>
@@ -960,8 +960,8 @@ export default function Home() {
             {/* Chromium dependency */}
             <div className="bg-background border border-border rounded-xl p-6">
               <div className="flex items-center gap-3 mb-3">
-                <div className="w-8 h-8 rounded-full bg-yellow-500/10 flex items-center justify-center flex-shrink-0">
-                  <svg className="w-4 h-4 text-yellow-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div className="w-8 h-8 rounded-full bg-warning/10 flex items-center justify-center flex-shrink-0">
+                  <svg className="w-4 h-4 text-warning" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
                 </div>
@@ -974,8 +974,8 @@ export default function Home() {
             {/* File size */}
             <div className="bg-background border border-border rounded-xl p-6">
               <div className="flex items-center gap-3 mb-3">
-                <div className="w-8 h-8 rounded-full bg-yellow-500/10 flex items-center justify-center flex-shrink-0">
-                  <svg className="w-4 h-4 text-yellow-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div className="w-8 h-8 rounded-full bg-warning/10 flex items-center justify-center flex-shrink-0">
+                  <svg className="w-4 h-4 text-warning" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
                 </div>
