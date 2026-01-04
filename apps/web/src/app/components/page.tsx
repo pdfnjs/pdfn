@@ -32,7 +32,13 @@ export default function Invoice() {
   return (
     <Document
       title="Invoice #001"
-      fonts={[{ src: "/fonts/Inter.woff2" }]}
+      fonts={[
+        // Google Fonts (loaded from CDN)
+        "Inter",
+        { family: "Roboto Mono", weights: [400, 700] },
+        // Local fonts (embedded as base64)
+        { family: "CustomFont", src: "./fonts/custom.woff2", weight: 400 },
+      ]}
     >
       <Page size="A4" margin="1in">
         {/* Your content */}
@@ -42,7 +48,11 @@ export default function Invoice() {
 }`,
     props: [
       { name: "title", type: "string", description: "PDF document title (shown in browser tab)" },
-      { name: "fonts", type: "Font[]", description: "Custom fonts to load", default: "[]" },
+      { name: "author", type: "string", description: "PDF author metadata" },
+      { name: "subject", type: "string", description: "PDF subject metadata" },
+      { name: "keywords", type: "string[]", description: "PDF keywords metadata" },
+      { name: "language", type: "string", description: "Document language", default: '"en"' },
+      { name: "fonts", type: "(string | FontConfig)[]", description: "Google Fonts (by name) or local fonts (with src path)", default: "[]" },
       { name: "children", type: "ReactNode", description: "Page components" },
     ],
   },
@@ -57,25 +67,26 @@ export default function Invoice() {
   background="#ffffff"
   header={<Header />}
   footer={<Footer />}
-  watermark={{ text: "DRAFT", opacity: 0.1 }}
+  watermark={{ text: "DRAFT", opacity: 0.1, rotation: -35 }}
 >
   {/* Content flows automatically */}
 </Page>`,
     props: [
-      { name: "size", type: '"A4" | "A3" | "A5" | "Letter" | "Legal" | "Tabloid" | "B4" | "B5" | [w, h]', description: "Page size preset or custom dimensions" },
+      { name: "size", type: '"A4" | "A3" | "A5" | "Letter" | "Legal" | "Tabloid" | "B4" | "B5" | [w, h]', description: "Page size preset or custom dimensions", default: '"A4"' },
       { name: "orientation", type: '"portrait" | "landscape"', description: "Page orientation", default: '"portrait"' },
       { name: "margin", type: "string | { top, right, bottom, left }", description: "Page margins", default: '"1in"' },
-      { name: "background", type: "string", description: "Background color" },
+      { name: "background", type: "string", description: "Background color", default: '"#ffffff"' },
       { name: "header", type: "ReactNode", description: "Content repeated at top of each page" },
       { name: "footer", type: "ReactNode", description: "Content repeated at bottom of each page" },
-      { name: "watermark", type: "string | { text, opacity, rotation, className }", description: "Watermark overlay" },
+      { name: "watermark", type: "string | { text, opacity?, rotation? }", description: "Watermark text overlay on every page" },
+      { name: "children", type: "ReactNode", description: "Page content" },
     ],
   },
   // Pagination
   {
     name: "PageNumber",
     category: "pagination",
-    description: "Displays the current page number. Typically used in headers or footers.",
+    description: "Displays the current page number using CSS counters. Typically used in headers or footers.",
     code: `<Page
   footer={
     <div className="text-center text-sm text-gray-500">
@@ -85,12 +96,14 @@ export default function Invoice() {
 >
   {/* Content */}
 </Page>`,
-    props: [],
+    props: [
+      { name: "className", type: "string", description: "Additional CSS classes" },
+    ],
   },
   {
     name: "TotalPages",
     category: "pagination",
-    description: 'Displays the total page count. Combine with PageNumber for "Page 1 of 5" style footers.',
+    description: 'Displays the total page count using CSS counters. Combine with PageNumber for "Page 1 of 5" style footers.',
     code: `<Page
   footer={
     <div className="text-center text-sm text-gray-500">
@@ -100,7 +113,9 @@ export default function Invoice() {
 >
   {/* Content */}
 </Page>`,
-    props: [],
+    props: [
+      { name: "className", type: "string", description: "Additional CSS classes" },
+    ],
   },
   {
     name: "PageBreak",
@@ -134,6 +149,7 @@ export default function Invoice() {
 ))}`,
     props: [
       { name: "children", type: "ReactNode", description: "Content to keep together" },
+      { name: "className", type: "string", description: "Additional CSS classes" },
     ],
   },
   {
@@ -160,6 +176,7 @@ export default function Invoice() {
 </table>`,
     props: [
       { name: "children", type: "ReactNode", description: "Table row(s) to repeat as header" },
+      { name: "className", type: "string", description: "Additional CSS classes" },
     ],
   },
 ];
