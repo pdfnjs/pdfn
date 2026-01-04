@@ -2,6 +2,8 @@
 
 The React framework for print-ready HTML → PDF.
 
+> ⭐ If pdfn is useful, consider [starring it on GitHub](https://github.com/pdfnjs/pdfn).
+
 > **⚠️ Server-only** - Do not import in `"use client"` files. [Why?](#server-only)
 
 ## Requirements
