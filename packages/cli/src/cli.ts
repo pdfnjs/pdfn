@@ -5,7 +5,7 @@ import { addCommand } from "./commands/add.js";
 
 const program = new Command()
   .name("pdfn")
-  .description("PDFN CLI - PDF generation tools\n\n  Alpha: 'serve' command works. 'dev' and 'add' coming soon.")
+  .description("PDFN CLI - PDF generation from React components")
   .version("0.0.1-alpha.1");
 
 program.addCommand(devCommand);

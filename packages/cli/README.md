@@ -133,13 +133,14 @@ interface GenerateOptions {
   debug?: boolean | DebugOptions;  // Enable debug overlays
   host?: string;  // Override PDFN_HOST
   pdf?: {
+    format?: PageSize;  // Override page size
     printBackground?: boolean;  // Print background graphics (default: true)
-    preferCSSPageSize?: boolean;  // Use CSS page size (default: true)
+    pageRanges?: string;  // Page ranges to print (e.g., '1-3')
   };
 }
 
 interface DebugOptions {
-  grid?: boolean;     // Show grid overlay
+  grid?: boolean;     // Show 1cm grid overlay
   margins?: boolean;  // Highlight margins
   headers?: boolean;  // Highlight headers/footers
   breaks?: boolean;   // Show page break indicators
@@ -197,15 +198,6 @@ export async function POST(req: Request) {
     headers: { 'Content-Type': 'application/pdf' }
   });
 }
-```
-
-## Docker
-
-Docker support coming soon.
-
-```bash
-# Coming soon
-docker run -p 3456:3456 ghcr.io/pdfnjs/cli serve
 ```
 
 ## License

@@ -187,12 +187,26 @@ This is useful for:
 </Document>
 ```
 
-### Google Fonts
+### Fonts
 
 ```tsx
-<Document fonts={['Playfair Display', { family: 'Roboto', weights: [400, 700] }]}>
+// Google Fonts (simple)
+<Document fonts={['Playfair Display', 'Roboto Mono']}>
+  ...
+</Document>
+
+// Google Fonts with specific weights
+<Document fonts={[{ family: 'Inter', weights: [400, 500, 700] }]}>
+  ...
+</Document>
+
+// Local fonts (embedded as base64)
+<Document fonts={[
+  { family: 'CustomFont', src: './fonts/custom.woff2', weight: 400 },
+  { family: 'CustomFont', src: './fonts/custom-bold.woff2', weight: 700 },
+]}>
   <Page size="A4">
-    <h1 style={{ fontFamily: 'Playfair Display' }}>Elegant Title</h1>
+    <h1 style={{ fontFamily: 'CustomFont' }}>Custom Font Title</h1>
   </Page>
 </Document>
 ```

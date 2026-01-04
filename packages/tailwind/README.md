@@ -62,7 +62,10 @@ If no `css` prop is provided, the component auto-detects CSS from common locatio
 - `./src/app/globals.css`
 - `./src/styles/globals.css`
 - `./app/globals.css`
+- `./styles/globals.css`
 - `./styles/tailwind.css`
+- `./src/index.css`
+- `./src/styles.css`
 
 Falls back to vanilla Tailwind if no CSS file is found.
 
@@ -83,7 +86,7 @@ Low-level function for advanced use cases:
 import { processTailwind } from '@pdfn/tailwind';
 
 const css = await processTailwind(html, {
-  css: './src/app/globals.css'
+  cssPath: './src/app/globals.css'
 });
 ```
 
