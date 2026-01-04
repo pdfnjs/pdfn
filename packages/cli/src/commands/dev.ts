@@ -639,8 +639,11 @@ function createPreviewHTML(templates: TemplateInfo[], activeTemplate: string | n
   <script>
     // Page sizes in points (72 dpi)
     const PAGE_SIZES = {
+      A3: { width: 842, height: 1191 },
       A4: { width: 595, height: 842 },
       A5: { width: 420, height: 595 },
+      B4: { width: 709, height: 1001 },
+      B5: { width: 499, height: 709 },
       Letter: { width: 612, height: 792 },
       Legal: { width: 612, height: 1008 },
       Tabloid: { width: 792, height: 1224 },
@@ -730,11 +733,50 @@ function createPreviewHTML(templates: TemplateInfo[], activeTemplate: string | n
         const data = JSON.parse(event.data);
         if (data.type === 'reload') {
           if (currentTemplate) loadPreview(currentTemplate);
+        } else if (data.type === 'templates') {
+          updateTemplateList(data.templates);
         }
       };
     }
 
     connect();
+
+    // Update template list in sidebar (called when templates are added/removed)
+    function updateTemplateList(templates) {
+      const sidebar = document.querySelector('.sidebar');
+      const titleEl = sidebar.querySelector('.sidebar-title');
+
+      // Clear existing buttons
+      sidebar.innerHTML = '';
+      sidebar.appendChild(titleEl);
+
+      if (templates.length === 0) {
+        sidebar.innerHTML += '<div class="empty-state"><p>No templates found</p><code>pdfn add invoice</code></div>';
+        // Clear preview if no templates
+        currentTemplate = null;
+        document.getElementById('file-name').textContent = '';
+        document.getElementById('page-info').textContent = '';
+        document.getElementById('preview-area').innerHTML = '<div class="empty-state"><h2>No templates</h2><p>Add a template to get started</p><code>pdfn add invoice</code></div>';
+        return;
+      }
+
+      // Add template buttons
+      templates.forEach(t => {
+        const btn = document.createElement('button');
+        btn.className = 'template-btn' + (t.id === currentTemplate ? ' active' : '');
+        btn.dataset.template = t.id;
+        btn.dataset.file = t.file;
+        btn.innerHTML = '<span class="template-name">' + t.name + '</span>';
+        btn.addEventListener('click', () => loadPreview(t.id));
+        sidebar.appendChild(btn);
+      });
+
+      // If current template was deleted, switch to first template
+      const templateIds = templates.map(t => t.id);
+      if (currentTemplate && !templateIds.includes(currentTemplate)) {
+        loadPreview(templates[0].id);
+      }
+    }
 
     // Listen for metrics from iframe (postMessage from PDFN script)
     window.addEventListener('message', function(event) {
@@ -1047,7 +1089,8 @@ async function startDevServer(options: DevServerOptions) {
       const fileName = filePath.split("/").pop() || filePath;
       console.log(chalk.green("  +"), chalk.white(fileName), chalk.dim("added"));
     }
-    broadcast({ type: "reload" });
+    // Send updated template list so sidebar can be refreshed
+    broadcast({ type: "templates", templates: templates.map(t => ({ id: t.id, name: t.name, file: t.file })) });
   });
 
   watcher.on("unlink", async (filePath) => {
@@ -1059,7 +1102,8 @@ async function startDevServer(options: DevServerOptions) {
     if (templates.length < oldCount && isTemplateFile(filePath)) {
       console.log(chalk.red("  -"), chalk.white(fileName), chalk.dim("removed"));
     }
-    broadcast({ type: "reload" });
+    // Send updated template list so sidebar can be refreshed
+    broadcast({ type: "templates", templates: templates.map(t => ({ id: t.id, name: t.name, file: t.file })) });
   });
 
   // Serve preview UI
