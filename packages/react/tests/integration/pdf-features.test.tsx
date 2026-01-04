@@ -87,7 +87,7 @@ describe("PDF Features Integration", () => {
   describe("Headers and Footers", () => {
     it("includes header content in rendered HTML", async () => {
       const { html } = await generateHtmlAndPdf(
-        <Document>
+        <Document title="Test">
           <Page
             size="A4"
             header={<div data-testid="header">Company Header</div>}
@@ -103,7 +103,7 @@ describe("PDF Features Integration", () => {
 
     it("includes footer content in rendered HTML", async () => {
       const { html } = await generateHtmlAndPdf(
-        <Document>
+        <Document title="Test">
           <Page
             size="A4"
             footer={<div data-testid="footer">Page Footer</div>}
@@ -119,7 +119,7 @@ describe("PDF Features Integration", () => {
 
     it("generates PDF with header and footer", async () => {
       const pdf = await generatePdf(
-        <Document>
+        <Document title="Test">
           <Page
             size="A4"
             header={<div>Header Content</div>}
@@ -138,7 +138,7 @@ describe("PDF Features Integration", () => {
 
     it("header/footer work with multi-page content", async () => {
       const pdf = await generatePdf(
-        <Document>
+        <Document title="Test">
           <Page
             size="A4"
             header={<div>Document Header</div>}
@@ -161,7 +161,7 @@ describe("PDF Features Integration", () => {
   describe("PageNumber and TotalPages", () => {
     it("renders PageNumber component in HTML", async () => {
       const { html } = await generateHtmlAndPdf(
-        <Document>
+        <Document title="Test">
           <Page size="A4" footer={<PageNumber />}>
             <div>Content</div>
           </Page>
@@ -175,7 +175,7 @@ describe("PDF Features Integration", () => {
 
     it("renders TotalPages component in HTML", async () => {
       const { html } = await generateHtmlAndPdf(
-        <Document>
+        <Document title="Test">
           <Page size="A4" footer={<TotalPages />}>
             <div>Content</div>
           </Page>
@@ -188,7 +188,7 @@ describe("PDF Features Integration", () => {
 
     it("generates PDF with page numbers", async () => {
       const pdf = await generatePdf(
-        <Document>
+        <Document title="Test">
           <Page
             size="A4"
             footer={
@@ -210,7 +210,7 @@ describe("PDF Features Integration", () => {
 
     it("PageNumber with className is rendered", async () => {
       const { html } = await generateHtmlAndPdf(
-        <Document>
+        <Document title="Test">
           <Page
             size="A4"
             footer={<PageNumber className="page-num-style" />}
@@ -227,7 +227,7 @@ describe("PDF Features Integration", () => {
   describe("Watermarks", () => {
     it("renders string watermark in HTML", async () => {
       const { html } = await generateHtmlAndPdf(
-        <Document>
+        <Document title="Test">
           <Page size="A4" watermark="DRAFT">
             <div>Document content</div>
           </Page>
@@ -243,7 +243,7 @@ describe("PDF Features Integration", () => {
 
     it("renders watermark with custom config", async () => {
       const { html } = await generateHtmlAndPdf(
-        <Document>
+        <Document title="Test">
           <Page
             size="A4"
             watermark={{
@@ -267,7 +267,7 @@ describe("PDF Features Integration", () => {
 
     it("renders watermark text in CSS", async () => {
       const { html } = await generateHtmlAndPdf(
-        <Document>
+        <Document title="Test">
           <Page
             size="A4"
             watermark={{
@@ -285,7 +285,7 @@ describe("PDF Features Integration", () => {
 
     it("generates PDF with watermark", async () => {
       const pdf = await generatePdf(
-        <Document>
+        <Document title="Test">
           <Page size="A4" watermark="DRAFT">
             <div>Document with watermark</div>
           </Page>
@@ -301,7 +301,7 @@ describe("PDF Features Integration", () => {
   describe("AvoidBreak component", () => {
     it("renders AvoidBreak with proper attributes", async () => {
       const { html } = await generateHtmlAndPdf(
-        <Document>
+        <Document title="Test">
           <Page size="A4">
             <AvoidBreak>
               <div>This content should stay together</div>
@@ -317,7 +317,7 @@ describe("PDF Features Integration", () => {
 
     it("generates PDF with AvoidBreak content", async () => {
       const pdf = await generatePdf(
-        <Document>
+        <Document title="Test">
           <Page size="A4">
             <div>Some initial content</div>
             <AvoidBreak>
@@ -337,7 +337,7 @@ describe("PDF Features Integration", () => {
 
     it("AvoidBreak with className", async () => {
       const { html } = await generateHtmlAndPdf(
-        <Document>
+        <Document title="Test">
           <Page size="A4">
             <AvoidBreak className="keep-together">
               <div>Content</div>
@@ -353,7 +353,7 @@ describe("PDF Features Integration", () => {
   describe("TableHeader", () => {
     it("renders TableHeader with proper attributes", async () => {
       const { html } = await generateHtmlAndPdf(
-        <Document>
+        <Document title="Test">
           <Page size="A4">
             <table>
               <TableHeader>
@@ -389,7 +389,7 @@ describe("PDF Features Integration", () => {
       ));
 
       const pdf = await generatePdf(
-        <Document>
+        <Document title="Test">
           <Page size="A4">
             <table style={{ width: "100%", borderCollapse: "collapse" }}>
               <TableHeader>

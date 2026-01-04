@@ -77,7 +77,7 @@ describe("PDF Page Dimensions", () => {
   ] as PageSizeName[])("%s page size", (size) => {
     it("portrait orientation", async () => {
       const pdf = await generatePdf(
-        <Document>
+        <Document title="Test">
           <Page size={size} orientation="portrait">
             <div>Test content for {size} portrait</div>
           </Page>
@@ -92,7 +92,7 @@ describe("PDF Page Dimensions", () => {
 
     it("landscape orientation", async () => {
       const pdf = await generatePdf(
-        <Document>
+        <Document title="Test">
           <Page size={size} orientation="landscape">
             <div>Test content for {size} landscape</div>
           </Page>
@@ -109,7 +109,7 @@ describe("PDF Page Dimensions", () => {
   describe("Custom page sizes", () => {
     it("handles custom size in mm", async () => {
       const pdf = await generatePdf(
-        <Document>
+        <Document title="Test">
           <Page size={["100mm", "150mm"]}>
             <div>Custom size content</div>
           </Page>
@@ -128,7 +128,7 @@ describe("PDF Page Dimensions", () => {
 
     it("handles custom size in inches", async () => {
       const pdf = await generatePdf(
-        <Document>
+        <Document title="Test">
           <Page size={["5in", "7in"]}>
             <div>Custom inch size content</div>
           </Page>
@@ -144,7 +144,7 @@ describe("PDF Page Dimensions", () => {
 
     it("handles custom size in points", async () => {
       const pdf = await generatePdf(
-        <Document>
+        <Document title="Test">
           <Page size={["400pt", "600pt"]}>
             <div>Custom point size content</div>
           </Page>
@@ -166,7 +166,7 @@ describe("PDF Page Dimensions", () => {
 
     it("renders multiple Page components as sequential content", async () => {
       const pdf = await generatePdf(
-        <Document>
+        <Document title="Test">
           <Page size="A4">
             <div>Page 1</div>
           </Page>
@@ -189,7 +189,7 @@ describe("PDF Page Dimensions", () => {
 
     it("uses first Page component size for the document", async () => {
       const pdf = await generatePdf(
-        <Document>
+        <Document title="Test">
           <Page size="A4" orientation="portrait">
             <div>Content in A4</div>
           </Page>
@@ -205,7 +205,7 @@ describe("PDF Page Dimensions", () => {
   describe("PageBreak component", () => {
     it("creates new page when PageBreak is used", async () => {
       const pdf = await generatePdf(
-        <Document>
+        <Document title="Test">
           <Page size="A4">
             <div>Content before break</div>
             <PageBreak />
@@ -224,7 +224,7 @@ describe("PDF Page Dimensions", () => {
 
     it("handles multiple PageBreaks", async () => {
       const pdf = await generatePdf(
-        <Document>
+        <Document title="Test">
           <Page size="Letter">
             <div>Page 1</div>
             <PageBreak />
@@ -250,7 +250,7 @@ describe("PDF Page Dimensions", () => {
       ));
 
       const pdf = await generatePdf(
-        <Document>
+        <Document title="Test">
           <Page size="A4">{lines}</Page>
         </Document>
       );
@@ -283,19 +283,17 @@ describe("PDF Page Dimensions", () => {
       expect(metadata.title).toBe("Test Invoice");
     });
 
-    it("generates PDF with default title when not specified", async () => {
+    it("embeds custom title in PDF metadata", async () => {
       const pdf = await generatePdf(
-        <Document>
+        <Document title="Custom Title">
           <Page size="A4">
-            <div>Content without title</div>
+            <div>Content with custom title</div>
           </Page>
         </Document>
       );
 
       const metadata = await getPdfMetadata(pdf);
-      // When no title is specified, a default title may be used by the browser
-      // We just verify the PDF is generated and has some title value
-      expect(metadata).toBeDefined();
+      expect(metadata.title).toBe("Custom Title");
     });
 
     // TODO: Author and subject metadata require server-side PDF options

@@ -30,7 +30,7 @@ function serializeFonts(fonts?: (string | FontConfig)[]): string | undefined {
  *
  * @example With Google Fonts
  * ```tsx
- * <Document fonts={["Inter", "Roboto Mono"]}>
+ * <Document title="Report" fonts={["Inter", "Roboto Mono"]}>
  *   <Page>
  *     <h1 className="font-[Inter]">Hello</h1>
  *   </Page>
@@ -39,14 +39,14 @@ function serializeFonts(fonts?: (string | FontConfig)[]): string | undefined {
  *
  * @example With specific font weights
  * ```tsx
- * <Document fonts={[{ family: "Inter", weights: [400, 500, 700] }]}>
+ * <Document title="Report" fonts={[{ family: "Inter", weights: [400, 500, 700] }]}>
  *   <Page>...</Page>
  * </Document>
  * ```
  *
  * @example With local fonts (embedded as base64)
  * ```tsx
- * <Document fonts={[
+ * <Document title="Report" fonts={[
  *   { family: "CustomFont", src: "./fonts/custom.woff2", weight: 400 },
  *   { family: "CustomFont", src: "./fonts/custom-bold.woff2", weight: 700 },
  * ]}>

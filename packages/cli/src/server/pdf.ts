@@ -220,6 +220,8 @@ export async function generatePdf(
       format,
       printBackground,
       preferCSSPageSize: true,
+      tagged: true, // Accessibility: generates tagged PDF for screen readers
+      outline: true, // Accessibility: auto-generates bookmarks from headings
     };
 
     const buffer = await page.pdf(pdfOptions);

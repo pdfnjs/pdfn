@@ -18,7 +18,7 @@ describe("render", () => {
 
   it("returns valid HTML document", async () => {
     const html = await render(
-      <Document>
+      <Document title="Test">
         <Page>
           <h1>Test</h1>
         </Page>
@@ -34,7 +34,7 @@ describe("render", () => {
 
   it("includes rendered React content", async () => {
     const html = await render(
-      <Document>
+      <Document title="Test">
         <Page>
           <h1>Hello World</h1>
         </Page>
@@ -48,7 +48,7 @@ describe("render", () => {
 
   it("includes base print styles", async () => {
     const html = await render(
-      <Document>
+      <Document title="Test">
         <Page>Content</Page>
       </Document>
     );
@@ -60,7 +60,7 @@ describe("render", () => {
 
   it("includes page number CSS counters", async () => {
     const html = await render(
-      <Document>
+      <Document title="Test">
         <Page>Content</Page>
       </Document>
     );
@@ -73,7 +73,7 @@ describe("render", () => {
 
   it("includes PDFN event system script", async () => {
     const html = await render(
-      <Document>
+      <Document title="Test">
         <Page>Content</Page>
       </Document>
     );
@@ -85,7 +85,7 @@ describe("render", () => {
 
   it("includes Paged.js by default", async () => {
     const html = await render(
-      <Document>
+      <Document title="Test">
         <Page>Content</Page>
       </Document>
     );
@@ -140,7 +140,7 @@ describe("render", () => {
 
     it("includes Google Fonts link when fonts prop specified with strings", async () => {
       const html = await render(
-        <Document fonts={["Inter", "Roboto Mono"]}>
+        <Document title="Test" fonts={["Inter", "Roboto Mono"]}>
           <Page>Content</Page>
         </Document>
       );
@@ -153,6 +153,7 @@ describe("render", () => {
     it("includes Google Fonts link when fonts prop specified with FontConfig", async () => {
       const html = await render(
         <Document
+          title="Test"
           fonts={[
             { family: "Inter", weights: [400, 700] },
             { family: "Fira Code", weights: [400, 500] },
@@ -169,7 +170,7 @@ describe("render", () => {
 
     it("does not include Google Fonts link when no fonts specified", async () => {
       const html = await render(
-        <Document>
+        <Document title="Test">
           <Page>Content</Page>
         </Document>
       );
@@ -179,7 +180,7 @@ describe("render", () => {
 
     it("includes preconnect hints for Google Fonts", async () => {
       const html = await render(
-        <Document fonts={["Inter"]}>
+        <Document title="Test" fonts={["Inter"]}>
           <Page>Content</Page>
         </Document>
       );
@@ -191,6 +192,7 @@ describe("render", () => {
     it("embeds local font as base64 when src is provided", async () => {
       const html = await render(
         <Document
+          title="Test"
           fonts={[{ family: "CustomFont", src: testFontPath, weight: 400 }]}
         >
           <Page>Content</Page>
@@ -209,6 +211,7 @@ describe("render", () => {
     it("handles mix of local and Google Fonts", async () => {
       const html = await render(
         <Document
+          title="Test"
           fonts={[
             { family: "Inter" }, // Google Font
             { family: "LocalFont", src: testFontPath, weight: 700 }, // Local font
@@ -231,6 +234,7 @@ describe("render", () => {
     it("embeds local font with italic style", async () => {
       const html = await render(
         <Document
+          title="Test"
           fonts={[
             { family: "CustomItalic", src: testFontPath, weight: 400, style: "italic" },
           ]}

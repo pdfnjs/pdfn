@@ -6,7 +6,7 @@ import { Page } from "../../src/components/Page";
 describe("Document", () => {
   it("renders children", () => {
     const html = renderToStaticMarkup(
-      <Document>
+      <Document title="Test">
         <Page>
           <div>Hello</div>
         </Page>
@@ -28,20 +28,21 @@ describe("Document", () => {
     expect(html).toContain('data-language="en"');
   });
 
-  it("renders without metadata", () => {
+  it("renders with required title", () => {
     const html = renderToStaticMarkup(
-      <Document>
+      <Document title="Test">
         <Page>
           <div>Content</div>
         </Page>
       </Document>
     );
     expect(html).toContain("data-pdfn-document");
+    expect(html).toContain('data-title="Test"');
   });
 
   it("sets default language to en", () => {
     const html = renderToStaticMarkup(
-      <Document>
+      <Document title="Test">
         <Page>
           <div>Content</div>
         </Page>
@@ -52,7 +53,7 @@ describe("Document", () => {
 
   it("includes keywords as comma-separated string", () => {
     const html = renderToStaticMarkup(
-      <Document keywords={["invoice", "pdf", "react"]}>
+      <Document title="Test" keywords={["invoice", "pdf", "react"]}>
         <Page>
           <div>Content</div>
         </Page>
@@ -64,7 +65,7 @@ describe("Document", () => {
   describe("fonts prop", () => {
     it("serializes string font names to data-fonts attribute", () => {
       const html = renderToStaticMarkup(
-        <Document fonts={["Inter", "Roboto Mono"]}>
+        <Document title="Test" fonts={["Inter", "Roboto Mono"]}>
           <Page>
             <div>Content</div>
           </Page>
@@ -79,6 +80,7 @@ describe("Document", () => {
     it("serializes FontConfig objects to data-fonts attribute", () => {
       const html = renderToStaticMarkup(
         <Document
+          title="Test"
           fonts={[
             { family: "Inter", weights: [400, 500, 700] },
             { family: "Fira Code", weights: [400, 600], style: "normal" },
@@ -96,7 +98,7 @@ describe("Document", () => {
 
     it("does not include data-fonts when fonts not provided", () => {
       const html = renderToStaticMarkup(
-        <Document>
+        <Document title="Test">
           <Page>
             <div>Content</div>
           </Page>
@@ -108,7 +110,7 @@ describe("Document", () => {
 
     it("handles empty fonts array", () => {
       const html = renderToStaticMarkup(
-        <Document fonts={[]}>
+        <Document title="Test" fonts={[]}>
           <Page>
             <div>Content</div>
           </Page>
@@ -120,6 +122,7 @@ describe("Document", () => {
     it("handles mixed string and FontConfig fonts", () => {
       const html = renderToStaticMarkup(
         <Document
+          title="Test"
           fonts={[
             "Inter",
             { family: "Roboto Mono", weights: [400, 700] },

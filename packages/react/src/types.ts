@@ -1,8 +1,8 @@
 import type { ReactNode } from "react";
 
 export interface DocumentProps {
-  /** PDF document title (metadata) */
-  title?: string;
+  /** PDF document title (required for accessibility) */
+  title: string;
   /** PDF document author (metadata) */
   author?: string;
   /** PDF document subject (metadata) */
