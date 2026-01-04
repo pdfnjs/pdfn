@@ -916,13 +916,15 @@ export default function Home() {
                 <h3 className="font-semibold text-text-primary">File size</h3>
               </div>
               <p className="text-sm text-text-secondary">
-                Local fonts and images are base64-encoded. Pre-compress assets for smaller PDFs.
+                Fonts and images are base64-encoded. Pre-compress assets for smaller PDFs.
               </p>
             </div>
           </div>
-          <p className="text-sm text-text-muted text-center mt-8">
-            No server? Try <span className="text-text-secondary">@react-pdf/renderer</span>. Generating 100k+ PDFs/hour? Consider <span className="text-text-secondary">PDFKit</span>.
-          </p>
+          <div className="text-sm text-text-muted text-center mt-8 flex flex-col gap-1">
+            <p>No server? Try <span className="text-text-secondary">@react-pdf/renderer</span></p>
+            <p>Generating 100k+ PDFs/hour? Consider <span className="text-text-secondary">PDFKit</span></p>
+            <p>Need to fill existing PDFs? Check out <span className="text-text-secondary">pdf-lib</span></p>
+          </div>
         </div>
       </section>
 
