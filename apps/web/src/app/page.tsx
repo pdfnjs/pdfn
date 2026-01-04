@@ -97,6 +97,26 @@ export default function Home() {
     return () => window.removeEventListener("message", handleMessage);
   }, []);
 
+  // Scroll-triggered fade-in animations
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add("visible");
+          }
+        });
+      },
+      { threshold: 0.1, rootMargin: "0px 0px -50px 0px" }
+    );
+
+    document.querySelectorAll(".fade-in-section").forEach((el) => {
+      observer.observe(el);
+    });
+
+    return () => observer.disconnect();
+  }, []);
+
   const handleCopy = () => {
     navigator.clipboard.writeText(activeCode);
     setCopied(true);
@@ -210,21 +230,21 @@ export default function Home() {
       </header>
 
       {/* Hero */}
-      <section className="py-24 px-6">
-        <div className="max-w-4xl mx-auto text-center">
-          <h1 className="text-5xl md:text-6xl font-bold text-text-primary mb-6 leading-tight">
+      <section className="py-24 px-6 hero-glow overflow-hidden">
+        <div className="max-w-4xl mx-auto text-center relative z-10">
+          <h1 className="text-5xl md:text-6xl font-bold text-text-primary mb-6 leading-tight animate-fade-in">
             Write React. Ship PDFs.
           </h1>
-          <p className="text-xl text-text-secondary mb-4 max-w-2xl mx-auto">
+          <p className="text-xl text-text-secondary mb-4 max-w-2xl mx-auto animate-fade-in-delay-1">
             Build pixel-perfect documents with React and Tailwind. Preview locally, ship the same output everywhere.
           </p>
-          <p className="text-sm text-text-muted mb-10 max-w-2xl mx-auto">
+          <p className="text-sm text-text-muted mb-10 max-w-2xl mx-auto animate-fade-in-delay-2">
             React → print-ready, pagination-safe HTML (pdfn) → Headless Chromium → PDF
           </p>
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 animate-fade-in-delay-3">
             <button
               onClick={scrollToDemo}
-              className="bg-primary hover:bg-primary-hover text-black font-semibold px-6 py-3 rounded-lg transition-colors"
+              className="bg-primary hover:bg-primary-hover text-black font-semibold px-6 py-3 rounded-lg transition-colors btn-glow"
             >
               Try live demo
             </button>
@@ -256,7 +276,7 @@ export default function Home() {
       {/* Demo Section */}
       <section id="demo" className="py-20 px-6 scroll-mt-20">
         <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-12">
+          <div className="text-center mb-12 fade-in-section">
             <h2 className="text-3xl font-bold text-text-primary mb-4">
               Simple, familiar API
             </h2>
@@ -678,7 +698,7 @@ export default function Home() {
       {/* How it works */}
       <section className="py-20 px-6 bg-surface-1">
         <div className="max-w-4xl mx-auto">
-          <div className="text-center mb-12">
+          <div className="text-center mb-12 fade-in-section">
             <h2 className="text-3xl font-bold text-text-primary mb-4">
               How it works
             </h2>
@@ -744,7 +764,7 @@ export default function Home() {
       {/* Why pdfn */}
       <section className="py-20 px-6">
         <div className="max-w-4xl mx-auto">
-          <div className="text-center mb-12">
+          <div className="text-center mb-12 fade-in-section">
             <h2 className="text-3xl font-bold text-text-primary mb-4">
               Why pdfn?
             </h2>
@@ -803,7 +823,7 @@ export default function Home() {
 
       {/* Quick Start */}
       <section className="py-20 px-6 bg-surface-1">
-        <div className="max-w-3xl mx-auto text-center">
+        <div className="max-w-3xl mx-auto text-center fade-in-section">
           <h2 className="text-3xl font-bold text-text-primary mb-4">
             Get started in seconds
           </h2>
@@ -830,7 +850,7 @@ export default function Home() {
       {/* Features */}
       <section className="py-20 px-6">
         <div className="max-w-5xl mx-auto">
-          <div className="text-center mb-12">
+          <div className="text-center mb-12 fade-in-section">
             <h2 className="text-3xl font-bold text-text-primary mb-4">
               Built for developers
             </h2>
@@ -846,7 +866,7 @@ export default function Home() {
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {/* Library */}
-            <div className="bg-background border border-border rounded-xl p-6">
+            <div className="bg-background border border-border rounded-xl p-6 card-hover">
               <div className="flex items-center gap-2 mb-2">
                 <h3 className="text-lg font-semibold text-text-primary">@pdfn/react</h3>
                 <span className="text-xs bg-primary/10 text-primary px-2 py-0.5 rounded">library</span>
@@ -880,7 +900,7 @@ export default function Home() {
               </ul>
             </div>
             {/* Dev Server */}
-            <div className="bg-background border border-border rounded-xl p-6">
+            <div className="bg-background border border-border rounded-xl p-6 card-hover">
               <div className="flex items-center gap-2 mb-2">
                 <h3 className="text-lg font-semibold text-text-primary">pdfn dev</h3>
                 <span className="text-xs bg-primary/10 text-primary px-2 py-0.5 rounded">CLI</span>
@@ -914,7 +934,7 @@ export default function Home() {
               </ul>
             </div>
             {/* Production */}
-            <div className="bg-background border border-border rounded-xl p-6">
+            <div className="bg-background border border-border rounded-xl p-6 card-hover">
               <div className="flex items-center gap-2 mb-2">
                 <h3 className="text-lg font-semibold text-text-primary">Production</h3>
                 <span className="text-xs bg-surface-2 text-text-muted px-2 py-0.5 rounded">flexible</span>
@@ -948,7 +968,7 @@ export default function Home() {
       {/* Tradeoffs */}
       <section className="py-20 px-6 bg-surface-1">
         <div className="max-w-3xl mx-auto">
-          <div className="text-center mb-12">
+          <div className="text-center mb-12 fade-in-section">
             <h2 className="text-3xl font-bold text-text-primary mb-4">
               Tradeoffs
             </h2>
@@ -958,7 +978,7 @@ export default function Home() {
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* Chromium dependency */}
-            <div className="bg-background border border-border rounded-xl p-6">
+            <div className="bg-background border border-border rounded-xl p-6 card-hover">
               <div className="flex items-center gap-3 mb-3">
                 <div className="w-8 h-8 rounded-full bg-warning/10 flex items-center justify-center flex-shrink-0">
                   <svg className="w-4 h-4 text-warning" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -972,7 +992,7 @@ export default function Home() {
               </p>
             </div>
             {/* File size */}
-            <div className="bg-background border border-border rounded-xl p-6">
+            <div className="bg-background border border-border rounded-xl p-6 card-hover">
               <div className="flex items-center gap-3 mb-3">
                 <div className="w-8 h-8 rounded-full bg-warning/10 flex items-center justify-center flex-shrink-0">
                   <svg className="w-4 h-4 text-warning" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -997,7 +1017,7 @@ export default function Home() {
       {/* Roadmap */}
       <section className="py-20 px-6">
         <div className="max-w-2xl mx-auto">
-          <div className="text-center mb-12">
+          <div className="text-center mb-12 fade-in-section">
             <h2 className="text-3xl font-bold text-text-primary mb-4">
               What&apos;s next
             </h2>
@@ -1006,28 +1026,28 @@ export default function Home() {
             </p>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div className="flex items-start gap-3 bg-surface-1 border border-border rounded-lg p-4">
+            <div className="flex items-start gap-3 bg-surface-1 border border-border rounded-lg p-4 card-hover">
               <div className="w-2 h-2 rounded-full bg-primary mt-2 flex-shrink-0" />
               <div>
                 <span className="text-text-primary font-medium">Font subsetting</span>
                 <p className="text-sm text-text-muted">Smaller PDFs by stripping unused glyphs</p>
               </div>
             </div>
-            <div className="flex items-start gap-3 bg-surface-1 border border-border rounded-lg p-4">
+            <div className="flex items-start gap-3 bg-surface-1 border border-border rounded-lg p-4 card-hover">
               <div className="w-2 h-2 rounded-full bg-primary mt-2 flex-shrink-0" />
               <div>
                 <span className="text-text-primary font-medium">Image optimization</span>
                 <p className="text-sm text-text-muted">Auto-compress images before embedding</p>
               </div>
             </div>
-            <div className="flex items-start gap-3 bg-surface-1 border border-border rounded-lg p-4">
+            <div className="flex items-start gap-3 bg-surface-1 border border-border rounded-lg p-4 card-hover">
               <div className="w-2 h-2 rounded-full bg-primary mt-2 flex-shrink-0" />
               <div>
                 <span className="text-text-primary font-medium">PDF/A support</span>
                 <p className="text-sm text-text-muted">Archival compliance via post-processing</p>
               </div>
             </div>
-            <div className="flex items-start gap-3 bg-surface-1 border border-border rounded-lg p-4">
+            <div className="flex items-start gap-3 bg-surface-1 border border-border rounded-lg p-4 card-hover">
               <div className="w-2 h-2 rounded-full bg-primary mt-2 flex-shrink-0" />
               <div>
                 <span className="text-text-primary font-medium">More templates</span>
@@ -1040,7 +1060,7 @@ export default function Home() {
 
       {/* Bottom CTA */}
       <section className="py-20 px-6 bg-surface-1">
-        <div className="max-w-2xl mx-auto text-center">
+        <div className="max-w-2xl mx-auto text-center fade-in-section">
           <h2 className="text-2xl font-bold text-text-primary mb-3">
             Ready to build your first PDF?
           </h2>
@@ -1050,7 +1070,7 @@ export default function Home() {
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
             <a
               href="/docs"
-              className="px-6 py-3 bg-primary hover:bg-primary-hover text-black font-semibold rounded-lg transition-colors"
+              className="px-6 py-3 bg-primary hover:bg-primary-hover text-black font-semibold rounded-lg transition-colors btn-glow"
             >
               Get started
             </a>
