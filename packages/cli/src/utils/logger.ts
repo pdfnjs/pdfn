@@ -151,8 +151,9 @@ export const logger = {
     if (assets.length > 0) {
       const assetsByType = assets.reduce((acc, a) => {
         if (!acc[a.type]) acc[a.type] = { count: 0, size: 0 };
-        acc[a.type].count++;
-        acc[a.type].size += a.size;
+        const entry = acc[a.type]!;
+        entry.count++;
+        entry.size += a.size;
         return acc;
       }, {} as Record<string, { count: number; size: number }>);
 

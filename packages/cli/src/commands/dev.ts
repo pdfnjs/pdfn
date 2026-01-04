@@ -1250,7 +1250,7 @@ async function startDevServer(options: DevServerOptions) {
 
   // Serve preview UI
   app.get("/", (_req: Request, res: Response) => {
-    const activeTemplate = templates.length > 0 ? templates[0].id : null;
+    const activeTemplate = templates[0]?.id ?? null;
     res.send(createPreviewHTML(templates, activeTemplate));
   });
 
