@@ -60,6 +60,17 @@ body {
   font-family: var(--font-geist-sans), system-ui, sans-serif;
 }
 
+/* Text selection - readable on dark background */
+::selection {
+  background: rgba(34, 211, 238, 0.3);
+  color: #fff;
+}
+
+::-moz-selection {
+  background: rgba(34, 211, 238, 0.3);
+  color: #fff;
+}
+
 /* Hero gradient glow */
 .hero-glow {
   position: relative;
