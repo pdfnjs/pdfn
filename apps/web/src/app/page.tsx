@@ -211,10 +211,10 @@ export default function Home() {
       <section className="py-24 px-6">
         <div className="max-w-4xl mx-auto text-center">
           <h1 className="text-5xl md:text-6xl font-bold text-text-primary mb-6 leading-tight">
-            The React Framework<br />for PDFs
+            Write React. Ship PDFs.
           </h1>
           <p className="text-xl text-text-secondary mb-4 max-w-2xl mx-auto">
-            PDF generation with React and Tailwind. Preview locally. Generate the same output everywhere.
+            Build pixel-perfect documents with React and Tailwind. Preview locally, ship the same output everywhere.
           </p>
           <p className="text-sm text-text-muted mb-10 max-w-2xl mx-auto">
             React → print-ready HTML → Headless Chromium (layout + pagination) → PDF
@@ -992,7 +992,7 @@ export default function Home() {
           <span>
             <span className="text-text-secondary">pdf</span>
             <span className="text-primary">n</span>
-            {" "}— The React Framework for PDFs
+            {" "}— Write React. Ship PDFs.
           </span>
           <div className="flex items-center gap-4">
             <a href="https://github.com/pdfnjs/pdfn" target="_blank" rel="noopener noreferrer"
