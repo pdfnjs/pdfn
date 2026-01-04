@@ -7,8 +7,22 @@
 
 import * as fs from "node:fs";
 import * as path from "node:path";
-import type { FontConfig } from "../types";
+import type { FontConfig, LocalFontConfig, GoogleFontConfig } from "../types";
 import { debug } from "../utils/debug";
+
+/**
+ * Type guard to check if a font config is a local font (has src property)
+ */
+export function isLocalFont(font: FontConfig): font is LocalFontConfig {
+  return "src" in font && typeof font.src === "string";
+}
+
+/**
+ * Type guard to check if a font config is a Google Font (no src property)
+ */
+export function isGoogleFont(font: FontConfig): font is GoogleFontConfig {
+  return !("src" in font);
+}
 
 /**
  * MIME types for common font formats
@@ -90,9 +104,9 @@ function resolveFontPath(src: string, basePath: string): string {
 /**
  * Generate @font-face CSS for a local font
  */
-function generateFontFace(font: FontConfig, dataUri: string): string {
-  const weight = font.weight || 400;
-  const style = font.style || "normal";
+function generateFontFace(font: LocalFontConfig, dataUri: string): string {
+  const weight = font.weight ?? 400;
+  const style = font.style ?? "normal";
 
   return `@font-face {
   font-family: '${font.family}';
@@ -122,7 +136,7 @@ export function processLocalFonts(
 
   for (const font of fonts) {
     // Skip fonts without src (Google Fonts)
-    if (!font.src) {
+    if (!isLocalFont(font)) {
       skippedCount++;
       continue;
     }
@@ -158,17 +172,16 @@ export function processLocalFonts(
  * Separate fonts into local (with src) and Google Fonts (without src)
  */
 export function separateFonts(fonts: FontConfig[]): {
-  localFonts: FontConfig[];
-  googleFonts: FontConfig[];
+  localFonts: LocalFontConfig[];
+  googleFonts: GoogleFontConfig[];
 } {
-  const localFonts: FontConfig[] = [];
-  const googleFonts: FontConfig[] = [];
+  const localFonts: LocalFontConfig[] = [];
+  const googleFonts: GoogleFontConfig[] = [];
 
   for (const font of fonts) {
-    if (font.src && isLocalFontPath(font.src)) {
+    if (isLocalFont(font) && isLocalFontPath(font.src)) {
       localFonts.push(font);
-    } else if (!font.src) {
-      // No src means Google Font
+    } else if (isGoogleFont(font)) {
       googleFonts.push(font);
     }
     // Remote font URLs are passed through as-is (not embedded)
@@ -177,15 +190,6 @@ export function separateFonts(fonts: FontConfig[]): {
   return { localFonts, googleFonts };
 }
 
-/**
- * Extract the URL from a CSS url() function
- * Handles: url("path"), url('path'), url(path)
- */
-function extractUrlFromCss(urlValue: string): string | null {
-  // Match url("..."), url('...'), or url(...)
-  const match = urlValue.match(/url\(\s*["']?([^"')]+)["']?\s*\)/);
-  return match ? match[1] : null;
-}
 
 /**
  * Parse @font-face declarations from CSS and embed local fonts
@@ -213,7 +217,7 @@ export function processCssFontFaces(css: string, basePath?: string): string {
     const srcRegex = /src\s*:\s*([^;]+);/i;
     const srcMatch = fontFaceBlock.match(srcRegex);
 
-    if (!srcMatch) {
+    if (!srcMatch || !srcMatch[1]) {
       return fontFaceBlock;
     }
 

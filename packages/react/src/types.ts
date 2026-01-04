@@ -74,18 +74,46 @@ export interface MarginConfig {
   left?: string;
 }
 
-export interface FontConfig {
-  /** Font family name */
+/**
+ * Google Font configuration - loaded via Google Fonts CDN
+ */
+export interface GoogleFontConfig {
+  /** Font family name (must match Google Fonts name) */
   family: string;
-  /** Font weights to include (for Google Fonts) */
+  /** Font weights to include (default: [400, 500, 600, 700]) */
   weights?: number[];
-  /** Custom font file path */
-  src?: string;
-  /** Font weight (for custom fonts) */
-  weight?: number;
   /** Font style */
   style?: "normal" | "italic";
 }
+
+/**
+ * Local font configuration - embedded as base64 in the PDF
+ */
+export interface LocalFontConfig {
+  /** Font family name */
+  family: string;
+  /** Path to local font file (.woff2, .woff, .ttf, .otf) */
+  src: string;
+  /** Font weight for this file (default: 400) */
+  weight?: number;
+  /** Font style (default: "normal") */
+  style?: "normal" | "italic";
+}
+
+/**
+ * Font configuration - either a Google Font or a local font file
+ *
+ * @example Google Font
+ * ```tsx
+ * { family: "Inter", weights: [400, 700] }
+ * ```
+ *
+ * @example Local font
+ * ```tsx
+ * { family: "CustomFont", src: "./fonts/custom.woff2", weight: 400 }
+ * ```
+ */
+export type FontConfig = GoogleFontConfig | LocalFontConfig;
 
 export interface WatermarkConfig {
   /** Watermark text */

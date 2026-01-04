@@ -15,7 +15,7 @@ const isEnabled = process.env.DEBUG?.includes("pdfn") ?? false;
  */
 export const debug = isEnabled
   ? (message: string, ...args: unknown[]) => {
-      const timestamp = new Date().toISOString().split("T")[1].slice(0, -1);
+      const timestamp = new Date().toISOString().split("T")[1]?.slice(0, -1) ?? "";
       console.log(`[pdfn ${timestamp}]`, message, ...args);
     }
   : () => {};

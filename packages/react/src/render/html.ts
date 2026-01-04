@@ -1,4 +1,4 @@
-import type { FontConfig } from "../types";
+import type { FontConfig, GoogleFontConfig } from "../types";
 import { processLocalFonts, separateFonts } from "./fonts";
 
 /**
@@ -351,7 +351,7 @@ export interface HtmlOptions {
 /**
  * Generate Google Fonts URL from font configurations
  */
-function generateGoogleFontsLink(fonts: FontConfig[]): string {
+function generateGoogleFontsLink(fonts: GoogleFontConfig[]): string {
   if (fonts.length === 0) return "";
 
   const families = fonts.map((font) => {
@@ -359,7 +359,7 @@ function generateGoogleFontsLink(fonts: FontConfig[]): string {
     const family = font.family.replace(/ /g, "+");
 
     // Build weight/style specification
-    const weights = font.weights || [400, 500, 600, 700];
+    const weights = font.weights ?? [400, 500, 600, 700];
     const styles = font.style ? [font.style] : ["normal"];
 
     // Google Fonts v2 API format: Family:ital,wght@0,400;0,700;1,400
