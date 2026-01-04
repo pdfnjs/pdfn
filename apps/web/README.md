@@ -1,6 +1,6 @@
 # PDFN Website
 
-The official website and interactive demo for PDFN - The React framework for PDFs.
+The official website and interactive demo for PDFN - Write React. Ship PDFs.
 
 ## Features
 

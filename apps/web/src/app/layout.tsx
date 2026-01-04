@@ -13,9 +13,9 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "PDFN - The React Framework for PDFs",
+  title: "PDFN - Write React. Ship PDFs.",
   description:
-    "Build beautiful, pixel-perfect PDFs using React components and Tailwind CSS. What you see is what you ship.",
+    "Build pixel-perfect, paginated PDFs with React and Tailwind. What you preview is what you ship.",
   metadataBase: new URL("https://pdfn.dev"),
   keywords: [
     "PDF",
@@ -23,6 +23,10 @@ export const metadata: Metadata = {
     "PDF generation",
     "React PDF",
     "Tailwind CSS",
+    "pagination",
+    "page breaks",
+    "repeating table headers",
+    "headless chrome",
     "document generation",
     "invoice generator",
     "PDF templates",
@@ -34,15 +38,15 @@ export const metadata: Metadata = {
     locale: "en_US",
     url: "https://pdfn.dev",
     siteName: "PDFN",
-    title: "PDFN - The React Framework for PDFs",
+    title: "PDFN - Write React. Ship PDFs.",
     description:
-      "Build beautiful, pixel-perfect PDFs using React components and Tailwind CSS.",
+      "Build pixel-perfect, paginated PDFs with React and Tailwind. What you preview is what you ship.",
   },
   twitter: {
     card: "summary_large_image",
-    title: "PDFN - The React Framework for PDFs",
+    title: "PDFN - Write React. Ship PDFs.",
     description:
-      "Build beautiful, pixel-perfect PDFs using React components and Tailwind CSS.",
+      "Build pixel-perfect, paginated PDFs with React and Tailwind. What you preview is what you ship.",
   },
   icons: {
     icon: [

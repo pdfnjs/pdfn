@@ -1,4 +1,4 @@
-// @pdfn/react - The React framework for PDFs
+// @pdfn/react - Print-safe HTML and pagination helpers for PDFs
 
 // Server-only guard - fails at build time in Next.js "use client" files
 import "server-only";

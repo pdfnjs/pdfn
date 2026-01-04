@@ -217,7 +217,7 @@ export default function Home() {
             Build pixel-perfect documents with React and Tailwind. Preview locally, ship the same output everywhere.
           </p>
           <p className="text-sm text-text-muted mb-10 max-w-2xl mx-auto">
-            React → print-ready HTML → Headless Chromium (layout + pagination) → PDF
+            React → print-ready, pagination-safe HTML (pdfn) → Headless Chromium → PDF
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
             <button
@@ -666,7 +666,7 @@ export default function Home() {
                 <span className="text-xl font-bold text-primary">3</span>
               </div>
               <div className="font-medium text-text-primary mb-1">Generate PDF</div>
-              <div className="text-sm text-text-muted">Headless Chromium (layout + pagination)</div>
+              <div className="text-sm text-text-muted">Headless Chromium prints to PDF</div>
             </div>
           </div>
           <p className="text-sm text-text-muted text-center mt-8">
@@ -683,7 +683,7 @@ export default function Home() {
               Why pdfn?
             </h2>
             <p className="text-xl text-text-secondary">
-              Stop fighting your PDF toolchain
+              pdfn makes pagination predictable. Chromium executes it.
             </p>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
@@ -706,7 +706,7 @@ export default function Home() {
               </div>
               <div>
                 <div className="font-medium text-text-primary mb-1">Pagination that just works</div>
-                <div className="text-sm text-text-muted">Tables with repeating headers, page breaks, keep-together blocks</div>
+                <div className="text-sm text-text-muted">Table headers, keep-together, page breaks, running headers/footers</div>
               </div>
             </div>
             <div className="flex items-start gap-4">

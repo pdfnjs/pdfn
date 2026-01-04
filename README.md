@@ -1,6 +1,6 @@
 # PDFN
 
-The React framework for PDFs. Pixel-perfect. Deterministic.
+The React framework for print-ready HTML → PDF.
 
 > **⚠️ Server-only** - Do not import in `"use client"` files. [Why?](#server-only)
 
