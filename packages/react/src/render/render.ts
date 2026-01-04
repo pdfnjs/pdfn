@@ -1,6 +1,7 @@
 import { type ReactElement } from "react";
 import { assembleHtml, type HtmlOptions } from "./html";
 import { processImages } from "./images";
+import { processCssFontFaces } from "./fonts";
 import type { RenderOptions, FontConfig } from "../types";
 import { debug } from "../utils/debug";
 
@@ -109,6 +110,9 @@ export async function render(
       const { processTailwind } = await import("@pdfn/tailwind");
       tailwindCss = await processTailwind(content, { cssPath });
       debug(`tailwind: processed via marker detection${cssPath ? ` (css: ${cssPath})` : ""}`);
+
+      // Process @font-face declarations in CSS - embed local fonts as base64
+      tailwindCss = processCssFontFaces(tailwindCss);
 
       // Remove the marker element from the content
       content = removeTailwindMarker(content);

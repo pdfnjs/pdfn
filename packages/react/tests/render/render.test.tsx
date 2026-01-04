@@ -1,4 +1,6 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
+import { describe, it, expect, vi, beforeEach, afterEach, beforeAll, afterAll } from "vitest";
+import * as fs from "node:fs";
+import * as path from "node:path";
 import { render } from "../../src/render/render";
 import { Document } from "../../src/components/Document";
 import { Page } from "../../src/components/Page";
@@ -112,6 +114,30 @@ describe("render", () => {
   });
 
   describe("fonts support", () => {
+    // Create test font fixtures
+    const fixturesDir = path.join(__dirname, "../fixtures/fonts");
+    const testFontPath = path.join(fixturesDir, "test.woff2");
+
+    beforeAll(() => {
+      fs.mkdirSync(fixturesDir, { recursive: true });
+      // Create a minimal valid WOFF2 file
+      const minimalWoff2 = Buffer.from([
+        0x77, 0x4f, 0x46, 0x32, // wOF2 signature
+        0x00, 0x01, 0x00, 0x00,
+        0x00, 0x00, 0x00, 0x20,
+        0x00, 0x00, 0x00, 0x00,
+        0x00, 0x00, 0x00, 0x00,
+        0x00, 0x00, 0x00, 0x00,
+        0x00, 0x00, 0x00, 0x00,
+        0x00, 0x00, 0x00, 0x00,
+      ]);
+      fs.writeFileSync(testFontPath, minimalWoff2);
+    });
+
+    afterAll(() => {
+      fs.rmSync(fixturesDir, { recursive: true, force: true });
+    });
+
     it("includes Google Fonts link when fonts prop specified with strings", async () => {
       const html = await render(
         <Document fonts={["Inter", "Roboto Mono"]}>
@@ -160,6 +186,62 @@ describe("render", () => {
 
       expect(html).toContain('rel="preconnect"');
       expect(html).toContain("fonts.gstatic.com");
+    });
+
+    it("embeds local font as base64 when src is provided", async () => {
+      const html = await render(
+        <Document
+          fonts={[{ family: "CustomFont", src: testFontPath, weight: 400 }]}
+        >
+          <Page>Content</Page>
+        </Document>
+      );
+
+      // Should contain @font-face with base64 data
+      expect(html).toContain("@font-face");
+      expect(html).toContain("font-family: 'CustomFont'");
+      expect(html).toContain("data:font/woff2;base64,");
+      expect(html).toContain("font-weight: 400");
+      // Should NOT include Google Fonts link for local font
+      expect(html).not.toContain("fonts.googleapis.com");
+    });
+
+    it("handles mix of local and Google Fonts", async () => {
+      const html = await render(
+        <Document
+          fonts={[
+            { family: "Inter" }, // Google Font
+            { family: "LocalFont", src: testFontPath, weight: 700 }, // Local font
+          ]}
+        >
+          <Page>Content</Page>
+        </Document>
+      );
+
+      // Should have Google Fonts link for Inter
+      expect(html).toContain("fonts.googleapis.com");
+      expect(html).toContain("family=Inter");
+      // Should have embedded @font-face for local font
+      expect(html).toContain("@font-face");
+      expect(html).toContain("font-family: 'LocalFont'");
+      expect(html).toContain("data:font/woff2;base64,");
+      expect(html).toContain("font-weight: 700");
+    });
+
+    it("embeds local font with italic style", async () => {
+      const html = await render(
+        <Document
+          fonts={[
+            { family: "CustomItalic", src: testFontPath, weight: 400, style: "italic" },
+          ]}
+        >
+          <Page>Content</Page>
+        </Document>
+      );
+
+      expect(html).toContain("@font-face");
+      expect(html).toContain("font-family: 'CustomItalic'");
+      expect(html).toContain("font-style: italic");
     });
   });
 

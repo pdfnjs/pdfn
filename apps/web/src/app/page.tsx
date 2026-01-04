@@ -916,7 +916,7 @@ export default function Home() {
                 <h3 className="font-semibold text-text-primary">File size</h3>
               </div>
               <p className="text-sm text-text-secondary">
-                Fonts are fully embedded, images are base64-encoded. Pre-compress assets for smaller PDFs.
+                Local fonts and images are base64-encoded. Pre-compress assets for smaller PDFs.
               </p>
             </div>
           </div>

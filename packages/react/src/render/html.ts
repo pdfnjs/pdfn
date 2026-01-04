@@ -1,4 +1,5 @@
 import type { FontConfig } from "../types";
+import { processLocalFonts, separateFonts } from "./fonts";
 
 /**
  * Base CSS for PDF rendering
@@ -429,8 +430,14 @@ export function assembleHtml(content: string, options: HtmlOptions = {}): string
     .filter(Boolean)
     .join("\n    ");
 
-  // Generate Google Fonts link if fonts are specified
-  const fontsLink = fonts.length > 0 ? generateGoogleFontsLink(fonts) : "";
+  // Separate local fonts (with src) from Google Fonts (without src)
+  const { localFonts, googleFonts } = separateFonts(fonts);
+
+  // Generate embedded @font-face CSS for local fonts
+  const localFontsCss = localFonts.length > 0 ? processLocalFonts(localFonts) : "";
+
+  // Generate Google Fonts link for remote fonts
+  const fontsLink = googleFonts.length > 0 ? generateGoogleFontsLink(googleFonts) : "";
 
   // Extract page configuration from content and generate @page CSS
   // This must be in the <head> for Paged.js to see it before processing
@@ -494,6 +501,7 @@ export function assembleHtml(content: string, options: HtmlOptions = {}): string
     ${metaTags}
     ${fontsLink}
     <style>
+${localFontsCss}
 ${pageCss}
 ${BASE_STYLES}
 ${css}

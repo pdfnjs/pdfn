@@ -12,16 +12,24 @@ export interface DocumentProps {
   /** Document language (default: "en") */
   language?: string;
   /**
-   * Google Fonts to load. For non-Tailwind users.
+   * Fonts to load and embed in the PDF.
    *
-   * @example Simple usage
+   * @example Google Fonts (simple)
    * ```tsx
    * <Document fonts={["Inter", "Roboto Mono"]}>
    * ```
    *
-   * @example With weights
+   * @example Google Fonts with specific weights
    * ```tsx
    * <Document fonts={[{ family: "Inter", weights: [400, 500, 700] }]}>
+   * ```
+   *
+   * @example Local fonts (embedded as base64)
+   * ```tsx
+   * <Document fonts={[
+   *   { family: "CustomFont", src: "./fonts/custom.woff2", weight: 400 },
+   *   { family: "CustomFont", src: "./fonts/custom-bold.woff2", weight: 700 },
+   * ]}>
    * ```
    */
   fonts?: (string | FontConfig)[];
