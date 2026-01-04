@@ -1,6 +1,6 @@
 # pdfn
 
-CLI and server for PDFN - PDF generation from React components.
+CLI and server for pdfn - PDF generation from React components.
 
 ## Installation
 
@@ -104,65 +104,7 @@ GET /health
 # Returns: { "status": "ok", "browser": "connected", ... }
 ```
 
-## Programmatic API
-
-### `generate(element, options?)`
-
-Generate a PDF from a React element. Requires `PDFN_HOST` environment variable.
-
-```tsx
-import { Document, Page } from '@pdfn/react';
-import { generate } from 'pdfn';
-
-process.env.PDFN_HOST = 'http://localhost:3456';
-
-const pdf = await generate(
-  <Document>
-    <Page size="A4">
-      <h1>Hello World</h1>
-    </Page>
-  </Document>
-);
-```
-
-**Options:**
-
-```ts
-interface GenerateOptions {
-  output?: 'pdf' | 'html';  // Output format (default: 'pdf')
-  debug?: boolean | DebugOptions;  // Enable debug overlays
-  host?: string;  // Override PDFN_HOST
-  pdf?: {
-    format?: PageSize;  // Override page size
-    printBackground?: boolean;  // Print background graphics (default: true)
-    pageRanges?: string;  // Page ranges to print (e.g., '1-3')
-  };
-}
-
-interface DebugOptions {
-  grid?: boolean;     // Show 1cm grid overlay
-  margins?: boolean;  // Highlight margins
-  headers?: boolean;  // Highlight headers/footers
-  breaks?: boolean;   // Show page break indicators
-}
-```
-
-**Examples:**
-
-```tsx
-// Generate PDF (default)
-const pdf = await generate(<Invoice data={data} />);
-
-// Generate HTML for preview
-const html = await generate(<Invoice data={data} />, { output: 'html' });
-
-// Generate with debug overlays
-const pdf = await generate(<Invoice data={data} />, {
-  debug: { grid: true, margins: true }
-});
-```
-
-### Embedding in Your Server
+## Embedding in Your Server
 
 ```ts
 import { createServer } from 'pdfn/server';
@@ -180,8 +122,7 @@ await server.start();
 
 ```tsx
 // app/api/invoice/route.ts
-import { Document, Page } from '@pdfn/react';
-import { generate } from 'pdfn';
+import { Document, Page, generate } from '@pdfn/react';
 
 export async function POST(req: Request) {
   const data = await req.json();
@@ -199,6 +140,17 @@ export async function POST(req: Request) {
   });
 }
 ```
+
+> Note: `generate()` is now exported from `@pdfn/react`. The CLI package provides only CLI commands and server utilities.
+
+## Environment Variables
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `PDFN_PORT` | `3456` | Server port |
+| `PDFN_MAX_CONCURRENT` | `5` | Max concurrent PDF generations |
+| `PDFN_TIMEOUT` | `30000` | Request timeout in ms |
+| `DEBUG` | - | Set to `pdfn:cli` or `pdfn:*` or `pdfn` to enable debug logging |
 
 ## License
 

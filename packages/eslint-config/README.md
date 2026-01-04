@@ -1,6 +1,6 @@
 # @pdfn/eslint-config
 
-Internal ESLint configurations for PDFN packages.
+Internal ESLint configurations for pdfn packages.
 
 ## Configs
 

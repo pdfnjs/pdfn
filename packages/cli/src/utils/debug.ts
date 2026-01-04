@@ -1,22 +1,27 @@
 /**
  * Simple debug logging utility
  *
- * Enable with: DEBUG=pdfn node script.js
+ * Enable with DEBUG=pdfn:cli or DEBUG=pdfn:* or DEBUG=pdfn
  *
  * This is a lightweight alternative to the `debug` npm package.
- * If more advanced features are needed (namespaces, colors, filtering),
- * consider switching to the `debug` package.
+ * Supports namespace filtering similar to the debug package convention.
  */
 
-const isEnabled = process.env.DEBUG?.includes("pdfn") ?? false;
+// Debug logging - enable with DEBUG=pdfn:cli or DEBUG=pdfn:* or DEBUG=pdfn
+const debugEnv = process.env.DEBUG ?? "";
+const isEnabled =
+  debugEnv.includes("pdfn:cli") ||
+  debugEnv.includes("pdfn:*") ||
+  debugEnv === "pdfn" ||
+  debugEnv.includes("pdfn,") ||
+  debugEnv.endsWith(",pdfn");
 
 /**
- * Debug logger - only logs when DEBUG=pdfn is set
+ * Debug logger - only logs when DEBUG=pdfn:cli (or pdfn:* or pdfn) is set
  */
 export const debug = isEnabled
   ? (message: string, ...args: unknown[]) => {
-      const timestamp = new Date().toISOString().split("T")[1]?.slice(0, -1) ?? "";
-      console.log(`[pdfn ${timestamp}]`, message, ...args);
+      console.log(`[pdfn:cli] ${message}`, ...args);
     }
   : () => {};
 

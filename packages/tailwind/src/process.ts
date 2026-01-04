@@ -27,8 +27,18 @@ const compilerCache = new Map<string, Awaited<ReturnType<typeof compile>>>();
 let tailwindRoot: string | null = null;
 let autoDetectedCssPath: string | null | undefined = undefined; // undefined = not yet checked
 
-// Only log verbose output if PDFN_DEBUG is set
-const DEBUG = process.env.PDFN_DEBUG === "true";
+// Debug logging - enable with DEBUG=pdfn:tailwind or DEBUG=pdfn:* or DEBUG=pdfn
+const debugEnv = process.env.DEBUG ?? "";
+const isDebugEnabled =
+  debugEnv.includes("pdfn:tailwind") ||
+  debugEnv.includes("pdfn:*") ||
+  debugEnv === "pdfn" ||
+  debugEnv.includes("pdfn,") ||
+  debugEnv.endsWith(",pdfn");
+
+const debug = isDebugEnabled
+  ? (message: string) => console.log(`[pdfn:tailwind] ${message}`)
+  : () => {};
 
 /**
  * Common CSS file locations to auto-detect
@@ -92,9 +102,7 @@ function autoDetectCssPath(): string | null {
       const content = fs.readFileSync(fullPath, "utf8");
       // Check if it looks like a Tailwind CSS file
       if (content.includes("tailwindcss") || content.includes("@tailwind")) {
-        if (DEBUG) {
-          console.log(`[pdfn:tailwind] Auto-detected CSS: ${relativePath}`);
-        }
+        debug(`Auto-detected CSS: ${relativePath}`);
         autoDetectedCssPath = fullPath;
         return fullPath;
       }
@@ -152,9 +160,7 @@ function getBaseCss(options: ProcessOptions = {}): { css: string; source: string
   }
 
   // 3. Fall back to vanilla Tailwind
-  if (DEBUG) {
-    console.log("[pdfn:tailwind] Using vanilla Tailwind (no custom CSS found)");
-  }
+  debug("Using vanilla Tailwind (no custom CSS found)");
   return {
     css: '@import "tailwindcss";',
     source: "vanilla",
@@ -284,12 +290,10 @@ export async function processTailwind(html: string, options: ProcessOptions = {}
     const css = compiler.build(candidates);
 
     const duration = Math.round(performance.now() - startTime);
-    if (DEBUG) {
-      console.log(
-        `[pdfn:tailwind] Generated ${css.length} bytes in ${duration}ms ` +
-        `(${candidates.length} classes, source: ${source})`
-      );
-    }
+    debug(
+      `Generated ${css.length} bytes in ${duration}ms ` +
+      `(${candidates.length} classes, source: ${source})`
+    );
 
     return css;
   } catch (error) {

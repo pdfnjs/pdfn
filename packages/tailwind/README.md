@@ -1,6 +1,6 @@
 # @pdfn/tailwind
 
-Tailwind CSS support for PDFN. Use Tailwind classes in your PDF templates.
+Tailwind CSS support for pdfn. Use Tailwind classes in your PDF templates.
 
 ## Installation
 
@@ -101,6 +101,12 @@ This ensures:
 - Only used classes are included (small CSS output)
 - Your custom theme and fonts work out of the box
 - No build step required
+
+## Environment Variables
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `DEBUG` | - | Set to `pdfn:tailwind` or `pdfn:*` or `pdfn` to enable debug logging |
 
 ## License
 

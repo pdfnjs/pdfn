@@ -27,11 +27,10 @@ const html = await render(
 );
 ```
 
-To generate a PDF, use `generate()` from `pdfn`:
+To generate a PDF, use `generate()`:
 
 ```tsx
-import { Document, Page } from '@pdfn/react';
-import { generate } from 'pdfn';
+import { Document, Page, generate } from '@pdfn/react';
 
 const pdf = await generate(
   <Document>
@@ -41,6 +40,8 @@ const pdf = await generate(
   </Document>
 );
 ```
+
+> Requires a running pdfn server (`npx pdfn serve` or `npx pdfn dev`). Defaults to `http://localhost:3456`.
 
 ## Components
 
@@ -70,6 +71,21 @@ This is useful for:
 - Previewing PDFs in a browser
 - Custom PDF generation pipelines
 - Testing templates
+
+### `generate(element, options?)`
+
+Converts a React element to a PDF buffer. Requires a running pdfn server.
+
+```ts
+import { generate } from '@pdfn/react';
+
+const pdf = await generate(<Document>...</Document>);
+// pdf is a Buffer
+```
+
+Options:
+- `output` - `"pdf"` (default) or `"html"` to return HTML instead
+- `host` - pdfn server URL (default: `process.env.PDFN_HOST` or `http://localhost:3456`)
 
 ### Document Props
 
@@ -224,6 +240,29 @@ Use it in:
 - Next.js API routes / Server Actions / Server Components
 - Express, Fastify, Hono backends
 - Node.js scripts
+
+## Debug Utilities
+
+For building custom preview UIs, import debug utilities from `@pdfn/react/debug`:
+
+```ts
+import { injectDebugSupport, type DebugOptions } from '@pdfn/react/debug';
+
+const html = await render(<Document>...</Document>);
+const debugHtml = injectDebugSupport(html, {
+  grid: true,     // 1cm grid overlay
+  margins: true,  // Margin boundaries
+  headers: true,  // Header/footer regions
+  breaks: true,   // Page break indicators
+});
+```
+
+## Environment Variables
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `PDFN_HOST` | `http://localhost:3456` | pdfn server URL for `generate()` |
+| `DEBUG` | - | Set to `pdfn:react` or `pdfn:*` or `pdfn` to enable debug logging |
 
 ## License
 

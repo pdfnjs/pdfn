@@ -1,10 +1,10 @@
-# PDFN
+# pdfn
 
 The React framework for print-ready HTML → PDF.
 
 ## Requirements
 
-**Node.js only** - PDFN generates PDFs on the server, not in the browser.
+**Node.js only** - pdfn generates PDFs on the server, not in the browser.
 
 Use it in:
 - Next.js API routes / Server Actions / Server Components
@@ -28,15 +28,8 @@ This opens a preview UI with a working invoice template. Edit `pdf-templates/inv
 
 ## Generate PDFs Programmatically
 
-Install the `pdfn` package to use `generate()` in your code:
-
-```bash
-npm install pdfn
-```
-
 ```tsx
-import { Document, Page } from '@pdfn/react';
-import { generate } from 'pdfn';
+import { Document, Page, generate } from '@pdfn/react';
 
 const pdf = await generate(
   <Document title="Invoice #123">
@@ -51,14 +44,14 @@ const pdf = await generate(
 // pdf is a Buffer - save it, return it from an API, etc.
 ```
 
-Requires `PDFN_HOST` environment variable pointing to a running pdfn server.
+Requires a running pdfn server (`npx pdfn serve` or `npx pdfn dev`). Defaults to `http://localhost:3456`.
 
 ## Packages
 
 | Package | Description |
 |---------|-------------|
-| [@pdfn/react](./packages/react) | React components and `render()` |
-| [pdfn](./packages/cli) | CLI, server, and `generate()` |
+| [@pdfn/react](./packages/react) | React components, `render()`, and `generate()` |
+| [pdfn](./packages/cli) | CLI and PDF server |
 | [@pdfn/tailwind](./packages/tailwind) | Tailwind CSS support (optional) |
 
 ## Features
@@ -83,7 +76,7 @@ React Component → render() → HTML → Server → Puppeteer → PDF
 
 1. Write your PDF template as a React component
 2. `render()` converts it to self-contained HTML with Paged.js
-3. `generate()` sends HTML to the PDFN server
+3. `generate()` sends HTML to the pdfn server
 4. Puppeteer renders the HTML and captures as PDF
 
 ## API
@@ -112,13 +105,12 @@ import { render, Document, Page } from '@pdfn/react';
 const html = await render(<Document><Page>...</Page></Document>);
 ```
 
-#### `generate(element)` - from `pdfn`
+#### `generate(element)` - from `@pdfn/react`
 
-Converts React to PDF. Requires `PDFN_HOST`.
+Converts React to PDF. Requires a running pdfn server.
 
 ```ts
-import { Document, Page } from '@pdfn/react';
-import { generate } from 'pdfn';
+import { Document, Page, generate } from '@pdfn/react';
 
 const pdf = await generate(<Document><Page>...</Page></Document>);
 ```
@@ -149,8 +141,7 @@ pdfn add invoice
 
 ```tsx
 // app/api/invoice/route.ts
-import { Document, Page } from '@pdfn/react';
-import { generate } from 'pdfn';
+import { Document, Page, generate } from '@pdfn/react';
 
 export async function POST(req: Request) {
   const data = await req.json();
@@ -199,7 +190,7 @@ pnpm dev        # Watch mode
 
 ## Server-only
 
-PDFN uses Node.js APIs (`fs`, `react-dom/server`) and cannot run in the browser. If you import it in a `"use client"` file, you'll get a build error:
+pdfn uses Node.js APIs (`fs`, `react-dom/server`) and cannot run in the browser. If you import it in a `"use client"` file, you'll get a build error:
 
 ```
 Error: This module cannot be imported from a Client Component module.

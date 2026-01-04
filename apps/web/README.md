@@ -1,6 +1,6 @@
-# PDFN Website
+# pdfn Website
 
-The official website and interactive demo for PDFN - Write React. Ship PDFs.
+The official website and interactive demo for pdfn - Write React. Ship PDFs.
 
 ## Features
 
@@ -15,7 +15,7 @@ The official website and interactive demo for PDFN - Write React. Ship PDFs.
 # From monorepo root
 pnpm install
 
-# Start the PDFN server (required for PDF generation)
+# Start the pdfn server (required for PDF generation)
 pnpm --filter pdfn exec pdfn serve
 
 # In another terminal, start the website
@@ -47,18 +47,25 @@ pdf-templates/
 ## How It Works
 
 1. Templates are React components in `pdf-templates/`
-2. The API route uses `generate()` from `pdfn` to convert React to PDF
+2. The API route uses `render()` from `@pdfn/react` and posts to the pdfn server
 3. The demo page shows a live preview with an inspector panel
 
 ```tsx
 // api/pdf/route.tsx
-import { generate } from 'pdfn';
+import { render } from '@pdfn/react';
 import Invoice from '../../../pdf-templates/invoice';
 
 export async function GET(request: Request) {
-  const pdf = await generate(<Invoice />);
+  const html = await render(<Invoice />);
 
-  return new Response(pdf, {
+  // POST to pdfn server for PDF generation
+  const response = await fetch('http://localhost:3456/generate', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ html }),
+  });
+
+  return new Response(await response.arrayBuffer(), {
     headers: { 'Content-Type': 'application/pdf' }
   });
 }
