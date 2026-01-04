@@ -2,10 +2,6 @@
 
 The React framework for print-ready HTML → PDF.
 
-> ⭐ If pdfn is useful, consider [starring it on GitHub](https://github.com/pdfnjs/pdfn).
-
-> **⚠️ Server-only** - Do not import in `"use client"` files. [Why?](#server-only)
-
 ## Requirements
 
 **Node.js only** - PDFN generates PDFs on the server, not in the browser.
@@ -23,52 +19,28 @@ Use it in:
 ## Quick Start
 
 ```bash
-# Install packages
 npm install @pdfn/react
-npm install -D pdfn
-
-# Start the dev server with preview UI
+npx pdfn add invoice
 npx pdfn dev
 ```
 
-Create a template in `pdf-templates/invoice.tsx`:
+This opens a preview UI with a working invoice template. Edit `pdf-templates/invoice.tsx` and see changes instantly.
 
-```tsx
-import { Document, Page, PageNumber } from '@pdfn/react';
+## Generate PDFs Programmatically
 
-interface InvoiceData {
-  id: string;
-  customer: string;
-  total: number;
-}
+Install the `pdfn` package to use `generate()` in your code:
 
-export default function Invoice({
-  data = { id: 'INV-001', customer: 'Acme Corp', total: 148 }
-}: { data?: InvoiceData }) {
-  return (
-    <Document title={`Invoice ${data.id}`}>
-      <Page size="A4" margin="1in" footer={<PageNumber />}>
-        <h1>Invoice #{data.id}</h1>
-        <p>Customer: {data.customer}</p>
-        <p>Total: ${data.total.toFixed(2)}</p>
-      </Page>
-    </Document>
-  );
-}
+```bash
+npm install pdfn
 ```
 
-Generate PDFs programmatically:
-
 ```tsx
-import { Document, Page, PageNumber } from '@pdfn/react';
+import { Document, Page } from '@pdfn/react';
 import { generate } from 'pdfn';
-import { writeFileSync } from 'fs';
-
-process.env.PDFN_HOST = 'http://localhost:3456';
 
 const pdf = await generate(
   <Document title="Invoice #123">
-    <Page size="A4" margin="1in" footer={<PageNumber />}>
+    <Page size="A4" margin="1in">
       <h1>Invoice #123</h1>
       <p>Customer: Acme Corp</p>
       <p>Total: $148.00</p>
@@ -76,8 +48,10 @@ const pdf = await generate(
   </Document>
 );
 
-writeFileSync('invoice.pdf', pdf);
+// pdf is a Buffer - save it, return it from an API, etc.
 ```
+
+Requires `PDFN_HOST` environment variable pointing to a running pdfn server.
 
 ## Packages
 
@@ -233,6 +207,10 @@ It should only be used from a Server Component.
 ```
 
 This is intentional - it prevents runtime crashes and unclear errors.
+
+---
+
+If pdfn is useful, consider [starring it on GitHub](https://github.com/pdfnjs/pdfn).
 
 ## License
 
