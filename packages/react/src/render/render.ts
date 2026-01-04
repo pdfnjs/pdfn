@@ -86,12 +86,40 @@ export async function render(
   element: ReactElement,
   options: RenderOptions = {}
 ): Promise<string> {
+  // Check for browser environment (allow Node.js and test environments like jsdom)
+  const isNode =
+    typeof process !== "undefined" &&
+    process.versions != null &&
+    process.versions.node != null;
+
+  if (!isNode && typeof window !== "undefined") {
+    throw new Error(
+      `render() can only be used on the server.\n\n` +
+        `This function uses react-dom/server which is not available in browsers.\n` +
+        `If you're using Next.js, ensure this code runs in a Server Component or API route.`
+    );
+  }
+
   const startTime = performance.now();
 
   // 1. Render React to static HTML
   const reactStart = performance.now();
   const renderer = await getRenderer();
-  let content = renderer(element);
+  let content: string;
+
+  try {
+    content = renderer(element);
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Unknown error";
+    throw new Error(
+      `Failed to render React component: ${message}\n\n` +
+        `Common causes:\n` +
+        `  - Using async components (not supported in static rendering)\n` +
+        `  - Component threw during render\n` +
+        `  - Invalid React element passed to render()`
+    );
+  }
+
   const reactTime = performance.now() - reactStart;
 
   // 2. Extract metadata from Document component props
