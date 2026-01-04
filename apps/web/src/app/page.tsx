@@ -66,6 +66,7 @@ export default function Home() {
   });
   const [isLoading, setIsLoading] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [copiedCommand, setCopiedCommand] = useState<string | null>(null);
   const [pdfError, setPdfError] = useState<string | null>(null);
   const [metrics, setMetrics] = useState<{
     render: number | null;
@@ -121,6 +122,12 @@ export default function Home() {
     navigator.clipboard.writeText(activeCode);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
+  };
+
+  const handleCopyCommand = (command: string) => {
+    navigator.clipboard.writeText(command);
+    setCopiedCommand(command);
+    setTimeout(() => setCopiedCommand(null), 2000);
   };
 
   // Build debug query params
@@ -677,7 +684,7 @@ export default function Home() {
 
       {/* Earned CTA */}
       <section className="py-16 px-6">
-        <div className="max-w-2xl mx-auto text-center">
+        <div className="max-w-2xl mx-auto text-center fade-in-section">
           <p className="text-text-secondary mb-4">
             Open source (MIT). If this saved you time, star it on GitHub.
           </p>
@@ -707,7 +714,7 @@ export default function Home() {
               Same input, same output, every time.
             </p>
           </div>
-          <div className="flex flex-col md:flex-row items-center justify-center gap-4 md:gap-8">
+          <div className="flex flex-col md:flex-row items-center justify-center gap-4 md:gap-8 fade-in-section">
             {/* Step 1 */}
             <div className="flex flex-col items-center text-center">
               <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center mb-3">
@@ -772,7 +779,7 @@ export default function Home() {
               pdfn makes pagination predictable. Chromium executes it.
             </p>
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 fade-in-section">
             <div className="flex items-start gap-4">
               <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
                 <svg className="w-4 h-4 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -830,19 +837,32 @@ export default function Home() {
           <p className="text-xl text-text-secondary mb-10">
             Three commands to your first PDF
           </p>
-          <div className="flex flex-col gap-3 max-w-md mx-auto font-mono text-left">
-            <div className="bg-background border border-border rounded-lg px-5 py-3 flex items-center justify-between group">
-              <span className="text-text-primary">npm i @pdfn/react</span>
-              <span className="text-text-muted text-sm"># Install</span>
-            </div>
-            <div className="bg-background border border-border rounded-lg px-5 py-3 flex items-center justify-between group">
-              <span className="text-text-primary">npx pdfn add invoice</span>
-              <span className="text-text-muted text-sm"># Add template</span>
-            </div>
-            <div className="bg-background border border-border rounded-lg px-5 py-3 flex items-center justify-between group">
-              <span className="text-text-primary">npx pdfn dev</span>
-              <span className="text-text-muted text-sm"># Start dev server</span>
-            </div>
+          <div className="flex flex-col gap-2 max-w-md mx-auto font-mono text-left">
+            {[
+              "npm i @pdfn/react",
+              "npx pdfn add invoice",
+              "npx pdfn dev",
+            ].map((cmd) => (
+              <button
+                key={cmd}
+                onClick={() => handleCopyCommand(cmd)}
+                className="bg-background border border-border hover:border-border-hover rounded-lg px-4 py-2.5 flex items-center justify-between group transition-colors text-left"
+              >
+                <span className="flex items-center gap-2">
+                  <span className="text-text-muted">$</span>
+                  <span className="text-text-primary">{cmd}</span>
+                </span>
+                {copiedCommand === cmd ? (
+                  <svg className="w-4 h-4 text-success flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  </svg>
+                ) : (
+                  <svg className="w-4 h-4 text-text-muted group-hover:text-text-secondary transition-colors flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                  </svg>
+                )}
+              </button>
+            ))}
           </div>
         </div>
       </section>
@@ -864,7 +884,7 @@ export default function Home() {
               There is no required runtime, service, or hosted component.
             </p>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 fade-in-section">
             {/* Library */}
             <div className="bg-background border border-border rounded-xl p-6 card-hover">
               <div className="flex items-center gap-2 mb-2">
@@ -976,7 +996,7 @@ export default function Home() {
               The cost of full CSS support
             </p>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 fade-in-section">
             {/* Chromium dependency */}
             <div className="bg-background border border-border rounded-xl p-6 card-hover">
               <div className="flex items-center gap-3 mb-3">
@@ -1025,7 +1045,7 @@ export default function Home() {
               Actively working on these
             </p>
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 fade-in-section">
             <div className="flex items-start gap-3 bg-surface-1 border border-border rounded-lg p-4 card-hover">
               <div className="w-2 h-2 rounded-full bg-primary mt-2 flex-shrink-0" />
               <div>
