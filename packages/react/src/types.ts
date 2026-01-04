@@ -56,6 +56,21 @@ export interface PageProps {
   children: ReactNode;
 }
 
+/**
+ * Predefined page sizes or custom dimensions
+ *
+ * @example Predefined sizes
+ * ```tsx
+ * <Page size="A4" />
+ * <Page size="Letter" />
+ * ```
+ *
+ * @example Custom size (width, height)
+ * ```tsx
+ * <Page size={["210mm", "297mm"]} />
+ * <Page size={["8.5in", "11in"]} />
+ * ```
+ */
 export type PageSize =
   | "A4"
   | "A3"
@@ -67,10 +82,22 @@ export type PageSize =
   | "B5"
   | [string, string];
 
+/**
+ * Page margin configuration for individual sides
+ *
+ * @example
+ * ```tsx
+ * <Page margin={{ top: "1in", right: "0.5in", bottom: "1in", left: "0.5in" }} />
+ * ```
+ */
 export interface MarginConfig {
+  /** Top margin (e.g., "1in", "25mm") */
   top?: string;
+  /** Right margin */
   right?: string;
+  /** Bottom margin */
   bottom?: string;
+  /** Left margin */
   left?: string;
 }
 
@@ -115,29 +142,67 @@ export interface LocalFontConfig {
  */
 export type FontConfig = GoogleFontConfig | LocalFontConfig;
 
+/**
+ * Watermark configuration for pages
+ *
+ * Watermarks are rendered using CSS @page rules to ensure they appear
+ * on every page, including those created by Paged.js during pagination.
+ *
+ * @example Simple text watermark
+ * ```tsx
+ * <Page watermark="DRAFT">...</Page>
+ * ```
+ *
+ * @example With custom styling
+ * ```tsx
+ * <Page watermark={{ text: "CONFIDENTIAL", opacity: 0.15, rotation: -30 }}>
+ *   ...
+ * </Page>
+ * ```
+ */
 export interface WatermarkConfig {
-  /** Watermark text */
-  text?: string;
-  /** Custom watermark content */
-  content?: ReactNode;
-  /** Watermark opacity (0-1) */
+  /** Watermark text to display */
+  text: string;
+  /** Watermark opacity (0-1, default: 0.1) */
   opacity?: number;
-  /** Watermark rotation in degrees */
+  /** Watermark rotation in degrees (default: -35) */
   rotation?: number;
-  /** Additional CSS classes */
-  className?: string;
 }
 
+/**
+ * Options for the render() function
+ *
+ * Currently no options are available. This interface is reserved
+ * for future render options such as:
+ * - Custom asset base paths
+ * - Image compression settings
+ * - Debug output options
+ */
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
 export interface RenderOptions {
   // Reserved for future render options
 }
 
+/**
+ * Options for PDF generation via the pdfn server
+ *
+ * These options are passed to Puppeteer's page.pdf() method.
+ *
+ * @example
+ * ```ts
+ * import { generate } from 'pdfn';
+ *
+ * const pdf = await generate(<Invoice />, {
+ *   printBackground: true,
+ *   pageRanges: '1-3',
+ * });
+ * ```
+ */
 export interface PdfOptions {
-  /** PDF format */
+  /** PDF page format (overrides Document's Page size) */
   format?: PageSize;
-  /** Print background graphics */
+  /** Print background graphics (default: true) */
   printBackground?: boolean;
-  /** Page ranges to print */
+  /** Page ranges to print (e.g., '1-3', '1,3,5') */
   pageRanges?: string;
 }

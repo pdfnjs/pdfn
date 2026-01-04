@@ -126,9 +126,9 @@ describe("Page", () => {
     expect(html).toContain('data-pdfn-watermark-rotation="-30"');
   });
 
-  it("renders watermark with content prop", () => {
+  it("renders watermark with text prop only", () => {
     const html = renderToStaticMarkup(
-      <Page watermark={{ content: "Custom Watermark" }}>
+      <Page watermark={{ text: "Custom Watermark" }}>
         <div>Content</div>
       </Page>
     );

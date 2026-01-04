@@ -28,18 +28,28 @@ function serializeFonts(fonts?: (string | FontConfig)[]): string | undefined {
  * </Document>
  * ```
  *
- * @example With Google Fonts (for non-Tailwind users)
+ * @example With Google Fonts
  * ```tsx
  * <Document fonts={["Inter", "Roboto Mono"]}>
  *   <Page>
- *     <h1 style={{ fontFamily: "Inter" }}>Hello</h1>
+ *     <h1 className="font-[Inter]">Hello</h1>
  *   </Page>
  * </Document>
  * ```
  *
- * @example With font weights
+ * @example With specific font weights
  * ```tsx
  * <Document fonts={[{ family: "Inter", weights: [400, 500, 700] }]}>
+ *   <Page>...</Page>
+ * </Document>
+ * ```
+ *
+ * @example With local fonts (embedded as base64)
+ * ```tsx
+ * <Document fonts={[
+ *   { family: "CustomFont", src: "./fonts/custom.woff2", weight: 400 },
+ *   { family: "CustomFont", src: "./fonts/custom-bold.woff2", weight: 700 },
+ * ]}>
  *   <Page>...</Page>
  * </Document>
  * ```

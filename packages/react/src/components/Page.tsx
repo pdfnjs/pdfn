@@ -1,4 +1,4 @@
-import type { PageProps, WatermarkConfig } from "../types";
+import type { PageProps } from "../types";
 
 /**
  * Page - Container for page content
@@ -52,7 +52,7 @@ export function Page({
       data-pdfn-margin={marginCss}
       data-pdfn-width={dimensions.width}
       data-pdfn-height={dimensions.height}
-      data-pdfn-watermark-text={typeof watermark === "string" ? watermark : watermark?.text || watermark?.content}
+      data-pdfn-watermark-text={typeof watermark === "string" ? watermark : watermark?.text}
       data-pdfn-watermark-opacity={typeof watermark === "object" ? watermark.opacity : undefined}
       data-pdfn-watermark-rotation={typeof watermark === "object" ? watermark.rotation : undefined}
       style={pageStyle}
@@ -70,46 +70,6 @@ function getSizeName(size: PageProps["size"], orientation: PageProps["orientatio
     return `Custom${orientation === "landscape" ? " Landscape" : ""}`;
   }
   return `${size || "A4"}${orientation === "landscape" ? " Landscape" : ""}`;
-}
-
-function renderWatermark(watermark: string | WatermarkConfig) {
-  if (typeof watermark === "string") {
-    return (
-      <div data-pdfn-watermark>
-        {watermark}
-      </div>
-    );
-  }
-
-  const {
-    text,
-    content,
-    opacity = 0.1,
-    rotation = -45,
-    className,
-  } = watermark;
-
-  const watermarkStyle: React.CSSProperties = {
-    position: "absolute",
-    top: "50%",
-    left: "50%",
-    transform: `translate(-50%, -50%) rotate(${rotation}deg)`,
-    fontSize: "4rem",
-    opacity,
-    pointerEvents: "none",
-    whiteSpace: "nowrap",
-    zIndex: 1000,
-  };
-
-  return (
-    <div
-      data-pdfn-watermark
-      className={className}
-      style={watermarkStyle}
-    >
-      {content || text}
-    </div>
-  );
 }
 
 /**
