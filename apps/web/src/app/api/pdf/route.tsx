@@ -1,4 +1,5 @@
-import { generate } from "pdfn";
+import { render } from "@pdfn/react";
+import { injectDebugSupport, type DebugOptions } from "@pdfn/react/debug";
 import { NextRequest } from "next/server";
 import { existsSync, readFileSync } from "fs";
 import { join } from "path";
@@ -92,7 +93,7 @@ export async function GET(request: NextRequest) {
   const start = performance.now();
 
   // Parse debug options
-  let debug: boolean | { grid?: boolean; margins?: boolean; headers?: boolean; breaks?: boolean } = false;
+  let debug: DebugOptions | false = false;
   if (debugParam) {
     if (debugParam === "true") {
       // Legacy support: debug=true enables all
@@ -136,14 +137,12 @@ export async function GET(request: NextRequest) {
   );
 
   try {
+    // Render React to HTML and optionally inject debug support
+    const rawHtml = await render(<Component />);
+    const html = debug ? injectDebugSupport(rawHtml, debug) : rawHtml;
+
     if (wantHtml) {
       // Return HTML for browser preview
-      // Call component with empty props - defaults provide sample data
-      const html = await generate(<Component />, {
-        output: "html",
-        debug,
-      });
-
       const duration = Math.round(performance.now() - start);
       console.log(`[pdf] ✓ rendered in ${duration}ms`);
 
@@ -156,7 +155,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Check cache first (only for default data requests)
-    const hasDebug = typeof debug === "object" && Object.values(debug).some(Boolean);
+    const hasDebug = debug !== false && Object.values(debug).some(Boolean);
     const cachedPdf = getCachedPdf(templateId, hasDebug);
 
     if (cachedPdf) {
@@ -174,9 +173,19 @@ export async function GET(request: NextRequest) {
       });
     }
 
-    // Generate PDF dynamically
-    // Call component with empty props - defaults provide sample data
-    const pdf = await generate(<Component />, { debug });
+    // Generate PDF via PDFN server
+    const pdfnHost = process.env.PDFN_HOST ?? "http://localhost:3456";
+    const response = await fetch(`${pdfnHost}/generate`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ html }),
+    });
+
+    if (!response.ok) {
+      throw new Error(`PDFN server error: ${response.status} ${response.statusText}`);
+    }
+
+    const pdf = Buffer.from(await response.arrayBuffer());
     const duration = Math.round(performance.now() - start);
 
     console.log(`[pdf] ✓ generated in ${duration}ms (${(pdf.length / 1024).toFixed(1)}KB)`);
@@ -196,7 +205,7 @@ export async function GET(request: NextRequest) {
     console.error(`[pdf] ✗ failed: ${message}`);
 
     // Return HTML error page so browser displays it instead of downloading JSON
-    const isServerError = message.includes("Cannot connect to pdfn server");
+    const isServerError = message.includes("PDFN server error") || message.includes("fetch failed");
     const html = `<!DOCTYPE html>
 <html>
 <head>

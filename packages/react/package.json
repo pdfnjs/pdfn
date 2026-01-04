@@ -16,6 +16,16 @@
         "types": "./dist/index.d.cts",
         "default": "./dist/index.cjs"
       }
+    },
+    "./debug": {
+      "import": {
+        "types": "./dist/debug/index.d.ts",
+        "default": "./dist/debug/index.js"
+      },
+      "require": {
+        "types": "./dist/debug/index.d.cts",
+        "default": "./dist/debug/index.cjs"
+      }
     }
   },
   "scripts": {
@@ -75,7 +85,6 @@
     "vitest": "^4.0.16"
   },
   "dependencies": {
-    "pagedjs": "^0.4.3",
-    "server-only": "^0.0.1"
+    "pagedjs": "^0.4.3"
   }
 }

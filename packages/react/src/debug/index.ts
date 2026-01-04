@@ -6,15 +6,23 @@
  * - Margin boundaries
  * - Header/footer highlights
  * - Page number badges
+ *
+ * @example
+ * ```ts
+ * import { injectDebugSupport } from '@pdfn/react/debug';
+ *
+ * const htmlWithDebug = injectDebugSupport(html, { grid: true, margins: true });
+ * ```
  */
 
-/**
- * Debug overlay options
- */
 export interface DebugOptions {
+  /** Show 1cm grid overlay */
   grid?: boolean;
+  /** Show page and margin boundaries */
   margins?: boolean;
+  /** Highlight header/footer regions */
   headers?: boolean;
+  /** Show page number badges */
   breaks?: boolean;
 }
 
@@ -30,6 +38,7 @@ export const DEFAULT_DEBUG_OPTIONS: DebugOptions = {
 
 /**
  * Debug CSS styles for Paged.js structure visualization
+ *
  * Each feature is controlled by a separate class on the <html> element:
  * - pdfn-debug-grid: 1cm grid overlay
  * - pdfn-debug-margins: Page and content boundaries
@@ -161,10 +170,23 @@ function buildDebugClasses(options: DebugOptions): string {
  *
  * Only injects when debug is enabled - no overhead otherwise.
  *
- * @internal Used by generate() - not exported publicly
  * @param html - The HTML string to inject debug support into
  * @param options - Debug options (true for defaults, false for none, or specific options)
- * @returns HTML string, with debug CSS injected if enabled
+ * @returns HTML string with debug CSS injected if enabled
+ *
+ * @example
+ * ```ts
+ * // Enable specific debug features
+ * const debugHtml = injectDebugSupport(html, { grid: true, margins: true });
+ *
+ * // Enable all debug features
+ * const debugHtml = injectDebugSupport(html, {
+ *   grid: true,
+ *   margins: true,
+ *   headers: true,
+ *   breaks: true
+ * });
+ * ```
  */
 export function injectDebugSupport(
   html: string,
@@ -192,7 +214,10 @@ export function injectDebugSupport(
   // Add debug classes to html element
   result = result.replace("<html", `<html class="${debugClasses}"`);
   // Handle case where html already has a class
-  result = result.replace(`class="${debugClasses}" class="`, `class="${debugClasses} `);
+  result = result.replace(
+    `class="${debugClasses}" class="`,
+    `class="${debugClasses} `
+  );
 
   // Inject CSS before </head>
   if (result.includes("</head>")) {

@@ -8,7 +8,7 @@ import chokidar from "chokidar";
 import { createServer as createHttpServer } from "http";
 import { createBaseServer } from "../server/base";
 import { generatePdf } from "../server/pdf";
-import { injectDebugSupport, type DebugOptions } from "../debug";
+import { injectDebugSupport, type DebugOptions } from "@pdfn/react/debug";
 import chalk from "chalk";
 
 interface TemplateInfo {

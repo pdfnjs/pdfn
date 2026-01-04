@@ -1,14 +1,7 @@
 // @pdfn/react - Print-safe HTML and pagination helpers for PDFs
-
-// Server-only guard - fails at build time in Next.js "use client" files
-import "server-only";
-
-// Runtime guard - catches non-Next.js environments
-if (typeof window !== "undefined") {
-  throw new Error(
-    "@pdfn/react is server-only. Do not import it in client components or browser code."
-  );
-}
+//
+// Note: render() uses react-dom/server which only works in Node.js.
+// Importing in browser will fail with a clear error from react-dom/server.
 
 // Components
 export { Document } from "./components/Document";
@@ -21,6 +14,7 @@ export { TableHeader } from "./components/TableHeader";
 
 // Functions
 export { render } from "./render/render";
+export { generate } from "./generate";
 
 // Types
 export type * from "./types";
@@ -28,3 +22,4 @@ export type { AvoidBreakProps } from "./components/AvoidBreak";
 export type { PageNumberProps } from "./components/PageNumber";
 export type { TotalPagesProps } from "./components/TotalPages";
 export type { TableHeaderProps } from "./components/TableHeader";
+export type { GenerateOptions } from "./generate";

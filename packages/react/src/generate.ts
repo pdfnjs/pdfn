@@ -1,6 +1,8 @@
 import type { ReactElement } from "react";
-import { render, type RenderOptions, type PdfOptions } from "@pdfn/react";
-import { injectDebugSupport, type DebugOptions } from "./debug";
+import { render, type RenderOptions } from "./render/render";
+import type { PdfOptions } from "./types";
+
+const DEFAULT_HOST = "http://localhost:3456";
 
 export interface GenerateOptions extends RenderOptions {
   /**
@@ -11,15 +13,8 @@ export interface GenerateOptions extends RenderOptions {
   output?: "html" | "pdf";
 
   /**
-   * Enable debug mode (shows page boundaries, margins, grid)
-   * Works for both HTML and PDF output
-   * Can be a boolean (true enables all) or an object with specific options
-   */
-  debug?: boolean | DebugOptions;
-
-  /**
-   * PDFN server host (required for PDF output)
-   * Defaults to PDFN_HOST environment variable
+   * PDFN server host for PDF generation
+   * Defaults to PDFN_HOST environment variable or http://localhost:3456
    */
   host?: string;
 
@@ -49,26 +44,25 @@ export function generate(
  * Generate HTML or PDF from a React component
  *
  * This is the main function for converting React components to PDF documents.
- * It renders the React element to HTML, optionally injects debug overlays,
- * and either returns the HTML or sends it to the PDFN server for PDF generation.
+ * It renders the React element to HTML and either returns the HTML or sends
+ * it to the PDFN server for PDF generation.
  *
  * @example
  * ```tsx
- * import { Document, Page } from '@pdfn/react';
- * import { generate } from 'pdfn';
+ * import { Document, Page, generate } from '@pdfn/react';
  *
  * // Generate PDF (default)
  * const pdf = await generate(
- *   <Document>
+ *   <Document title="Hello">
  *     <Page><h1>Hello World</h1></Page>
  *   </Document>
  * );
  *
- * // Generate PDF with debug overlay
- * const pdfDebug = await generate(<MyDoc />, { debug: true });
- *
  * // Generate HTML for preview
- * const html = await generate(<MyDoc />, { output: 'html', debug: true });
+ * const html = await generate(<MyDoc />, { output: 'html' });
+ *
+ * // Generate PDF with custom host
+ * const pdf = await generate(<MyDoc />, { host: 'http://my-server:3456' });
  * ```
  *
  * @param element - React element to render (should be a Document component)
@@ -79,40 +73,18 @@ export async function generate(
   element: ReactElement,
   options: GenerateOptions = {}
 ): Promise<string | Buffer> {
-  const {
-    output = "pdf",
-    debug = false,
-    host,
-    pdf: pdfOptions,
-    ...renderOptions
-  } = options;
+  const { output = "pdf", host, pdf: pdfOptions, ...renderOptions } = options;
 
   // Step 1: Render React to HTML
-  const rawHtml = await render(element, renderOptions);
+  const html = await render(element, renderOptions);
 
-  // Step 2: Inject debug support (always inject, enable based on debug flag)
-  const html = injectDebugSupport(rawHtml, debug);
-
-  // Step 3: Return HTML or generate PDF
+  // Step 2: Return HTML or generate PDF
   if (output === "html") {
     return html;
   }
 
   // PDF generation requires PDFN server
-  const pdfnHost = host ?? process.env.PDFN_HOST;
-
-  if (!pdfnHost) {
-    throw new Error(
-      `PDFN_HOST is required for PDF generation.
-
-Set it to a PDFN server:
-  • Development: PDFN_HOST=http://localhost:3456 (run: npx pdfn dev)
-  • Production:  PDFN_HOST=http://your-server:3456 (Docker)
-
-Or use output: 'html' to get HTML without a server:
-  const html = await generate(<MyDoc />, { output: 'html' });`
-    );
-  }
+  const pdfnHost = host ?? process.env.PDFN_HOST ?? DEFAULT_HOST;
 
   // POST to PDFN server
   let response: Response;

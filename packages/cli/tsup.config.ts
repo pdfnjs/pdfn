@@ -6,20 +6,12 @@ export default defineConfig([
     entry: ["src/cli.ts"],
     format: ["esm"],
     dts: false,
+    clean: true,
     sourcemap: true,
     banner: {
       js: "#!/usr/bin/env node",
     },
     external: ["puppeteer", "vite"],
-  },
-  // Library API (generate function)
-  {
-    entry: ["src/index.ts"],
-    format: ["esm"],
-    dts: true,
-    clean: true,
-    sourcemap: true,
-    external: ["puppeteer", "vite", "@pdfn/react"],
   },
   // Server utilities (advanced use)
   {
