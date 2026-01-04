@@ -72,6 +72,8 @@ export default function Home() {
     pagination: number | null;
     pages: number | null;
   }>({ render: null, pagination: null, pages: null });
+  const [consoleExpanded, setConsoleExpanded] = useState(true);
+  const [consoleMessages, setConsoleMessages] = useState<Array<{ type: "error" | "warning"; message: string }>>([]);
   const iframeRef = useRef<HTMLIFrameElement>(null);
 
   // Get code from build-time generated static data
@@ -554,6 +556,50 @@ export default function Home() {
                           <div className="text-xs text-red-500 mt-1">{pdfError}</div>
                         )}
                       </div>
+                    </div>
+
+                    {/* Console Section */}
+                    <div>
+                      <button
+                        onClick={() => setConsoleExpanded(!consoleExpanded)}
+                        className="flex items-center justify-between w-full text-xs font-medium text-text-muted uppercase tracking-wider mb-3"
+                      >
+                        <span>Console</span>
+                        <svg
+                          className={`w-3.5 h-3.5 transition-transform ${consoleExpanded ? "" : "-rotate-90"}`}
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                        </svg>
+                      </button>
+                      {consoleExpanded && (
+                        <div className="text-xs">
+                          {consoleMessages.length === 0 ? (
+                            <div className="flex items-center gap-2 text-text-muted">
+                              <svg className="w-3.5 h-3.5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                              </svg>
+                              No issues
+                            </div>
+                          ) : (
+                            <div className="space-y-1.5">
+                              {consoleMessages.map((msg, i) => (
+                                <div
+                                  key={i}
+                                  className={`flex items-start gap-2 ${
+                                    msg.type === "error" ? "text-red-500" : "text-yellow-500"
+                                  }`}
+                                >
+                                  <span className="flex-shrink-0">{msg.type === "error" ? "✗" : "⚠"}</span>
+                                  <span className="break-all">{msg.message}</span>
+                                </div>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                      )}
                     </div>
 
                     {/* Disclaimer */}

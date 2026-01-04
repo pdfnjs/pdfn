@@ -500,6 +500,65 @@ function createPreviewHTML(templates: TemplateInfo[], activeTemplate: string | n
       opacity: 0.7;
     }
 
+    /* Console section */
+    .console-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .console-header:hover {
+      color: var(--text-secondary);
+    }
+
+    .console-toggle {
+      transition: transform 0.2s;
+    }
+
+    .console-toggle.collapsed {
+      transform: rotate(-90deg);
+    }
+
+    .console-content {
+      font-size: 12px;
+    }
+
+    .console-empty {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      color: var(--text-muted);
+    }
+
+    .console-empty svg {
+      color: #22c55e;
+    }
+
+    .console-message {
+      display: flex;
+      align-items: flex-start;
+      gap: 6px;
+      padding: 4px 0;
+    }
+
+    .console-message.error {
+      color: #ef4444;
+    }
+
+    .console-message.warning {
+      color: #eab308;
+    }
+
+    .console-message-icon {
+      flex-shrink: 0;
+    }
+
+    .console-message-text {
+      word-break: break-all;
+    }
+
     /* Buttons */
     .btn {
       padding: 6px 10px;
@@ -631,6 +690,24 @@ function createPreviewHTML(templates: TemplateInfo[], activeTemplate: string | n
               </svg>
             </a>
           </div>
+
+          <div class="inspector-section">
+            <div class="inspector-section-title console-header" id="console-header">
+              <span>Console</span>
+              <svg class="console-toggle" id="console-toggle" width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+              </svg>
+            </div>
+            <div class="console-content" id="console-content">
+              <div class="console-empty" id="console-empty">
+                <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                </svg>
+                No issues
+              </div>
+              <div id="console-messages" style="display: none;"></div>
+            </div>
+          </div>
         </div>
       </aside>
     </div>
@@ -663,8 +740,12 @@ function createPreviewHTML(templates: TemplateInfo[], activeTemplate: string | n
         margins: false,
         headers: false,
         breaks: false,
-      }
+      },
+      consoleExpanded: true
     };
+
+    // Console messages
+    let consoleMessages = [];
 
     // Load state from localStorage
     function loadState() {
@@ -691,6 +772,64 @@ function createPreviewHTML(templates: TemplateInfo[], activeTemplate: string | n
       document.getElementById('overlay-margins').checked = inspectorState.overlays.margins;
       document.getElementById('overlay-headers').checked = inspectorState.overlays.headers;
       document.getElementById('overlay-breaks').checked = inspectorState.overlays.breaks;
+
+      // Console state
+      const consoleContent = document.getElementById('console-content');
+      const consoleToggle = document.getElementById('console-toggle');
+      if (inspectorState.consoleExpanded) {
+        consoleContent.style.display = 'block';
+        consoleToggle.classList.remove('collapsed');
+      } else {
+        consoleContent.style.display = 'none';
+        consoleToggle.classList.add('collapsed');
+      }
+    }
+
+    // Toggle console expanded state
+    function toggleConsole() {
+      inspectorState.consoleExpanded = !inspectorState.consoleExpanded;
+      saveState();
+      applyState();
+    }
+
+    // Add console message
+    function addConsoleMessage(type, message) {
+      consoleMessages.push({ type, message });
+      renderConsoleMessages();
+    }
+
+    // Clear console messages
+    function clearConsoleMessages() {
+      consoleMessages = [];
+      renderConsoleMessages();
+    }
+
+    // Render console messages
+    function renderConsoleMessages() {
+      const emptyEl = document.getElementById('console-empty');
+      const messagesEl = document.getElementById('console-messages');
+
+      if (consoleMessages.length === 0) {
+        emptyEl.style.display = 'flex';
+        messagesEl.style.display = 'none';
+        messagesEl.innerHTML = '';
+      } else {
+        emptyEl.style.display = 'none';
+        messagesEl.style.display = 'block';
+        messagesEl.innerHTML = consoleMessages.map(msg =>
+          \`<div class="console-message \${msg.type}">
+            <span class="console-message-icon">\${msg.type === 'error' ? '✗' : '⚠'}</span>
+            <span class="console-message-text">\${escapeHtml(msg.message)}</span>
+          </div>\`
+        ).join('');
+      }
+    }
+
+    // Escape HTML
+    function escapeHtml(text) {
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
     }
 
     // Get debug query string from overlay state
@@ -926,6 +1065,9 @@ function createPreviewHTML(templates: TemplateInfo[], activeTemplate: string | n
         if (currentTemplate) loadPreview(currentTemplate);
       };
     });
+
+    // Console header click handler
+    document.getElementById('console-header').onclick = toggleConsole;
 
     let resizeTimeout;
     window.addEventListener('resize', () => {
