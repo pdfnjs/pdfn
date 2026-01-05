@@ -1,185 +1,281 @@
 # pdfn
 
-The React framework for print-ready HTML → PDF.
+Write React. Ship PDFs.
 
-## Requirements
+Build pixel-perfect PDFs with React and Tailwind. Preview locally, ship the same output everywhere.
 
-**Node.js only** - pdfn generates PDFs on the server, not in the browser.
+```
+React → render() → HTML → Chromium → PDF
+```
 
-Use it in:
-- Next.js API routes / Server Actions / Server Components
-- Express, Fastify, Hono backends
-- Node.js scripts
-
-**Do NOT use in:**
-- `"use client"` components
-- Browser code
-- Client-side React
+pdfn prepares pagination-safe HTML and waits for Chromium layout to stabilize before PDF generation.
 
 ## Quick Start
 
 ```bash
-npm install @pdfn/react
+npm i @pdfn/react
 npx pdfn add invoice
 npx pdfn dev
 ```
 
-This opens a preview UI with a working invoice template. Edit `pdf-templates/invoice.tsx` and see changes instantly.
+Opens a preview UI with a working invoice template. Edit `pdf-templates/invoice.tsx` and see changes instantly.
 
-## Generate PDFs Programmatically
+## How pdfn works
 
-```tsx
-import { Document, Page, generate } from '@pdfn/react';
+1. **React renders** to print-safe HTML with pagination hints
+2. **pdfn injects** layout helpers and waits for stability
+3. **Chromium executes** layout, pagination, and PDF capture
 
-const pdf = await generate(
-  <Document title="Invoice #123">
-    <Page size="A4" margin="1in">
-      <h1>Invoice #123</h1>
-      <p>Customer: Acme Corp</p>
-      <p>Total: $148.00</p>
-    </Page>
-  </Document>
-);
+## Requirements
 
-// pdf is a Buffer - save it, return it from an API, etc.
-```
+**Server-only** - pdfn uses Node.js APIs and cannot run in the browser.
 
-Requires a running pdfn server (`npx pdfn serve` or `npx pdfn dev`). Defaults to `http://localhost:3456`.
+Use in:
+- Next.js API routes / Server Actions / Server Components
+- Express, Fastify, Hono backends
+- Node.js scripts
 
-## Packages
+Do NOT use in `"use client"` components or browser code.
 
-| Package | Description |
-|---------|-------------|
-| [@pdfn/react](./packages/react) | React components, `render()`, and `generate()` |
-| [pdfn](./packages/cli) | CLI and PDF server |
-| [@pdfn/tailwind](./packages/tailwind) | Tailwind CSS support (optional) |
+## Usage
 
-## Features
+Two ways to generate PDFs:
 
-- **React Components** - Use familiar React patterns to build PDFs
-- **Page Numbers** - Automatic page numbering with `<PageNumber />` and `<TotalPages />`
-- **Page Breaks** - Control pagination with `<PageBreak />` and `<AvoidBreak />`
-- **Headers/Footers** - Repeating headers and footers on every page
-- **Table Headers** - Repeat table headers across pages with `<TableHeader />`
-- **Watermarks** - Add text or custom watermarks
-- **Multiple Sizes** - A4, A3, A5, Letter, Legal, Tabloid, B4, B5, or custom dimensions
-- **Tailwind CSS** - Full Tailwind v4 support with `@pdfn/tailwind`
-- **Google Fonts** - Easy font loading via `fonts` prop or Tailwind CSS
-- **Local Images** - Automatic base64 embedding for relative image paths
-- **Debug Mode** - Visual overlays for margins, grid, headers, and page breaks
+- **`render()`** → HTML string (use with Puppeteer/Playwright for full control)
+- **`generate()`** → PDF buffer directly
+  - Requires `npx pdfn serve` running (starts a local Chromium-backed PDF server)
 
-## How It Works
-
-```
-React Component → render() → HTML → Server → Puppeteer → PDF
-```
-
-1. Write your PDF template as a React component
-2. `render()` converts it to self-contained HTML with Paged.js
-3. `generate()` sends HTML to the pdfn server
-4. Puppeteer renders the HTML and captures as PDF
-
-## API
-
-### Components (from `@pdfn/react`)
-
-| Component | Description |
-|-----------|-------------|
-| `Document` | Root wrapper with metadata (title, author, fonts) |
-| `Page` | Page container with size, margins, header/footer |
-| `PageNumber` | Current page number |
-| `TotalPages` | Total page count |
-| `PageBreak` | Force a page break |
-| `AvoidBreak` | Keep content together on same page |
-| `TableHeader` | Table header that repeats on each page |
-
-### Functions
-
-#### `render(element)` - from `@pdfn/react`
-
-Converts React to HTML. No server needed.
-
-```ts
-import { render, Document, Page } from '@pdfn/react';
-
-const html = await render(<Document><Page>...</Page></Document>);
-```
-
-#### `generate(element)` - from `@pdfn/react`
-
-Converts React to PDF. Requires a running pdfn server.
-
-```ts
-import { Document, Page, generate } from '@pdfn/react';
-
-const pdf = await generate(<Document><Page>...</Page></Document>);
-```
-
-## CLI Commands
-
-```bash
-# Development - preview UI with hot reload
-npx pdfn dev
-npx pdfn dev --port 4000
-npx pdfn dev --no-open     # Don't auto-open browser
-
-# Production - headless server
-npx pdfn serve
-npx pdfn serve --port 3456 --max-concurrent 10
-
-# Add starter templates
-npx pdfn add invoice       # Add invoice template
-npx pdfn add --list        # Show available templates
-
-# After installing pdfn, you can use the shorter command:
-pdfn dev
-pdfn serve
-pdfn add invoice
-```
-
-## Usage with Next.js
+### Basic (Inline Styles - Using Puppeteer)
 
 ```tsx
-// app/api/invoice/route.ts
-import { Document, Page, generate } from '@pdfn/react';
+import puppeteer from 'puppeteer';
+import { Document, Page, PageNumber, render } from '@pdfn/react';
 
-export async function POST(req: Request) {
-  const data = await req.json();
-
-  const pdf = await generate(
-    <Document>
-      <Page size="A4">
-        <h1>Invoice #{data.id}</h1>
+// Define your PDF template
+function Invoice({ data }: { data: { id: string; customer: string; total: number } }) {
+  return (
+    <Document title={`Invoice ${data.id}`}>
+      <Page size="A4" margin="1in" footer={<PageNumber />}>
+        <h1 style={{ fontSize: 24, marginBottom: 16 }}>Invoice #{data.id}</h1>
+        <p style={{ color: '#666' }}>Customer: {data.customer}</p>
+        <p style={{ fontSize: 20, fontWeight: 'bold' }}>Total: ${data.total}</p>
       </Page>
     </Document>
   );
-
-  return new Response(pdf, {
-    headers: { 'Content-Type': 'application/pdf' }
-  });
 }
+
+// Render React to HTML
+const html = await render(<Invoice data={{ id: 'INV-001', customer: 'Acme Corp', total: 148 }} />);
+
+// Launch browser and create PDF
+const browser = await puppeteer.launch();
+const page = await browser.newPage();
+
+// Load HTML and wait for assets
+await page.setContent(html, { waitUntil: 'networkidle0' });
+
+// Wait for pdfn's pagination to complete
+// PDFN.ready is set when Chromium layout + pagination stabilizes
+await page.waitForFunction(() => (window as any).PDFN?.ready === true);
+
+// Generate PDF with CSS page size support
+const pdf = await page.pdf({
+  preferCSSPageSize: true,  // Use size from <Page> component
+  printBackground: true,    // Include background colors/images
+});
+
+await browser.close();
+
+// Save to file
+import { writeFileSync } from 'fs';
+writeFileSync('invoice.pdf', pdf);
 ```
 
-## Tailwind CSS
+### Basic (Inline Styles - Using pdfn)
 
 ```tsx
-import { Document, Page } from '@pdfn/react';
+import { Document, Page, PageNumber, generate } from '@pdfn/react';
+
+// Define your PDF template as a React component
+function Invoice({ data }: { data: { id: string; customer: string; total: number } }) {
+  return (
+    <Document title={`Invoice ${data.id}`}>
+      <Page
+        size="A4"
+        margin="1in"
+        footer={<PageNumber />}  // Shows "1", "2", etc. on each page
+      >
+        <h1 style={{ fontSize: 24, marginBottom: 16 }}>Invoice #{data.id}</h1>
+        <p style={{ color: '#666' }}>Customer: {data.customer}</p>
+        <p style={{ fontSize: 20, fontWeight: 'bold' }}>Total: ${data.total}</p>
+      </Page>
+    </Document>
+  );
+}
+
+// Generate the PDF
+const pdf = await generate(<Invoice data={{ id: 'INV-001', customer: 'Acme Corp', total: 148 }} />);
+
+// Save to file
+import { writeFileSync } from 'fs';
+writeFileSync('invoice.pdf', pdf);
+```
+
+### With Tailwind CSS
+
+```tsx
+import { Document, Page, PageNumber, generate } from '@pdfn/react';
 import { Tailwind } from '@pdfn/tailwind';
 
-export default function Invoice() {
+// Wrap your template with <Tailwind> to enable class-based styling
+function Invoice({ data }: { data: { id: string; customer: string; total: number } }) {
   return (
     <Tailwind>
-      <Document>
-        <Page size="A4">
-          <h1 className="text-2xl font-bold text-blue-600">Invoice</h1>
+      <Document title={`Invoice ${data.id}`}>
+        <Page size="A4" margin="1in" footer={<PageNumber />}>
+          <h1 className="text-2xl font-bold mb-4">Invoice #{data.id}</h1>
+          <p className="text-gray-600">Customer: {data.customer}</p>
+          <p className="text-xl font-bold">Total: ${data.total}</p>
         </Page>
       </Document>
     </Tailwind>
   );
 }
+
+// Generate the PDF
+const pdf = await generate(<Invoice data={{ id: 'INV-001', customer: 'Acme Corp', total: 148 }} />);
 ```
 
-## Development
+### Next.js API Route
+
+```tsx
+// app/api/invoice/route.ts
+import { Document, Page, PageNumber, generate } from '@pdfn/react';
+import { Tailwind } from '@pdfn/tailwind';
+
+// Define template as a separate component
+function Invoice({ data }: { data: { id: string; customer: string; total: number } }) {
+  return (
+    <Tailwind>
+      <Document title={`Invoice ${data.id}`}>
+        <Page size="A4" margin="1in" footer={<PageNumber />}>
+          <h1 className="text-2xl font-bold mb-4">Invoice #{data.id}</h1>
+          <p className="text-gray-600">Customer: {data.customer}</p>
+          <p className="text-xl font-bold">Total: ${data.total}</p>
+        </Page>
+      </Document>
+    </Tailwind>
+  );
+}
+
+// API route handler
+export async function POST(req: Request) {
+  const data = await req.json();
+
+  // Generate PDF from the template
+  const pdf = await generate(<Invoice data={data} />);
+
+  // Return as downloadable PDF
+  return new Response(pdf, {
+    headers: {
+      'Content-Type': 'application/pdf',
+      'Content-Disposition': `attachment; filename="invoice-${data.id}.pdf"`,
+    },
+  });
+}
+```
+
+## Features
+
+### @pdfn/react (Library)
+
+- 8 page sizes + custom dimensions
+- Pagination-safe layout with headers, footers, and watermarks
+- Local and web fonts/images auto-embedded
+- Tailwind support via `@pdfn/tailwind`
+
+### pdfn (CLI)
+
+- Dev server with live preview and hot reload
+- Starter templates (invoice, letter, contract, ticket, poster)
+- Debug overlays for grid, margins, and headers
+
+## Components
+
+| Component | Description |
+|-----------|-------------|
+| `<Document>` | Root wrapper with metadata (title, author, fonts) |
+| `<Page>` | Page container with size, margins, header/footer |
+| `<PageNumber>` | Current page number |
+| `<TotalPages>` | Total page count |
+| `<PageBreak>` | Force a page break |
+| `<AvoidBreak>` | Keep content together on same page |
+| `<TableHeader>` | Table header that repeats across pages |
+| `<Tailwind>` | Enable Tailwind classes (from `@pdfn/tailwind`) |
+
+## Packages
+
+| Package | Description |
+|---------|-------------|
+| [@pdfn/react](./packages/react) | React components, `render()`, `generate()` |
+| [@pdfn/tailwind](./packages/tailwind) | Tailwind CSS support (optional) |
+| [pdfn](./packages/cli) | CLI dev server and production server |
+
+## CLI
+
+### `pdfn dev`
+
+Development server with live preview.
+
+```bash
+npx pdfn dev                    # Start on port 3456
+npx pdfn dev --port 4000        # Custom port
+npx pdfn dev --no-open          # Don't open browser
+```
+
+### `pdfn serve`
+
+Production server (headless).
+
+```bash
+npx pdfn serve                          # Start server
+npx pdfn serve --port 3456              # Custom port
+npx pdfn serve --max-concurrent 10      # Concurrency limit
+```
+
+### `pdfn add`
+
+Add starter templates.
+
+```bash
+npx pdfn add invoice    # Add invoice template
+npx pdfn add letter     # Add business letter
+npx pdfn add contract   # Add contract template
+npx pdfn add ticket     # Add event ticket
+npx pdfn add poster     # Add poster template
+npx pdfn add --list     # Show all templates
+```
+
+## Tradeoffs
+
+**Chromium dependency** - PDF generation requires headless Chrome. For serverless, use [@sparticuz/chromium](https://github.com/Sparticuz/chromium) or services like [Browserless](https://browserless.io).
+
+**File size** - Fonts and images are base64-encoded. Pre-compress assets for smaller PDFs.
+
+### Alternatives
+
+- **No server available?** → [@react-pdf/renderer](https://react-pdf.org)
+- **High volume (100k+ PDFs/hour)?** → [PDFKit](http://pdfkit.org)
+- **Fill existing PDFs?** → [pdf-lib](https://pdf-lib.js.org)
+
+## Roadmap
+
+- [ ] Font subsetting - Smaller PDFs by stripping unused glyphs
+- [ ] Image optimization - Auto-compress before embedding
+- [ ] PDF/A support - Archival compliance
+- [ ] More templates - Tables, reports, certificates
+
+## Contributing
 
 ```bash
 pnpm install    # Install dependencies
@@ -188,21 +284,10 @@ pnpm test       # Run tests
 pnpm dev        # Watch mode
 ```
 
-## Server-only
-
-pdfn uses Node.js APIs (`fs`, `react-dom/server`) and cannot run in the browser. If you import it in a `"use client"` file, you'll get a build error:
-
-```
-Error: This module cannot be imported from a Client Component module.
-It should only be used from a Server Component.
-```
-
-This is intentional - it prevents runtime crashes and unclear errors.
-
----
-
-If pdfn is useful, consider [starring it on GitHub](https://github.com/pdfnjs/pdfn).
-
 ## License
 
 MIT
+
+---
+
+If pdfn saves you time, consider [starring it on GitHub](https://github.com/pdfnjs/pdfn).

@@ -2,6 +2,8 @@
 
 Tailwind CSS support for pdfn. Use Tailwind classes in your PDF templates.
 
+> **Server-only** - Tailwind processing happens during HTML generation and cannot run in the browser.
+
 ## Installation
 
 ```bash
@@ -10,35 +12,37 @@ npm install @pdfn/tailwind
 
 ## Quick Start
 
-Wrap your content with the `<Tailwind>` component:
+Wrap your template with `<Tailwind>` to enable Tailwind classes:
 
 ```tsx
 import { Document, Page } from '@pdfn/react';
 import { Tailwind } from '@pdfn/tailwind';
 
-export default function Invoice() {
+function Invoice() {
   return (
-    <Document>
-      <Tailwind>
+    <Tailwind>
+      <Document>
         <Page size="A4">
           <h1 className="text-2xl font-bold text-blue-600">Invoice</h1>
           <p className="text-gray-600 mt-2">Thank you for your purchase.</p>
         </Page>
-      </Tailwind>
-    </Document>
+      </Document>
+    </Tailwind>
   );
 }
 ```
 
-## Using Your Project's Theme
+## Using Your Theme
 
 Point to your CSS file to use your custom theme, fonts, and colors:
 
 ```tsx
 <Tailwind css="./src/app/globals.css">
-  <Page>
-    <div className="font-inter text-brand">Uses your theme!</div>
-  </Page>
+  <Document>
+    <Page>
+      <div className="font-inter text-brand">Uses your theme!</div>
+    </Page>
+  </Document>
 </Tailwind>
 ```
 
@@ -57,7 +61,7 @@ Your CSS file should include Tailwind and any customizations:
 
 ## Auto-detection
 
-If no `css` prop is provided, the component auto-detects CSS from common locations:
+If no `css` prop is provided, auto-detects from common locations:
 
 - `./src/app/globals.css`
 - `./src/styles/globals.css`
@@ -67,7 +71,7 @@ If no `css` prop is provided, the component auto-detects CSS from common locatio
 - `./src/index.css`
 - `./src/styles.css`
 
-Falls back to vanilla Tailwind if no CSS file is found.
+Falls back to default Tailwind styles if no CSS file is found.
 
 ## API
 
@@ -75,8 +79,8 @@ Falls back to vanilla Tailwind if no CSS file is found.
 
 | Prop | Type | Description |
 |------|------|-------------|
-| `children` | `ReactNode` | Content to render with Tailwind processing |
-| `css` | `string` | Optional path to your CSS file |
+| `children` | `ReactNode` | Content to render |
+| `css` | `string` | Optional path to a Tailwind CSS entry file |
 
 ### `processTailwind(html, options?)`
 
@@ -92,10 +96,10 @@ const css = await processTailwind(html, {
 
 ## How It Works
 
-1. The `<Tailwind>` component wraps your content with a hidden marker
-2. When `render()` processes the HTML, it detects the marker
-3. Tailwind v4's `compile()` API extracts only the CSS classes you use
-4. The generated CSS is inlined in the final HTML
+1. `<Tailwind>` wraps your content with a hidden marker
+2. `render()` detects the marker during processing
+3. Tailwind v4's `compile()` API extracts only the classes used in the document
+4. Generated CSS is inlined in the final HTML
 
 This ensures:
 - Only used classes are included (small CSS output)
@@ -106,7 +110,7 @@ This ensures:
 
 | Variable | Default | Description |
 |----------|---------|-------------|
-| `DEBUG` | - | Set to `pdfn:tailwind` or `pdfn:*` or `pdfn` to enable debug logging |
+| `DEBUG` | - | Set to `pdfn:tailwind` or `pdfn:*` to enable logging |
 
 ## License
 

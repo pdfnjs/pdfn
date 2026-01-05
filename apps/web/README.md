@@ -1,13 +1,14 @@
 # pdfn Website
 
-The official website and interactive demo for pdfn - Write React. Ship PDFs.
+Official website and interactive demo for pdfn.
 
 ## Features
 
-- Interactive PDF template demos (Invoice, Ticket, Report, Poster)
-- Live preview with debug overlays
-- Template code viewer
-- PDF download functionality
+- Live template demos (Invoice, Letter, Contract, Ticket, Poster)
+- Real-time preview with debug overlays
+- One-click PDF download
+- Template source code viewer
+- Performance metrics
 
 ## Development
 
@@ -15,57 +16,50 @@ The official website and interactive demo for pdfn - Write React. Ship PDFs.
 # From monorepo root
 pnpm install
 
-# Start the pdfn server (required for PDF generation)
+# Terminal 1: Start pdfn server
 pnpm --filter pdfn exec pdfn serve
 
-# In another terminal, start the website
+# Terminal 2: Start website
 pnpm --filter web dev
 ```
 
-Open http://localhost:3000 to view the site.
+Open http://localhost:3000
 
 ## Project Structure
 
 ```
 src/
 ├── app/
-│   ├── page.tsx           # Main demo page with preview and inspector
-│   └── api/pdf/
-│       └── route.tsx      # API route for PDF generation
+│   ├── page.tsx              # Landing page with demo
+│   └── api/pdf/route.tsx     # PDF generation endpoint
 ├── lib/
-│   └── template-code.ts   # Auto-generated template source code
+│   └── template-code.ts      # Auto-generated template source
 └── ...
 
 pdf-templates/
-├── invoice.tsx            # Invoice template
-├── ticket.tsx             # Event ticket template
-├── report.tsx             # Multi-page report template
-├── poster.tsx             # Large format poster template
-└── components/            # Shared template components
+├── invoice.tsx               # A4
+├── letter.tsx                # Letter
+├── contract.tsx              # Legal
+├── ticket.tsx                # A5
+├── poster.tsx                # Tabloid
+└── components/               # Shared components
 ```
 
 ## How It Works
 
 1. Templates are React components in `pdf-templates/`
-2. The API route uses `render()` from `@pdfn/react` and posts to the pdfn server
-3. The demo page shows a live preview with an inspector panel
+2. API route uses `generate()` from `@pdfn/react`
+3. Demo page renders live preview with inspector
 
 ```tsx
 // api/pdf/route.tsx
-import { render } from '@pdfn/react';
+import { generate } from '@pdfn/react';
 import Invoice from '../../../pdf-templates/invoice';
 
-export async function GET(request: Request) {
-  const html = await render(<Invoice />);
+export async function GET() {
+  const pdf = await generate(<Invoice />);
 
-  // POST to pdfn server for PDF generation
-  const response = await fetch('http://localhost:3456/generate', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ html }),
-  });
-
-  return new Response(await response.arrayBuffer(), {
+  return new Response(pdf, {
     headers: { 'Content-Type': 'application/pdf' }
   });
 }
@@ -73,26 +67,33 @@ export async function GET(request: Request) {
 
 ## Templates
 
-Each template uses default parameters for sample data (React Email pattern):
+Templates use default props for demo data (React Email pattern):
 
 ```tsx
+import { Document, Page } from '@pdfn/react';
+import { Tailwind } from '@pdfn/tailwind';
+
 export default function Invoice({
   data = { id: 'INV-001', customer: 'Acme Corp', total: 148 }
-}: { data?: InvoiceData }) {
+}) {
   return (
-    <Document>
-      <Page size="A4">
-        <h1>Invoice #{data.id}</h1>
-      </Page>
-    </Document>
+    <Tailwind>
+      <Document title={`Invoice ${data.id}`}>
+        <Page size="A4">
+          <h1 className="text-2xl font-bold">Invoice #{data.id}</h1>
+        </Page>
+      </Document>
+    </Tailwind>
   );
 }
 ```
 
-## Deployment
-
-The site will be deployed to https://pdfn.dev
+## Build
 
 ```bash
 pnpm --filter web build
 ```
+
+## License
+
+MIT

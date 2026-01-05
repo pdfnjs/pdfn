@@ -1,91 +1,117 @@
 # @pdfn/react
 
-React components for building PDF documents. Use familiar React patterns to create pixel-perfect PDFs.
+React components for building PDFs using standard web layout primitives.
 
-> **⚠️ Server-only** - This package must be used in server environments only. Do not import it in files marked with `"use client"`.
+> **Server-only** - Do not import in `"use client"` files.
 
 ## Installation
 
 ```bash
 npm install @pdfn/react
-npm install -D pdfn
 ```
 
 ## Quick Start
 
-```tsx
-import { render, Document, Page, PageNumber } from '@pdfn/react';
+Two ways to generate PDFs:
 
-const html = await render(
-  <Document title="Invoice #123">
-    <Page size="A4" margin="1in" footer={<PageNumber />}>
-      <h1>Invoice #123</h1>
-      <p>Customer: Acme Corp</p>
-      <p>Total: $148.00</p>
-    </Page>
-  </Document>
-);
-```
+- **`render()`** → HTML string (use with Puppeteer/Playwright for full control)
+- **`generate()`** → PDF buffer directly
+  - Requires `npx pdfn serve` running (starts a local Chromium-backed PDF server)
 
-To generate a PDF, use `generate()`:
+### Using render() + Puppeteer
 
 ```tsx
-import { Document, Page, generate } from '@pdfn/react';
+import puppeteer from 'puppeteer';
+import { Document, Page, PageNumber, render } from '@pdfn/react';
 
-const pdf = await generate(
-  <Document>
-    <Page size="A4">
-      <h1>Hello World</h1>
-    </Page>
-  </Document>
-);
+function Invoice() {
+  return (
+    <Document title="Invoice #123">
+      <Page size="A4" margin="1in" footer={<PageNumber />}>
+        <h1>Invoice #123</h1>
+        <p>Total: $148.00</p>
+      </Page>
+    </Document>
+  );
+}
+
+// Render to HTML
+const html = await render(<Invoice />);
+
+// Generate PDF with Puppeteer
+const browser = await puppeteer.launch();
+const page = await browser.newPage();
+await page.setContent(html, { waitUntil: 'networkidle0' });
+
+// Wait for pdfn's pagination to complete
+// PDFN.ready is set when Chromium layout + pagination stabilizes
+await page.waitForFunction(() => (window as any).PDFN?.ready === true);
+
+const pdf = await page.pdf({
+  preferCSSPageSize: true,
+  printBackground: true,
+});
+await browser.close();
 ```
 
-> Requires a running pdfn server (`npx pdfn serve` or `npx pdfn dev`). Defaults to `http://localhost:3456`.
+### Using generate()
+
+```tsx
+import { Document, Page, PageNumber, generate } from '@pdfn/react';
+
+function Invoice() {
+  return (
+    <Document title="Invoice #123">
+      <Page size="A4" margin="1in" footer={<PageNumber />}>
+        <h1>Invoice #123</h1>
+        <p>Total: $148.00</p>
+      </Page>
+    </Document>
+  );
+}
+
+const pdf = await generate(<Invoice />);
+// pdf is a Buffer
+```
 
 ## Components
 
 | Component | Description |
 |-----------|-------------|
-| `Document` | Root wrapper with metadata (title, author, fonts) |
-| `Page` | Page container with size, margins, header/footer |
-| `PageNumber` | Current page number |
-| `TotalPages` | Total page count |
-| `PageBreak` | Force a page break |
-| `AvoidBreak` | Keep content together on same page |
-| `TableHeader` | Table header that repeats on each page |
+| `<Document>` | Root wrapper with metadata (title, author, fonts) |
+| `<Page>` | Page container with size, margins, header/footer |
+| `<PageNumber>` | Current page number |
+| `<TotalPages>` | Total page count |
+| `<PageBreak>` | Force a page break |
+| `<AvoidBreak>` | Keep content together on the same page |
+| `<TableHeader>` | Table header that repeats across pages |
 
 ## API
 
 ### `render(element)`
 
-Converts a React element to a self-contained HTML string. No server required.
+Converts React to HTML. No server required.
 
 ```ts
-import { render } from '@pdfn/react';
-
 const html = await render(<Document>...</Document>);
 ```
 
-This is useful for:
-- Previewing PDFs in a browser
-- Custom PDF generation pipelines
+Use for:
+- Custom PDF pipelines with Puppeteer/Playwright
+- Previewing in browser
 - Testing templates
 
 ### `generate(element, options?)`
 
-Converts a React element to a PDF buffer. Requires a running pdfn server.
+Converts React to PDF buffer. Requires pdfn server. Returns `Buffer` (Node.js).
 
 ```ts
-import { generate } from '@pdfn/react';
-
 const pdf = await generate(<Document>...</Document>);
-// pdf is a Buffer
 ```
 
 Options:
-- `output` - `"pdf"` (default) or `"html"` to return HTML instead
-- `host` - pdfn server URL (default: `process.env.PDFN_HOST` or `http://localhost:3456`)
+- `output` - `"pdf"` (default) or `"html"`
+- `host` - Server URL (default: `process.env.PDFN_HOST` or `http://localhost:3456`)
 
 ### Document Props
 
@@ -134,7 +160,7 @@ Options:
 
 ## Examples
 
-### Multi-page with Page Numbers
+### Multi-page with Headers/Footers
 
 ```tsx
 <Document>
@@ -149,7 +175,7 @@ Options:
 </Document>
 ```
 
-### Controlled Page Breaks
+### Page Breaks
 
 ```tsx
 <Document>
@@ -206,12 +232,12 @@ Options:
 ### Fonts
 
 ```tsx
-// Google Fonts (simple)
+// Google Fonts
 <Document fonts={['Playfair Display', 'Roboto Mono']}>
   ...
 </Document>
 
-// Google Fonts with specific weights
+// Google Fonts with weights
 <Document fonts={[{ family: 'Inter', weights: [400, 500, 700] }]}>
   ...
 </Document>
@@ -221,32 +247,16 @@ Options:
   { family: 'CustomFont', src: './fonts/custom.woff2', weight: 400 },
   { family: 'CustomFont', src: './fonts/custom-bold.woff2', weight: 700 },
 ]}>
-  <Page size="A4">
-    <h1 style={{ fontFamily: 'CustomFont' }}>Custom Font Title</h1>
-  </Page>
+  ...
 </Document>
 ```
 
-## Server-only
-
-This package uses Node.js APIs (`fs`, `react-dom/server`) and cannot run in the browser. Importing it in a `"use client"` file will cause a build error:
-
-```
-Error: This module cannot be imported from a Client Component module.
-It should only be used from a Server Component.
-```
-
-Use it in:
-- Next.js API routes / Server Actions / Server Components
-- Express, Fastify, Hono backends
-- Node.js scripts
-
 ## Debug Utilities
 
-For building custom preview UIs, import debug utilities from `@pdfn/react/debug`:
+For custom preview UIs, import from `@pdfn/react/debug`. These helpers modify HTML output only and are not included in production PDFs.
 
 ```ts
-import { injectDebugSupport, type DebugOptions } from '@pdfn/react/debug';
+import { injectDebugSupport } from '@pdfn/react/debug';
 
 const html = await render(<Document>...</Document>);
 const debugHtml = injectDebugSupport(html, {
@@ -261,8 +271,8 @@ const debugHtml = injectDebugSupport(html, {
 
 | Variable | Default | Description |
 |----------|---------|-------------|
-| `PDFN_HOST` | `http://localhost:3456` | pdfn server URL for `generate()` |
-| `DEBUG` | - | Set to `pdfn:react` or `pdfn:*` or `pdfn` to enable debug logging |
+| `PDFN_HOST` | `http://localhost:3456` | Server URL for `generate()` |
+| `DEBUG` | - | Set to `pdfn:react` or `pdfn:*` to enable logging |
 
 ## License
 
