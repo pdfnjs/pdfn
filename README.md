@@ -2,13 +2,13 @@
 
 Write React. Ship PDFs.
 
-Build pixel-perfect PDFs with React and Tailwind. Preview locally, ship the same output everywhere.
+Build predictable, paginated PDFs with React and Tailwind. Preview locally, ship the same output everywhere.
 
 ```
 React → render() → HTML → Chromium → PDF
 ```
 
-pdfn prepares pagination-safe HTML and waits for Chromium layout to stabilize before PDF generation.
+pdfn prepares HTML designed for clean page breaks and waits until layout stabilizes before PDF generation.
 
 ## Quick Start
 
@@ -22,7 +22,7 @@ Opens a preview UI with a working invoice template. Edit `pdf-templates/invoice.
 
 ## How pdfn works
 
-1. **React renders** to print-safe HTML with pagination hints
+1. **React renders** to HTML styled for printing with page break hints
 2. **pdfn injects** layout helpers and waits for stability
 3. **Chromium executes** layout, pagination, and PDF capture
 
@@ -190,7 +190,7 @@ export async function POST(req: Request) {
 ### @pdfn/react (Library)
 
 - 8 page sizes + custom dimensions
-- Pagination-safe layout with headers, footers, and watermarks
+- Layout with clean page breaks, headers, footers, and watermarks
 - Local and web fonts/images auto-embedded
 - Tailwind support via `@pdfn/tailwind`
 
@@ -261,11 +261,11 @@ npx pdfn add --list     # Show all templates
 
 **Chromium dependency** - PDF generation requires headless Chrome. For serverless, use [@sparticuz/chromium](https://github.com/Sparticuz/chromium) or services like [Browserless](https://browserless.io).
 
-**File size** - Fonts and images are base64-encoded. Pre-compress assets for smaller PDFs.
+**File size** - Fonts and images are embedded in the PDF. Pre-compress assets for smaller file sizes.
 
 ### Alternatives
 
-- **No server available?** → [@react-pdf/renderer](https://react-pdf.org)
+- **Need client-side PDF generation?** → [@react-pdf/renderer](https://react-pdf.org)
 - **High volume (100k+ PDFs/hour)?** → [PDFKit](http://pdfkit.org)
 - **Fill existing PDFs?** → [pdf-lib](https://pdf-lib.js.org)
 
@@ -277,9 +277,9 @@ npx pdfn add --list     # Show all templates
 - [ ] Table of Contents - Auto-generated with page number resolution
 
 **Medium priority:**
+- [ ] Orphans & widows - Prevent single lines at page boundaries
 - [ ] Footnotes - Page-local references for legal/academic docs
 - [ ] Internal anchors - Cross-page references ("See page X")
-- [ ] Orphans & widows - Prevent single lines at page boundaries
 
 **Low priority:**
 - [ ] Image optimization - Auto-compress before embedding
