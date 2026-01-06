@@ -1,6 +1,6 @@
 {
   "name": "@pdfn/react",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "React framework for print-ready PDFs",
   "type": "module",
   "main": "./dist/index.cjs",
