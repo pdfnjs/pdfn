@@ -32,6 +32,8 @@ describe("add command", () => {
     expect(output).toContain("contract");
     expect(output).toContain("ticket");
     expect(output).toContain("poster");
+    expect(output).toContain("--inline");
+    expect(output).toContain("--tailwind");
   });
 
   it("lists templates when no argument provided", () => {
@@ -42,10 +44,12 @@ describe("add command", () => {
     expect(output).toContain("Available templates:");
   });
 
-  it("adds invoice template to custom directory", () => {
-    execSync(`node ${CLI_PATH} add invoice --output ${TEST_OUTPUT_DIR}`, {
+  it("adds invoice template with inline styles by default", () => {
+    const output = execSync(`node ${CLI_PATH} add invoice --output ${TEST_OUTPUT_DIR}`, {
       encoding: "utf-8",
     });
+
+    expect(output).toContain("inline styles");
 
     const templatePath = join(TEST_OUTPUT_DIR, "invoice.tsx");
     expect(existsSync(templatePath)).toBe(true);
@@ -53,6 +57,22 @@ describe("add command", () => {
     const content = readFileSync(templatePath, "utf-8");
     expect(content).toContain("Invoice");
     expect(content).toContain("@pdfn/react");
+    // Inline templates should NOT have @pdfn/tailwind import
+    expect(content).not.toContain("@pdfn/tailwind");
+    // Inline templates should use style={{ }} syntax
+    expect(content).toContain("style={{");
+  });
+
+  it("adds invoice template with --inline flag explicitly", () => {
+    const output = execSync(`node ${CLI_PATH} add invoice --inline --output ${TEST_OUTPUT_DIR}`, {
+      encoding: "utf-8",
+    });
+
+    expect(output).toContain("inline styles");
+
+    const content = readFileSync(join(TEST_OUTPUT_DIR, "invoice.tsx"), "utf-8");
+    expect(content).not.toContain("@pdfn/tailwind");
+    expect(content).toContain("style={{");
   });
 
   it("adds letter template", () => {
@@ -141,5 +161,68 @@ describe("add command", () => {
 
     expect(existsSync(nestedDir)).toBe(true);
     expect(existsSync(join(nestedDir, "invoice.tsx"))).toBe(true);
+  });
+
+  it("warns when --tailwind is used without @pdfn/tailwind installed", () => {
+    // Run from a directory without @pdfn/tailwind
+    expect(() => {
+      execSync(`node ${CLI_PATH} add invoice --tailwind --output ${TEST_OUTPUT_DIR}`, {
+        encoding: "utf-8",
+        stdio: "pipe",
+        cwd: TEST_OUTPUT_DIR.replace("test-output-templates", ""), // Parent dir without node_modules
+      });
+    }).toThrow();
+  });
+
+  it("all inline templates exist and are valid", () => {
+    const templates = ["invoice", "letter", "contract", "ticket", "poster"];
+
+    for (const template of templates) {
+      const outputDir = join(TEST_OUTPUT_DIR, template);
+      execSync(`node ${CLI_PATH} add ${template} --output ${outputDir}`, {
+        encoding: "utf-8",
+      });
+
+      const templatePath = join(outputDir, `${template}.tsx`);
+      expect(existsSync(templatePath)).toBe(true);
+
+      const content = readFileSync(templatePath, "utf-8");
+      // All inline templates should import from @pdfn/react
+      expect(content).toContain("@pdfn/react");
+      // All inline templates should NOT import from @pdfn/tailwind
+      expect(content).not.toContain("@pdfn/tailwind");
+      // All inline templates should use inline styles
+      expect(content).toContain("style={{");
+    }
+  });
+
+  it("all tailwind templates exist in templates/tailwind directory", () => {
+    const templatesDir = join(process.cwd(), "templates", "tailwind");
+    const templates = ["invoice", "letter", "contract", "ticket", "poster"];
+
+    for (const template of templates) {
+      const templatePath = join(templatesDir, `${template}.tsx`);
+      expect(existsSync(templatePath)).toBe(true);
+
+      const content = readFileSync(templatePath, "utf-8");
+      // All tailwind templates should import from @pdfn/tailwind
+      expect(content).toContain("@pdfn/tailwind");
+      // All tailwind templates should use className
+      expect(content).toContain("className=");
+    }
+  });
+
+  it("all inline templates exist in templates/inline directory", () => {
+    const templatesDir = join(process.cwd(), "templates", "inline");
+    const templates = ["invoice", "letter", "contract", "ticket", "poster"];
+
+    for (const template of templates) {
+      const templatePath = join(templatesDir, `${template}.tsx`);
+      expect(existsSync(templatePath)).toBe(true);
+
+      const content = readFileSync(templatePath, "utf-8");
+      // All inline templates should NOT import from @pdfn/tailwind
+      expect(content).not.toContain("@pdfn/tailwind");
+    }
   });
 });
