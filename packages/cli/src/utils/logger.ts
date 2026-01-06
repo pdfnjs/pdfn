@@ -119,57 +119,41 @@ export const logger = {
    */
   banner: (port: number, maxConcurrent: number, timeout: number) => {
     console.log();
-    console.log(
-      `  ${c.dim("pdf")}${c.cyan("x")} ${c.dim("server")} ${c.dim("v0.0.1")}`
-    );
+    console.log(`  ${c.bold("pdfn serve")}`);
     console.log();
-    console.log(`  ${c.dim("→")} Local:    ${c.cyan(`http://localhost:${port}`)}`);
+    console.log(`  ${c.green("✓")} Ready at ${c.cyan(`http://localhost:${port}`)}`);
+    console.log(`    ${c.dim(`${maxConcurrent} concurrent | ${formatMs(timeout)} timeout`)}`);
     console.log();
     console.log(`  ${c.dim("Endpoints:")}`);
-    console.log(`    ${c.green("POST")} /generate     ${c.dim("Generate PDF from HTML")}`);
-    console.log(`    ${c.blue("GET")}  /health       ${c.dim("Health check")}`);
-    console.log();
-    console.log(
-      `  ${c.dim(`Pool: ${maxConcurrent} concurrent | Timeout: ${formatMs(timeout)}`)}`
-    );
+    console.log(`    ${c.green("POST")} /generate   ${c.dim("HTML → PDF")}`);
+    console.log(`    ${c.blue("GET")}  /health     ${c.dim("Health check")}`);
     console.log();
   },
 
   /**
-   * Log PDF details (timing breakdown, assets, warnings)
+   * Log PDF details (pages, assets, timing) on a single line
    * Used after the request line has been logged
    */
   pdfDetails: (result: PdfResult) => {
     const { metrics, assets, warnings } = result;
 
-    // Timing breakdown
-    console.log(
-      `${c.dim("         load")} ${formatMs(metrics.contentLoad)} ${c.dim("→ paginate")} ${formatMs(metrics.pagedJs)} ${c.dim("→ capture")} ${formatMs(metrics.pdfCapture)}`
-    );
+    // Build details line: pages • assets • timing (all separated by •)
+    const pageStr = `${metrics.pageCount} page${metrics.pageCount > 1 ? "s" : ""}`;
 
-    // Asset summary if any
-    if (assets.length > 0) {
-      const assetsByType = assets.reduce((acc, a) => {
-        if (!acc[a.type]) acc[a.type] = { count: 0, size: 0 };
-        const entry = acc[a.type]!;
-        entry.count++;
-        entry.size += a.size;
-        return acc;
-      }, {} as Record<string, { count: number; size: number }>);
+    const images = assets.filter((a) => a.type === "image");
+    const fonts = assets.filter((a) => a.type === "font");
+    const assetParts: string[] = [];
+    if (images.length > 0) assetParts.push(`${images.length} image${images.length > 1 ? "s" : ""}`);
+    if (fonts.length > 0) assetParts.push(`${fonts.length} font${fonts.length > 1 ? "s" : ""}`);
+    const assetStr = assetParts.length > 0 ? assetParts.join(" • ") + " • " : "";
 
-      const parts: string[] = [];
-      for (const [type, data] of Object.entries(assetsByType)) {
-        const sizeStr = data.size > 0 ? ` (${(data.size / 1024).toFixed(0)}KB)` : "";
-        parts.push(`${data.count} ${type}${data.count > 1 ? "s" : ""}${sizeStr}`);
-      }
-      if (parts.length > 0) {
-        console.log(c.dim(`         assets: ${parts.join(", ")}`));
-      }
-    }
+    const timingStr = `load ${metrics.contentLoad}ms • paginate ${metrics.pagedJs}ms • capture ${metrics.pdfCapture}ms`;
+
+    console.log(c.dim(`    ${pageStr} • ${assetStr}${timingStr}`));
 
     // Warnings
     for (const w of warnings) {
-      console.log(`         ${c.yellow("⚠")} ${c.yellow(w)}`);
+      console.log(`    ${c.yellow("⚠")} ${c.yellow(w)}`);
     }
   },
 
@@ -199,16 +183,16 @@ export const logger = {
   browser: (status: "launching" | "ready" | "disconnected" | "closed") => {
     switch (status) {
       case "launching":
-        logger.info("Launching browser...");
+        logger.info("Initializing...");
         break;
       case "ready":
-        logger.success("Browser ready");
+        logger.success("Ready");
         break;
       case "disconnected":
-        logger.warn("Browser disconnected, will restart on next request");
+        logger.warn("PDF engine disconnected, will restart on next request");
         break;
       case "closed":
-        logger.info("Browser closed");
+        logger.info("Shutting down...");
         break;
     }
   },

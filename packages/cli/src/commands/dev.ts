@@ -1089,12 +1089,16 @@ async function startDevServer(options: DevServerOptions) {
   const { port, templatesDir, open } = options;
   const absoluteTemplatesDir = resolve(process.cwd(), templatesDir);
 
+  // Show header and initializing message
+  console.log(chalk.bold("\n  pdfn dev\n"));
+  console.log(chalk.dim("  Initializing..."));
+
   // Scan templates
   let templates = await scanTemplates(absoluteTemplatesDir);
 
-  console.log(chalk.bold("\n  PDFN Dev Server\n"));
-  console.log(chalk.dim(`  Templates: ${absoluteTemplatesDir}`));
-  console.log(chalk.dim(`  Found: ${templates.length} template(s)\n`));
+  // Show relative path for cleaner output
+  const displayPath = templatesDir.startsWith("./") ? templatesDir : `./${templatesDir}`;
+  const templateCount = templates.length === 1 ? "1 template" : `${templates.length} templates`;
 
   // Create base server with shared /generate and /health endpoints
   const { app, browserManager } = createBaseServer({
@@ -1106,9 +1110,9 @@ async function startDevServer(options: DevServerOptions) {
         chalk.dim("/generate"),
         chalk.cyan(`${metrics.total}ms`),
         chalk.dim("•"),
-        chalk.white(`${metrics.pageCount} page${metrics.pageCount > 1 ? "s" : ""}`),
+        `${metrics.pageCount} page${metrics.pageCount > 1 ? "s" : ""}`,
         chalk.dim("•"),
-        chalk.white(formatBytes(metrics.pdfSize))
+        formatBytes(metrics.pdfSize)
       );
     },
     onError: (message) => {
@@ -1216,7 +1220,7 @@ async function startDevServer(options: DevServerOptions) {
     const fileName = filePath.split("/").pop() || filePath;
     // Log all code file changes (templates and components)
     if (isCodeFile(filePath)) {
-      console.log(chalk.blue("  ↻"), chalk.white(fileName), chalk.dim("changed"));
+      console.log(chalk.blue("  ↻"), fileName, chalk.dim("changed"));
     }
     templates = await scanTemplates(absoluteTemplatesDir);
     broadcast({ type: "reload" });
@@ -1229,7 +1233,7 @@ async function startDevServer(options: DevServerOptions) {
     // Only log if a new template was actually added (not components)
     if (templates.length > oldCount && isTemplateFile(filePath)) {
       const fileName = filePath.split("/").pop() || filePath;
-      console.log(chalk.green("  +"), chalk.white(fileName), chalk.dim("added"));
+      console.log(chalk.green("  +"), fileName, chalk.dim("added"));
     }
     // Send updated template list so sidebar can be refreshed
     broadcast({ type: "templates", templates: templates.map(t => ({ id: t.id, name: t.name, file: t.file })) });
@@ -1242,7 +1246,7 @@ async function startDevServer(options: DevServerOptions) {
     templates = await scanTemplates(absoluteTemplatesDir);
     // Only log if a template was actually removed (not components)
     if (templates.length < oldCount && isTemplateFile(filePath)) {
-      console.log(chalk.red("  -"), chalk.white(fileName), chalk.dim("removed"));
+      console.log(chalk.red("  -"), fileName, chalk.dim("removed"));
     }
     // Send updated template list so sidebar can be refreshed
     broadcast({ type: "templates", templates: templates.map(t => ({ id: t.id, name: t.name, file: t.file })) });
@@ -1319,7 +1323,7 @@ async function startDevServer(options: DevServerOptions) {
       // Log render
       console.log(
         chalk.green("  ✓"),
-        chalk.white(template.file),
+        template.file,
         chalk.dim("→ HTML"),
         chalk.cyan(`${duration}ms`)
       );
@@ -1329,7 +1333,7 @@ async function startDevServer(options: DevServerOptions) {
       // Note: Pagination time is measured client-side after Paged.js runs
       res.type("text/html").send(html);
     } catch (error) {
-      console.log(chalk.red("  ✗"), chalk.white(template.file), chalk.red("render failed"));
+      console.log(chalk.red("  ✗"), template.file, chalk.red("render failed"));
       console.error(chalk.dim("   "), error);
       res.status(500).send(`Error rendering template: ${error}`);
     }
@@ -1357,40 +1361,27 @@ async function startDevServer(options: DevServerOptions) {
         return generatePdf(page, html, { timeout: 30000 });
       });
 
-      // Log PDF generation
+      // Log PDF generation - first line: request summary
       const { metrics, warnings, assets } = result;
       console.log(
         chalk.green("  ✓"),
-        chalk.white(template.file),
-        chalk.dim("→ PDF"),
+        template.file,
+        chalk.dim("→ PDF •"),
         chalk.cyan(`${metrics.total}ms`),
         chalk.dim("•"),
-        chalk.white(`${metrics.pageCount} page${metrics.pageCount > 1 ? "s" : ""}`),
-        chalk.dim("•"),
-        chalk.white(formatBytes(metrics.pdfSize))
+        formatBytes(metrics.pdfSize)
       );
 
-      // Log timing breakdown
-      console.log(
-        chalk.dim("      load"),
-        chalk.white(`${metrics.contentLoad}ms`),
-        chalk.dim("→ paginate"),
-        chalk.white(`${metrics.pagedJs}ms`),
-        chalk.dim("→ capture"),
-        chalk.white(`${metrics.pdfCapture}ms`)
-      );
-
-      // Log asset summary
-      if (assets.length > 0) {
-        const images = assets.filter((a) => a.type === "image");
-        const fonts = assets.filter((a) => a.type === "font");
-        const parts: string[] = [];
-        if (images.length > 0) parts.push(`${images.length} image${images.length > 1 ? "s" : ""}`);
-        if (fonts.length > 0) parts.push(`${fonts.length} font${fonts.length > 1 ? "s" : ""}`);
-        if (parts.length > 0) {
-          console.log(chalk.dim("      " + parts.join(" • ")));
-        }
-      }
+      // Second line: details (pages, assets, timing) - all separated by •
+      const pageStr = `${metrics.pageCount} page${metrics.pageCount > 1 ? "s" : ""}`;
+      const images = assets.filter((a) => a.type === "image");
+      const fonts = assets.filter((a) => a.type === "font");
+      const assetParts: string[] = [];
+      if (images.length > 0) assetParts.push(`${images.length} image${images.length > 1 ? "s" : ""}`);
+      if (fonts.length > 0) assetParts.push(`${fonts.length} font${fonts.length > 1 ? "s" : ""}`);
+      const assetStr = assetParts.length > 0 ? assetParts.join(" • ") + " • " : "";
+      const timingStr = `load ${metrics.contentLoad}ms • paginate ${metrics.pagedJs}ms • capture ${metrics.pdfCapture}ms`;
+      console.log(chalk.dim(`    ${pageStr} • ${assetStr}${timingStr}`));
 
       // Log warnings
       if (warnings.length > 0) {
@@ -1411,7 +1402,7 @@ async function startDevServer(options: DevServerOptions) {
       res.setHeader("Content-Disposition", `inline; filename="${template.id}.pdf"`);
       res.send(result.buffer);
     } catch (error) {
-      console.log(chalk.red("  ✗"), chalk.white(template.file), chalk.red("PDF generation failed"));
+      console.log(chalk.red("  ✗"), template.file, chalk.red("PDF generation failed"));
       console.error(chalk.dim("   "), error);
       res.status(500).send(`Error generating PDF: ${error}`);
     }
@@ -1432,39 +1423,28 @@ async function startDevServer(options: DevServerOptions) {
         return generatePdf(page, html, { timeout: 30000 });
       });
 
-      // Log (same as PDF endpoint)
+      // Log PDF metrics - first line: request summary
       const { metrics, warnings, assets } = result;
       console.log(
         chalk.green("  ✓"),
-        chalk.white(template.file),
-        chalk.dim("→ PDF metrics"),
+        template.file,
+        chalk.dim("→ PDF metrics •"),
         chalk.cyan(`${metrics.total}ms`),
         chalk.dim("•"),
-        chalk.white(`${metrics.pageCount} page${metrics.pageCount > 1 ? "s" : ""}`),
-        chalk.dim("•"),
-        chalk.white(formatBytes(metrics.pdfSize))
+        formatBytes(metrics.pdfSize)
       );
 
-      // Log timing breakdown
-      console.log(
-        chalk.dim("      load"),
-        chalk.white(`${metrics.contentLoad}ms`),
-        chalk.dim("→ paginate"),
-        chalk.white(`${metrics.pagedJs}ms`),
-        chalk.dim("→ capture"),
-        chalk.white(`${metrics.pdfCapture}ms`)
-      );
-
-      // Log asset summary
-      if (assets.length > 0) {
+      // Second line: details (pages, assets, timing) - all separated by •
+      {
+        const pageStr = `${metrics.pageCount} page${metrics.pageCount > 1 ? "s" : ""}`;
         const images = assets.filter((a) => a.type === "image");
         const fonts = assets.filter((a) => a.type === "font");
-        const parts: string[] = [];
-        if (images.length > 0) parts.push(`${images.length} image${images.length > 1 ? "s" : ""}`);
-        if (fonts.length > 0) parts.push(`${fonts.length} font${fonts.length > 1 ? "s" : ""}`);
-        if (parts.length > 0) {
-          console.log(chalk.dim("      " + parts.join(" • ")));
-        }
+        const assetParts: string[] = [];
+        if (images.length > 0) assetParts.push(`${images.length} image${images.length > 1 ? "s" : ""}`);
+        if (fonts.length > 0) assetParts.push(`${fonts.length} font${fonts.length > 1 ? "s" : ""}`);
+        const assetStr = assetParts.length > 0 ? assetParts.join(" • ") + " • " : "";
+        const timingStr = `load ${metrics.contentLoad}ms • paginate ${metrics.pagedJs}ms • capture ${metrics.pdfCapture}ms`;
+        console.log(chalk.dim(`    ${pageStr} • ${assetStr}${timingStr}`));
       }
 
       if (warnings.length > 0) {
@@ -1479,7 +1459,7 @@ async function startDevServer(options: DevServerOptions) {
         warnings: result.warnings,
       });
     } catch (error) {
-      console.log(chalk.red("  ✗"), chalk.white(template.file), chalk.red("PDF metrics failed"));
+      console.log(chalk.red("  ✗"), template.file, chalk.red("PDF metrics failed"));
       console.error(chalk.dim("   "), error);
       res.status(500).json({ error: `Error generating PDF: ${error}` });
     }
@@ -1490,14 +1470,15 @@ async function startDevServer(options: DevServerOptions) {
     server.listen(port, () => resolve());
   });
 
-  // Pre-launch browser
-  console.log(chalk.dim("  Launching browser..."));
+  // Pre-launch Chromium for PDF generation
   await browserManager.getBrowser();
 
-  console.log(chalk.green(`\n  ✓ Server running at http://localhost:${port}\n`));
+  console.log(chalk.dim(`  Templates: ${displayPath} (${templateCount})`));
+  console.log(chalk.green(`\n  ✓ Ready at ${chalk.cyan(`http://localhost:${port}`)}\n`));
 
   // Open browser
   if (open) {
+    console.log(chalk.dim("  Opening in browser...\n"));
     const { default: openBrowser } = await import("open");
     await openBrowser(`http://localhost:${port}`);
   }
@@ -1520,13 +1501,13 @@ export const devCommand = new Command("dev")
   .description("Start development server with live preview")
   .option("--port <number>", "Server port (env: PDFN_PORT)", process.env.PDFN_PORT ?? "3456")
   .option("--templates <path>", "Templates directory", "./pdf-templates")
-  .option("--no-open", "Don't open browser automatically")
+  .option("--open", "Open browser automatically")
   .action(async (options) => {
     const port = parseInt(options.port, 10);
 
     await startDevServer({
       port,
       templatesDir: options.templates,
-      open: options.open,
+      open: options.open ?? false,
     });
   });

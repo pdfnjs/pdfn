@@ -15,7 +15,7 @@ pdfn prepares pagination-safe HTML and waits for Chromium layout to stabilize be
 ```bash
 npm i @pdfn/react
 npx pdfn add invoice
-npx pdfn dev
+npx pdfn dev --open
 ```
 
 Opens a preview UI with a working invoice template. Edit `pdf-templates/invoice.tsx` and see changes instantly.
@@ -229,8 +229,8 @@ Development server with live preview.
 
 ```bash
 npx pdfn dev                    # Start on port 3456
+npx pdfn dev --open             # Start and open browser
 npx pdfn dev --port 4000        # Custom port
-npx pdfn dev --no-open          # Don't open browser
 ```
 
 ### `pdfn serve`

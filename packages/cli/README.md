@@ -18,16 +18,16 @@ Development server with live preview and hot reload. Intended for local developm
 
 ```bash
 npx pdfn dev                    # Start on port 3456
+npx pdfn dev --open             # Start and open browser
 npx pdfn dev --port 4000        # Custom port
 npx pdfn dev --templates ./src  # Custom templates directory
-npx pdfn dev --no-open          # Don't auto-open browser
 ```
 
 | Option | Default | Description |
 |--------|---------|-------------|
 | `--port` | `3456` | Server port |
 | `--templates` | `./pdf-templates` | Templates directory |
-| `--no-open` | `false` | Don't auto-open browser |
+| `--open` | `false` | Open browser automatically |
 
 Features:
 - Auto-discovers templates in your templates directory
