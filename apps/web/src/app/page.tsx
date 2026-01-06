@@ -1010,50 +1010,71 @@ export default function Home() {
 
       {/* Roadmap */}
       <section className="py-20 px-6">
-        <div className="max-w-2xl mx-auto">
+        <div className="max-w-4xl mx-auto">
           <div className="text-center mb-12 fade-in-section">
             <h2 className="text-3xl font-bold text-text-primary mb-4">
               What&apos;s next
             </h2>
             <p className="text-xl text-text-secondary">
-              Actively working on these
+              Prioritized based on real-world document needs
             </p>
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 fade-in-section">
-            <div className="flex items-start gap-3 bg-surface-1 border border-border rounded-lg p-4 card-hover">
-              <div className="w-2 h-2 rounded-full bg-primary mt-2 flex-shrink-0" />
-              <div>
-                <span className="text-text-primary font-medium">Password protection</span>
-                <p className="text-sm text-text-muted">Encrypt PDFs with user/owner passwords</p>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 fade-in-section">
+            <div className="bg-surface-1 border border-border rounded-lg p-4 card-hover">
+              <div className="flex items-center justify-between mb-2">
+                <span className="font-medium text-text-primary">Table primitives</span>
+                <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-error/10 text-error">High</span>
               </div>
+              <p className="text-sm text-text-muted">Column definitions, row keep-together, auto sizing</p>
             </div>
-            <div className="flex items-start gap-3 bg-surface-1 border border-border rounded-lg p-4 card-hover">
-              <div className="w-2 h-2 rounded-full bg-primary mt-2 flex-shrink-0" />
-              <div>
-                <span className="text-text-primary font-medium">Font subsetting</span>
-                <p className="text-sm text-text-muted">Smaller PDFs by stripping unused glyphs</p>
+
+            <div className="bg-surface-1 border border-border rounded-lg p-4 card-hover">
+              <div className="flex items-center justify-between mb-2">
+                <span className="font-medium text-text-primary">Font subsetting</span>
+                <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-error/10 text-error">High</span>
               </div>
+              <p className="text-sm text-text-muted">Smaller PDFs by stripping unused glyphs</p>
             </div>
-            <div className="flex items-start gap-3 bg-surface-1 border border-border rounded-lg p-4 card-hover">
-              <div className="w-2 h-2 rounded-full bg-primary mt-2 flex-shrink-0" />
-              <div>
-                <span className="text-text-primary font-medium">Image optimization</span>
-                <p className="text-sm text-text-muted">Auto-compress images before embedding</p>
+
+            <div className="bg-surface-1 border border-border rounded-lg p-4 card-hover">
+              <div className="flex items-center justify-between mb-2">
+                <span className="font-medium text-text-primary">Table of Contents</span>
+                <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-error/10 text-error">High</span>
               </div>
+              <p className="text-sm text-text-muted">Auto-generated with page number resolution</p>
             </div>
-            <div className="flex items-start gap-3 bg-surface-1 border border-border rounded-lg p-4 card-hover">
-              <div className="w-2 h-2 rounded-full bg-primary mt-2 flex-shrink-0" />
-              <div>
-                <span className="text-text-primary font-medium">PDF/A support</span>
-                <p className="text-sm text-text-muted">Archival compliance via post-processing</p>
+
+            <div className="bg-surface-1 border border-border rounded-lg p-4 card-hover">
+              <div className="flex items-center justify-between mb-2">
+                <span className="font-medium text-text-primary">Footnotes</span>
+                <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-warning/10 text-warning">Medium</span>
               </div>
+              <p className="text-sm text-text-muted">Page-local references for legal/academic docs</p>
             </div>
-            <div className="flex items-start gap-3 bg-surface-1 border border-border rounded-lg p-4 card-hover">
-              <div className="w-2 h-2 rounded-full bg-primary mt-2 flex-shrink-0" />
-              <div>
-                <span className="text-text-primary font-medium">More templates</span>
-                <p className="text-sm text-text-muted">Complex tables, reports, certificates</p>
+
+            <div className="bg-surface-1 border border-border rounded-lg p-4 card-hover">
+              <div className="flex items-center justify-between mb-2">
+                <span className="font-medium text-text-primary">Internal anchors</span>
+                <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-warning/10 text-warning">Medium</span>
               </div>
+              <p className="text-sm text-text-muted">Cross-page references (&quot;See page X&quot;)</p>
+            </div>
+
+            <div className="bg-surface-1 border border-border rounded-lg p-4 card-hover">
+              <div className="flex items-center justify-between mb-2">
+                <span className="font-medium text-text-primary">Image optimization</span>
+                <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-surface-2 text-text-muted">Low</span>
+              </div>
+              <p className="text-sm text-text-muted">Auto-compress before embedding</p>
+            </div>
+
+            <div className="bg-surface-1 border border-border rounded-lg p-4 card-hover">
+              <div className="flex items-center justify-between mb-2">
+                <span className="font-medium text-text-primary">PDF/A support</span>
+                <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-surface-2 text-text-muted">Low</span>
+              </div>
+              <p className="text-sm text-text-muted">Archival compliance</p>
             </div>
           </div>
         </div>

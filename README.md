@@ -270,11 +270,18 @@ npx pdfn add --list     # Show all templates
 
 ## Roadmap
 
-- [ ] Password protection - Encrypt PDFs with user/owner passwords
+**High priority:**
+- [ ] Table primitives - Column definitions, row keep-together, auto sizing
 - [ ] Font subsetting - Smaller PDFs by stripping unused glyphs
+- [ ] Table of Contents - Auto-generated with page number resolution
+
+**Medium priority:**
+- [ ] Footnotes - Page-local references for legal/academic docs
+- [ ] Internal anchors - Cross-page references ("See page X")
+
+**Low priority:**
 - [ ] Image optimization - Auto-compress before embedding
 - [ ] PDF/A support - Archival compliance
-- [ ] More templates - Tables, reports, certificates
 
 ## Contributing
 
