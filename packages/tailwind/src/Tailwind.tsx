@@ -18,7 +18,8 @@ export interface TailwindProps {
   /** Optional Tailwind configuration */
   config?: TailwindConfig;
   /**
-   * Path to your CSS file that contains Tailwind imports and theme customizations.
+   * Path to your CSS file that contains Tailwind imports and theme customizations,
+   * OR pre-compiled CSS string (when using @pdfn/vite plugin).
    *
    * Your CSS file should look like:
    * ```css
@@ -38,6 +39,9 @@ export interface TailwindProps {
    * - ./styles/tailwind.css
    *
    * Falls back to vanilla Tailwind if no CSS file found.
+   *
+   * When using @pdfn/vite plugin, this prop is automatically populated
+   * with pre-compiled CSS at build time (no runtime processing needed).
    */
   css?: string;
 }
@@ -51,6 +55,32 @@ export const TAILWIND_MARKER = "data-pdfn-tailwind";
  * Attribute to store CSS path for processTailwind
  */
 export const TAILWIND_CSS_ATTR = "data-pdfn-tailwind-css";
+
+/**
+ * Attribute to store pre-compiled CSS (from @pdfn/vite plugin)
+ * When present, runtime processing is skipped
+ */
+export const TAILWIND_PRECOMPILED_ATTR = "data-pdfn-tailwind-precompiled";
+
+/**
+ * Check if a string looks like pre-compiled CSS vs a file path
+ */
+function isPrecompiledCss(css: string): boolean {
+  // File paths typically start with . or / or are short relative paths
+  if (css.startsWith("./") || css.startsWith("/") || css.startsWith("../")) {
+    return false;
+  }
+  // Pre-compiled CSS contains CSS syntax
+  if (css.includes("{") && css.includes("}")) {
+    return true;
+  }
+  // Short strings without CSS syntax are likely paths
+  if (css.length < 100 && !css.includes(":")) {
+    return false;
+  }
+  // Default to CSS if it's long or contains CSS-like content
+  return true;
+}
 
 /**
  * Tailwind wrapper component for PDFN
@@ -96,9 +126,15 @@ export function Tailwind({ children, css }: TailwindProps): ReactNode {
     style: { display: "none" },
   };
 
-  // Add CSS path if provided
+  // Add CSS - either as path or pre-compiled content
   if (css) {
-    markerProps[TAILWIND_CSS_ATTR] = css;
+    if (isPrecompiledCss(css)) {
+      // Pre-compiled CSS from @pdfn/vite plugin - store as base64 to avoid HTML escaping issues
+      markerProps[TAILWIND_PRECOMPILED_ATTR] = Buffer.from(css).toString("base64");
+    } else {
+      // CSS file path for runtime processing
+      markerProps[TAILWIND_CSS_ATTR] = css;
+    }
   }
 
   return createElement(

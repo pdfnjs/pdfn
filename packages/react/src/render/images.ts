@@ -2,11 +2,11 @@
  * Image Processing for PDFN
  *
  * Embeds local images as base64 data URIs for self-contained HTML output.
+ * Edge-compatible: only imports Node.js modules when local images are detected.
  */
 
-import * as fs from "node:fs";
-import * as path from "node:path";
 import { debug } from "../utils/debug";
+import { isNodeJS, EdgeErrors, warnEdgeIncompatibility } from "../utils/runtime";
 
 /**
  * MIME types for common image formats
@@ -24,9 +24,9 @@ const MIME_TYPES: Record<string, string> = {
 };
 
 /**
- * Check if a path is a relative path that should be embedded
+ * Check if a path is a relative/local path that would need embedding
  */
-export function isRelativePath(src: string): boolean {
+export function isLocalPath(src: string): boolean {
   // Skip absolute URLs
   if (src.startsWith("http://") || src.startsWith("https://")) {
     return false;
@@ -42,85 +42,125 @@ export function isRelativePath(src: string): boolean {
     return false;
   }
 
-  // Everything else is considered relative
+  // Everything else is considered local
   return true;
 }
 
+// Re-export for backwards compatibility
+export const isRelativePath = isLocalPath;
+
 /**
- * Get MIME type from file extension
+ * Extract all local image paths from HTML
+ */
+function extractLocalImagePaths(html: string): string[] {
+  const imgRegex = /<img\s+[^>]*?src=["']([^"']+)["'][^>]*?>/gi;
+  const paths: string[] = [];
+
+  let match;
+  while ((match = imgRegex.exec(html)) !== null) {
+    const src = match[1];
+    if (src && isLocalPath(src)) {
+      paths.push(src);
+    }
+  }
+
+  return paths;
+}
+
+/**
+ * Get MIME type from file extension (edge-safe, no path module needed)
  */
 function getMimeType(filePath: string): string {
-  const ext = path.extname(filePath).toLowerCase();
+  const lastDot = filePath.lastIndexOf(".");
+  if (lastDot === -1) return "application/octet-stream";
+  const ext = filePath.slice(lastDot).toLowerCase();
   return MIME_TYPES[ext] || "application/octet-stream";
-}
-
-/**
- * Read a file and convert to base64 data URI
- */
-function fileToDataUri(filePath: string): string | null {
-  try {
-    if (!fs.existsSync(filePath)) {
-      debug(`images: file not found: ${filePath}`);
-      return null;
-    }
-
-    const buffer = fs.readFileSync(filePath);
-    const base64 = buffer.toString("base64");
-    const mimeType = getMimeType(filePath);
-
-    return `data:${mimeType};base64,${base64}`;
-  } catch (error) {
-    const message = error instanceof Error ? error.message : "Unknown error";
-    debug(`images: failed to read file ${filePath}: ${message}`);
-    return null;
-  }
-}
-
-/**
- * Resolve a relative path to an absolute path
- */
-function resolvePath(src: string, basePath: string): string {
-  // If it's already absolute, return as-is
-  if (path.isAbsolute(src)) {
-    return src;
-  }
-
-  // Resolve relative to base path
-  return path.resolve(basePath, src);
 }
 
 /**
  * Process all images in HTML and embed relative ones as base64
  *
- * Also removes React 19's automatic preload hints for images we embed,
- * since they're no longer needed with inline data URIs.
+ * Edge-compatible: Throws helpful error if local images detected on edge runtime.
  *
  * @param html - The HTML content to process
  * @param basePath - Base path for resolving relative image paths (defaults to cwd)
  * @returns HTML with relative images embedded as data URIs
  */
-export function processImages(html: string, basePath?: string): string {
+export async function processImages(html: string, basePath?: string): Promise<string> {
+  // Extract local image paths first (edge-safe operation)
+  const localPaths = extractLocalImagePaths(html);
+
+  // If no local images, return HTML unchanged (works on edge)
+  if (localPaths.length === 0) {
+    debug("images: no local images found");
+    return html;
+  }
+
+  // Local images detected - check runtime
+  if (!isNodeJS()) {
+    throw new Error(EdgeErrors.localImages(localPaths));
+  }
+
+  warnEdgeIncompatibility("images", localPaths);
+
+  // Node.js runtime - dynamically import fs and path
+  const [fs, path] = await Promise.all([
+    import("node:fs"),
+    import("node:path"),
+  ]);
+
   const resolveFrom = basePath || process.cwd();
 
   // Track which images we embed so we can remove their preload hints
   const embeddedPaths = new Set<string>();
 
+  /**
+   * Read a file and convert to base64 data URI
+   */
+  function fileToDataUri(filePath: string): string | null {
+    try {
+      if (!fs.existsSync(filePath)) {
+        debug(`images: file not found: ${filePath}`);
+        return null;
+      }
+
+      const buffer = fs.readFileSync(filePath);
+      const base64 = buffer.toString("base64");
+      const mimeType = getMimeType(filePath);
+
+      return `data:${mimeType};base64,${base64}`;
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Unknown error";
+      debug(`images: failed to read file ${filePath}: ${message}`);
+      return null;
+    }
+  }
+
+  /**
+   * Resolve a relative path to an absolute path
+   */
+  function resolvePath(src: string): string {
+    if (path.isAbsolute(src)) {
+      return src;
+    }
+    return path.resolve(resolveFrom, src);
+  }
+
   // Match img tags with src attribute
-  // Handles: <img src="..."> and <img ... src="..." ...>
   const imgRegex = /<img\s+([^>]*?)src=["']([^"']+)["']([^>]*?)>/gi;
 
   let processedCount = 0;
   let skippedCount = 0;
 
   let result = html.replace(imgRegex, (match, before, src, after) => {
-    // Skip non-relative paths
-    if (!isRelativePath(src)) {
+    // Skip non-local paths
+    if (!isLocalPath(src)) {
       skippedCount++;
       return match;
     }
 
     // Resolve the path
-    const absolutePath = resolvePath(src, resolveFrom);
+    const absolutePath = resolvePath(src);
 
     // Convert to data URI
     const dataUri = fileToDataUri(absolutePath);
@@ -137,13 +177,9 @@ export function processImages(html: string, basePath?: string): string {
   });
 
   // Remove React 19's preload hints for images we've embedded
-  // These are no longer needed since the image is inline as data URI
   if (embeddedPaths.size > 0) {
-    // Match <link> tags that have rel="preload", as="image", and href="..."
-    // Attributes can appear in any order
     const linkRegex = /<link\s+([^>]*?)\/?>/gi;
     result = result.replace(linkRegex, (match, attrs) => {
-      // Check if this is a preload link for an image
       const isPreload = /rel=["']preload["']/i.test(attrs);
       const isImage = /as=["']image["']/i.test(attrs);
       const hrefMatch = attrs.match(/href=["']([^"']+)["']/i);
@@ -167,36 +203,87 @@ export function processImages(html: string, basePath?: string): string {
 }
 
 /**
+ * Extract local image paths from CSS url() declarations
+ */
+function extractLocalCssImagePaths(css: string): string[] {
+  const urlRegex = /url\(["']?([^"')]+)["']?\)/gi;
+  const paths: string[] = [];
+
+  let match;
+  while ((match = urlRegex.exec(css)) !== null) {
+    const src = match[1];
+    if (src && isLocalPath(src)) {
+      paths.push(src);
+    }
+  }
+
+  return paths;
+}
+
+/**
  * Process CSS background images and embed relative ones as base64
+ *
+ * Edge-compatible: Throws helpful error if local images detected on edge runtime.
  *
  * @param css - The CSS content to process
  * @param basePath - Base path for resolving relative image paths
  * @returns CSS with relative images embedded as data URIs
  */
-export function processCssImages(css: string, basePath?: string): string {
+export async function processCssImages(css: string, basePath?: string): Promise<string> {
+  // Extract local paths first (edge-safe)
+  const localPaths = extractLocalCssImagePaths(css);
+
+  // If no local images, return CSS unchanged
+  if (localPaths.length === 0) {
+    return css;
+  }
+
+  // Local images detected - check runtime
+  if (!isNodeJS()) {
+    throw new Error(EdgeErrors.localImages(localPaths));
+  }
+
+  warnEdgeIncompatibility("css-images", localPaths);
+
+  // Node.js runtime - dynamically import fs and path
+  const [fs, path] = await Promise.all([
+    import("node:fs"),
+    import("node:path"),
+  ]);
+
   const resolveFrom = basePath || process.cwd();
 
-  // Match url() in CSS
-  // Handles: url("..."), url('...'), url(...)
+  function fileToDataUri(filePath: string): string | null {
+    try {
+      if (!fs.existsSync(filePath)) {
+        return null;
+      }
+      const buffer = fs.readFileSync(filePath);
+      const base64 = buffer.toString("base64");
+      const mimeType = getMimeType(filePath);
+      return `data:${mimeType};base64,${base64}`;
+    } catch {
+      return null;
+    }
+  }
+
   const urlRegex = /url\(["']?([^"')]+)["']?\)/gi;
 
   const result = css.replace(urlRegex, (match, src) => {
-    // Skip non-relative paths
-    if (!isRelativePath(src)) {
+    if (!isLocalPath(src)) {
       return match;
     }
 
-    // Resolve the path
-    const absolutePath = resolvePath(src, resolveFrom);
+    const absolutePath = path.isAbsolute(src)
+      ? src
+      : path.resolve(resolveFrom, src);
 
-    // Convert to data URI
     const dataUri = fileToDataUri(absolutePath);
 
     if (dataUri) {
       return `url("${dataUri}")`;
     }
 
-    // Keep original if file not found
     return match;
   });
 

@@ -71,38 +71,38 @@ describe("Image Processing", () => {
   });
 
   describe("processImages", () => {
-    it("embeds relative image as base64 data URI", () => {
+    it("embeds relative image as base64 data URI", async () => {
       const html = `<img src="./test.png">`;
-      const result = processImages(html, fixturesDir);
+      const result = await processImages(html, fixturesDir);
 
       expect(result).toContain("data:image/png;base64,");
       expect(result).not.toContain("./test.png");
     });
 
-    it("preserves http URLs", () => {
+    it("preserves http URLs", async () => {
       const html = `<img src="https://example.com/image.png">`;
-      const result = processImages(html, fixturesDir);
+      const result = await processImages(html, fixturesDir);
 
       expect(result).toBe(html);
     });
 
-    it("preserves https URLs", () => {
+    it("preserves https URLs", async () => {
       const html = `<img src="https://example.com/image.png">`;
-      const result = processImages(html, fixturesDir);
+      const result = await processImages(html, fixturesDir);
 
       expect(result).toBe(html);
     });
 
-    it("preserves data URIs", () => {
+    it("preserves data URIs", async () => {
       const html = `<img src="data:image/png;base64,abc123">`;
-      const result = processImages(html, fixturesDir);
+      const result = await processImages(html, fixturesDir);
 
       expect(result).toBe(html);
     });
 
-    it("handles img tags with other attributes", () => {
+    it("handles img tags with other attributes", async () => {
       const html = `<img class="logo" src="./test.png" alt="Logo" width="100">`;
-      const result = processImages(html, fixturesDir);
+      const result = await processImages(html, fixturesDir);
 
       expect(result).toContain("data:image/png;base64,");
       expect(result).toContain('class="logo"');
@@ -110,13 +110,13 @@ describe("Image Processing", () => {
       expect(result).toContain('width="100"');
     });
 
-    it("handles multiple images", () => {
+    it("handles multiple images", async () => {
       const html = `
         <img src="./test.png">
         <img src="https://example.com/remote.png">
         <img src="./test.png">
       `;
-      const result = processImages(html, fixturesDir);
+      const result = await processImages(html, fixturesDir);
 
       // Should have 2 embedded images (both ./test.png)
       const dataUriMatches = result.match(/data:image\/png;base64,/g);
@@ -126,28 +126,28 @@ describe("Image Processing", () => {
       expect(result).toContain("https://example.com/remote.png");
     });
 
-    it("keeps original src for missing files", () => {
+    it("keeps original src for missing files", async () => {
       const html = `<img src="./nonexistent.png">`;
-      const result = processImages(html, fixturesDir);
+      const result = await processImages(html, fixturesDir);
 
       expect(result).toBe(html);
     });
 
-    it("handles single quotes in src", () => {
+    it("handles single quotes in src", async () => {
       const html = `<img src='./test.png'>`;
-      const result = processImages(html, fixturesDir);
+      const result = await processImages(html, fixturesDir);
 
       expect(result).toContain("data:image/png;base64,");
     });
 
-    it("handles self-closing img tags", () => {
+    it("handles self-closing img tags", async () => {
       const html = `<img src="./test.png" />`;
-      const result = processImages(html, fixturesDir);
+      const result = await processImages(html, fixturesDir);
 
       expect(result).toContain("data:image/png;base64,");
     });
 
-    it("uses correct MIME type for different extensions", () => {
+    it("uses correct MIME type for different extensions", async () => {
       // Create test files with different extensions
       const jpgPath = path.join(fixturesDir, "test.jpg");
       const svgPath = path.join(fixturesDir, "test.svg");
@@ -156,11 +156,11 @@ describe("Image Processing", () => {
       fs.writeFileSync(svgPath, "<svg></svg>");
 
       const htmlJpg = `<img src="./test.jpg">`;
-      const resultJpg = processImages(htmlJpg, fixturesDir);
+      const resultJpg = await processImages(htmlJpg, fixturesDir);
       expect(resultJpg).toContain("data:image/jpeg;base64,");
 
       const htmlSvg = `<img src="./test.svg">`;
-      const resultSvg = processImages(htmlSvg, fixturesDir);
+      const resultSvg = await processImages(htmlSvg, fixturesDir);
       expect(resultSvg).toContain("data:image/svg+xml;base64,");
 
       // Clean up
@@ -168,12 +168,12 @@ describe("Image Processing", () => {
       fs.unlinkSync(svgPath);
     });
 
-    it("removes React 19 preload hints for embedded images", () => {
+    it("removes React 19 preload hints for embedded images", async () => {
       const html = `
         <link rel="preload" as="image" href="./test.png"/>
         <img src="./test.png">
       `;
-      const result = processImages(html, fixturesDir);
+      const result = await processImages(html, fixturesDir);
 
       // Image should be embedded
       expect(result).toContain("data:image/png;base64,");
@@ -182,24 +182,24 @@ describe("Image Processing", () => {
       expect(result).not.toContain("./test.png");
     });
 
-    it("preserves preload hints for non-embedded images", () => {
+    it("preserves preload hints for non-embedded images", async () => {
       const html = `
         <link rel="preload" as="image" href="https://example.com/image.png"/>
         <img src="https://example.com/image.png">
       `;
-      const result = processImages(html, fixturesDir);
+      const result = await processImages(html, fixturesDir);
 
       // Preload hint should be preserved for remote images
       expect(result).toContain('rel="preload"');
       expect(result).toContain("https://example.com/image.png");
     });
 
-    it("handles preload hints with various attribute orders", () => {
+    it("handles preload hints with various attribute orders", async () => {
       const html = `
         <link as="image" rel="preload" href="./test.png" data-ref="123"/>
         <img src="./test.png">
       `;
-      const result = processImages(html, fixturesDir);
+      const result = await processImages(html, fixturesDir);
 
       // Image should be embedded
       expect(result).toContain("data:image/png;base64,");
@@ -209,42 +209,42 @@ describe("Image Processing", () => {
   });
 
   describe("processCssImages", () => {
-    it("embeds relative image in url() as base64", () => {
+    it("embeds relative image in url() as base64", async () => {
       const css = `.logo { background-image: url("./test.png"); }`;
-      const result = processCssImages(css, fixturesDir);
+      const result = await processCssImages(css, fixturesDir);
 
       expect(result).toContain("data:image/png;base64,");
       expect(result).not.toContain("./test.png");
     });
 
-    it("preserves http URLs in url()", () => {
+    it("preserves http URLs in url()", async () => {
       const css = `.logo { background-image: url("https://example.com/bg.png"); }`;
-      const result = processCssImages(css, fixturesDir);
+      const result = await processCssImages(css, fixturesDir);
 
       expect(result).toBe(css);
     });
 
-    it("handles url() without quotes", () => {
+    it("handles url() without quotes", async () => {
       const css = `.logo { background-image: url(./test.png); }`;
-      const result = processCssImages(css, fixturesDir);
+      const result = await processCssImages(css, fixturesDir);
 
       expect(result).toContain("data:image/png;base64,");
     });
 
-    it("handles url() with single quotes", () => {
+    it("handles url() with single quotes", async () => {
       const css = `.logo { background-image: url('./test.png'); }`;
-      const result = processCssImages(css, fixturesDir);
+      const result = await processCssImages(css, fixturesDir);
 
       expect(result).toContain("data:image/png;base64,");
     });
 
-    it("handles multiple url() in CSS", () => {
+    it("handles multiple url() in CSS", async () => {
       const css = `
         .logo { background-image: url("./test.png"); }
         .banner { background: url("https://example.com/banner.png"); }
         .icon { background-image: url("./test.png"); }
       `;
-      const result = processCssImages(css, fixturesDir);
+      const result = await processCssImages(css, fixturesDir);
 
       // Should have 2 embedded images
       const dataUriMatches = result.match(/data:image\/png;base64,/g);

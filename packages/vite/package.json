@@ -1,0 +1,55 @@
+{
+  "name": "@pdfn/vite",
+  "version": "0.1.0",
+  "description": "Vite plugin for pdfn - Pre-compiles Tailwind CSS for edge runtime support",
+  "type": "module",
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
+      }
+    }
+  },
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "lint": "eslint src/",
+    "check-types": "tsc --noEmit",
+    "clean": "rm -rf dist"
+  },
+  "files": [
+    "dist",
+    "LICENSE",
+    "README.md"
+  ],
+  "license": "MIT",
+  "keywords": [
+    "vite",
+    "plugin",
+    "pdf",
+    "tailwind",
+    "edge"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/pdfnjs/pdfn.git",
+    "directory": "packages/vite"
+  },
+  "homepage": "https://pdfn.dev",
+  "peerDependencies": {
+    "vite": "^5.0.0 || ^6.0.0 || ^7.0.0",
+    "tailwindcss": "^4.0.0"
+  },
+  "dependencies": {
+    "fast-glob": "^3.3.3"
+  },
+  "devDependencies": {
+    "@pdfn/eslint-config": "workspace:*",
+    "@pdfn/typescript-config": "workspace:*",
+    "tsup": "^8.5.1",
+    "typescript": "^5.9.3",
+    "vite": "^7.3.0",
+    "tailwindcss": "^4.1.10"
+  }
+}

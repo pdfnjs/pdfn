@@ -9,7 +9,9 @@ import { createServer as createHttpServer } from "http";
 import { createBaseServer } from "../server/base";
 import { generatePdf } from "../server/pdf";
 import { injectDebugSupport, type DebugOptions } from "@pdfn/react/debug";
+import { pdfnTailwind } from "@pdfn/vite";
 import chalk from "chalk";
+import { loadEnv } from "../utils/env";
 
 interface TemplateInfo {
   id: string;
@@ -23,6 +25,7 @@ interface DevServerOptions {
   port: number;
   templatesDir: string;
   open: boolean;
+  mode: string;
 }
 
 async function scanTemplates(templatesDir: string): Promise<TemplateInfo[]> {
@@ -1086,7 +1089,7 @@ function createPreviewHTML(templates: TemplateInfo[], activeTemplate: string | n
 }
 
 async function startDevServer(options: DevServerOptions) {
-  const { port, templatesDir, open } = options;
+  const { port, templatesDir, open, mode } = options;
   const absoluteTemplatesDir = resolve(process.cwd(), templatesDir);
 
   // Show header and initializing message
@@ -1161,6 +1164,7 @@ async function startDevServer(options: DevServerOptions) {
 
   const vite = await createViteServer({
     root: process.cwd(),
+    mode,
     server: {
       middlewareMode: true,
       hmr: { server }  // Use our HTTP server for Vite's WebSocket
@@ -1178,6 +1182,12 @@ async function startDevServer(options: DevServerOptions) {
       noExternal: ["@pdfn/react", "@pdfn/tailwind", "server-only"],
     },
     plugins: [
+      // Pre-compile Tailwind CSS for edge compatibility
+      pdfnTailwind({
+        templates: [
+          join(templatesDir, "**/*.tsx"),
+        ],
+      }),
       {
         name: "mock-server-only",
         enforce: "pre",
@@ -1232,6 +1242,22 @@ async function startDevServer(options: DevServerOptions) {
     // Log all code file changes (templates and components)
     if (isCodeFile(filePath)) {
       console.log(chalk.blue("  ↻"), fileName, chalk.dim("changed"));
+
+      // Invalidate the changed module and its dependencies in Vite's SSR cache
+      const mod = vite.moduleGraph.getModuleById(filePath);
+      if (mod) {
+        vite.moduleGraph.invalidateModule(mod);
+      }
+
+      // Also invalidate the virtual Tailwind CSS module to force recompilation
+      const virtualMod = vite.moduleGraph.getModuleById("\0virtual:pdfn-tailwind-css");
+      if (virtualMod) {
+        vite.moduleGraph.invalidateModule(virtualMod);
+        // Invalidate all modules that import the virtual module
+        for (const importer of virtualMod.importers) {
+          vite.moduleGraph.invalidateModule(importer);
+        }
+      }
     }
     templates = await scanTemplates(absoluteTemplatesDir);
     broadcast({ type: "reload" });
@@ -1522,12 +1548,17 @@ export const devCommand = new Command("dev")
   .option("--port <number>", "Server port (env: PDFN_PORT)", process.env.PDFN_PORT ?? "3456")
   .option("--templates <path>", "Templates directory", "./pdf-templates")
   .option("--open", "Open browser automatically")
+  .option("--mode <mode>", "Environment mode (loads .env.[mode])", "development")
   .action(async (options) => {
+    // Load environment variables based on mode (Vite pattern)
+    loadEnv(options.mode);
+
     const port = parseInt(options.port, 10);
 
     await startDevServer({
       port,
       templatesDir: options.templates,
       open: options.open ?? false,
+      mode: options.mode,
     });
   });

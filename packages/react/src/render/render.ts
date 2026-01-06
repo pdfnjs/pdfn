@@ -4,6 +4,7 @@ import { processImages } from "./images";
 import { processCssFontFaces } from "./fonts";
 import type { RenderOptions, FontConfig } from "../types";
 import { debug } from "../utils/debug";
+import { isBrowser, EdgeErrors } from "../utils/runtime";
 
 // Dynamic import to avoid Next.js static analysis issues
 let renderToStaticMarkup: typeof import("react-dom/server").renderToStaticMarkup;
@@ -21,6 +22,7 @@ async function getRenderer() {
  */
 const TAILWIND_MARKER = "data-pdfn-tailwind";
 const TAILWIND_CSS_ATTR = "data-pdfn-tailwind-css";
+const TAILWIND_PRECOMPILED_ATTR = "data-pdfn-tailwind-precompiled";
 
 /**
  * Check if HTML contains the Tailwind marker
@@ -35,6 +37,23 @@ function hasTailwindMarker(html: string): boolean {
 function extractTailwindCssPath(html: string): string | undefined {
   const match = html.match(new RegExp(`${TAILWIND_CSS_ATTR}="([^"]+)"`));
   return match?.[1];
+}
+
+/**
+ * Extract pre-compiled CSS from Tailwind marker if present (base64 encoded)
+ */
+function extractPrecompiledCss(html: string): string | undefined {
+  const match = html.match(new RegExp(`${TAILWIND_PRECOMPILED_ATTR}="([^"]+)"`));
+  if (match?.[1]) {
+    try {
+      // Decode base64
+      return Buffer.from(match[1], "base64").toString("utf8");
+    } catch {
+      debug("tailwind: failed to decode pre-compiled CSS");
+      return undefined;
+    }
+  }
+  return undefined;
 }
 
 /**
@@ -62,6 +81,11 @@ export interface RenderResult {
  * This function takes a React element (typically a Document component)
  * and renders it to a complete HTML document suitable for PDF generation.
  *
+ * **Edge-compatible**: Works on Node.js, Vercel Edge, Cloudflare Workers, etc.
+ * - Remote images and fonts work everywhere
+ * - Local images/fonts require Node.js (helpful errors on edge)
+ * - Runtime Tailwind processing requires Node.js (use build-time plugin for edge)
+ *
  * @example
  * ```tsx
  * import { render, Document, Page } from '@pdfn/react';
@@ -86,13 +110,8 @@ export async function render(
   element: ReactElement,
   options: RenderOptions = {}
 ): Promise<string> {
-  // Check for browser environment (allow Node.js and test environments like jsdom)
-  const isNode =
-    typeof process !== "undefined" &&
-    process.versions != null &&
-    process.versions.node != null;
-
-  if (!isNode && typeof window !== "undefined") {
+  // Check for browser environment - render() must run on server
+  if (isBrowser()) {
     throw new Error(
       `render() can only be used on the server.\n\n` +
         `This function uses react-dom/server which is not available in browsers.\n` +
@@ -130,25 +149,51 @@ export async function render(
   let tailwindCss = "";
 
   if (hasTailwindMarker(content)) {
-    try {
-      // Extract CSS path from marker if provided
-      const cssPath = extractTailwindCssPath(content);
+    // First, check for pre-compiled CSS (from @pdfn/vite plugin)
+    // This is edge-safe - no filesystem access needed
+    const precompiledCss = extractPrecompiledCss(content);
 
-      // Dynamically import @pdfn/tailwind to process the CSS
-      const { processTailwind } = await import("@pdfn/tailwind");
-      tailwindCss = await processTailwind(content, { cssPath });
-      debug(`tailwind: processed via marker detection${cssPath ? ` (css: ${cssPath})` : ""}`);
+    if (precompiledCss) {
+      // Use pre-compiled CSS directly (edge-safe)
+      tailwindCss = precompiledCss;
+      debug("tailwind: using pre-compiled CSS from @pdfn/vite plugin");
 
       // Process @font-face declarations in CSS - embed local fonts as base64
-      tailwindCss = processCssFontFaces(tailwindCss);
+      // This is edge-safe: only throws if local fonts are detected
+      tailwindCss = await processCssFontFaces(tailwindCss);
 
       // Remove the marker element from the content
       content = removeTailwindMarker(content);
-    } catch (error) {
-      const message = error instanceof Error ? error.message : "Unknown error";
-      debug(`tailwind: processor error - ${message}`);
-      // Still remove the marker even if processing fails
-      content = removeTailwindMarker(content);
+    } else {
+      // Fall back to runtime processing (Node.js only)
+      try {
+        // Extract CSS path from marker if provided
+        const cssPath = extractTailwindCssPath(content);
+
+        // Dynamically import @pdfn/tailwind to process the CSS
+        // This will throw a helpful error on edge runtimes
+        const { processTailwind } = await import("@pdfn/tailwind");
+        tailwindCss = await processTailwind(content, { cssPath });
+        debug(`tailwind: processed via runtime${cssPath ? ` (css: ${cssPath})` : ""}`);
+
+        // Process @font-face declarations in CSS - embed local fonts as base64
+        // This is edge-safe: only throws if local fonts are detected
+        tailwindCss = await processCssFontFaces(tailwindCss);
+
+        // Remove the marker element from the content
+        content = removeTailwindMarker(content);
+      } catch (error) {
+        const message = error instanceof Error ? error.message : "Unknown error";
+
+        // Check if this is an edge runtime error from @pdfn/tailwind
+        if (message.includes("Edge runtimes") || message.includes("filesystem access")) {
+          throw new Error(EdgeErrors.tailwindRuntime());
+        }
+
+        debug(`tailwind: processor error - ${message}`);
+        // Still remove the marker even if processing fails
+        content = removeTailwindMarker(content);
+      }
     }
   } else {
     debug("tailwind: no marker found");
@@ -156,8 +201,9 @@ export async function render(
   const tailwindTime = performance.now() - tailwindStart;
 
   // 4. Process images - embed relative paths as base64
+  // Edge-safe: only throws if local images are detected
   const imagesStart = performance.now();
-  content = processImages(content);
+  content = await processImages(content);
   const imagesTime = performance.now() - imagesStart;
 
   // 5. Extract fonts from Document if present
@@ -171,7 +217,7 @@ export async function render(
     fonts,
   };
 
-  const html = assembleHtml(content, htmlOptions);
+  const html = await assembleHtml(content, htmlOptions);
   const totalTime = performance.now() - startTime;
 
   debug(

@@ -45,9 +45,11 @@
   "homepage": "https://pdfn.dev",
   "dependencies": {
     "@pdfn/react": "workspace:*",
+    "@pdfn/vite": "workspace:*",
     "chalk": "^5.6.2",
     "chokidar": "^5.0.0",
     "commander": "^14.0.2",
+    "dotenv": "^17.2.3",
     "express": "^5.2.1",
     "open": "^11.0.0",
     "ora": "^9.0.0",

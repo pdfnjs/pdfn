@@ -90,8 +90,8 @@ describe("HTML Assembly", () => {
   });
 
   describe("assembleHtml", () => {
-    it("returns valid HTML document", () => {
-      const html = assembleHtml("<div>test</div>");
+    it("returns valid HTML document", async () => {
+      const html = await assembleHtml("<div>test</div>");
 
       expect(html).toContain("<!DOCTYPE html>");
       expect(html).toContain("<html");
@@ -100,109 +100,109 @@ describe("HTML Assembly", () => {
       expect(html).toContain("<body>");
     });
 
-    it("includes content in body", () => {
+    it("includes content in body", async () => {
       const content = "<div>Hello World</div>";
-      const html = assembleHtml(content);
+      const html = await assembleHtml(content);
 
       expect(html).toContain(content);
     });
 
-    it("includes base styles", () => {
-      const html = assembleHtml("<div>test</div>");
+    it("includes base styles", async () => {
+      const html = await assembleHtml("<div>test</div>");
       expect(html).toContain(BASE_STYLES);
     });
 
-    it("includes PDFN script", () => {
-      const html = assembleHtml("<div>test</div>");
+    it("includes PDFN script", async () => {
+      const html = await assembleHtml("<div>test</div>");
       expect(html).toContain("window.PDFN");
     });
 
-    it("includes Paged.js CDN script by default", () => {
-      const html = assembleHtml("<div>test</div>");
+    it("includes Paged.js CDN script by default", async () => {
+      const html = await assembleHtml("<div>test</div>");
       expect(html).toContain("unpkg.com/pagedjs");
       expect(html).toContain("paged.polyfill.js");
     });
 
-    it("can exclude Paged.js CDN script", () => {
-      const html = assembleHtml("<div>test</div>", { includePagedJs: false });
+    it("can exclude Paged.js CDN script", async () => {
+      const html = await assembleHtml("<div>test</div>", { includePagedJs: false });
       expect(html).not.toContain("unpkg.com/pagedjs");
       expect(html).not.toContain("paged.polyfill.js");
     });
 
-    it("includes title when provided", () => {
-      const html = assembleHtml("<div>test</div>", {
+    it("includes title when provided", async () => {
+      const html = await assembleHtml("<div>test</div>", {
         metadata: { title: "My Document" },
       });
       expect(html).toContain("<title>My Document</title>");
     });
 
-    it("includes author meta tag when provided", () => {
-      const html = assembleHtml("<div>test</div>", {
+    it("includes author meta tag when provided", async () => {
+      const html = await assembleHtml("<div>test</div>", {
         metadata: { author: "John Doe" },
       });
       expect(html).toContain('name="author"');
       expect(html).toContain("John Doe");
     });
 
-    it("includes language attribute", () => {
-      const html = assembleHtml("<div>test</div>", {
+    it("includes language attribute", async () => {
+      const html = await assembleHtml("<div>test</div>", {
         metadata: { language: "fr" },
       });
       expect(html).toContain('lang="fr"');
     });
 
-    it("defaults to English language", () => {
-      const html = assembleHtml("<div>test</div>");
+    it("defaults to English language", async () => {
+      const html = await assembleHtml("<div>test</div>");
       expect(html).toContain('lang="en"');
     });
 
-    it("includes custom CSS when provided", () => {
+    it("includes custom CSS when provided", async () => {
       const customCss = ".custom { color: red; }";
-      const html = assembleHtml("<div>test</div>", { css: customCss });
+      const html = await assembleHtml("<div>test</div>", { css: customCss });
       expect(html).toContain(customCss);
     });
 
-    it("escapes HTML in metadata", () => {
-      const html = assembleHtml("<div>test</div>", {
+    it("escapes HTML in metadata", async () => {
+      const html = await assembleHtml("<div>test</div>", {
         metadata: { title: "<script>alert('xss')</script>" },
       });
       expect(html).toContain("&lt;script&gt;");
       expect(html).not.toContain("<script>alert");
     });
 
-    it("extracts page configuration from data attributes", () => {
+    it("extracts page configuration from data attributes", async () => {
       const content = '<div data-pdfn-page data-pdfn-width="210mm" data-pdfn-height="297mm" data-pdfn-margin="1in">content</div>';
-      const html = assembleHtml(content);
+      const html = await assembleHtml(content);
       // @page CSS should be in the head
       expect(html).toContain("@page {");
       expect(html).toContain("size: 210mm 297mm");
       expect(html).toContain("margin: 1in");
     });
 
-    it("extracts landscape page configuration", () => {
+    it("extracts landscape page configuration", async () => {
       const content = '<div data-pdfn-page data-pdfn-width="297mm" data-pdfn-height="210mm" data-pdfn-margin="0.5in">content</div>';
-      const html = assembleHtml(content);
+      const html = await assembleHtml(content);
       expect(html).toContain("size: 297mm 210mm");
       expect(html).toContain("margin: 0.5in");
     });
 
-    it("extracts Letter size page configuration", () => {
+    it("extracts Letter size page configuration", async () => {
       const content = '<div data-pdfn-page data-pdfn-width="8.5in" data-pdfn-height="11in" data-pdfn-margin="0.75in">content</div>';
-      const html = assembleHtml(content);
+      const html = await assembleHtml(content);
       expect(html).toContain("size: 8.5in 11in");
       expect(html).toContain("margin: 0.75in");
     });
 
-    it("uses default margin when not specified in data attributes", () => {
+    it("uses default margin when not specified in data attributes", async () => {
       const content = '<div data-pdfn-page data-pdfn-width="210mm" data-pdfn-height="297mm">content</div>';
-      const html = assembleHtml(content);
+      const html = await assembleHtml(content);
       expect(html).toContain("margin: 1in");
     });
   });
 
   describe("Google Fonts", () => {
-    it("includes Google Fonts preconnect links when fonts provided", () => {
-      const html = assembleHtml("<div>test</div>", {
+    it("includes Google Fonts preconnect links when fonts provided", async () => {
+      const html = await assembleHtml("<div>test</div>", {
         fonts: [{ family: "Inter" }],
       });
       expect(html).toContain('rel="preconnect"');
@@ -210,31 +210,31 @@ describe("HTML Assembly", () => {
       expect(html).toContain("fonts.gstatic.com");
     });
 
-    it("generates correct Google Fonts URL for single font", () => {
-      const html = assembleHtml("<div>test</div>", {
+    it("generates correct Google Fonts URL for single font", async () => {
+      const html = await assembleHtml("<div>test</div>", {
         fonts: [{ family: "Inter" }],
       });
       expect(html).toContain("fonts.googleapis.com/css2");
       expect(html).toContain("family=Inter");
     });
 
-    it("handles font names with spaces", () => {
-      const html = assembleHtml("<div>test</div>", {
+    it("handles font names with spaces", async () => {
+      const html = await assembleHtml("<div>test</div>", {
         fonts: [{ family: "Roboto Mono" }],
       });
       expect(html).toContain("family=Roboto+Mono");
     });
 
-    it("includes multiple fonts in URL", () => {
-      const html = assembleHtml("<div>test</div>", {
+    it("includes multiple fonts in URL", async () => {
+      const html = await assembleHtml("<div>test</div>", {
         fonts: [{ family: "Inter" }, { family: "Fira Code" }],
       });
       expect(html).toContain("family=Inter");
       expect(html).toContain("family=Fira+Code");
     });
 
-    it("uses default weights when not specified", () => {
-      const html = assembleHtml("<div>test</div>", {
+    it("uses default weights when not specified", async () => {
+      const html = await assembleHtml("<div>test</div>", {
         fonts: [{ family: "Inter" }],
       });
       // Default weights: 400, 500, 600, 700
@@ -244,8 +244,8 @@ describe("HTML Assembly", () => {
       expect(html).toContain("0,700");
     });
 
-    it("uses custom weights when specified", () => {
-      const html = assembleHtml("<div>test</div>", {
+    it("uses custom weights when specified", async () => {
+      const html = await assembleHtml("<div>test</div>", {
         fonts: [{ family: "Inter", weights: [300, 400, 800] }],
       });
       expect(html).toContain("0,300");
@@ -253,30 +253,30 @@ describe("HTML Assembly", () => {
       expect(html).toContain("0,800");
     });
 
-    it("handles italic style", () => {
-      const html = assembleHtml("<div>test</div>", {
+    it("handles italic style", async () => {
+      const html = await assembleHtml("<div>test</div>", {
         fonts: [{ family: "Inter", style: "italic" }],
       });
       // Italic uses 1,weight format
       expect(html).toContain("1,400");
     });
 
-    it("includes display=swap parameter", () => {
-      const html = assembleHtml("<div>test</div>", {
+    it("includes display=swap parameter", async () => {
+      const html = await assembleHtml("<div>test</div>", {
         fonts: [{ family: "Inter" }],
       });
       expect(html).toContain("display=swap");
     });
 
-    it("does not include fonts link when no fonts provided", () => {
-      const html = assembleHtml("<div>test</div>", {
+    it("does not include fonts link when no fonts provided", async () => {
+      const html = await assembleHtml("<div>test</div>", {
         fonts: [],
       });
       expect(html).not.toContain("fonts.googleapis.com");
     });
 
-    it("does not include fonts link when fonts undefined", () => {
-      const html = assembleHtml("<div>test</div>");
+    it("does not include fonts link when fonts undefined", async () => {
+      const html = await assembleHtml("<div>test</div>");
       expect(html).not.toContain("fonts.googleapis.com");
     });
   });

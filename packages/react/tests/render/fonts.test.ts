@@ -155,12 +155,12 @@ describe("Font Processing", () => {
   });
 
   describe("processLocalFonts", () => {
-    it("generates @font-face CSS for local WOFF2 font", () => {
+    it("generates @font-face CSS for local WOFF2 font", async () => {
       const fonts: FontConfig[] = [
         { family: "TestFont", src: "./test.woff2" },
       ];
 
-      const css = processLocalFonts(fonts, fixturesDir);
+      const css = await processLocalFonts(fonts, fixturesDir);
 
       expect(css).toContain("@font-face");
       expect(css).toContain("font-family: 'TestFont'");
@@ -170,56 +170,56 @@ describe("Font Processing", () => {
       expect(css).toContain("font-display: swap");
     });
 
-    it("generates @font-face CSS for local TTF font", () => {
+    it("generates @font-face CSS for local TTF font", async () => {
       const fonts: FontConfig[] = [
         { family: "TestTtf", src: "./test.ttf" },
       ];
 
-      const css = processLocalFonts(fonts, fixturesDir);
+      const css = await processLocalFonts(fonts, fixturesDir);
 
       expect(css).toContain("@font-face");
       expect(css).toContain("font-family: 'TestTtf'");
       expect(css).toContain("data:font/ttf;base64,");
     });
 
-    it("respects custom weight and style", () => {
+    it("respects custom weight and style", async () => {
       const fonts: FontConfig[] = [
         { family: "TestFont", src: "./test.woff2", weight: 700, style: "italic" },
       ];
 
-      const css = processLocalFonts(fonts, fixturesDir);
+      const css = await processLocalFonts(fonts, fixturesDir);
 
       expect(css).toContain("font-weight: 700");
       expect(css).toContain("font-style: italic");
     });
 
-    it("skips fonts without src", () => {
+    it("skips fonts without src", async () => {
       const fonts: FontConfig[] = [
         { family: "GoogleFont" }, // No src = Google Font
       ];
 
-      const css = processLocalFonts(fonts, fixturesDir);
+      const css = await processLocalFonts(fonts, fixturesDir);
 
       expect(css).toBe("");
     });
 
-    it("skips remote font URLs", () => {
+    it("skips remote font URLs", async () => {
       const fonts: FontConfig[] = [
         { family: "RemoteFont", src: "https://example.com/font.woff2" },
       ];
 
-      const css = processLocalFonts(fonts, fixturesDir);
+      const css = await processLocalFonts(fonts, fixturesDir);
 
       expect(css).toBe("");
     });
 
-    it("handles multiple local fonts", () => {
+    it("handles multiple local fonts", async () => {
       const fonts: FontConfig[] = [
         { family: "Font1", src: "./test.woff2", weight: 400 },
         { family: "Font2", src: "./test.ttf", weight: 700 },
       ];
 
-      const css = processLocalFonts(fonts, fixturesDir);
+      const css = await processLocalFonts(fonts, fixturesDir);
 
       expect(css).toContain("font-family: 'Font1'");
       expect(css).toContain("font-family: 'Font2'");
@@ -227,23 +227,23 @@ describe("Font Processing", () => {
       expect(css).toContain("data:font/ttf;base64,");
     });
 
-    it("handles missing font files gracefully", () => {
+    it("handles missing font files gracefully", async () => {
       const fonts: FontConfig[] = [
         { family: "MissingFont", src: "./nonexistent.woff2" },
       ];
 
-      const css = processLocalFonts(fonts, fixturesDir);
+      const css = await processLocalFonts(fonts, fixturesDir);
 
       // Should return empty string when file not found
       expect(css).toBe("");
     });
 
-    it("uses absolute paths correctly", () => {
+    it("uses absolute paths correctly", async () => {
       const fonts: FontConfig[] = [
         { family: "AbsoluteFont", src: testFontPath },
       ];
 
-      const css = processLocalFonts(fonts);
+      const css = await processLocalFonts(fonts);
 
       expect(css).toContain("@font-face");
       expect(css).toContain("font-family: 'AbsoluteFont'");
@@ -252,7 +252,7 @@ describe("Font Processing", () => {
   });
 
   describe("processCssFontFaces", () => {
-    it("embeds local fonts from @font-face declarations", () => {
+    it("embeds local fonts from @font-face declarations", async () => {
       const css = `
         @font-face {
           font-family: 'CustomFont';
@@ -262,7 +262,7 @@ describe("Font Processing", () => {
         .text { color: red; }
       `;
 
-      const result = processCssFontFaces(css, fixturesDir);
+      const result = await processCssFontFaces(css, fixturesDir);
 
       expect(result).toContain("@font-face");
       expect(result).toContain("font-family: 'CustomFont'");
@@ -271,31 +271,31 @@ describe("Font Processing", () => {
       expect(result).not.toContain("url('./test.woff2')");
     });
 
-    it("handles double-quoted URLs", () => {
+    it("handles double-quoted URLs", async () => {
       const css = `@font-face { font-family: 'Test'; src: url("./test.woff2"); }`;
 
-      const result = processCssFontFaces(css, fixturesDir);
+      const result = await processCssFontFaces(css, fixturesDir);
 
       expect(result).toContain("data:font/woff2;base64,");
     });
 
-    it("handles single-quoted URLs", () => {
+    it("handles single-quoted URLs", async () => {
       const css = `@font-face { font-family: 'Test'; src: url('./test.woff2'); }`;
 
-      const result = processCssFontFaces(css, fixturesDir);
+      const result = await processCssFontFaces(css, fixturesDir);
 
       expect(result).toContain("data:font/woff2;base64,");
     });
 
-    it("handles unquoted URLs", () => {
+    it("handles unquoted URLs", async () => {
       const css = `@font-face { font-family: 'Test'; src: url(./test.woff2); }`;
 
-      const result = processCssFontFaces(css, fixturesDir);
+      const result = await processCssFontFaces(css, fixturesDir);
 
       expect(result).toContain("data:font/woff2;base64,");
     });
 
-    it("skips remote font URLs", () => {
+    it("skips remote font URLs", async () => {
       const css = `
         @font-face {
           font-family: 'RemoteFont';
@@ -303,13 +303,13 @@ describe("Font Processing", () => {
         }
       `;
 
-      const result = processCssFontFaces(css, fixturesDir);
+      const result = await processCssFontFaces(css, fixturesDir);
 
       expect(result).toContain("url('https://example.com/font.woff2')");
       expect(result).not.toContain("data:font");
     });
 
-    it("handles multiple @font-face declarations", () => {
+    it("handles multiple @font-face declarations", async () => {
       const css = `
         @font-face {
           font-family: 'Font1';
@@ -321,13 +321,13 @@ describe("Font Processing", () => {
         }
       `;
 
-      const result = processCssFontFaces(css, fixturesDir);
+      const result = await processCssFontFaces(css, fixturesDir);
 
       expect(result).toContain("data:font/woff2;base64,");
       expect(result).toContain("data:font/ttf;base64,");
     });
 
-    it("handles src with format()", () => {
+    it("handles src with format()", async () => {
       const css = `
         @font-face {
           font-family: 'CustomFont';
@@ -335,13 +335,13 @@ describe("Font Processing", () => {
         }
       `;
 
-      const result = processCssFontFaces(css, fixturesDir);
+      const result = await processCssFontFaces(css, fixturesDir);
 
       expect(result).toContain("data:font/woff2;base64,");
       expect(result).toContain("format('woff2')");
     });
 
-    it("handles multiple src URLs (fallbacks)", () => {
+    it("handles multiple src URLs (fallbacks)", async () => {
       const css = `
         @font-face {
           font-family: 'CustomFont';
@@ -350,24 +350,24 @@ describe("Font Processing", () => {
         }
       `;
 
-      const result = processCssFontFaces(css, fixturesDir);
+      const result = await processCssFontFaces(css, fixturesDir);
 
       expect(result).toContain("data:font/woff2;base64,");
       expect(result).toContain("data:font/ttf;base64,");
     });
 
-    it("preserves CSS without @font-face", () => {
+    it("preserves CSS without @font-face", async () => {
       const css = `
         .container { display: flex; }
         .text { color: blue; }
       `;
 
-      const result = processCssFontFaces(css, fixturesDir);
+      const result = await processCssFontFaces(css, fixturesDir);
 
       expect(result).toBe(css);
     });
 
-    it("handles missing font files gracefully", () => {
+    it("handles missing font files gracefully", async () => {
       const css = `
         @font-face {
           font-family: 'MissingFont';
@@ -375,14 +375,14 @@ describe("Font Processing", () => {
         }
       `;
 
-      const result = processCssFontFaces(css, fixturesDir);
+      const result = await processCssFontFaces(css, fixturesDir);
 
       // Should keep original URL when file not found
       expect(result).toContain("url('./nonexistent.woff2')");
       expect(result).not.toContain("data:font");
     });
 
-    it("handles mixed local and remote fonts", () => {
+    it("handles mixed local and remote fonts", async () => {
       const css = `
         @font-face {
           font-family: 'LocalFont';
@@ -394,7 +394,7 @@ describe("Font Processing", () => {
         }
       `;
 
-      const result = processCssFontFaces(css, fixturesDir);
+      const result = await processCssFontFaces(css, fixturesDir);
 
       // Local font should be embedded
       expect(result).toContain("data:font/woff2;base64,");

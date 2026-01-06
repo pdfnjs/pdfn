@@ -415,7 +415,7 @@ function extractPageConfig(content: string): {
 /**
  * Assembles the final HTML document
  */
-export function assembleHtml(content: string, options: HtmlOptions = {}): string {
+export async function assembleHtml(content: string, options: HtmlOptions = {}): Promise<string> {
   const { metadata = {}, css = "", includePagedJs = true, fonts = [] } = options;
   const { title = "", author = "", subject = "", keywords = [], language = "en" } = metadata;
 
@@ -434,7 +434,7 @@ export function assembleHtml(content: string, options: HtmlOptions = {}): string
   const { localFonts, googleFonts } = separateFonts(fonts);
 
   // Generate embedded @font-face CSS for local fonts
-  const localFontsCss = localFonts.length > 0 ? processLocalFonts(localFonts) : "";
+  const localFontsCss = localFonts.length > 0 ? await processLocalFonts(localFonts) : "";
 
   // Generate Google Fonts link for remote fonts
   const fontsLink = googleFonts.length > 0 ? generateGoogleFontsLink(googleFonts) : "";

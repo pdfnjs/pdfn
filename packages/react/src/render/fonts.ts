@@ -2,13 +2,12 @@
  * Font Processing for PDFN
  *
  * Embeds local fonts as base64 data URIs for self-contained HTML output.
- * Similar to how images.ts handles local image embedding.
+ * Edge-compatible: only imports Node.js modules when local fonts are detected.
  */
 
-import * as fs from "node:fs";
-import * as path from "node:path";
 import type { FontConfig, LocalFontConfig, GoogleFontConfig } from "../types";
 import { debug } from "../utils/debug";
+import { isNodeJS, EdgeErrors, warnEdgeIncompatibility } from "../utils/runtime";
 
 /**
  * Type guard to check if a font config is a local font (has src property)
@@ -59,46 +58,13 @@ export function isLocalFontPath(src: string): boolean {
 }
 
 /**
- * Get MIME type from font file extension
+ * Get MIME type from font file extension (edge-safe, no path module needed)
  */
 function getFontMimeType(filePath: string): string {
-  const ext = path.extname(filePath).toLowerCase();
+  const lastDot = filePath.lastIndexOf(".");
+  if (lastDot === -1) return "application/octet-stream";
+  const ext = filePath.slice(lastDot).toLowerCase();
   return FONT_MIME_TYPES[ext] || "application/octet-stream";
-}
-
-/**
- * Read a font file and convert to base64 data URI
- */
-function fontToDataUri(filePath: string): string | null {
-  try {
-    if (!fs.existsSync(filePath)) {
-      debug(`fonts: file not found: ${filePath}`);
-      return null;
-    }
-
-    const buffer = fs.readFileSync(filePath);
-    const base64 = buffer.toString("base64");
-    const mimeType = getFontMimeType(filePath);
-
-    return `data:${mimeType};base64,${base64}`;
-  } catch (error) {
-    const message = error instanceof Error ? error.message : "Unknown error";
-    debug(`fonts: failed to read file ${filePath}: ${message}`);
-    return null;
-  }
-}
-
-/**
- * Resolve a font path to an absolute path
- */
-function resolveFontPath(src: string, basePath: string): string {
-  // If it's already absolute, return as-is
-  if (path.isAbsolute(src)) {
-    return src;
-  }
-
-  // Resolve relative to base path
-  return path.resolve(basePath, src);
 }
 
 /**
@@ -118,21 +84,90 @@ function generateFontFace(font: LocalFontConfig, dataUri: string): string {
 }
 
 /**
+ * Extract local font paths from font config array
+ */
+function extractLocalFontPaths(fonts: FontConfig[]): string[] {
+  const paths: string[] = [];
+  for (const font of fonts) {
+    if (isLocalFont(font) && isLocalFontPath(font.src)) {
+      paths.push(font.src);
+    }
+  }
+  return paths;
+}
+
+/**
  * Process local fonts and generate embedded @font-face CSS
+ *
+ * Edge-compatible: Throws helpful error if local fonts detected on edge runtime.
  *
  * @param fonts - Array of font configurations
  * @param basePath - Base path for resolving relative font paths (defaults to cwd)
  * @returns CSS string with @font-face declarations for local fonts
  */
-export function processLocalFonts(
+export async function processLocalFonts(
   fonts: FontConfig[],
   basePath?: string
-): string {
+): Promise<string> {
+  // Extract local font paths first (edge-safe)
+  const localPaths = extractLocalFontPaths(fonts);
+
+  // If no local fonts, return empty string (works on edge)
+  if (localPaths.length === 0) {
+    debug("fonts: no local fonts found");
+    return "";
+  }
+
+  // Local fonts detected - check runtime
+  if (!isNodeJS()) {
+    throw new Error(EdgeErrors.localFonts(localPaths));
+  }
+
+  warnEdgeIncompatibility("fonts", localPaths);
+
+  // Node.js runtime - dynamically import fs and path
+  const [fs, path] = await Promise.all([
+    import("node:fs"),
+    import("node:path"),
+  ]);
+
   const resolveFrom = basePath || process.cwd();
   const fontFaces: string[] = [];
 
   let processedCount = 0;
   let skippedCount = 0;
+
+  /**
+   * Read a font file and convert to base64 data URI
+   */
+  function fontToDataUri(filePath: string): string | null {
+    try {
+      if (!fs.existsSync(filePath)) {
+        debug(`fonts: file not found: ${filePath}`);
+        return null;
+      }
+
+      const buffer = fs.readFileSync(filePath);
+      const base64 = buffer.toString("base64");
+      const mimeType = getFontMimeType(filePath);
+
+      return `data:${mimeType};base64,${base64}`;
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Unknown error";
+      debug(`fonts: failed to read file ${filePath}: ${message}`);
+      return null;
+    }
+  }
+
+  /**
+   * Resolve a font path to an absolute path
+   */
+  function resolveFontPath(src: string): string {
+    if (path.isAbsolute(src)) {
+      return src;
+    }
+    return path.resolve(resolveFrom, src);
+  }
 
   for (const font of fonts) {
     // Skip fonts without src (Google Fonts)
@@ -148,7 +183,7 @@ export function processLocalFonts(
     }
 
     // Resolve the path
-    const absolutePath = resolveFontPath(font.src, resolveFrom);
+    const absolutePath = resolveFontPath(font.src);
 
     // Convert to data URI
     const dataUri = fontToDataUri(absolutePath);
@@ -190,22 +225,96 @@ export function separateFonts(fonts: FontConfig[]): {
   return { localFonts, googleFonts };
 }
 
+/**
+ * Extract local font paths from CSS @font-face declarations
+ */
+function extractLocalCssFontPaths(css: string): string[] {
+  const paths: string[] = [];
+  const fontFaceRegex = /@font-face\s*\{[^}]*\}/gi;
+  const urlRegex = /url\(\s*["']?([^"')]+)["']?\s*\)/g;
+
+  let fontFaceMatch;
+  while ((fontFaceMatch = fontFaceRegex.exec(css)) !== null) {
+    const fontFaceBlock = fontFaceMatch[0];
+    let urlMatch;
+    while ((urlMatch = urlRegex.exec(fontFaceBlock)) !== null) {
+      const src = urlMatch[1];
+      if (src && isLocalFontPath(src)) {
+        paths.push(src);
+      }
+    }
+  }
+
+  return paths;
+}
 
 /**
  * Parse @font-face declarations from CSS and embed local fonts
  *
- * This function finds @font-face rules in CSS, extracts local font file paths,
- * converts them to base64 data URIs, and returns the modified CSS.
+ * Edge-compatible: Throws helpful error if local fonts detected on edge runtime.
  *
  * @param css - The CSS content to process
  * @param basePath - Base path for resolving relative font paths (defaults to cwd)
  * @returns CSS with local fonts embedded as base64 data URIs
  */
-export function processCssFontFaces(css: string, basePath?: string): string {
+export async function processCssFontFaces(css: string, basePath?: string): Promise<string> {
+  // Extract local font paths first (edge-safe)
+  const localPaths = extractLocalCssFontPaths(css);
+
+  // If no local fonts, return CSS unchanged (works on edge)
+  if (localPaths.length === 0) {
+    debug("fonts: no local fonts in CSS");
+    return css;
+  }
+
+  // Local fonts detected - check runtime
+  if (!isNodeJS()) {
+    throw new Error(EdgeErrors.localFonts(localPaths));
+  }
+
+  warnEdgeIncompatibility("css-fonts", localPaths);
+
+  // Node.js runtime - dynamically import fs and path
+  const [fs, path] = await Promise.all([
+    import("node:fs"),
+    import("node:path"),
+  ]);
+
   const resolveFrom = basePath || process.cwd();
 
+  /**
+   * Read a font file and convert to base64 data URI
+   */
+  function fontToDataUri(filePath: string): string | null {
+    try {
+      if (!fs.existsSync(filePath)) {
+        debug(`fonts: file not found: ${filePath}`);
+        return null;
+      }
+
+      const buffer = fs.readFileSync(filePath);
+      const base64 = buffer.toString("base64");
+      const mimeType = getFontMimeType(filePath);
+
+      return `data:${mimeType};base64,${base64}`;
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Unknown error";
+      debug(`fonts: failed to read file ${filePath}: ${message}`);
+      return null;
+    }
+  }
+
+  /**
+   * Resolve a font path to an absolute path
+   */
+  function resolveFontPath(src: string): string {
+    if (path.isAbsolute(src)) {
+      return src;
+    }
+    return path.resolve(resolveFrom, src);
+  }
+
   // Regex to match @font-face blocks
-  // This handles nested braces and multiline content
   const fontFaceRegex = /@font-face\s*\{[^}]*\}/gi;
 
   let processedCount = 0;
@@ -213,7 +322,6 @@ export function processCssFontFaces(css: string, basePath?: string): string {
 
   const result = css.replace(fontFaceRegex, (fontFaceBlock) => {
     // Find src property within the @font-face block
-    // Matches: src: url("path") format("woff2"), url("path2");
     const srcRegex = /src\s*:\s*([^;]+);/i;
     const srcMatch = fontFaceBlock.match(srcRegex);
 
@@ -235,7 +343,7 @@ export function processCssFontFaces(css: string, basePath?: string): string {
       }
 
       // Resolve the path
-      const absolutePath = resolveFontPath(urlPath, resolveFrom);
+      const absolutePath = resolveFontPath(urlPath);
 
       // Convert to data URI
       const dataUri = fontToDataUri(absolutePath);
