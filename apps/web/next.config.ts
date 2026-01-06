@@ -1,4 +1,5 @@
 import type { NextConfig } from "next";
+import { withPdfnTailwind } from "@pdfn/next";
 
 const nextConfig: NextConfig = {
   async headers() {
@@ -24,4 +25,7 @@ const nextConfig: NextConfig = {
   },
 };
 
-export default nextConfig;
+// Pre-compile Tailwind CSS at build time for serverless deployment
+export default withPdfnTailwind({
+  templates: ["./pdf-templates/**/*.tsx"],
+})(nextConfig);

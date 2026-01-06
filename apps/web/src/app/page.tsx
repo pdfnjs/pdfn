@@ -780,7 +780,7 @@ export default function Home() {
             Get started in seconds
           </h2>
           <p className="text-xl text-text-secondary mb-10">
-            Add to your Node.js backend or server components
+            Add to any Node.js or Next.js project
           </p>
           <div className="flex flex-col gap-2 max-w-md mx-auto font-mono text-left">
             {[
@@ -854,13 +854,13 @@ export default function Home() {
                   <svg className="w-4 h-4 text-primary mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                   </svg>
-                  <span>Headers, footers, watermarks, and more</span>
+                  <span>Headers, footers, watermarks</span>
                 </li>
                 <li className="flex items-start gap-2">
                   <svg className="w-4 h-4 text-primary mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                   </svg>
-                  <span>Pagination helpers for tables, sections, grouped content</span>
+                  <span>Edge runtime compatible</span>
                 </li>
               </ul>
             </div>

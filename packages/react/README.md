@@ -276,7 +276,27 @@ const debugHtml = injectDebugSupport(html, {
 | Variable | Default | Description |
 |----------|---------|-------------|
 | `PDFN_HOST` | `http://localhost:3456` | Server URL for `generate()` |
+| `PDFN_NO_EDGE_WARNINGS` | - | Set to `1` to suppress edge runtime warnings |
 | `DEBUG` | - | Set to `pdfn:react` or `pdfn:*` to enable logging |
+
+## Edge Runtime Support
+
+`render()` works on edge runtimes (Vercel Edge, Cloudflare Workers) with some limitations:
+
+- **Remote images/fonts**: Work everywhere
+- **Local images/fonts**: Require Node.js (helpful errors on edge)
+- **Runtime Tailwind**: Requires Node.js or `@pdfn/vite` plugin for build-time compilation
+
+For edge deployments with Tailwind, use the `@pdfn/vite` plugin to pre-compile CSS at build time:
+
+```ts
+// vite.config.ts or next.config.js
+import { pdfnTailwind } from '@pdfn/vite';
+
+export default {
+  plugins: [pdfnTailwind({ templates: ['./pdf-templates/**/*.tsx'] })]
+}
+```
 
 ## License
 

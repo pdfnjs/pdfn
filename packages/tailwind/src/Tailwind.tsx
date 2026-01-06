@@ -66,13 +66,17 @@ export const TAILWIND_PRECOMPILED_ATTR = "data-pdfn-tailwind-precompiled";
  * Check if a string looks like pre-compiled CSS vs a file path
  */
 function isPrecompiledCss(css: string): boolean {
-  // File paths typically start with . or / or are short relative paths
-  if (css.startsWith("./") || css.startsWith("/") || css.startsWith("../")) {
-    return false;
-  }
-  // Pre-compiled CSS contains CSS syntax
+  // Pre-compiled CSS contains CSS syntax (check this first)
   if (css.includes("{") && css.includes("}")) {
     return true;
+  }
+  // File paths typically start with . or / (but not /* which is CSS comment)
+  if (css.startsWith("./") || css.startsWith("../")) {
+    return false;
+  }
+  // Absolute paths start with / but not /* (CSS comment)
+  if (css.startsWith("/") && !css.startsWith("/*")) {
+    return false;
   }
   // Short strings without CSS syntax are likely paths
   if (css.length < 100 && !css.includes(":")) {
@@ -80,6 +84,23 @@ function isPrecompiledCss(css: string): boolean {
   }
   // Default to CSS if it's long or contains CSS-like content
   return true;
+}
+
+/**
+ * Encode string to base64 (works in both Node.js and browser)
+ */
+function toBase64(str: string): string {
+  if (typeof Buffer !== "undefined") {
+    return Buffer.from(str).toString("base64");
+  }
+  // Browser fallback using TextEncoder + btoa
+  if (typeof btoa !== "undefined") {
+    const bytes = new TextEncoder().encode(str);
+    const binary = Array.from(bytes, (b) => String.fromCharCode(b)).join("");
+    return btoa(binary);
+  }
+  // Last resort - just return the string (will be HTML escaped but still work)
+  return str;
 }
 
 /**
@@ -129,8 +150,8 @@ export function Tailwind({ children, css }: TailwindProps): ReactNode {
   // Add CSS - either as path or pre-compiled content
   if (css) {
     if (isPrecompiledCss(css)) {
-      // Pre-compiled CSS from @pdfn/vite plugin - store as base64 to avoid HTML escaping issues
-      markerProps[TAILWIND_PRECOMPILED_ATTR] = Buffer.from(css).toString("base64");
+      // Pre-compiled CSS from build plugin - store as base64 to avoid HTML escaping issues
+      markerProps[TAILWIND_PRECOMPILED_ATTR] = toBase64(css);
     } else {
       // CSS file path for runtime processing
       markerProps[TAILWIND_CSS_ATTR] = css;

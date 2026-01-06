@@ -222,6 +222,8 @@ export async function POST(req: Request) {
 |---------|-------------|
 | [@pdfn/react](./packages/react) | React components, `render()`, `generate()` |
 | [@pdfn/tailwind](./packages/tailwind) | Tailwind CSS support (optional) |
+| [@pdfn/next](./packages/next) | Next.js plugin for Tailwind pre-compilation |
+| [@pdfn/vite](./packages/vite) | Vite plugin for Tailwind pre-compilation |
 | [pdfn](./packages/cli) | CLI dev server and production server |
 
 ## CLI

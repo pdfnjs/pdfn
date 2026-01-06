@@ -320,7 +320,7 @@ export default css;`;
       // Replace <Tailwind> with <Tailwind css={__pdfnPrecompiledCss__}>
       transformed = transformed.replace(
         /<Tailwind(\s*)>/g,
-        "<Tailwind$1css={__pdfnPrecompiledCss__}>"
+        "<Tailwind css={__pdfnPrecompiledCss__}>"
       );
 
       // Replace <Tailwind ...props> with <Tailwind css={__pdfnPrecompiledCss__} ...props>

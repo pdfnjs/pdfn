@@ -1,5 +1,5 @@
 import { Command } from "commander";
-import { existsSync, mkdirSync, copyFileSync, readFileSync, writeFileSync } from "fs";
+import { existsSync, mkdirSync, copyFileSync } from "fs";
 import { join, dirname } from "path";
 import { fileURLToPath } from "url";
 import chalk from "chalk";
@@ -35,19 +35,38 @@ const TEMPLATES: Record<string, { name: string; description: string; pageSize: s
   },
 };
 
-function getTemplatesDir(): string {
+type TemplateStyle = "inline" | "tailwind";
+
+function getTemplatesDir(style: TemplateStyle): string {
   // After build, cli.js is in dist/, templates are in templates/
-  // So from dist/ we go up one level to package root, then into templates/
-  return join(__dirname, "..", "templates");
+  // So from dist/ we go up one level to package root, then into templates/<style>/
+  return join(__dirname, "..", "templates", style);
+}
+
+/**
+ * Check if @pdfn/tailwind is installed in user's project
+ */
+function isTailwindInstalled(cwd: string): boolean {
+  try {
+    // Check node_modules for @pdfn/tailwind
+    const tailwindPath = join(cwd, "node_modules", "@pdfn", "tailwind");
+    return existsSync(tailwindPath);
+  } catch {
+    return false;
+  }
 }
 
 export const addCommand = new Command("add")
   .description("Add a starter template to your project")
   .argument("[template]", "Template name (e.g., invoice, letter, contract)")
   .option("--list", "List available templates")
+  .option("--tailwind", "Use Tailwind CSS styling (requires @pdfn/tailwind)")
+  .option("--inline", "Use inline styles (default)")
   .option("--output <path>", "Output directory", "./pdf-templates")
   .option("--force", "Overwrite existing files")
   .action(async (template, options) => {
+    const cwd = process.cwd();
+
     // List templates
     if (options.list || !template) {
       console.log(chalk.bold("\nAvailable templates:\n"));
@@ -56,8 +75,12 @@ export const addCommand = new Command("add")
         console.log(`  ${chalk.cyan(id.padEnd(12))} ${info.description} ${chalk.dim(`(${info.pageSize})`)}`);
       }
 
-      console.log(chalk.dim("\nUsage: pdfn add <template>"));
-      console.log(chalk.dim("Example: pdfn add invoice\n"));
+      console.log(chalk.dim("\nUsage: pdfn add <template> [--tailwind]"));
+      console.log(chalk.dim("Example: pdfn add invoice"));
+      console.log(chalk.dim("Example: pdfn add invoice --tailwind\n"));
+      console.log(chalk.bold("Options:"));
+      console.log(chalk.dim("  --inline     Use inline styles (default)"));
+      console.log(chalk.dim("  --tailwind   Use Tailwind CSS (requires @pdfn/tailwind)\n"));
       return;
     }
 
@@ -68,7 +91,20 @@ export const addCommand = new Command("add")
       process.exit(1);
     }
 
-    const templatesDir = getTemplatesDir();
+    // Determine style (default to inline)
+    const style: TemplateStyle = options.tailwind ? "tailwind" : "inline";
+
+    // Check for @pdfn/tailwind if tailwind style requested
+    if (style === "tailwind" && !isTailwindInstalled(cwd)) {
+      console.error(chalk.yellow(`\n⚠ @pdfn/tailwind is not installed.`));
+      console.log(chalk.dim("Install it first to use Tailwind templates:\n"));
+      console.log(chalk.cyan("  npm install @pdfn/tailwind\n"));
+      console.log(chalk.dim("Or use inline styles (default):\n"));
+      console.log(chalk.cyan(`  pdfn add ${template}\n`));
+      process.exit(1);
+    }
+
+    const templatesDir = getTemplatesDir(style);
     const sourceFile = join(templatesDir, `${template}.tsx`);
     const outputDir = options.output;
     const outputFile = join(outputDir, `${template}.tsx`);
@@ -98,13 +134,19 @@ export const addCommand = new Command("add")
       copyFileSync(sourceFile, outputFile);
 
       const info = TEMPLATES[template];
-      console.log(chalk.green(`\n✓ Added ${info.name} template`));
+      const styleLabel = style === "tailwind" ? chalk.cyan(" (Tailwind)") : chalk.dim(" (inline styles)");
+      console.log(chalk.green(`\n✓ Added ${info.name} template`) + styleLabel);
       console.log(chalk.dim(`  ${outputFile}\n`));
 
       // Show next steps
       console.log(chalk.bold("Next steps:"));
       console.log(chalk.dim(`  1. Edit ${outputFile} to customize`));
       console.log(chalk.dim(`  2. Run 'npx pdfn dev' to preview\n`));
+
+      // Additional info for tailwind
+      if (style === "tailwind") {
+        console.log(chalk.dim("Note: Tailwind templates require @pdfn/tailwind to be installed.\n"));
+      }
     } catch (error) {
       console.error(chalk.red(`\nError copying template: ${error}`));
       process.exit(1);

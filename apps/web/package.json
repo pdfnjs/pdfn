@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "pdfn": "workspace:*",
+    "@pdfn/next": "workspace:*",
     "@pdfn/react": "workspace:*",
     "@pdfn/tailwind": "workspace:*",
     "next": "16.1.0",
