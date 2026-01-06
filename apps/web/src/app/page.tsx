@@ -1063,6 +1063,14 @@ export default function Home() {
 
             <div className="bg-surface-1 border border-border rounded-lg p-4 card-hover">
               <div className="flex items-center justify-between mb-2">
+                <span className="font-medium text-text-primary">Orphans &amp; widows</span>
+                <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-warning/10 text-warning">Medium</span>
+              </div>
+              <p className="text-sm text-text-muted">Prevent single lines at page boundaries</p>
+            </div>
+
+            <div className="bg-surface-1 border border-border rounded-lg p-4 card-hover">
+              <div className="flex items-center justify-between mb-2">
                 <span className="font-medium text-text-primary">Image optimization</span>
                 <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-surface-2 text-text-muted">Low</span>
               </div>

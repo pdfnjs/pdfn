@@ -279,6 +279,7 @@ npx pdfn add --list     # Show all templates
 **Medium priority:**
 - [ ] Footnotes - Page-local references for legal/academic docs
 - [ ] Internal anchors - Cross-page references ("See page X")
+- [ ] Orphans & widows - Prevent single lines at page boundaries
 
 **Low priority:**
 - [ ] Image optimization - Auto-compress before embedding
