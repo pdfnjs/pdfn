@@ -12,8 +12,10 @@ pdfn prepares HTML designed for clean page breaks and waits until layout stabili
 
 ## Quick Start
 
+In your React project (Next.js, Vite, etc.):
+
 ```bash
-npm i @pdfn/react
+npm i @pdfn/react @pdfn/tailwind
 npx pdfn add invoice
 npx pdfn dev --open
 ```

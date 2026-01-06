@@ -90,10 +90,18 @@ For development with live preview, use:
       await browserManager.getBrowser();
       logger.browser("ready");
 
-      return new Promise((resolve) => {
+      return new Promise((resolve, reject) => {
         server = app.listen(port, () => {
           logger.banner(port, maxConcurrent, timeout);
           resolve();
+        });
+        server.on("error", (err: NodeJS.ErrnoException) => {
+          if (err.code === "EADDRINUSE") {
+            logger.error(`Port ${port} is already in use`);
+            logger.info(`Either stop the existing server or use a different port`);
+            process.exit(1);
+          }
+          reject(err);
         });
       });
     },

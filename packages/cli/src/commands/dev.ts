@@ -1130,6 +1130,14 @@ async function startDevServer(options: DevServerOptions) {
     ws.on("close", () => clients.delete(ws));
   });
 
+  wss.on("error", (err: NodeJS.ErrnoException) => {
+    if (err.code === "EADDRINUSE") {
+      // Handled by server error handler
+      return;
+    }
+    console.error(chalk.red("  ✗ WebSocket error:"), err.message);
+  });
+
   function broadcast(message: object) {
     const data = JSON.stringify(message);
     clients.forEach((client) => {
@@ -1153,7 +1161,10 @@ async function startDevServer(options: DevServerOptions) {
 
   const vite = await createViteServer({
     root: process.cwd(),
-    server: { middlewareMode: true },
+    server: {
+      middlewareMode: true,
+      hmr: { server }  // Use our HTTP server for Vite's WebSocket
+    },
     appType: "custom",
     customLogger: viteLogger,
     optimizeDeps: {
@@ -1466,7 +1477,16 @@ async function startDevServer(options: DevServerOptions) {
   });
 
   // Start server
-  await new Promise<void>((resolve) => {
+  await new Promise<void>((resolve, reject) => {
+    server.on("error", (err: NodeJS.ErrnoException) => {
+      if (err.code === "EADDRINUSE") {
+        console.error(chalk.red(`\n  ✗ Port ${port} is already in use.\n`));
+        console.error(chalk.dim(`  Either stop the existing server or use a different port:`));
+        console.error(chalk.dim(`  npx pdfn dev --port ${port + 1}\n`));
+        process.exit(1);
+      }
+      reject(err);
+    });
     server.listen(port, () => resolve());
   });
 

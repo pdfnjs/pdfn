@@ -780,11 +780,11 @@ export default function Home() {
             Get started in seconds
           </h2>
           <p className="text-xl text-text-secondary mb-10">
-            Three commands to your first PDF
+            Add to your Node.js backend or server components
           </p>
           <div className="flex flex-col gap-2 max-w-md mx-auto font-mono text-left">
             {[
-              "npm i @pdfn/react",
+              "npm i @pdfn/react @pdfn/tailwind",
               "npx pdfn add invoice",
               "npx pdfn dev",
             ].map((cmd) => (
