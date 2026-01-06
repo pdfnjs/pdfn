@@ -270,6 +270,7 @@ npx pdfn add --list     # Show all templates
 
 ## Roadmap
 
+- [ ] Password protection - Encrypt PDFs with user/owner passwords
 - [ ] Font subsetting - Smaller PDFs by stripping unused glyphs
 - [ ] Image optimization - Auto-compress before embedding
 - [ ] PDF/A support - Archival compliance

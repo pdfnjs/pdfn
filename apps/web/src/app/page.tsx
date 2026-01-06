@@ -1023,6 +1023,13 @@ export default function Home() {
             <div className="flex items-start gap-3 bg-surface-1 border border-border rounded-lg p-4 card-hover">
               <div className="w-2 h-2 rounded-full bg-primary mt-2 flex-shrink-0" />
               <div>
+                <span className="text-text-primary font-medium">Password protection</span>
+                <p className="text-sm text-text-muted">Encrypt PDFs with user/owner passwords</p>
+              </div>
+            </div>
+            <div className="flex items-start gap-3 bg-surface-1 border border-border rounded-lg p-4 card-hover">
+              <div className="w-2 h-2 rounded-full bg-primary mt-2 flex-shrink-0" />
+              <div>
                 <span className="text-text-primary font-medium">Font subsetting</span>
                 <p className="text-sm text-text-muted">Smaller PDFs by stripping unused glyphs</p>
               </div>
