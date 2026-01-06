@@ -33,7 +33,7 @@ Features:
 - Auto-discovers templates in your templates directory
 - Live preview UI with hot reload
 - Performance metrics and debug overlays
-- Exposes `/generate` endpoint for PDF generation
+- Exposes a local `/generate` endpoint for PDF generation
 
 ### `pdfn serve`
 
