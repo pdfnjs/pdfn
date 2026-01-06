@@ -253,13 +253,21 @@ npx pdfn serve --max-concurrent 10      # Concurrency limit
 Add starter templates.
 
 ```bash
-npx pdfn add invoice    # Add invoice template
-npx pdfn add letter     # Add business letter
-npx pdfn add contract   # Add contract template
-npx pdfn add ticket     # Add event ticket
-npx pdfn add poster     # Add poster template
-npx pdfn add --list     # Show all templates
+npx pdfn add invoice            # Add invoice template (inline styles)
+npx pdfn add invoice --tailwind # Add with Tailwind classes
+npx pdfn add letter             # Add business letter
+npx pdfn add contract           # Add contract template
+npx pdfn add ticket             # Add event ticket
+npx pdfn add poster             # Add poster template
+npx pdfn add --list             # Show all templates
 ```
+
+| Option | Description |
+|--------|-------------|
+| `--inline` | Use inline styles (default) |
+| `--tailwind` | Use Tailwind CSS classes (requires `@pdfn/tailwind`) |
+| `--output` | Output directory (default: `./pdf-templates`) |
+| `--force` | Overwrite existing files |
 
 ## Tradeoffs
 

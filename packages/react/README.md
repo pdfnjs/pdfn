@@ -285,12 +285,21 @@ const debugHtml = injectDebugSupport(html, {
 
 - **Remote images/fonts**: Work everywhere
 - **Local images/fonts**: Require Node.js (helpful errors on edge)
-- **Runtime Tailwind**: Requires Node.js or `@pdfn/vite` plugin for build-time compilation
+- **Runtime Tailwind**: Requires Node.js or build-time compilation (`@pdfn/next` / `@pdfn/vite`)
 
-For edge deployments with Tailwind, use the `@pdfn/vite` plugin to pre-compile CSS at build time:
+For edge deployments with Tailwind, use a build plugin to pre-compile CSS:
 
 ```ts
-// vite.config.ts or next.config.js
+// next.config.ts
+import { withPdfnTailwind } from '@pdfn/next';
+
+export default withPdfnTailwind({
+  templates: ['./pdf-templates/**/*.tsx'],
+})({
+  // your Next.js config
+});
+
+// Or for Vite: vite.config.ts
 import { pdfnTailwind } from '@pdfn/vite';
 
 export default {
