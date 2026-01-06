@@ -10,7 +10,8 @@ export { PageBreak } from "./components/PageBreak";
 export { AvoidBreak } from "./components/AvoidBreak";
 export { PageNumber } from "./components/PageNumber";
 export { TotalPages } from "./components/TotalPages";
-export { TableHeader } from "./components/TableHeader";
+export { Thead } from "./components/Thead";
+export { Tr } from "./components/Tr";
 
 // Functions
 export { render } from "./render/render";
@@ -21,5 +22,6 @@ export type * from "./types";
 export type { AvoidBreakProps } from "./components/AvoidBreak";
 export type { PageNumberProps } from "./components/PageNumber";
 export type { TotalPagesProps } from "./components/TotalPages";
-export type { TableHeaderProps } from "./components/TableHeader";
+export type { TheadProps } from "./components/Thead";
+export type { TrProps } from "./components/Tr";
 export type { GenerateOptions } from "./generate";

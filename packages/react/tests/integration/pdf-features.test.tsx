@@ -15,7 +15,7 @@ import { PageBreak } from "../../src/components/PageBreak";
 import { PageNumber } from "../../src/components/PageNumber";
 import { TotalPages } from "../../src/components/TotalPages";
 import { AvoidBreak } from "../../src/components/AvoidBreak";
-import { TableHeader } from "../../src/components/TableHeader";
+import { Thead } from "../../src/components/Thead";
 import { getPdfInfo } from "../helpers/pdf-utils";
 
 describe("PDF Features Integration", () => {
@@ -350,18 +350,18 @@ describe("PDF Features Integration", () => {
     });
   });
 
-  describe("TableHeader", () => {
-    it("renders TableHeader with proper attributes", async () => {
+  describe("Thead", () => {
+    it("renders Thead with proper attributes", async () => {
       const { html } = await generateHtmlAndPdf(
         <Document title="Test">
           <Page size="A4">
             <table>
-              <TableHeader>
+              <Thead repeat>
                 <tr>
                   <th>Column 1</th>
                   <th>Column 2</th>
                 </tr>
-              </TableHeader>
+              </Thead>
               <tbody>
                 <tr>
                   <td>Data 1</td>
@@ -373,12 +373,12 @@ describe("PDF Features Integration", () => {
         </Document>
       );
 
-      expect(html).toContain("data-pdfn-table-header");
+      expect(html).toContain("data-pdfn-thead");
       expect(html).toContain("Column 1");
       expect(html).toContain("Column 2");
     });
 
-    it("generates PDF with table header", async () => {
+    it("generates PDF with repeating table header", async () => {
       // Create a table with many rows to test header repetition
       const rows = Array.from({ length: 50 }, (_, i) => (
         <tr key={i}>
@@ -392,13 +392,13 @@ describe("PDF Features Integration", () => {
         <Document title="Test">
           <Page size="A4">
             <table style={{ width: "100%", borderCollapse: "collapse" }}>
-              <TableHeader>
+              <Thead repeat>
                 <tr style={{ backgroundColor: "#f0f0f0" }}>
                   <th style={{ border: "1px solid black", padding: "8px" }}>ID</th>
                   <th style={{ border: "1px solid black", padding: "8px" }}>Value</th>
                   <th style={{ border: "1px solid black", padding: "8px" }}>Description</th>
                 </tr>
-              </TableHeader>
+              </Thead>
               <tbody>{rows}</tbody>
             </table>
           </Page>
@@ -437,12 +437,12 @@ describe("PDF Features Integration", () => {
 
             <h2>Data Table</h2>
             <table style={{ width: "100%", borderCollapse: "collapse" }}>
-              <TableHeader>
+              <Thead repeat>
                 <tr>
                   <th style={{ border: "1px solid black", padding: "5px" }}>Item</th>
                   <th style={{ border: "1px solid black", padding: "5px" }}>Value</th>
                 </tr>
-              </TableHeader>
+              </Thead>
               <tbody>
                 {Array.from({ length: 30 }, (_, i) => (
                   <tr key={i}>

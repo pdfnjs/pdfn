@@ -1,4 +1,4 @@
-import { Document, Page, TableHeader, PageNumber, TotalPages } from "@pdfn/react";
+import { Document, Page, Thead, PageNumber, TotalPages } from "@pdfn/react";
 import { Tailwind } from "@pdfn/tailwind";
 
 /**
@@ -6,7 +6,7 @@ import { Tailwind } from "@pdfn/tailwind";
  *
  * Demonstrates:
  * - Local image embedding (logo.svg)
- * - TableHeader for multi-page tables
+ * - Thead with repeat for multi-page tables
  * - PageNumber and TotalPages in footer
  * - Configurable tax rate
  */
@@ -137,14 +137,14 @@ export default function Invoice({
 
           {/* Items Table */}
           <table className="w-full mb-6 border-collapse">
-            <TableHeader>
+            <Thead repeat>
               <tr className="bg-gray-800 text-white">
                 <th className="text-left py-3 px-4 text-xs font-semibold uppercase">Description</th>
                 <th className="text-center py-3 px-4 text-xs font-semibold uppercase w-16">Qty</th>
                 <th className="text-right py-3 px-4 text-xs font-semibold uppercase w-24">Rate</th>
                 <th className="text-right py-3 px-4 text-xs font-semibold uppercase w-28">Amount</th>
               </tr>
-            </TableHeader>
+            </Thead>
             <tbody>
               {items.map((item, i) => (
                 <tr key={i} className={i % 2 === 0 ? "bg-white" : "bg-gray-50"}>

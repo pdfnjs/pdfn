@@ -84,7 +84,8 @@ const pdf = await generate(<Invoice />);
 | `<TotalPages>` | Total page count |
 | `<PageBreak>` | Force a page break |
 | `<AvoidBreak>` | Keep content together on the same page |
-| `<TableHeader>` | Table header that repeats across pages |
+| `<Thead>` | Enhanced `<thead>` - add `repeat` to repeat across pages |
+| `<Tr>` | Enhanced `<tr>` - add `keep` to prevent splitting |
 
 ## API
 
@@ -204,30 +205,33 @@ Options:
 </Document>
 ```
 
-### Repeating Table Headers
+### Table with Repeating Headers
 
 ```tsx
 <Document>
   <Page size="A4">
     <table>
-      <TableHeader>
+      <Thead repeat>
         <tr>
           <th>Item</th>
           <th>Price</th>
         </tr>
-      </TableHeader>
+      </Thead>
       <tbody>
         {items.map(item => (
-          <tr key={item.id}>
+          <Tr key={item.id} keep>
             <td>{item.name}</td>
             <td>${item.price}</td>
-          </tr>
+          </Tr>
         ))}
       </tbody>
     </table>
   </Page>
 </Document>
 ```
+
+- `<Thead repeat>` repeats the header on each page
+- `<Tr keep>` prevents the row from splitting across pages
 
 ### Fonts
 

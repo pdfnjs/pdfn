@@ -35,7 +35,8 @@ const DOCUMENTED_PROPS = {
   TotalPages: ["className"],
   PageBreak: [], // No props
   AvoidBreak: ["children", "className"],
-  TableHeader: ["children", "className"],
+  Thead: ["children", "repeat", "className"],
+  Tr: ["children", "keep", "className"],
 } as const;
 
 // Import actual types to verify at compile time
@@ -43,7 +44,8 @@ import type { DocumentProps, PageProps } from "../../src/types";
 import type { PageNumberProps } from "../../src/components/PageNumber";
 import type { TotalPagesProps } from "../../src/components/TotalPages";
 import type { AvoidBreakProps } from "../../src/components/AvoidBreak";
-import type { TableHeaderProps } from "../../src/components/TableHeader";
+import type { TheadProps } from "../../src/components/Thead";
+import type { TrProps } from "../../src/components/Tr";
 
 // Type-level verification: ensures DOCUMENTED_PROPS keys match actual interface keys
 // If a prop is added/removed from the interface, TypeScript will error here
@@ -60,7 +62,8 @@ type _CheckPage = AssertKeysMatch<PageProps, typeof DOCUMENTED_PROPS.Page>;
 type _CheckPageNumber = AssertKeysMatch<PageNumberProps, typeof DOCUMENTED_PROPS.PageNumber>;
 type _CheckTotalPages = AssertKeysMatch<TotalPagesProps, typeof DOCUMENTED_PROPS.TotalPages>;
 type _CheckAvoidBreak = AssertKeysMatch<AvoidBreakProps, typeof DOCUMENTED_PROPS.AvoidBreak>;
-type _CheckTableHeader = AssertKeysMatch<TableHeaderProps, typeof DOCUMENTED_PROPS.TableHeader>;
+type _CheckThead = AssertKeysMatch<TheadProps, typeof DOCUMENTED_PROPS.Thead>;
+type _CheckTr = AssertKeysMatch<TrProps, typeof DOCUMENTED_PROPS.Tr>;
 
 // Runtime tests for better error messages
 describe("Documentation Props Sync", () => {
@@ -111,10 +114,16 @@ describe("Documentation Props Sync", () => {
     expect(actualProps).toEqual(expect.arrayContaining([...DOCUMENTED_PROPS.AvoidBreak]));
   });
 
-  it("TableHeader props match TypeScript interface", () => {
-    const actualProps: (keyof TableHeaderProps)[] = ["children", "className"];
-    expect(DOCUMENTED_PROPS.TableHeader).toEqual(expect.arrayContaining(actualProps));
-    expect(actualProps).toEqual(expect.arrayContaining([...DOCUMENTED_PROPS.TableHeader]));
+  it("Thead props match TypeScript interface", () => {
+    const actualProps: (keyof TheadProps)[] = ["children", "repeat", "className"];
+    expect(DOCUMENTED_PROPS.Thead).toEqual(expect.arrayContaining(actualProps));
+    expect(actualProps).toEqual(expect.arrayContaining([...DOCUMENTED_PROPS.Thead]));
+  });
+
+  it("Tr props match TypeScript interface", () => {
+    const actualProps: (keyof TrProps)[] = ["children", "keep", "className"];
+    expect(DOCUMENTED_PROPS.Tr).toEqual(expect.arrayContaining(actualProps));
+    expect(actualProps).toEqual(expect.arrayContaining([...DOCUMENTED_PROPS.Tr]));
   });
 
   it("all components are documented", () => {
@@ -126,7 +135,8 @@ describe("Documentation Props Sync", () => {
       "TotalPages",
       "PageBreak",
       "AvoidBreak",
-      "TableHeader",
+      "Thead",
+      "Tr",
     ];
     expect(documentedComponents).toEqual(expect.arrayContaining(expectedComponents));
   });

@@ -210,7 +210,8 @@ export async function POST(req: Request) {
 | `<TotalPages>` | Total page count |
 | `<PageBreak>` | Force a page break |
 | `<AvoidBreak>` | Keep content together on same page |
-| `<TableHeader>` | Table header that repeats across pages |
+| `<Thead>` | Enhanced `<thead>` - add `repeat` to repeat across pages |
+| `<Tr>` | Enhanced `<tr>` - add `keep` to prevent splitting |
 | `<Tailwind>` | Enable Tailwind classes (from `@pdfn/tailwind`) |
 
 ## Packages

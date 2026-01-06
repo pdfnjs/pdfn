@@ -154,29 +154,48 @@ export default function Invoice() {
     ],
   },
   {
-    name: "TableHeader",
+    name: "Thead",
     category: "content",
-    description: "Repeats table headers on each page when a table spans multiple pages. Essential for long data tables.",
+    description: "Enhanced <thead> - add repeat prop to repeat headers on each page when a table spans multiple pages.",
     code: `<table className="w-full">
-  <TableHeader>
+  <Thead repeat>
     <tr className="border-b">
       <th className="text-left py-2">Item</th>
       <th className="text-right py-2">Qty</th>
       <th className="text-right py-2">Price</th>
     </tr>
-  </TableHeader>
+  </Thead>
   <tbody>
     {items.map((item) => (
-      <tr key={item.id} className="border-b">
+      <Tr key={item.id} keep>
         <td className="py-2">{item.name}</td>
         <td className="text-right py-2">{item.quantity}</td>
         <td className="text-right py-2">\${item.price}</td>
-      </tr>
+      </Tr>
     ))}
   </tbody>
 </table>`,
     props: [
-      { name: "children", type: "ReactNode", description: "Table row(s) to repeat as header" },
+      { name: "children", type: "ReactNode", description: "Table row(s) for header" },
+      { name: "repeat", type: "boolean", description: "Repeat header on each page" },
+      { name: "className", type: "string", description: "Additional CSS classes" },
+    ],
+  },
+  {
+    name: "Tr",
+    category: "content",
+    description: "Enhanced <tr> - add keep prop to prevent row from splitting across pages.",
+    code: `<tbody>
+  {items.map((item) => (
+    <Tr key={item.id} keep>
+      <td>{item.name}</td>
+      <td>{item.price}</td>
+    </Tr>
+  ))}
+</tbody>`,
+    props: [
+      { name: "children", type: "ReactNode", description: "Table cells" },
+      { name: "keep", type: "boolean", description: "Prevent row from splitting across pages" },
       { name: "className", type: "string", description: "Additional CSS classes" },
     ],
   },
@@ -256,7 +275,7 @@ export default function ComponentsPage() {
             React components for building structured, paginated PDFs.
           </p>
           <CodeBlock
-            code={`import { Document, Page, PageNumber, TotalPages, PageBreak, AvoidBreak, TableHeader } from "@pdfn/react";`}
+            code={`import { Document, Page, PageNumber, TotalPages, PageBreak, AvoidBreak, Thead, Tr } from "@pdfn/react";`}
             language="typescript"
           />
         </div>

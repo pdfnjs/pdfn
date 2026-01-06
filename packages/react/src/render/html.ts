@@ -175,9 +175,9 @@ if (typeof Paged !== 'undefined') {
     }
   }
 
-  // Handler for repeating table headers across pages
+  // Handler for repeating thead across pages
   // Based on: https://gist.github.com/theinvensi/e1aacc43bb5a3d852e2e85b08cf85c8a
-  class RepeatTableHeadersHandler extends Paged.Handler {
+  class RepeatTheadHandler extends Paged.Handler {
     constructor(chunker, polisher, caller) {
       super(chunker, polisher, caller);
       this.splitTablesRefs = [];
@@ -309,7 +309,7 @@ if (typeof Paged !== 'undefined') {
   }
 
   Paged.registerHandlers(PagedHandler);
-  Paged.registerHandlers(RepeatTableHeadersHandler);
+  Paged.registerHandlers(RepeatTheadHandler);
 } else {
   // No Paged.js, ready immediately after DOM load
   function signalReady() {

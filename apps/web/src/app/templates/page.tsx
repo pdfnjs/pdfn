@@ -32,7 +32,7 @@ const templates: Template[] = [
     description: "Professional invoice with line items, automatic totals, and company branding.",
     pageSize: "A4",
     orientation: "portrait",
-    components: ["Document", "Page", "TableHeader", "PageNumber", "TotalPages"],
+    components: ["Document", "Page", "Thead", "PageNumber", "TotalPages"],
     highlights: ["Multi-page tables", "Repeating headers", "Local images"],
   },
   {
