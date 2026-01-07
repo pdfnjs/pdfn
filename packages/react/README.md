@@ -12,13 +12,43 @@ npm install @pdfn/react
 
 ## Quick Start
 
-Two ways to generate PDFs:
+```tsx
+import { Document, Page, PageNumber, render } from '@pdfn/react';
 
-- **`render()`** → HTML string (use with Puppeteer/Playwright for full control)
-- **`generate()`** → PDF buffer directly
-  - Requires `npx pdfn serve` running (starts a local Chromium-backed PDF server)
+function Invoice() {
+  return (
+    <Document title="Invoice #123">
+      <Page size="A4" margin="1in" footer={<PageNumber />}>
+        <h1>Invoice #123</h1>
+        <p>Total: $148.00</p>
+      </Page>
+    </Document>
+  );
+}
 
-### Using render() + Puppeteer
+const html = await render(<Invoice />);
+// → Self-contained HTML ready for Chromium
+```
+
+## See It in Action
+
+**[pdfn.dev](https://pdfn.dev/#demo)** — Live demo with example templates:
+
+- **Invoice** — Multi-page tables with repeating headers, automatic pagination
+- **Contract** — Legal documents with watermarks and signature blocks
+- **Poster** — Single-page layouts with custom fonts and backgrounds
+
+Or run locally: `npx pdfn dev`
+
+## render() vs generate()
+
+| | `render()` | `generate()` |
+|---|---|---|
+| **Returns** | HTML string | PDF buffer |
+| **Requires** | Nothing | `pdfn serve` running |
+| **Use when** | You have your own Puppeteer/Playwright setup | You want an all-in-one solution |
+
+### render() + Puppeteer
 
 ```tsx
 import puppeteer from 'puppeteer';
@@ -76,43 +106,20 @@ const pdf = await generate(<Invoice />);
 
 ## Components
 
-| Component | Description |
-|-----------|-------------|
-| `<Document>` | Root wrapper with metadata (title, author, fonts) |
-| `<Page>` | Page container with size, margins, header/footer |
-| `<PageNumber>` | Current page number |
-| `<TotalPages>` | Total page count |
-| `<PageBreak>` | Force a page break |
-| `<AvoidBreak>` | Keep content together on the same page |
-| `<Thead>` | Enhanced `<thead>` - add `repeat` to repeat across pages |
-| `<Tr>` | Enhanced `<tr>` - add `keep` to prevent splitting |
+| Component | Props | Description |
+|-----------|-------|-------------|
+| `<Document>` | `title`, `author`, `fonts` | Root wrapper with PDF metadata |
+| `<Page>` | `size`, `margin`, `header`, `footer`, `watermark` | Page container with layout options |
+| `<PageNumber>` | — | Current page number (use in header/footer) |
+| `<TotalPages>` | — | Total page count (use in header/footer) |
+| `<PageBreak>` | — | Force a page break |
+| `<AvoidBreak>` | — | Keep content together on the same page |
+| `<Thead>` | **`repeat`** | Table header that repeats on every page |
+| `<Tr>` | `keep` | Table row that won't split across pages |
+
+> **Killer feature:** `<Thead repeat>` automatically repeats table headers on every page — no more "what column is this?" on page 5 of your invoice.
 
 ## API
-
-### `render(element)`
-
-Converts React to HTML. No server required.
-
-```ts
-const html = await render(<Document>...</Document>);
-```
-
-Use for:
-- Custom PDF pipelines with Puppeteer/Playwright
-- Previewing in browser
-- Testing templates
-
-### `generate(element, options?)`
-
-Converts React to PDF buffer. Requires pdfn server. Returns `Buffer` (Node.js).
-
-```ts
-const pdf = await generate(<Document>...</Document>);
-```
-
-Options:
-- `output` - `"pdf"` (default) or `"html"`
-- `host` - Server URL (default: `process.env.PDFN_HOST` or `http://localhost:3456`)
 
 ### Document Props
 
@@ -255,55 +262,61 @@ Options:
 </Document>
 ```
 
-## Debug Utilities
-
-For custom preview UIs, import from `@pdfn/react/debug`. These helpers modify HTML output only and are not included in production PDFs.
-
-```ts
-import { injectDebugSupport } from '@pdfn/react/debug';
-
-const html = await render(<Document>...</Document>);
-const debugHtml = injectDebugSupport(html, {
-  grid: true,     // 1cm grid overlay
-  margins: true,  // Margin boundaries
-  headers: true,  // Header/footer regions
-  breaks: true,   // Page break indicators
-});
-```
-
 ## Environment Variables
 
 | Variable | Default | Description |
 |----------|---------|-------------|
 | `PDFN_HOST` | `http://localhost:3456` | Server URL for `generate()` |
-| `PDFN_NO_EDGE_WARNINGS` | - | Set to `1` to suppress edge runtime warnings |
 | `DEBUG` | - | Set to `pdfn:react` or `pdfn:*` to enable logging |
 
-## Edge Runtime Support
+## Tailwind CSS
 
-`render()` works on edge runtimes (Vercel Edge, Cloudflare Workers) with some limitations:
+Wrap your content with `<Tailwind>` to use Tailwind classes:
 
-- **Remote images/fonts**: Work everywhere
-- **Local images/fonts**: Require Node.js (helpful errors on edge)
-- **Runtime Tailwind**: Requires Node.js or build-time compilation (`@pdfn/next` / `@pdfn/vite`)
+```tsx
+import { Document, Page } from '@pdfn/react';
+import { Tailwind } from '@pdfn/tailwind';
 
-For edge deployments with Tailwind, use a build plugin:
+<Document>
+  <Tailwind>
+    <Page size="A4">
+      <h1 className="text-2xl font-bold text-gray-900">Styled PDF</h1>
+    </Page>
+  </Tailwind>
+</Document>
+```
+
+### Serverless Deployments (Vercel, Cloudflare)
+
+> **Why build plugins?** Tailwind v4 compiles CSS at runtime using Node.js APIs. Edge runtimes don't have these APIs, so you'll get "works locally, breaks on Vercel" errors. The build plugins pre-compile your Tailwind classes at build time, embedding the CSS directly.
 
 ```bash
 # Next.js
-npm i @pdfn/react @pdfn/next
+npm i @pdfn/next
 
 # Vite
-npm i @pdfn/react @pdfn/vite
+npm i @pdfn/vite
 ```
 
-Both include `@pdfn/tailwind` - import `Tailwind` from the plugin package:
+Import `Tailwind` from the plugin package (includes `@pdfn/tailwind`):
 
 ```tsx
 import { Tailwind } from "@pdfn/next";  // or "@pdfn/vite"
 ```
 
-See [@pdfn/next](https://github.com/pdfnjs/pdfn/tree/main/packages/next) and [@pdfn/vite](https://github.com/pdfnjs/pdfn/tree/main/packages/vite) for config setup.
+Configure your build:
+
+```ts
+// next.config.ts
+import { withPdfnTailwind } from "@pdfn/next";
+export default withPdfnTailwind()({ /* your config */ });
+
+// vite.config.ts
+import { pdfnTailwind } from "@pdfn/vite";
+export default { plugins: [pdfnTailwind()] };
+```
+
+See [@pdfn/next](../next) and [@pdfn/vite](../vite) for build configuration.
 
 ## License
 

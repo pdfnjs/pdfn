@@ -40,13 +40,13 @@ import { Tailwind } from "@pdfn/next";  // Tailwind included, no extra install
 
 export default function Invoice() {
   return (
-    <Tailwind>
-      <Document>
+    <Document>
+      <Tailwind>
         <Page size="A4">
           <h1 className="text-2xl font-bold">Invoice</h1>
         </Page>
-      </Document>
-    </Tailwind>
+      </Tailwind>
+    </Document>
   );
 }
 ```
@@ -70,7 +70,7 @@ export async function GET() {
 | Option | Type | Default | Description |
 |--------|------|---------|-------------|
 | `templates` | `string \| string[]` | `['./pdf-templates/**/*.tsx', './src/pdf/**/*.tsx']` | Glob patterns for template files |
-| `cssPath` | `string` | Auto-detected | Path to CSS file with Tailwind imports |
+| `cssPath` | `string` | Auto-detected from `globals.css` etc. | Path to CSS file with Tailwind imports |
 
 ## How It Works
 
@@ -91,18 +91,6 @@ In development (`NODE_ENV !== 'production'`), the plugin:
 [pdfn:next] Compiled 20589 bytes of CSS from 142 classes in 6 files
 [pdfn:next] Watching for changes: /path/to/pdf-templates
 ```
-
-## CSS Auto-Detection
-
-If `cssPath` is not provided, looks for CSS in common locations:
-
-- `./src/app/globals.css`
-- `./src/styles/globals.css`
-- `./app/globals.css`
-- `./styles/globals.css`
-- `./styles/tailwind.css`
-
-Falls back to vanilla Tailwind if no custom CSS found.
 
 ## Using Your Theme
 

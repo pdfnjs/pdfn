@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import Script from "next/script";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -13,7 +14,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "PDFN - Write React. Ship PDFs.",
+  title: "pdfn - Write React. Ship PDFs.",
   description:
     "Build pixel-perfect, paginated PDFs with React and Tailwind. What you preview is what you ship.",
   metadataBase: new URL("https://pdfn.dev"),
@@ -31,20 +32,20 @@ export const metadata: Metadata = {
     "invoice generator",
     "PDF templates",
   ],
-  authors: [{ name: "PDFN" }],
-  creator: "PDFN",
+  authors: [{ name: "Gokul Siva", url: "https://github.com/gokulsiva" }],
+  creator: "pdfn",
   openGraph: {
     type: "website",
     locale: "en_US",
     url: "https://pdfn.dev",
-    siteName: "PDFN",
-    title: "PDFN - Write React. Ship PDFs.",
+    siteName: "pdfn",
+    title: "pdfn - Write React. Ship PDFs.",
     description:
       "Build pixel-perfect, paginated PDFs with React and Tailwind. What you preview is what you ship.",
   },
   twitter: {
     card: "summary_large_image",
-    title: "PDFN - Write React. Ship PDFs.",
+    title: "pdfn - Write React. Ship PDFs.",
     description:
       "Build pixel-perfect, paginated PDFs with React and Tailwind. What you preview is what you ship.",
   },
@@ -67,6 +68,12 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         {children}
+        <Script
+          src="https://cdn.counter.dev/script.js"
+          data-id="e3da95bf-9fc8-48fa-b0b6-f8d9cb83de7b"
+          data-utcoffset="6"
+          strategy="afterInteractive"
+        />
       </body>
     </html>
   );

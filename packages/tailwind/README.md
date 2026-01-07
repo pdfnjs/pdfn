@@ -20,14 +20,14 @@ import { Tailwind } from '@pdfn/tailwind';
 
 function Invoice() {
   return (
-    <Tailwind>
-      <Document>
+    <Document>
+      <Tailwind>
         <Page size="A4">
           <h1 className="text-2xl font-bold text-blue-600">Invoice</h1>
           <p className="text-gray-600 mt-2">Thank you for your purchase.</p>
         </Page>
-      </Document>
-    </Tailwind>
+      </Tailwind>
+    </Document>
   );
 }
 ```
@@ -37,13 +37,13 @@ function Invoice() {
 Point to your CSS file to use your custom theme, fonts, and colors:
 
 ```tsx
-<Tailwind css="./src/app/globals.css">
-  <Document>
+<Document>
+  <Tailwind css="./src/app/globals.css">
     <Page>
       <div className="font-inter text-brand">Uses your theme!</div>
     </Page>
-  </Document>
-</Tailwind>
+  </Tailwind>
+</Document>
 ```
 
 Your CSS file should include Tailwind and any customizations:
@@ -61,50 +61,14 @@ Your CSS file should include Tailwind and any customizations:
 
 ## Auto-detection
 
-If no `css` prop is provided, auto-detects from common locations:
-
-- `./src/app/globals.css`
-- `./src/styles/globals.css`
-- `./app/globals.css`
-- `./styles/globals.css`
-- `./styles/tailwind.css`
-- `./src/index.css`
-- `./src/styles.css`
-
-Falls back to default Tailwind styles if no CSS file is found.
+If no `css` prop is provided, auto-detects from common locations like `./src/app/globals.css`, `./app/globals.css`, etc. Falls back to default Tailwind styles if no CSS file is found.
 
 ## API
-
-### `<Tailwind>`
 
 | Prop | Type | Description |
 |------|------|-------------|
 | `children` | `ReactNode` | Content to render |
 | `css` | `string` | Optional path to a Tailwind CSS entry file |
-
-### `processTailwind(html, options?)`
-
-Low-level function for advanced use cases:
-
-```ts
-import { processTailwind } from '@pdfn/tailwind';
-
-const css = await processTailwind(html, {
-  cssPath: './src/app/globals.css'
-});
-```
-
-## How It Works
-
-1. `<Tailwind>` wraps your content with a hidden marker
-2. `render()` detects the marker during processing
-3. Tailwind v4's `compile()` API extracts only the classes used in the document
-4. Generated CSS is inlined in the final HTML
-
-This ensures:
-- Only used classes are included (small CSS output)
-- Your custom theme and fonts work out of the box
-- No build step required
 
 ## Serverless / Edge Deployment
 

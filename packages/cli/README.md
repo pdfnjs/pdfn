@@ -2,7 +2,13 @@
 
 CLI and PDF server for pdfn. Dev server with live preview, production server for PDF generation.
 
-> Requires headless Chromium (Puppeteer/Playwright compatible). For serverless, use [@sparticuz/chromium](https://github.com/Sparticuz/chromium) or a hosted browser service.
+> Requires headless Chromium. For serverless, use [@sparticuz/chromium](https://github.com/Sparticuz/chromium) or a hosted browser service.
+
+## See It in Action
+
+**[pdfn.dev](https://pdfn.dev/#demo)** — Live demo with example templates.
+
+Or run locally: `npx pdfn dev --open`
 
 ## Installation
 

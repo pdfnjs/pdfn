@@ -9,7 +9,7 @@ export function Header() {
   const navLinks = [
     { href: "/components", label: "Components" },
     { href: "/templates", label: "Templates" },
-    { href: "/docs", label: "Docs" },
+    { href: "https://github.com/pdfnjs/pdfn#quick-start", label: "Docs", external: true },
   ];
 
   return (
@@ -20,19 +20,31 @@ export function Header() {
           <span className="text-primary">n</span>
         </Link>
         <nav className="flex items-center gap-6">
-          {navLinks.map((link) => (
-            <Link
-              key={link.href}
-              href={link.href}
-              className={
-                pathname === link.href
-                  ? "text-text-primary font-medium"
-                  : "text-text-secondary hover:text-text-primary transition-colors"
-              }
-            >
-              {link.label}
-            </Link>
-          ))}
+          {navLinks.map((link) =>
+            "external" in link && link.external ? (
+              <a
+                key={link.href}
+                href={link.href}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-text-secondary hover:text-text-primary transition-colors"
+              >
+                {link.label}
+              </a>
+            ) : (
+              <Link
+                key={link.href}
+                href={link.href}
+                className={
+                  pathname === link.href
+                    ? "text-text-primary font-medium"
+                    : "text-text-secondary hover:text-text-primary transition-colors"
+                }
+              >
+                {link.label}
+              </Link>
+            )
+          )}
           <div className="w-px h-5 bg-border" />
           <a
             href="https://github.com/pdfnjs/pdfn"
