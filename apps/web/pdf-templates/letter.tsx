@@ -70,7 +70,7 @@ export default function Letter({
           <div className="mb-6 pb-3 border-b-2 border-gray-800">
             <div className="flex justify-between items-start">
               <div>
-                <img src="./pdf-templates/assets/logo.svg" alt="Company Logo" className="h-8 mb-2" />
+                <img src="/logo.svg" alt="Company Logo" className="h-8 mb-2" />
                 <div className="text-xs text-gray-500">
                   {sender.address} • {sender.city}
                 </div>

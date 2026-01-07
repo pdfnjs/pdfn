@@ -98,7 +98,7 @@ export default function Invoice({
           {/* Header */}
           <div className="flex justify-between items-start mb-8">
             <div>
-              <img src="./pdf-templates/assets/logo.svg" alt="Company Logo" className="h-10 mb-2" />
+              <img src="/logo.svg" alt="Company Logo" className="h-10 mb-2" />
               <div className="text-xs text-gray-500">{company.address}</div>
             </div>
             <div className="text-right">
