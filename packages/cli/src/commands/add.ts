@@ -1,5 +1,5 @@
 import { Command } from "commander";
-import { existsSync, mkdirSync, copyFileSync } from "fs";
+import { existsSync, mkdirSync, copyFileSync, readFileSync } from "fs";
 import { join, dirname } from "path";
 import { fileURLToPath } from "url";
 import chalk from "chalk";
@@ -45,15 +45,25 @@ function getTemplatesDir(style: TemplateStyle): string {
 
 /**
  * Check if @pdfn/tailwind is installed in user's project
+ * Checks both package.json and node_modules for compatibility with npm, pnpm, yarn
  */
 function isTailwindInstalled(cwd: string): boolean {
+  // First check package.json for explicit dependency
   try {
-    // Check node_modules for @pdfn/tailwind
-    const tailwindPath = join(cwd, "node_modules", "@pdfn", "tailwind");
-    return existsSync(tailwindPath);
+    const pkgPath = join(cwd, "package.json");
+    if (existsSync(pkgPath)) {
+      const pkg = JSON.parse(readFileSync(pkgPath, "utf-8"));
+      if (pkg.dependencies?.["@pdfn/tailwind"] || pkg.devDependencies?.["@pdfn/tailwind"]) {
+        return true;
+      }
+    }
   } catch {
-    return false;
+    // Ignore parse errors
   }
+
+  // Fall back to checking node_modules (for linked packages, global installs, etc.)
+  const tailwindPath = join(cwd, "node_modules", "@pdfn", "tailwind");
+  return existsSync(tailwindPath);
 }
 
 export const addCommand = new Command("add")
