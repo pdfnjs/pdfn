@@ -2,7 +2,7 @@ import { ImageResponse } from "next/og";
 
 export const runtime = "edge";
 
-export const alt = "PDFN - The React Framework for PDFs";
+export const alt = "pdfn - Write React. Ship PDFs.";
 export const size = {
   width: 1200,
   height: 630,
@@ -32,7 +32,7 @@ export default async function Image() {
             letterSpacing: "-0.02em",
           }}
         >
-          <span style={{ color: "#71717a" }}>pdf</span>
+          <span style={{ color: "#4B5563" }}>pdf</span>
           <span style={{ color: "#22d3ee" }}>n</span>
         </div>
 
@@ -44,7 +44,7 @@ export default async function Image() {
             marginTop: 24,
           }}
         >
-          The React Framework for PDFs
+          Write React. Ship PDFs.
         </div>
 
         {/* URL */}
