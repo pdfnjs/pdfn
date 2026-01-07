@@ -363,7 +363,7 @@ export default function Home() {
 
                 {/* Code */}
                 {activeTab === "code" && (
-                  <div className="absolute inset-0 overflow-auto">
+                  <div className="absolute inset-0 overflow-auto select-text">
                     <SyntaxHighlighter
                       language="tsx"
                       style={nightOwl}
@@ -784,17 +784,17 @@ export default function Home() {
           </p>
           <div className="flex flex-col gap-2 max-w-md mx-auto font-mono text-left">
             {[
-              "npm i @pdfn/react @pdfn/tailwind",
+              "npm i @pdfn/react",
               "npx pdfn add invoice",
-              "npx pdfn dev",
+              "npx pdfn dev --open",
             ].map((cmd) => (
-              <button
+              <div
                 key={cmd}
                 onClick={() => handleCopyCommand(cmd)}
-                className="bg-background border border-border hover:border-border-hover rounded-lg px-4 py-2.5 flex items-center justify-between group transition-colors text-left"
+                className="bg-background border border-border hover:border-border-hover rounded-lg px-4 py-2.5 flex items-center justify-between group transition-colors text-left cursor-pointer select-text"
               >
                 <span className="flex items-center gap-2">
-                  <span className="text-text-muted">$</span>
+                  <span className="text-text-muted select-none">$</span>
                   <span className="text-text-primary">{cmd}</span>
                 </span>
                 {copiedCommand === cmd ? (
@@ -806,7 +806,7 @@ export default function Home() {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
                   </svg>
                 )}
-              </button>
+              </div>
             ))}
           </div>
         </div>
