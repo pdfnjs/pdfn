@@ -35,6 +35,28 @@ Opens a preview UI with a working invoice template. Edit `pdf-templates/invoice.
 - Next.js serverless: `npm i @pdfn/next` → see [@pdfn/next](./packages/next)
 - Vite serverless: `npm i @pdfn/vite` → see [@pdfn/vite](./packages/vite)
 
+## Choose Your Path
+
+| I want to... | Use this |
+|--------------|----------|
+| Generate PDFs quickly with minimal setup | `generate()` + `pdfn dev` |
+| Full control with Puppeteer/Playwright | `render()` → bring your own browser |
+| Next.js + Tailwind (serverless) | `@pdfn/next` → [example](#nextjs-api-route) |
+| Vite + Tailwind (serverless) | `@pdfn/vite` → [@pdfn/vite](./packages/vite) |
+
+## Core Components
+
+These four primitives handle 90% of use cases:
+
+| Component | Purpose |
+|-----------|---------|
+| `<Document>` | Root wrapper — sets PDF metadata (title, author, fonts) |
+| `<Page>` | Page container — defines size, margins, headers, footers |
+| `<PageNumber>` | Renders current page number (use in headers/footers) |
+| `<PageBreak>` | Forces content to next page |
+
+See the [full component reference](#components) for `<AvoidBreak>`, `<TotalPages>`, table components, and more.
+
 ## Requirements
 
 **Server-side only** — Both `render()` and `generate()` from `@pdfn/react` require server environment:
@@ -51,7 +73,15 @@ Two ways to generate PDFs:
 
 - **`render()`** → HTML string (use with Puppeteer/Playwright for full control)
 - **`generate()`** → PDF buffer directly
-  - Requires `npx pdfn dev` or `npx pdfn serve` running (starts a local Chromium-backed PDF server)
+
+> **Important:** `generate()` does NOT start Chromium automatically. You must have `pdfn dev` or `pdfn serve` running. This is a separate process that manages the browser pool.
+>
+> ```bash
+> # Terminal 1: Start the PDF server
+> npx pdfn serve
+>
+> # Terminal 2: Your app calls generate()
+> ```
 
 ### Basic (Inline Styles - using local pdfn server)
 
@@ -155,6 +185,16 @@ function Invoice({ data }: { data: { id: string; customer: string; total: number
 // Generate the PDF
 const pdf = await generate(<Invoice data={{ id: 'INV-001', customer: 'Acme Corp', total: 148 }} />);
 ```
+
+**Which Tailwind package do I need?**
+
+| Package | When to use |
+|---------|-------------|
+| `@pdfn/tailwind` | Node.js scripts, local development, non-serverless |
+| `@pdfn/next` | Next.js apps deploying to Vercel/serverless |
+| `@pdfn/vite` | Vite apps deploying to Cloudflare/serverless |
+
+`@pdfn/next` and `@pdfn/vite` pre-compile Tailwind at build time, which is required for serverless where the Tailwind CLI isn't available at runtime.
 
 ### Next.js API Route
 
@@ -292,19 +332,19 @@ npx pdfn add --list             # Show all templates
 
 ## Roadmap
 
-**High priority:**
-- [ ] Table primitives - Column definitions, row keep-together, auto sizing
-- [ ] Font subsetting - Smaller PDFs by stripping unused glyphs
-- [ ] Table of Contents - Auto-generated with page number resolution
+**Layout & Pagination**
+- [ ] Table primitives — Column definitions, row keep-together, auto sizing
+- [ ] Orphans & widows — Prevent single lines at page boundaries
 
-**Medium priority:**
-- [ ] Orphans & widows - Prevent single lines at page boundaries
-- [ ] Footnotes - Page-local references for legal/academic docs
-- [ ] Internal anchors - Cross-page references ("See page X")
+**Document Features**
+- [ ] Table of Contents — Auto-generated with page number resolution
+- [ ] Internal anchors — Cross-page references ("See page X")
+- [ ] Footnotes — Page-local references for legal/academic docs
 
-**Low priority:**
-- [ ] Image optimization - Auto-compress before embedding
-- [ ] PDF/A support - Archival compliance
+**Optimization & Compliance**
+- [ ] Font subsetting — Smaller PDFs by stripping unused glyphs
+- [ ] Image optimization — Auto-compress before embedding
+- [ ] PDF/A support — Archival compliance
 
 ## Contributing
 
