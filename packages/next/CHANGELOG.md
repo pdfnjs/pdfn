@@ -1,5 +1,11 @@
 # @pdfn/next
 
+## 0.2.1
+
+### Patch Changes
+
+- Fix transform loader to detect Tailwind imports from both `@pdfn/tailwind` and `@pdfn/next`
+
 ## 0.2.0
 
 ### Minor Changes
