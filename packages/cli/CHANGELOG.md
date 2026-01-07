@@ -1,5 +1,12 @@
 # pdfn
 
+## 0.2.2
+
+### Patch Changes
+
+- Updated dependencies [f24f17e]
+  - @pdfn/vite@0.3.0
+
 ## 0.2.1
 
 ### Patch Changes
