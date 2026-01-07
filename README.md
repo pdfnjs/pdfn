@@ -16,6 +16,13 @@ React → pdfn → HTML (+ Layout Helpers) → Chromium (Wait for Ready) → PDF
 2. **pdfn** — Injects layout helpers for pagination, headers, footers
 3. **Chromium** — Waits for `PDFN.ready`, then captures the PDF
 
+## What pdfn is not
+
+- Not a visual PDF editor
+- Not client-side / browser-only
+
+pdfn is a server-side orchestration layer that makes Chromium-based PDF generation predictable and paginated using React.
+
 ## Quick Start
 
 In your React project (Next.js, Vite, etc.):
@@ -311,9 +318,11 @@ npx pdfn add --list             # Show all templates
 
 ### Alternatives
 
-- **Need client-side PDF generation?** → [@react-pdf/renderer](https://react-pdf.org)
-- **High volume (100k+ PDFs/hour)?** → [PDFKit](http://pdfkit.org)
-- **Fill existing PDFs?** → [pdf-lib](https://pdf-lib.js.org)
+- **[@react-pdf/renderer](https://react-pdf.org)** — Client-side, but limited layout
+- **[PDFKit](http://pdfkit.org)** — Fast and low-level, but manual positioning
+- **[pdf-lib](https://pdf-lib.js.org)** — Great for modifying existing PDFs, not generating from scratch
+
+**pdfn** gives you full CSS layout with React components.
 
 ## Roadmap
 
