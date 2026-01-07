@@ -1,5 +1,12 @@
 # @pdfn/next
 
+## 0.2.2
+
+### Patch Changes
+
+- Updated dependencies
+  - @pdfn/tailwind@0.1.1
+
 ## 0.2.1
 
 ### Patch Changes
