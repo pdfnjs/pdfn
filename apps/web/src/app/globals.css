@@ -5,6 +5,10 @@
  * Color System - Dark theme optimized for readability
  */
 
+html {
+  scroll-behavior: smooth;
+}
+
 :root {
   /* Base */
   --background: #0f0f0f;

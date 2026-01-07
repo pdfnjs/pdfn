@@ -194,18 +194,6 @@ export default function Home() {
     }
   };
 
-  const scrollToDemo = () => {
-    const demo = document.getElementById("demo");
-    if (demo) {
-      // Demo section has py-20 (80px) top padding before the title
-      // We want the title to appear ~32px from viewport top
-      const sectionPadding = 80; // py-20
-      const viewportOffset = 32; // desired space from viewport top
-      const top = demo.offsetTop + sectionPadding - viewportOffset;
-      window.scrollTo({ top, behavior: "smooth" });
-    }
-  };
-
   return (
     <div className="min-h-screen bg-background">
       <Header />
@@ -220,12 +208,12 @@ export default function Home() {
             Build predictable, paginated PDFs with React and Tailwind. Preview locally, ship the same output everywhere.
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 animate-fade-in-delay-2">
-            <button
-              onClick={scrollToDemo}
+            <a
+              href="#preview"
               className="bg-primary hover:bg-primary-hover text-black font-semibold px-6 py-3 rounded-lg transition-colors btn-glow"
             >
               View live preview
-            </button>
+            </a>
             <a
               href="/docs"
               className="bg-surface-1 border border-border hover:border-border-hover rounded-lg px-6 py-3 font-medium text-text-primary transition-colors"
@@ -236,11 +224,11 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Demo Section */}
-      <section id="demo" className="py-20 px-6 scroll-mt-20">
+      {/* Preview Section */}
+      <section className="py-20 px-6">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-12 fade-in-section">
-            <h2 className="text-3xl font-bold text-text-primary mb-4">
+            <h2 id="preview" className="text-3xl font-bold text-text-primary mb-4 scroll-mt-16">
               Simple, familiar API
             </h2>
             <p className="text-xl text-text-secondary">
@@ -645,7 +633,7 @@ export default function Home() {
       <section className="py-20 px-6 bg-surface-1">
         <div className="max-w-4xl mx-auto">
           <div className="text-center mb-12 fade-in-section">
-            <h2 className="text-3xl font-bold text-text-primary mb-4">
+            <h2 id="how-it-works" className="text-3xl font-bold text-text-primary mb-4 scroll-mt-16">
               How it works
             </h2>
             <p className="text-text-secondary max-w-2xl mx-auto">
@@ -714,7 +702,7 @@ export default function Home() {
       <section className="py-20 px-6">
         <div className="max-w-4xl mx-auto">
           <div className="text-center mb-12 fade-in-section">
-            <h2 className="text-3xl font-bold text-text-primary mb-4">
+            <h2 id="why-pdfn" className="text-3xl font-bold text-text-primary mb-4 scroll-mt-16">
               Why pdfn instead of Puppeteer scripts?
             </h2>
             <p className="text-xl text-text-secondary">
@@ -776,7 +764,7 @@ export default function Home() {
       {/* Quick Start */}
       <section className="py-20 px-6 bg-surface-1">
         <div className="max-w-3xl mx-auto text-center fade-in-section">
-          <h2 className="text-3xl font-bold text-text-primary mb-4">
+          <h2 id="quickstart" className="text-3xl font-bold text-text-primary mb-4 scroll-mt-16">
             Get started in seconds
           </h2>
           <p className="text-xl text-text-secondary mb-10">
@@ -816,7 +804,7 @@ export default function Home() {
       <section className="py-20 px-6">
         <div className="max-w-5xl mx-auto">
           <div className="text-center mb-12 fade-in-section">
-            <h2 className="text-3xl font-bold text-text-primary mb-4">
+            <h2 id="features" className="text-3xl font-bold text-text-primary mb-4 scroll-mt-16">
               Built for developers
             </h2>
             <p className="text-xl text-text-secondary max-w-2xl mx-auto mb-3">
@@ -934,7 +922,7 @@ export default function Home() {
       <section className="py-20 px-6 bg-surface-1">
         <div className="max-w-3xl mx-auto">
           <div className="text-center mb-12 fade-in-section">
-            <h2 className="text-3xl font-bold text-text-primary mb-4">
+            <h2 id="tradeoffs" className="text-3xl font-bold text-text-primary mb-4 scroll-mt-16">
               Tradeoffs
             </h2>
             <p className="text-xl text-text-secondary">
@@ -1000,7 +988,7 @@ export default function Home() {
       <section className="py-20 px-6">
         <div className="max-w-4xl mx-auto">
           <div className="text-center mb-12 fade-in-section">
-            <h2 className="text-3xl font-bold text-text-primary mb-4">
+            <h2 id="roadmap" className="text-3xl font-bold text-text-primary mb-4 scroll-mt-16">
               What&apos;s next
             </h2>
             <p className="text-xl text-text-secondary">
