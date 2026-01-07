@@ -30,20 +30,6 @@ Opens a preview UI with a working invoice template. Edit `pdf-templates/invoice.
 
 ![pdfn dev preview](./docs/assets/dev-preview.png)
 
-**Want Tailwind?** `npm i @pdfn/tailwind` — works everywhere except edge runtimes.
-
-Edge runtimes only: Add `@pdfn/next` (Vercel Edge) or `@pdfn/vite` (Cloudflare, Deno).
-
-## Choose Your Path
-
-| I want to... | Use this |
-|--------------|----------|
-| Generate PDFs quickly with minimal setup | `generate()` + `npx pdfn serve` |
-| Full control with Puppeteer/Playwright | `render()` → bring your own browser |
-| Tailwind CSS styling | `@pdfn/tailwind` → works everywhere except edge |
-| Tailwind + Vercel Edge | `@pdfn/tailwind` + `@pdfn/next` |
-| Tailwind + Cloudflare/Deno | `@pdfn/tailwind` + `@pdfn/vite` |
-
 ## Core Components
 
 These four primitives handle 90% of use cases:
@@ -83,7 +69,7 @@ Two ways to generate PDFs:
 > # Terminal 2: Your app calls generate()
 > ```
 
-### Basic (Inline Styles - using local pdfn server)
+### Basic Example
 
 ```tsx
 import { Document, Page, PageNumber, generate } from '@pdfn/react';
@@ -113,7 +99,7 @@ import { writeFileSync } from 'fs';
 writeFileSync('invoice.pdf', pdf);
 ```
 
-### Basic (Inline Styles - using Puppeteer)
+### Advanced: Using render() with Puppeteer
 
 ```tsx
 import puppeteer from 'puppeteer';
@@ -235,8 +221,6 @@ export async function POST(req: Request) {
 }
 ```
 
-> **Deploying to Vercel?** Just use `@pdfn/tailwind`. Only add [@pdfn/next](./packages/next) if using Edge runtime (`export const runtime = 'edge'`).
-
 ## Features
 
 ### @pdfn/react (Library)
@@ -244,8 +228,7 @@ export async function POST(req: Request) {
 - Standard page sizes (A4, Letter, etc.) + custom dimensions
 - Layout with clean page breaks, headers, footers, and watermarks
 - Local and web fonts/images auto-embedded
-- Tailwind CSS support (via `@pdfn/tailwind`)
-- Edge runtime plugins available (`@pdfn/next`, `@pdfn/vite`) for pre-compiling Tailwind
+- Tailwind CSS support via `@pdfn/tailwind`
 
 ### pdfn (CLI)
 
