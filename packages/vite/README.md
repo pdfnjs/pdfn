@@ -8,20 +8,16 @@ Vite plugin for pre-compiling Tailwind CSS at build time.
 
 | Setup | Plugin Needed? |
 |-------|---------------|
-| Inline styles only | **No** |
-| Tailwind + local Node.js | **No** |
+| Inline styles only | **No** - just use `@pdfn/react` |
+| Tailwind + local Node.js | **No** - runtime compilation works |
 | Tailwind + Vercel/serverless | **Yes** |
 | Tailwind + Edge runtime | **Yes** |
 
-If you use plain React with inline styles, no build config is required.
-
-## Installation
+## Quick Start
 
 ```bash
-npm install @pdfn/vite
+npm i @pdfn/react @pdfn/vite
 ```
-
-## Usage
 
 ```ts
 // vite.config.ts
@@ -39,6 +35,35 @@ export default defineConfig({
 });
 ```
 
+```tsx
+// pdf-templates/invoice.tsx
+import { Document, Page } from "@pdfn/react";
+import { Tailwind } from "@pdfn/vite";  // Tailwind included, no extra install
+
+export default function Invoice() {
+  return (
+    <Tailwind>
+      <Document>
+        <Page size="A4">
+          <h1 className="text-2xl font-bold">Invoice</h1>
+        </Page>
+      </Document>
+    </Tailwind>
+  );
+}
+```
+
+```tsx
+// src/generate-pdf.ts
+import { generate } from "@pdfn/react";
+import Invoice from "./pdf-templates/invoice";
+
+export async function generateInvoice() {
+  const pdf = await generate(<Invoice />);
+  return pdf;
+}
+```
+
 ## Options
 
 | Option | Type | Default | Description |
@@ -48,7 +73,7 @@ export default defineConfig({
 
 ## How It Works
 
-1. Scans template files for Tailwind classes at build time
+1. At build time, scans template files for Tailwind classes
 2. Compiles CSS using Tailwind v4's `compile()` API
 3. Creates a virtual module with pre-compiled CSS
 4. Transforms `<Tailwind>` components to use the pre-compiled CSS
@@ -62,7 +87,7 @@ In development, the plugin:
 
 ## CSS Auto-Detection
 
-If `cssPath` is not provided, the plugin looks for CSS in common locations:
+If `cssPath` is not provided, looks for CSS in common locations:
 
 - `./src/app/globals.css`
 - `./src/styles/globals.css`
@@ -71,6 +96,29 @@ If `cssPath` is not provided, the plugin looks for CSS in common locations:
 - `./styles/tailwind.css`
 
 Falls back to vanilla Tailwind if no custom CSS found.
+
+## Using Your Theme
+
+Point to your CSS file to use custom colors, fonts, etc:
+
+```ts
+pdfnTailwind({
+  templates: ["./pdf-templates/**/*.tsx"],
+  cssPath: "./src/styles/globals.css",
+})
+```
+
+Your CSS file should include Tailwind:
+
+```css
+/* globals.css */
+@import "tailwindcss";
+
+@theme {
+  --color-brand: #007bff;
+  --font-heading: "Inter", sans-serif;
+}
+```
 
 ## Requirements
 

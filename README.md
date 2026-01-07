@@ -15,12 +15,17 @@ pdfn prepares HTML designed for clean page breaks and waits until layout stabili
 In your React project (Next.js, Vite, etc.):
 
 ```bash
-npm i @pdfn/react @pdfn/tailwind
+npm i @pdfn/react
 npx pdfn add invoice
 npx pdfn dev --open
 ```
 
 Opens a preview UI with a working invoice template. Edit `pdf-templates/invoice.tsx` and see changes instantly.
+
+**Want Tailwind?**
+- Local/Node.js: `npm i @pdfn/tailwind` → see [@pdfn/tailwind](./packages/tailwind)
+- Next.js serverless: `npm i @pdfn/next` → see [@pdfn/next](./packages/next)
+- Vite serverless: `npm i @pdfn/vite` → see [@pdfn/vite](./packages/vite)
 
 ## How pdfn works
 
@@ -30,14 +35,12 @@ Opens a preview UI with a working invoice template. Edit `pdf-templates/invoice.
 
 ## Requirements
 
-**Server-only** - pdfn uses Node.js APIs and cannot run in the browser.
-
-Use in:
+**Server-side** - `generate()` and Tailwind require Node.js. Use in:
 - Next.js API routes / Server Actions / Server Components
 - Express, Fastify, Hono backends
 - Node.js scripts
 
-Do NOT use in `"use client"` components or browser code.
+`render()` works in browser for previews (with remote assets only).
 
 ## Usage
 
@@ -153,7 +156,7 @@ const pdf = await generate(<Invoice data={{ id: 'INV-001', customer: 'Acme Corp'
 ```tsx
 // app/api/invoice/route.ts
 import { Document, Page, PageNumber, generate } from '@pdfn/react';
-import { Tailwind } from '@pdfn/tailwind';
+import { Tailwind } from '@pdfn/tailwind';  // For Vercel: use '@pdfn/next' instead
 
 // Define template as a separate component
 function Invoice({ data }: { data: { id: string; customer: string; total: number } }) {
@@ -186,6 +189,8 @@ export async function POST(req: Request) {
   });
 }
 ```
+
+> **Deploying to Vercel?** Use `@pdfn/next` instead of `@pdfn/tailwind` - see [@pdfn/next](./packages/next) for setup.
 
 ## Features
 

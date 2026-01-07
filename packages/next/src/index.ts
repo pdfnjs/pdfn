@@ -12,6 +12,10 @@ import { watch } from "node:fs";
 
 export type { PdfnPluginOptions };
 
+// Re-export Tailwind component for convenience
+// Users can import { Tailwind } from '@pdfn/next' instead of installing @pdfn/tailwind separately
+export { Tailwind } from "@pdfn/tailwind";
+
 // Track if watcher is already running (prevent duplicates)
 let watcherStarted = false;
 

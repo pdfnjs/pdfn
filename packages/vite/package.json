@@ -42,6 +42,7 @@
     "tailwindcss": "^4.0.0"
   },
   "dependencies": {
+    "@pdfn/tailwind": "workspace:*",
     "fast-glob": "^3.3.3"
   },
   "devDependencies": {

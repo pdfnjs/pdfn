@@ -8,6 +8,10 @@
 import type { Plugin, ViteDevServer } from "vite";
 import fg from "fast-glob";
 
+// Re-export Tailwind component for convenience
+// Users can import { Tailwind } from '@pdfn/vite' instead of installing @pdfn/tailwind separately
+export { Tailwind } from "@pdfn/tailwind";
+
 export interface PdfnTailwindOptions {
   /**
    * Glob patterns for template files to scan for Tailwind classes.

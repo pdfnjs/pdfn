@@ -108,31 +108,16 @@ This ensures:
 
 ## Serverless / Edge Deployment
 
-Runtime Tailwind compilation requires Node.js APIs. For serverless or edge deployments, use a build plugin to pre-compile CSS:
+Runtime Tailwind compilation requires Node.js APIs. For serverless or edge deployments, use a build plugin instead:
 
-**Next.js:**
-```ts
-// next.config.ts
-import { withPdfnTailwind } from '@pdfn/next';
+- **Next.js:** `npm i @pdfn/react @pdfn/next` - see [@pdfn/next](../next)
+- **Vite:** `npm i @pdfn/react @pdfn/vite` - see [@pdfn/vite](../vite)
 
-export default withPdfnTailwind({
-  templates: ['./pdf-templates/**/*.tsx'],
-})({
-  // your Next.js config
-});
+Both plugins include `@pdfn/tailwind` - no separate install needed:
+
+```tsx
+import { Tailwind } from "@pdfn/next";  // or "@pdfn/vite"
 ```
-
-**Vite:**
-```ts
-// vite.config.ts
-import { pdfnTailwind } from '@pdfn/vite';
-
-export default {
-  plugins: [pdfnTailwind({ templates: ['./pdf-templates/**/*.tsx'] })]
-}
-```
-
-See [@pdfn/next](../next) and [@pdfn/vite](../vite) for full documentation.
 
 ## Environment Variables
 
