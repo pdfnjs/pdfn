@@ -24,6 +24,12 @@ export interface PdfnTailwindOptions {
    * If not provided, will auto-detect from common locations.
    */
   cssPath?: string;
+
+  /**
+   * Enable debug logging for CSS compilation.
+   * @default false
+   */
+  debug?: boolean;
 }
 
 /**
@@ -113,11 +119,16 @@ export function pdfnTailwind(options: PdfnTailwindOptions = {}): Plugin {
   const {
     templates = ["./pdf-templates/**/*.tsx", "./src/pdf/**/*.tsx"],
     cssPath,
+    debug = false,
   } = options;
 
   let generatedCss = "";
   let server: ViteDevServer | null = null;
   let isBuilding = false;
+
+  const log = (...args: unknown[]) => {
+    if (debug) console.log("[pdfn:vite]", ...args);
+  };
 
   // Normalize templates to array
   const templatePatterns = Array.isArray(templates) ? templates : [templates];
@@ -220,9 +231,7 @@ export function pdfnTailwind(options: PdfnTailwindOptions = {}): Plugin {
 
     const css = compiler.build(Array.from(allClasses));
 
-    console.log(
-      `[pdfn:vite] Compiled ${css.length} bytes of CSS from ${allClasses.size} classes in ${files.length} files`
-    );
+    log(`Compiled ${css.length} bytes of CSS from ${allClasses.size} classes in ${files.length} files`);
 
     return css;
   }
@@ -252,14 +261,14 @@ export function pdfnTailwind(options: PdfnTailwindOptions = {}): Plugin {
       if (fs.existsSync(fullPath)) {
         const content = fs.readFileSync(fullPath, "utf8");
         if (content.includes("tailwindcss") || content.includes("@tailwind")) {
-          console.log(`[pdfn:vite] Using CSS file: ${relativePath}`);
+          log(`Using CSS file: ${relativePath}`);
           return content;
         }
       }
     }
 
     // Fall back to vanilla Tailwind
-    console.log("[pdfn:vite] No custom CSS found, using vanilla Tailwind");
+    log("No custom CSS found, using vanilla Tailwind");
     return '@import "tailwindcss";';
   }
 
@@ -361,7 +370,7 @@ export default css;`;
       });
 
       if (isTemplate) {
-        console.log(`[pdfn:vite] Template changed: ${file}`);
+        log(`Template changed: ${file}`);
 
         // Recompile Tailwind CSS
         generatedCss = await compileTailwindCss();

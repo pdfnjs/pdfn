@@ -19,6 +19,12 @@ export interface PdfnPluginOptions {
    * If not provided, will auto-detect from common locations.
    */
   cssPath?: string;
+
+  /**
+   * Enable debug logging for CSS compilation.
+   * @default false
+   */
+  debug?: boolean;
 }
 
 /**
@@ -93,7 +99,7 @@ function extractClassesFromContent(content: string): string[] {
 /**
  * Get base CSS content
  */
-function getBaseCss(cwd: string, explicitPath?: string): string {
+function getBaseCss(cwd: string, explicitPath: string | undefined, log: (...args: unknown[]) => void): string {
   // Explicit path provided
   if (explicitPath) {
     const fullPath = resolve(cwd, explicitPath);
@@ -109,14 +115,14 @@ function getBaseCss(cwd: string, explicitPath?: string): string {
     if (existsSync(fullPath)) {
       const content = readFileSync(fullPath, "utf8");
       if (content.includes("tailwindcss") || content.includes("@tailwind")) {
-        console.log(`[pdfn:next] Using CSS file: ${relativePath}`);
+        log(`Using CSS file: ${relativePath}`);
         return content;
       }
     }
   }
 
   // Fall back to vanilla Tailwind
-  console.log("[pdfn:next] No custom CSS found, using vanilla Tailwind");
+  log("No custom CSS found, using vanilla Tailwind");
   return '@import "tailwindcss";';
 }
 
@@ -126,8 +132,13 @@ function getBaseCss(cwd: string, explicitPath?: string): string {
 export async function compileTailwindCss(
   templatePatterns: string[],
   cssPath: string | undefined,
-  cwd: string
+  cwd: string,
+  debug = false
 ): Promise<void> {
+  const log = (...args: unknown[]) => {
+    if (debug) console.log("[pdfn:next]", ...args);
+  };
+
   const { compile } = await import("tailwindcss");
 
   // Find all template files
@@ -157,7 +168,7 @@ export async function compileTailwindCss(
   }
 
   // Get base CSS
-  const baseCss = getBaseCss(cwd, cssPath);
+  const baseCss = getBaseCss(cwd, cssPath, log);
 
   // Find tailwindcss package
   const req = createRequire(join(cwd, "package.json"));
@@ -216,9 +227,7 @@ export async function compileTailwindCss(
 
   const css = compiler.build(Array.from(allClasses));
 
-  console.log(
-    `[pdfn:next] Compiled ${css.length} bytes of CSS from ${allClasses.size} classes in ${files.length} files`
-  );
+  log(`Compiled ${css.length} bytes of CSS from ${allClasses.size} classes in ${files.length} files`);
 
   // Write CSS to module file
   writeCssModule(cwd, css);

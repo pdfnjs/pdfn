@@ -43,8 +43,13 @@ function getCssModuleAbsolutePath(cwd: string): string {
 function startTemplateWatcher(
   templatePatterns: string[],
   cssPath: string | undefined,
-  cwd: string
+  cwd: string,
+  debug = false
 ): void {
+  const log = (...args: unknown[]) => {
+    if (debug) console.log("[pdfn:next]", ...args);
+  };
+
   // Extract directory paths from glob patterns
   const watchDirs = new Set<string>();
   for (const pattern of templatePatterns) {
@@ -65,9 +70,9 @@ function startTemplateWatcher(
   const debouncedRecompile = () => {
     if (recompileTimeout) clearTimeout(recompileTimeout);
     recompileTimeout = setTimeout(async () => {
-      console.log("[pdfn:next] Template changed, recompiling CSS...");
+      log("Template changed, recompiling CSS...");
       try {
-        await compileTailwindCss(templatePatterns, cssPath, cwd);
+        await compileTailwindCss(templatePatterns, cssPath, cwd, debug);
       } catch (error) {
         console.error("[pdfn:next] CSS recompilation failed:", error);
       }
@@ -82,7 +87,7 @@ function startTemplateWatcher(
           debouncedRecompile();
         }
       });
-      console.log(`[pdfn:next] Watching for changes: ${dir}`);
+      log(`Watching for changes: ${dir}`);
     } catch {
       // Directory might not exist, ignore
     }
@@ -112,16 +117,17 @@ export function withPdfnTailwind(options: PdfnPluginOptions = {}) {
     const cwd = process.cwd();
     const templates = options.templates || ["./pdf-templates/**/*.tsx", "./src/pdf/**/*.tsx"];
     const templatePatterns = Array.isArray(templates) ? templates : [templates];
+    const debug = options.debug ?? false;
 
     // Pre-compile CSS before build starts
     // This runs when the config is loaded (before webpack or Turbopack)
-    await compileTailwindCss(templatePatterns, options.cssPath, cwd);
+    await compileTailwindCss(templatePatterns, options.cssPath, cwd, debug);
 
     // In dev mode, watch template files for changes and recompile CSS
     const isDev = process.env.NODE_ENV !== "production";
     if (isDev && !watcherStarted) {
       watcherStarted = true;
-      startTemplateWatcher(templatePatterns, options.cssPath, cwd);
+      startTemplateWatcher(templatePatterns, options.cssPath, cwd, debug);
     }
 
     // Path to the loader and CSS module
