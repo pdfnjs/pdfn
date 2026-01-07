@@ -239,7 +239,39 @@ export default function Home() {
           </div>
 
           {/* Template Selector */}
-          <div className="flex flex-wrap items-center justify-center gap-2 mb-8">
+          {/* Mobile: Dropdown with label */}
+          <div className="md:hidden mb-8">
+            <div className="flex items-center gap-3">
+              <label htmlFor="template-select" className="text-sm font-medium text-text-secondary whitespace-nowrap">
+                Template:
+              </label>
+              <div className="relative flex-1">
+                <select
+                  id="template-select"
+                  value={activeTemplate.id}
+                  onChange={(e) => {
+                    const template = templates.find(t => t.id === e.target.value);
+                    if (template) handleTemplateChange(template);
+                  }}
+                  className="w-full appearance-none bg-surface-1 border-2 border-border hover:border-border-hover rounded-lg px-4 py-3 pr-10 text-text-primary font-medium focus:outline-none focus:border-primary transition-colors cursor-pointer"
+                >
+                  {templates.map((t) => (
+                    <option key={t.id} value={t.id}>
+                      {t.name} ({t.pageSize})
+                    </option>
+                  ))}
+                </select>
+                <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-text-muted">
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  </svg>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Desktop: Button row */}
+          <div className="hidden md:flex flex-wrap justify-center gap-2 mb-8">
             {templates.map((t) => {
               const isActive = activeTemplate.id === t.id;
               return (
@@ -376,37 +408,65 @@ export default function Home() {
               </div>
 
               {/* Mobile Controls - Only visible on small screens */}
-              <div className="lg:hidden px-4 py-3 border-t border-border flex items-center justify-between">
+              <div className="lg:hidden px-4 py-3 border-t border-border">
                 {activeTab === "preview" ? (
-                  <>
-                    <div className="flex items-center gap-2">
-                      <span className="text-xs text-text-muted">Debug:</span>
-                      {["grid", "margins"].map((key) => (
-                        <button
-                          key={key}
-                          onClick={() => setDebugOptions(prev => ({ ...prev, [key]: !prev[key as keyof DebugOptions] }))}
-                          className={`text-xs px-2 py-1 rounded ${
-                            debugOptions[key as keyof DebugOptions]
-                              ? "bg-primary/20 text-primary"
-                              : "bg-surface-2 text-text-muted"
-                          }`}
-                        >
-                          {key}
-                        </button>
-                      ))}
+                  <div className="space-y-3">
+                    {/* Debug toggles - 2x2 grid */}
+                    <div className="flex items-start gap-3">
+                      <span className="text-xs text-text-muted pt-1">Debug:</span>
+                      <div className="flex flex-wrap gap-1.5">
+                        {[
+                          { key: "grid", label: "Grid" },
+                          { key: "margins", label: "Margins" },
+                          { key: "headers", label: "Headers" },
+                          { key: "breaks", label: "Pages" },
+                        ].map(({ key, label }) => (
+                          <button
+                            key={key}
+                            onClick={() => setDebugOptions(prev => ({ ...prev, [key]: !prev[key as keyof DebugOptions] }))}
+                            className={`text-xs px-2 py-1 rounded transition-colors ${
+                              debugOptions[key as keyof DebugOptions]
+                                ? "bg-primary/20 text-primary"
+                                : "bg-surface-2 text-text-muted hover:text-text-secondary"
+                            }`}
+                          >
+                            {label}
+                          </button>
+                        ))}
+                      </div>
                     </div>
-                    <button
-                      onClick={handleDownload}
-                      className="flex items-center gap-1.5 text-xs font-medium bg-primary hover:bg-primary-hover text-black px-3 py-1.5 rounded-md transition-colors"
-                    >
-                      <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-                      </svg>
-                      Download
-                    </button>
-                  </>
+                    {/* Actions row */}
+                    <div className="flex items-center justify-between">
+                      <a
+                        href={previewUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-1.5 text-xs text-text-secondary hover:text-text-primary transition-colors"
+                      >
+                        <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                        </svg>
+                        Open in new tab
+                      </a>
+                      <button
+                        onClick={handleDownload}
+                        className="flex items-center gap-1.5 text-xs font-medium bg-primary hover:bg-primary-hover text-black px-3 py-1.5 rounded-md transition-colors"
+                      >
+                        <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                        </svg>
+                        Download
+                      </button>
+                    </div>
+                    {/* PDF Error */}
+                    {pdfError && (
+                      <div className="text-xs text-error bg-error/10 px-3 py-2 rounded-md">
+                        {pdfError}
+                      </div>
+                    )}
+                  </div>
                 ) : (
-                  <>
+                  <div className="flex items-center justify-between">
                     <span className="text-xs text-text-muted font-mono">{activeTemplate.id}.tsx</span>
                     <button
                       onClick={handleCopy}
@@ -414,7 +474,7 @@ export default function Home() {
                     >
                       {copied ? "Copied!" : "Copy"}
                     </button>
-                  </>
+                  </div>
                 )}
               </div>
             </div>
