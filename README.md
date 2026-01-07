@@ -21,7 +21,7 @@ React → pdfn → HTML (+ Layout Helpers) → Chromium (Wait for Ready) → PDF
 In your React project (Next.js, Vite, etc.):
 
 ```bash
-npm i @pdfn/react         # Install the React components
+npm i @pdfn/react         # React components
 npx pdfn add invoice      # Add a starter invoice template
 npx pdfn dev --open       # Start dev server and open browser
 ```
@@ -30,19 +30,19 @@ Opens a preview UI with a working invoice template. Edit `pdf-templates/invoice.
 
 ![pdfn dev preview](./docs/assets/dev-preview.png)
 
-**Want Tailwind?**
-- Local/Node.js: `npm i @pdfn/tailwind` → see [@pdfn/tailwind](./packages/tailwind)
-- Next.js serverless: `npm i @pdfn/next` → see [@pdfn/next](./packages/next)
-- Vite serverless: `npm i @pdfn/vite` → see [@pdfn/vite](./packages/vite)
+**Want Tailwind?** `npm i @pdfn/tailwind` — works everywhere except edge runtimes.
+
+Edge runtimes only: Add `@pdfn/next` (Vercel Edge) or `@pdfn/vite` (Cloudflare, Deno).
 
 ## Choose Your Path
 
 | I want to... | Use this |
 |--------------|----------|
-| Generate PDFs quickly with minimal setup | `generate()` + `pdfn dev` |
+| Generate PDFs quickly with minimal setup | `generate()` + `npx pdfn serve` |
 | Full control with Puppeteer/Playwright | `render()` → bring your own browser |
-| Next.js + Tailwind (serverless) | `@pdfn/next` → [example](#nextjs-api-route) |
-| Vite + Tailwind (serverless) | `@pdfn/vite` → [@pdfn/vite](./packages/vite) |
+| Tailwind CSS styling | `@pdfn/tailwind` → works everywhere except edge |
+| Tailwind + Vercel Edge | `@pdfn/tailwind` + `@pdfn/next` |
+| Tailwind + Cloudflare/Deno | `@pdfn/tailwind` + `@pdfn/vite` |
 
 ## Core Components
 
@@ -74,7 +74,7 @@ Two ways to generate PDFs:
 - **`render()`** → HTML string (use with Puppeteer/Playwright for full control)
 - **`generate()`** → PDF buffer directly
 
-> **Important:** `generate()` does NOT start Chromium automatically. You must have `pdfn dev` or `pdfn serve` running. This is a separate process that manages the browser pool.
+> **Important:** `generate()` requires a running pdfn server. Start one with `npx pdfn serve` (or `npx pdfn dev` for development).
 >
 > ```bash
 > # Terminal 1: Start the PDF server
@@ -188,20 +188,20 @@ const pdf = await generate(<Invoice data={{ id: 'INV-001', customer: 'Acme Corp'
 
 **Which Tailwind package do I need?**
 
-| Package | When to use |
-|---------|-------------|
-| `@pdfn/tailwind` | Node.js scripts, local development, non-serverless |
-| `@pdfn/next` | Next.js apps deploying to Vercel/serverless |
-| `@pdfn/vite` | Vite apps deploying to Cloudflare/serverless |
+| Environment | Package |
+|-------------|---------|
+| Node.js (local, Vercel, any server) | `@pdfn/tailwind` |
+| Vercel Edge | `@pdfn/tailwind` + `@pdfn/next` |
+| Cloudflare Workers | `@pdfn/tailwind` + `@pdfn/vite` |
 
-`@pdfn/next` and `@pdfn/vite` pre-compile Tailwind at build time, which is required for serverless where the Tailwind CLI isn't available at runtime.
+**Most users only need `@pdfn/tailwind`.** Build plugins are only for edge runtimes.
 
 ### Next.js API Route
 
 ```tsx
 // app/api/invoice/route.ts
 import { Document, Page, PageNumber, generate } from '@pdfn/react';
-import { Tailwind } from '@pdfn/next';
+import { Tailwind } from '@pdfn/tailwind';
 
 // Define template as a separate component
 function Invoice({ data }: { data: { id: string; customer: string; total: number } }) {
@@ -235,7 +235,7 @@ export async function POST(req: Request) {
 }
 ```
 
-> **Deploying to Vercel?** See [@pdfn/next](./packages/next) for build configuration.
+> **Deploying to Vercel?** Just use `@pdfn/tailwind`. Only add [@pdfn/next](./packages/next) if using Edge runtime (`export const runtime = 'edge'`).
 
 ## Features
 
@@ -244,8 +244,8 @@ export async function POST(req: Request) {
 - Standard page sizes (A4, Letter, etc.) + custom dimensions
 - Layout with clean page breaks, headers, footers, and watermarks
 - Local and web fonts/images auto-embedded
-- Tailwind CSS support
-- Next.js and Vite plugins
+- Tailwind CSS support (via `@pdfn/tailwind`)
+- Edge runtime plugins available (`@pdfn/next`, `@pdfn/vite`) for pre-compiling Tailwind
 
 ### pdfn (CLI)
 
@@ -269,13 +269,15 @@ export async function POST(req: Request) {
 
 ## Packages
 
-| Package | Description |
-|---------|-------------|
-| [@pdfn/react](./packages/react) | React components, `render()`, `generate()` |
-| [@pdfn/tailwind](./packages/tailwind) | Tailwind CSS support (optional) |
-| [@pdfn/next](./packages/next) | Next.js plugin for Tailwind pre-compilation |
-| [@pdfn/vite](./packages/vite) | Vite plugin for Tailwind pre-compilation |
-| [pdfn](./packages/cli) | CLI dev server and production server |
+| Package | Description | When to use |
+|---------|-------------|-------------|
+| [@pdfn/react](./packages/react) | React components, `render()`, `generate()` | Always |
+| [@pdfn/tailwind](./packages/tailwind) | Tailwind CSS support | Want Tailwind styling |
+| [@pdfn/next](./packages/next) | Next.js build plugin | Vercel Edge only |
+| [@pdfn/vite](./packages/vite) | Vite build plugin | Edge runtimes (Cloudflare, Deno) |
+| [pdfn](./packages/cli) | CLI dev server and production server | Dev preview + `generate()` |
+
+**Progressive install:** Start with `@pdfn/react` + `pdfn`. Add `@pdfn/tailwind` for styling. Add build plugins only for edge runtimes.
 
 ## CLI
 

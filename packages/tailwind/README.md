@@ -70,18 +70,29 @@ If no `css` prop is provided, auto-detects from common locations like `./src/app
 | `children` | `ReactNode` | Content to render |
 | `css` | `string` | Optional path to a Tailwind CSS entry file |
 
-## Serverless / Edge Deployment
+## Deployment Compatibility
 
-Runtime Tailwind compilation requires Node.js APIs. For serverless or edge deployments, use a build plugin instead:
+| Environment | Works? | Notes |
+|-------------|--------|-------|
+| Node.js (local, Vercel, any server) | ✅ Yes | Runtime processing works |
+| Vercel Edge | ❌ No | No filesystem, use `@pdfn/next` |
+| Cloudflare Workers | ❌ No | No filesystem, use `@pdfn/vite` |
 
-- **Next.js:** `npm i @pdfn/react @pdfn/next` - see [@pdfn/next](../next)
-- **Vite:** `npm i @pdfn/react @pdfn/vite` - see [@pdfn/vite](../vite)
+**Most users don't need build plugins.** Only edge runtimes require pre-compilation.
 
-Both plugins include `@pdfn/tailwind` - no separate install needed:
+## Edge Runtime Deployment
 
-```tsx
-import { Tailwind } from "@pdfn/next";  // or "@pdfn/vite"
+For edge runtimes only (routes with `export const runtime = 'edge'`):
+
+```bash
+# Next.js Edge
+npm i @pdfn/tailwind @pdfn/next
+
+# Vite / Cloudflare Workers
+npm i @pdfn/tailwind @pdfn/vite
 ```
+
+See [@pdfn/next](../next) and [@pdfn/vite](../vite) for build configuration.
 
 ## Environment Variables
 

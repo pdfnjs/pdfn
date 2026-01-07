@@ -1,22 +1,23 @@
 # @pdfn/next
 
-Next.js plugin for pre-compiling Tailwind CSS at build time.
+Next.js plugin for pre-compiling Tailwind CSS at build time for Vercel Edge.
 
 ## When Do You Need This?
 
-**Only if you use `@pdfn/tailwind`** and deploy to serverless/edge environments.
+**Only if you use Vercel Edge runtime** (routes with `export const runtime = 'edge'`).
 
 | Setup | Plugin Needed? |
 |-------|---------------|
 | Inline styles only | **No** - just use `@pdfn/react` |
-| Tailwind + local Node.js | **No** - runtime compilation works |
-| Tailwind + Vercel/serverless | **Yes** |
-| Tailwind + Edge runtime | **Yes** |
+| Tailwind + Node.js | **No** - runtime processing works |
+| Tailwind + Vercel Edge | **Yes** - Edge has no filesystem |
+
+**Most Next.js users don't need this plugin.** Only add it if using Edge runtime.
 
 ## Quick Start
 
 ```bash
-npm i @pdfn/react @pdfn/next
+npm i @pdfn/react @pdfn/tailwind @pdfn/next
 ```
 
 ```ts
@@ -36,7 +37,7 @@ export default withPdfnTailwind({
 ```tsx
 // pdf-templates/invoice.tsx
 import { Document, Page } from "@pdfn/react";
-import { Tailwind } from "@pdfn/next";  // Tailwind included, no extra install
+import { Tailwind } from "@pdfn/tailwind";  // Always import from @pdfn/tailwind
 
 export default function Invoice() {
   return (
@@ -64,6 +65,8 @@ export async function GET() {
   });
 }
 ```
+
+> **Note:** `generate()` requires a running pdfn server (`npx pdfn serve`). See [pdfn CLI](../cli).
 
 ## Options
 

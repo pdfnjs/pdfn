@@ -13,6 +13,7 @@
   "dependencies": {
     "@pdfn/next": "workspace:*",
     "@pdfn/react": "workspace:*",
+    "@pdfn/tailwind": "workspace:*",
     "next": "16.1.0",
     "tailwindcss": "^4",
     "react": "19.2.3",

@@ -45,7 +45,7 @@ Or run locally: `npx pdfn dev`
 | | `render()` | `generate()` |
 |---|---|---|
 | **Returns** | HTML string | PDF buffer |
-| **Requires** | Nothing | `pdfn serve` running |
+| **Requires** | Nothing | `npx pdfn serve` running |
 | **Use when** | You have your own Puppeteer/Playwright setup | You want an all-in-one solution |
 
 ### render() + Puppeteer
@@ -286,22 +286,26 @@ import { Tailwind } from '@pdfn/tailwind';
 </Document>
 ```
 
-### Serverless Deployments (Vercel, Cloudflare)
+### Which Tailwind package do I need?
 
-> **Why build plugins?** Tailwind v4 compiles CSS at runtime using Node.js APIs. Edge runtimes don't have these APIs, so you'll get "works locally, breaks on Vercel" errors. The build plugins pre-compile your Tailwind classes at build time, embedding the CSS directly.
+| Deployment | Package | Why |
+|------------|---------|-----|
+| Node.js (local, Vercel, any server) | `@pdfn/tailwind` | Runtime processing works |
+| Vercel Edge | `@pdfn/tailwind` + `@pdfn/next` | Edge has no filesystem |
+| Cloudflare Workers | `@pdfn/tailwind` + `@pdfn/vite` | Edge has no filesystem |
+
+**Most users only need `@pdfn/tailwind`.** Build plugins are only for edge runtimes.
+
+### Edge Runtime Setup (Vercel Edge, Cloudflare Workers)
+
+If deploying to edge runtimes (routes with `export const runtime = 'edge'`):
 
 ```bash
-# Next.js
-npm i @pdfn/next
+# Next.js Edge
+npm i @pdfn/tailwind @pdfn/next
 
-# Vite
-npm i @pdfn/vite
-```
-
-Import `Tailwind` from the plugin package (includes `@pdfn/tailwind`):
-
-```tsx
-import { Tailwind } from "@pdfn/next";  // or "@pdfn/vite"
+# Vite / Cloudflare
+npm i @pdfn/tailwind @pdfn/vite
 ```
 
 Configure your build:
@@ -316,7 +320,7 @@ import { pdfnTailwind } from "@pdfn/vite";
 export default { plugins: [pdfnTailwind()] };
 ```
 
-See [@pdfn/next](../next) and [@pdfn/vite](../vite) for build configuration.
+See [@pdfn/next](../next) and [@pdfn/vite](../vite) for details.
 
 ## License
 

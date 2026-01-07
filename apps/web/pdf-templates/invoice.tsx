@@ -1,5 +1,5 @@
 import { Document, Page, Thead, PageNumber, TotalPages } from "@pdfn/react";
-import { Tailwind } from "@pdfn/next";
+import { Tailwind } from "@pdfn/tailwind";
 
 /**
  * Professional Invoice template using Tailwind CSS

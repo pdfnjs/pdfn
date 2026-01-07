@@ -71,7 +71,7 @@ Templates use default props for demo data (React Email pattern):
 
 ```tsx
 import { Document, Page } from '@pdfn/react';
-import { Tailwind } from '@pdfn/next';
+import { Tailwind } from '@pdfn/tailwind';
 
 export default function Invoice({
   data = { id: 'INV-001', customer: 'Acme Corp', total: 148 }

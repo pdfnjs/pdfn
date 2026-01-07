@@ -1,22 +1,24 @@
 # @pdfn/vite
 
-Vite plugin for pre-compiling Tailwind CSS at build time.
+Vite plugin for pre-compiling Tailwind CSS at build time for edge runtimes.
 
 ## When Do You Need This?
 
-**Only if you use `@pdfn/tailwind`** and deploy to serverless/edge environments.
+**Only if you deploy to edge runtimes** (Cloudflare Workers, Deno Deploy, etc.).
 
 | Setup | Plugin Needed? |
 |-------|---------------|
 | Inline styles only | **No** - just use `@pdfn/react` |
-| Tailwind + local Node.js | **No** - runtime compilation works |
-| Tailwind + Vercel/serverless | **Yes** |
-| Tailwind + Edge runtime | **Yes** |
+| Tailwind + Node.js | **No** - runtime processing works |
+| Tailwind + Cloudflare Workers | **Yes** - Edge has no filesystem |
+| Tailwind + Deno Deploy | **Yes** - Edge has no filesystem |
+
+**Most Vite users don't need this plugin.** Only install if deploying to edge runtimes.
 
 ## Quick Start
 
 ```bash
-npm i @pdfn/react @pdfn/vite
+npm i @pdfn/react @pdfn/tailwind @pdfn/vite
 ```
 
 ```ts
@@ -38,7 +40,7 @@ export default defineConfig({
 ```tsx
 // pdf-templates/invoice.tsx
 import { Document, Page } from "@pdfn/react";
-import { Tailwind } from "@pdfn/vite";  // Tailwind included, no extra install
+import { Tailwind } from "@pdfn/tailwind";  // Always import from @pdfn/tailwind
 
 export default function Invoice() {
   return (
@@ -63,6 +65,8 @@ export async function generateInvoice() {
   return pdf;
 }
 ```
+
+> **Note:** `generate()` requires a running pdfn server (`npx pdfn serve`). See [pdfn CLI](../cli).
 
 ## Options
 

@@ -1,5 +1,5 @@
 import { Document, Page, PageNumber, TotalPages, AvoidBreak } from "@pdfn/react";
-import { Tailwind } from "@pdfn/next";
+import { Tailwind } from "@pdfn/tailwind";
 
 /**
  * Service Agreement Contract template - Legal size (taller page)

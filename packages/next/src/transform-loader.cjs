@@ -10,9 +10,8 @@ const CSS_MODULE_PATH = "__pdfn_tailwind_css__";
  * @returns {string}
  */
 module.exports = function pdfnTransformLoader(source) {
-  // Only transform files that import Tailwind (from @pdfn/tailwind or @pdfn/next) and use <Tailwind>
-  const hasTailwindImport = source.includes("@pdfn/tailwind") || source.includes("@pdfn/next");
-  if (!hasTailwindImport || !source.includes("<Tailwind")) {
+  // Only transform files that import Tailwind from @pdfn/tailwind and use <Tailwind>
+  if (!source.includes("@pdfn/tailwind") || !source.includes("<Tailwind")) {
     return source;
   }
 

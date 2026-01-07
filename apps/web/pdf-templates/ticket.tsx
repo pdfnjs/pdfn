@@ -1,5 +1,5 @@
 import { Document, Page } from "@pdfn/react";
-import { Tailwind } from "@pdfn/next";
+import { Tailwind } from "@pdfn/tailwind";
 
 /**
  * Event Ticket template - A5 size (smaller format)
