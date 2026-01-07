@@ -59,7 +59,10 @@
     "print",
     "document",
     "invoice",
-    "report"
+    "report",
+    "generation",
+    "server-side",
+    "ssr"
   ],
   "repository": {
     "type": "git",
@@ -67,6 +70,14 @@
     "directory": "packages/react"
   },
   "homepage": "https://pdfn.dev",
+  "author": "gokulsiva (https://github.com/gokulsiva)",
+  "bugs": {
+    "url": "https://github.com/pdfnjs/pdfn/issues"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "sideEffects": false,
   "devDependencies": {
     "@pdfn/eslint-config": "workspace:*",
     "@pdfn/tailwind": "workspace:*",

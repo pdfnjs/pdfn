@@ -35,7 +35,10 @@
     "cli",
     "puppeteer",
     "print",
-    "document"
+    "document",
+    "react",
+    "server",
+    "generation"
   ],
   "repository": {
     "type": "git",
@@ -43,6 +46,13 @@
     "directory": "packages/cli"
   },
   "homepage": "https://pdfn.dev",
+  "author": "gokulsiva (https://github.com/gokulsiva)",
+  "bugs": {
+    "url": "https://github.com/pdfnjs/pdfn/issues"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
   "dependencies": {
     "@pdfn/react": "workspace:*",
     "@pdfn/vite": "workspace:*",

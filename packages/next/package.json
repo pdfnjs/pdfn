@@ -34,7 +34,10 @@
     "plugin",
     "pdf",
     "tailwind",
-    "pdfn"
+    "pdfn",
+    "vercel",
+    "serverless",
+    "edge"
   ],
   "repository": {
     "type": "git",
@@ -42,6 +45,14 @@
     "directory": "packages/next"
   },
   "homepage": "https://pdfn.dev",
+  "author": "gokulsiva (https://github.com/gokulsiva)",
+  "bugs": {
+    "url": "https://github.com/pdfnjs/pdfn/issues"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "sideEffects": false,
   "peerDependencies": {
     "next": ">=14.0.0",
     "tailwindcss": "^4.0.0"
