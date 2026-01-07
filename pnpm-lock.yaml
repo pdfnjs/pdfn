@@ -29,15 +29,9 @@ importers:
       '@pdfn/react':
         specifier: workspace:*
         version: link:../../packages/react
-      '@pdfn/tailwind':
-        specifier: workspace:*
-        version: link:../../packages/tailwind
       next:
         specifier: 16.1.0
         version: 16.1.0(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
-      pdfn:
-        specifier: workspace:*
-        version: link:../../packages/cli
       react:
         specifier: 19.2.3
         version: 19.2.3

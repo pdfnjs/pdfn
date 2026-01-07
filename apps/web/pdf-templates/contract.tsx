@@ -1,5 +1,5 @@
 import { Document, Page, PageNumber, TotalPages, AvoidBreak } from "@pdfn/react";
-import { Tailwind } from "@pdfn/tailwind";
+import { Tailwind } from "@pdfn/next";
 
 /**
  * Service Agreement Contract template - Legal size (taller page)
@@ -129,7 +129,7 @@ export default function Contract({
           header={
             <div className="flex justify-between items-center pb-3 border-b border-gray-300 mb-6">
               <div className="flex items-center gap-3">
-                <img src="/logo.svg" alt="Logo" className="h-6" />
+                <img src="https://pdfn.dev/logo.svg" alt="Logo" className="h-6" />
                 <div className="text-xs text-gray-400">|</div>
                 <div className="text-xs font-semibold text-gray-600 uppercase tracking-wider">
                   {title}

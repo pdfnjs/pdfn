@@ -1,5 +1,5 @@
 import { Document, Page } from "@pdfn/react";
-import { Tailwind } from "@pdfn/tailwind";
+import { Tailwind } from "@pdfn/next";
 
 /**
  * Event Poster template - Tabloid size, Landscape orientation
@@ -49,7 +49,7 @@ export default function Poster({
           >
             {/* Top Section: Logo and Accent */}
             <div className="flex justify-between items-start mb-4">
-              <img src="/logo.svg" alt="Logo" className="h-8 invert" />
+              <img src="https://pdfn.dev/logo.svg" alt="Logo" className="h-8 invert" />
               <div className="flex gap-2">
                 <div className="h-1.5 w-32 bg-cyan-500 rounded-full"></div>
                 <div className="h-1.5 w-16 bg-cyan-500/50 rounded-full"></div>

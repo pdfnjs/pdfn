@@ -11,10 +11,8 @@
     "generate-demo-pdfs": "tsx scripts/generate-demo-pdfs.ts"
   },
   "dependencies": {
-    "pdfn": "workspace:*",
     "@pdfn/next": "workspace:*",
     "@pdfn/react": "workspace:*",
-    "@pdfn/tailwind": "workspace:*",
     "next": "16.1.0",
     "react": "19.2.3",
     "react-dom": "19.2.3",
