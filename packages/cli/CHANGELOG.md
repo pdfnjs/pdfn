@@ -1,5 +1,11 @@
 # pdfn
 
+## 0.2.4
+
+### Patch Changes
+
+- Use Puppeteer's bundled Chromium for `--open` flag to ensure WYSIWYG preview. Added keyboard shortcuts: press `o` to open browser, `q` to quit.
+
 ## 0.2.3
 
 ### Patch Changes
