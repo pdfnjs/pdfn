@@ -14,48 +14,84 @@ export default async function Image() {
     (
       <div
         style={{
-          background: "#09090b",
+          background: "#0f0f0f",
           width: "100%",
           height: "100%",
           display: "flex",
-          flexDirection: "column",
           alignItems: "center",
           justifyContent: "center",
+          position: "relative",
         }}
       >
-        {/* Logo */}
+        {/* Top-down gradient with cyan tint */}
+        <div
+          style={{
+            position: "absolute",
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            background: "linear-gradient(180deg, rgba(34, 211, 238, 0.1) 0%, transparent 50%)",
+          }}
+        />
+
+        {/* Content */}
         <div
           style={{
             display: "flex",
-            fontSize: 120,
-            fontWeight: 700,
-            letterSpacing: "-0.02em",
+            flexDirection: "column",
+            alignItems: "center",
+            gap: 20,
+            zIndex: 1,
           }}
         >
-          <span style={{ color: "#4B5563" }}>pdf</span>
-          <span style={{ color: "#22d3ee" }}>n</span>
-        </div>
+          {/* Logo */}
+          <div
+            style={{
+              display: "flex",
+              fontSize: 180,
+              fontWeight: 700,
+              letterSpacing: "-0.04em",
+            }}
+          >
+            <span style={{ color: "#fafafa" }}>pdf</span>
+            <span style={{ color: "#22d3ee" }}>n</span>
+          </div>
 
-        {/* Tagline */}
-        <div
-          style={{
-            fontSize: 42,
-            color: "#a1a1aa",
-            marginTop: 24,
-          }}
-        >
-          Write React. Ship PDFs.
-        </div>
+          {/* Tagline */}
+          <div
+            style={{
+              fontSize: 52,
+              fontWeight: 700,
+              color: "#71717a",
+              letterSpacing: "-0.02em",
+            }}
+          >
+            Write React. Ship PDFs.
+          </div>
 
-        {/* URL */}
-        <div
-          style={{
-            fontSize: 28,
-            color: "#52525b",
-            marginTop: 80,
-          }}
-        >
-          pdfn.dev
+          {/* Divider */}
+          <div
+            style={{
+              width: 80,
+              height: 4,
+              background: "#22d3ee",
+              borderRadius: 2,
+              marginTop: 32,
+            }}
+          />
+
+          {/* URL */}
+          <div
+            style={{
+              fontSize: 28,
+              fontWeight: 500,
+              color: "#71717a",
+              marginTop: 16,
+            }}
+          >
+            pdfn.dev
+          </div>
         </div>
       </div>
     ),

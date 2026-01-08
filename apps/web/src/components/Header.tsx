@@ -18,7 +18,7 @@ export function Header() {
     <header className="border-b border-border">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 py-4 flex items-center justify-between">
         <Link href="/" className="text-2xl font-bold tracking-tight">
-          <span className="text-text-muted">pdf</span>
+          <span className="text-text-primary">pdf</span>
           <span className="text-primary">n</span>
         </Link>
 
