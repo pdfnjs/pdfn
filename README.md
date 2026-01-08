@@ -52,13 +52,15 @@ See the [full component reference](#components) for `<AvoidBreak>`, `<TotalPages
 
 ## Requirements
 
-**Server-side only** — Both `render()` and `generate()` from `@pdfn/react` require server environment:
+**Server and Edge runtimes only** — not browser/client-side.
 
-- Next.js API routes / Server Actions / Route Handlers
-- Express, Fastify, Hono backends
-- Node.js scripts
+- `@pdfn/react` runs in Node.js and Edge runtimes
+- Chromium-based PDF rendering runs in a separate `pdfn serve` process (Node/Docker only)
 
-> `render()` uses `react-dom/server` which is not available in browsers. For developments previews, use `npx pdfn dev`.
+Does not work in:
+- Browser JavaScript, SPAs, client-side bundles
+
+> `render()` uses `react-dom/server` to generate HTML, which isn't available in browsers. While this HTML can technically be printed client-side, pdfn does not support or guarantee client-side PDF generation due to browser and environment differences.
 
 ## Usage
 
