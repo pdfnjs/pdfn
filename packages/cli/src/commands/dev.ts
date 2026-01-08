@@ -6,6 +6,8 @@ import { createServer as createViteServer } from "vite";
 import { WebSocketServer, WebSocket } from "ws";
 import chokidar from "chokidar";
 import { createServer as createHttpServer } from "http";
+import { spawn } from "child_process";
+import puppeteer from "puppeteer";
 import { createBaseServer } from "../server/base";
 import { generatePdf } from "../server/pdf";
 import { injectDebugSupport, type DebugOptions } from "@pdfn/react/debug";
@@ -1519,16 +1521,6 @@ async function startDevServer(options: DevServerOptions) {
   // Pre-launch Chromium for PDF generation
   await browserManager.getBrowser();
 
-  console.log(chalk.dim(`  Templates: ${displayPath} (${templateCount})`));
-  console.log(chalk.green(`\n  ✓ Ready at ${chalk.cyan(`http://localhost:${port}`)}\n`));
-
-  // Open browser
-  if (open) {
-    console.log(chalk.dim("  Opening in browser...\n"));
-    const { default: openBrowser } = await import("open");
-    await openBrowser(`http://localhost:${port}`);
-  }
-
   // Graceful shutdown
   const shutdown = async () => {
     console.log(chalk.dim("\n  Shutting down..."));
@@ -1541,6 +1533,41 @@ async function startDevServer(options: DevServerOptions) {
 
   process.on("SIGTERM", shutdown);
   process.on("SIGINT", shutdown);
+
+  // Open Chromium (same browser used for PDF generation = true WYSIWYG)
+  function openChromium() {
+    const chromiumPath = puppeteer.executablePath();
+    console.log(chalk.dim("  Opening in Chromium...\n"));
+    spawn(chromiumPath, [`http://localhost:${port}`], {
+      detached: true,
+      stdio: "ignore",
+    }).unref();
+  }
+
+  console.log(chalk.dim(`  Templates: ${displayPath} (${templateCount})`));
+  console.log(chalk.green(`\n  ✓ Ready at ${chalk.cyan(`http://localhost:${port}`)}\n`));
+  console.log(chalk.dim(`  Shortcuts`));
+  console.log(chalk.dim(`  › ${chalk.white("o")} open in Chromium`));
+  console.log(chalk.dim(`  › ${chalk.white("q")} quit\n`));
+
+  if (open) {
+    openChromium();
+  }
+
+  // Keyboard shortcuts
+  if (process.stdin.isTTY) {
+    process.stdin.setRawMode(true);
+    process.stdin.resume();
+    process.stdin.setEncoding("utf8");
+    process.stdin.on("data", (key: string) => {
+      if (key === "o" || key === "O") {
+        openChromium();
+      } else if (key === "q" || key === "Q" || key === "\u0003") {
+        // q or Ctrl+C
+        shutdown();
+      }
+    });
+  }
 }
 
 export const devCommand = new Command("dev")
