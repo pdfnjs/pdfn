@@ -1,5 +1,19 @@
 # pdfn
 
+## 0.3.0
+
+### Minor Changes
+
+- feat(react): Add `css` and `cssFile` props to Document component for custom styling
+  feat(react): Add `debug` option to render() and generate() for troubleshooting
+  feat(cli): Show helpful Chromium browser tip when `--open` flag is not used
+
+### Patch Changes
+
+- Updated dependencies
+  - @pdfn/react@0.2.0
+  - @pdfn/vite@0.3.1
+
 ## 0.2.4
 
 ### Patch Changes

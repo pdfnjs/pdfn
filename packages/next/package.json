@@ -1,6 +1,6 @@
 {
   "name": "@pdfn/next",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "Next.js plugin for pdfn - Pre-compiles Tailwind CSS for optimized PDF generation",
   "type": "module",
   "exports": {
