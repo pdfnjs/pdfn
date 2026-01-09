@@ -1,5 +1,4 @@
-import { render } from "@pdfn/react";
-import { injectDebugSupport, type DebugOptions } from "@pdfn/react/debug";
+import { render, type DebugOptions } from "@pdfn/react";
 import { NextRequest } from "next/server";
 import { existsSync, readFileSync } from "fs";
 import { join } from "path";
@@ -137,9 +136,8 @@ export async function GET(request: NextRequest) {
   );
 
   try {
-    // Render React to HTML and optionally inject debug support
-    const rawHtml = await render(<Component />);
-    const html = debug ? injectDebugSupport(rawHtml, debug) : rawHtml;
+    // Render React to HTML with optional debug overlays
+    const html = await render(<Component />, { debug: debug || undefined });
 
     if (wantHtml) {
       // Return HTML for browser preview

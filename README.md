@@ -243,7 +243,7 @@ export async function POST(req: Request) {
 
 - Dev server with live preview and hot reload
 - Starter templates (invoice, letter, contract, ticket, poster)
-- Debug overlays for grid, margins, and headers
+- Debug overlays for grid, margins, and headers (also available via `render()` and `generate()` options)
 
 ## Components
 

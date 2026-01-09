@@ -51,6 +51,9 @@ export class BrowserManager {
         "--disable-setuid-sandbox",
         "--disable-dev-shm-usage",
         "--disable-gpu",
+        "--disable-extensions",
+        "--mute-audio",
+        "--disable-notifications",
       ],
     });
 

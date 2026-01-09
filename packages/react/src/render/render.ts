@@ -2,6 +2,7 @@ import { type ReactElement } from "react";
 import { assembleHtml, type HtmlOptions } from "./html";
 import { processImages } from "./images";
 import { processCssFontFaces } from "./fonts";
+import { injectDebugSupport } from "../debug";
 import type { RenderOptions, FontConfig } from "../types";
 import { debug } from "../utils/debug";
 import { isBrowser, EdgeErrors } from "../utils/runtime";
@@ -217,7 +218,14 @@ export async function render(
     fonts,
   };
 
-  const html = await assembleHtml(content, htmlOptions);
+  let html = await assembleHtml(content, htmlOptions);
+
+  // 7. Apply debug overlays if requested
+  if (options.debug) {
+    html = injectDebugSupport(html, options.debug);
+    debug("render: debug overlays applied");
+  }
+
   const totalTime = performance.now() - startTime;
 
   debug(

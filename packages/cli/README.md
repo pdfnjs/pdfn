@@ -6,7 +6,7 @@ CLI and PDF server for pdfn. Dev server with live preview, production server for
 
 ## See It in Action
 
-**[pdfn.dev](https://pdfn.dev/#demo)** — Live demo with example templates.
+**[pdfn.dev](https://pdfn.dev/#preview)** — Interactive preview with example templates.
 
 Or run locally: `npx pdfn dev --open`
 

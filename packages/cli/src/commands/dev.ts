@@ -10,7 +10,7 @@ import { spawn } from "child_process";
 import puppeteer from "puppeteer";
 import { createBaseServer } from "../server/base";
 import { generatePdf } from "../server/pdf";
-import { injectDebugSupport, type DebugOptions } from "@pdfn/react/debug";
+import type { DebugOptions } from "@pdfn/react";
 import { pdfnTailwind } from "@pdfn/vite";
 import chalk from "chalk";
 import { loadEnv } from "../utils/env";
@@ -1317,14 +1317,14 @@ async function startDevServer(options: DevServerOptions) {
   // Templates use default parameter values for sample data (React Email pattern)
   async function renderTemplate(
     template: TemplateInfo,
-    debugOptions: boolean | DebugOptions = false
+    debugOptions: DebugOptions | false = false
   ): Promise<string> {
     const mod = await vite.ssrLoadModule(template.path);
     const Component = mod.default;
     const { render } = await vite.ssrLoadModule("@pdfn/react");
     // Call with empty props - component's default parameter values provide sample data
-    const rawHtml = await render(Component({}));
-    return injectDebugSupport(rawHtml, debugOptions);
+    // Debug options are passed directly to render()
+    return render(Component({}), { debug: debugOptions || undefined });
   }
 
   // Parse debug options from query params

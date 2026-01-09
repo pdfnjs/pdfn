@@ -32,7 +32,7 @@ const html = await render(<Invoice />);
 
 ## See It in Action
 
-**[pdfn.dev](https://pdfn.dev/#demo)** — Live demo with example templates:
+**[pdfn.dev](https://pdfn.dev/#preview)** — Interactive preview with example templates:
 
 - **Invoice** — Multi-page tables with repeating headers, automatic pagination
 - **Contract** — Legal documents with watermarks and signature blocks
@@ -261,6 +261,32 @@ const pdf = await generate(<Invoice />);
   ...
 </Document>
 ```
+
+## Debug Overlays
+
+Add visual debug overlays to help with layout development:
+
+```tsx
+import { render, generate } from '@pdfn/react';
+
+// Enable all debug overlays
+const html = await render(<Invoice />, { debug: true });
+
+// Or enable specific overlays
+const html = await render(<Invoice />, {
+  debug: { grid: true, margins: true }
+});
+
+// Works with generate() too
+const pdf = await generate(<Invoice />, { debug: true });
+```
+
+| Option | Description |
+|--------|-------------|
+| `grid` | 1cm grid overlay |
+| `margins` | Page and content boundaries |
+| `headers` | Header/footer region highlights |
+| `breaks` | Page number badges |
 
 ## Environment Variables
 

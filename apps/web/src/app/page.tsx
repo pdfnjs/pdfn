@@ -201,18 +201,21 @@ export default function Home() {
       {/* Hero */}
       <section className="py-24 px-6 hero-glow overflow-hidden">
         <div className="max-w-4xl mx-auto text-center relative z-10">
-          <h1 className="text-5xl md:text-6xl font-bold text-text-primary mb-6 leading-tight animate-fade-in">
-            Write React. Ship PDFs.
+          <h1 className="text-5xl md:text-6xl font-bold text-text-primary mb-4 leading-tight animate-fade-in">
+            Write PDF templates as React components.
           </h1>
-          <p className="text-xl text-text-secondary mb-10 max-w-2xl mx-auto animate-fade-in-delay-1">
-            Build predictable, paginated PDFs with React and Tailwind. Preview locally, ship the same output everywhere.
+          <h2 className="text-2xl md:text-3xl font-medium text-primary mb-8 animate-fade-in-delay-1">
+            Ship consistent PDFs.
+          </h2>
+          <p className="text-xl text-text-secondary mb-10 max-w-2xl mx-auto animate-fade-in-delay-2">
+            Server-side, Chromium-based PDF generation with built-in pagination, headers, footers and Tailwind.
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 animate-fade-in-delay-2">
             <a
-              href="#demo"
+              href="#preview"
               className="bg-primary hover:bg-primary-hover text-black font-semibold px-6 py-3 rounded-lg transition-colors btn-glow"
             >
-              View live demo
+              Open interactive preview
             </a>
             <a
               href="https://github.com/pdfnjs/pdfn#quick-start"
@@ -230,7 +233,7 @@ export default function Home() {
       <section className="py-20 px-6">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-12 fade-in-section">
-            <h2 id="demo" className="text-3xl font-bold text-text-primary mb-4 scroll-mt-16">
+            <h2 id="preview" className="text-3xl font-bold text-text-primary mb-4 scroll-mt-16">
               Simple, familiar API
             </h2>
             <p className="text-xl text-text-secondary">
@@ -699,7 +702,7 @@ export default function Home() {
               How it works
             </h2>
             <p className="text-text-secondary max-w-2xl mx-auto">
-              Write React → render to HTML styled for printing → generate PDF via headless Chromium.<br />
+              Write React → render to print-ready HTML → generate PDF via headless Chromium.<br />
               Same input, same output, every time.
             </p>
           </div>
@@ -799,7 +802,7 @@ export default function Home() {
               </div>
               <div>
                 <div className="font-medium text-text-primary mb-1">What you see is what you get</div>
-                <div className="text-sm text-text-muted">Preview matches output. No @media print surprises</div>
+                <div className="text-sm text-text-muted">Preview matches output. No surprises in PDF</div>
               </div>
             </div>
             <div className="flex items-start gap-4">
@@ -875,7 +878,7 @@ export default function Home() {
               pdfn prepares HTML for clean page breaks. Chromium handles layout and printing.
             </p>
             <p className="text-xs text-text-muted max-w-xl mx-auto">
-              There is no required runtime, service, or hosted component.
+              Designed to run entirely on your infrastructure.
             </p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 fade-in-section">
@@ -909,7 +912,17 @@ export default function Home() {
                   <svg className="w-4 h-4 text-primary mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                   </svg>
-                  <span>Edge runtime compatible</span>
+                  <span className="inline-flex items-center gap-1">
+                    Edge runtime compatible
+                    <span className="group relative">
+                      <svg className="w-3.5 h-3.5 text-text-muted cursor-help" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                      <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 text-xs text-white bg-black/90 rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+                        HTML rendering only. PDF generation requires server.
+                      </span>
+                    </span>
+                  </span>
                 </li>
               </ul>
             </div>
@@ -986,6 +999,9 @@ export default function Home() {
             <h2 id="is-pdfn-right-for-you" className="text-3xl font-bold text-text-primary mb-4 scroll-mt-16">
               Is pdfn Right for You?
             </h2>
+            <p className="text-text-secondary max-w-xl mx-auto">
+              pdfn is a good fit if you need layout-correct, repeatable PDFs from React components.
+            </p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 fade-in-section">
             {/* Requires Chromium */}
@@ -1059,18 +1075,18 @@ export default function Home() {
 
             <div className="bg-surface-1 border border-border rounded-lg p-4 card-hover">
               <div className="flex items-center justify-between mb-2">
-                <span className="font-medium text-text-primary">Table of Contents</span>
+                <span className="font-medium text-text-primary">Orphans &amp; widows</span>
                 <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-error/10 text-error">High</span>
               </div>
-              <p className="text-sm text-text-muted">Auto-generated with page number resolution</p>
+              <p className="text-sm text-text-muted">Prevent single lines at page boundaries</p>
             </div>
 
             <div className="bg-surface-1 border border-border rounded-lg p-4 card-hover">
               <div className="flex items-center justify-between mb-2">
-                <span className="font-medium text-text-primary">Orphans &amp; widows</span>
+                <span className="font-medium text-text-primary">Table of Contents</span>
                 <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-warning/10 text-warning">Medium</span>
               </div>
-              <p className="text-sm text-text-muted">Prevent single lines at page boundaries</p>
+              <p className="text-sm text-text-muted">Auto-generated with page number resolution</p>
             </div>
 
             <div className="bg-surface-1 border border-border rounded-lg p-4 card-hover">

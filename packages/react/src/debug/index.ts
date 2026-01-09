@@ -1,5 +1,5 @@
 /**
- * Debug utilities for PDFN
+ * Debug utilities for PDFN (internal module)
  *
  * Provides visual debugging overlays for PDF preview:
  * - Grid overlay (1cm squares)
@@ -7,33 +7,21 @@
  * - Header/footer highlights
  * - Page number badges
  *
- * @example
- * ```ts
- * import { injectDebugSupport } from '@pdfn/react/debug';
- *
- * const htmlWithDebug = injectDebugSupport(html, { grid: true, margins: true });
- * ```
+ * @internal Used by render() - not exported publicly
  */
 
-export interface DebugOptions {
-  /** Show 1cm grid overlay */
-  grid?: boolean;
-  /** Show page and margin boundaries */
-  margins?: boolean;
-  /** Highlight header/footer regions */
-  headers?: boolean;
-  /** Show page number badges */
-  breaks?: boolean;
-}
+// Re-export DebugOptions from types (single source of truth)
+import type { DebugOptions } from "../types";
+export type { DebugOptions } from "../types";
 
 /**
- * Default debug options (all disabled)
+ * All debug options enabled (used when debug: true)
  */
-export const DEFAULT_DEBUG_OPTIONS: DebugOptions = {
-  grid: false,
-  margins: false,
-  headers: false,
-  breaks: false,
+export const ALL_DEBUG_OPTIONS: DebugOptions = {
+  grid: true,
+  margins: true,
+  headers: true,
+  breaks: true,
 };
 
 /**
@@ -198,7 +186,7 @@ export function injectDebugSupport(
   }
 
   const debugOptions: DebugOptions =
-    options === true ? DEFAULT_DEBUG_OPTIONS : options;
+    options === true ? ALL_DEBUG_OPTIONS : options;
 
   // Check if any option is enabled
   const hasAnyOption = Object.values(debugOptions).some((v) => v === true);

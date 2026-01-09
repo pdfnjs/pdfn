@@ -170,17 +170,44 @@ export interface WatermarkConfig {
 }
 
 /**
+ * Debug overlay options for PDF preview
+ */
+export interface DebugOptions {
+  /** Show 1cm grid overlay */
+  grid?: boolean;
+  /** Show page and margin boundaries */
+  margins?: boolean;
+  /** Highlight header/footer regions */
+  headers?: boolean;
+  /** Show page number badges */
+  breaks?: boolean;
+}
+
+/**
  * Options for the render() function
  *
- * Currently no options are available. This interface is reserved
- * for future render options such as:
- * - Custom asset base paths
- * - Image compression settings
- * - Debug output options
+ * @example
+ * ```ts
+ * // Enable specific debug overlays
+ * const html = await render(<MyDoc />, { debug: { grid: true, margins: true } });
+ *
+ * // Enable all debug overlays
+ * const html = await render(<MyDoc />, { debug: true });
+ * ```
  */
-// eslint-disable-next-line @typescript-eslint/no-empty-object-type
 export interface RenderOptions {
-  // Reserved for future render options
+  /**
+   * Enable debug overlays in the rendered HTML
+   *
+   * Debug overlays help visualize page structure during development:
+   * - grid: 1cm grid overlay
+   * - margins: Page and content boundaries
+   * - headers: Header/footer region highlights
+   * - breaks: Page number badges
+   *
+   * Pass `true` to enable all overlays, or an object to enable specific ones.
+   */
+  debug?: DebugOptions | boolean;
 }
 
 /**

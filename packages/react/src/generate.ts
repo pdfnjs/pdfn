@@ -61,6 +61,9 @@ export function generate(
  * // Generate HTML for preview
  * const html = await generate(<MyDoc />, { output: 'html' });
  *
+ * // Generate PDF with debug overlays
+ * const pdf = await generate(<MyDoc />, { debug: { grid: true, margins: true } });
+ *
  * // Generate PDF with custom host
  * const pdf = await generate(<MyDoc />, { host: 'http://my-server:3456' });
  * ```

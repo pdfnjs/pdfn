@@ -16,16 +16,6 @@
         "types": "./dist/index.d.cts",
         "default": "./dist/index.cjs"
       }
-    },
-    "./debug": {
-      "import": {
-        "types": "./dist/debug/index.d.ts",
-        "default": "./dist/debug/index.js"
-      },
-      "require": {
-        "types": "./dist/debug/index.d.cts",
-        "default": "./dist/debug/index.cjs"
-      }
     }
   },
   "scripts": {
