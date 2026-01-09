@@ -1546,6 +1546,12 @@ async function startDevServer(options: DevServerOptions) {
 
   console.log(chalk.dim(`  Templates: ${displayPath} (${templateCount})`));
   console.log(chalk.green(`\n  ✓ Ready at ${chalk.cyan(`http://localhost:${port}`)}\n`));
+
+  if (!open) {
+    console.log(chalk.dim(`  Tip: PDFs are generated with Chromium. For accurate preview,`));
+    console.log(chalk.dim(`       open in Chrome or Chromium-based browsers.\n`));
+  }
+
   console.log(chalk.dim(`  Shortcuts`));
   console.log(chalk.dim(`  › ${chalk.white("o")} open in Chromium`));
   console.log(chalk.dim(`  › ${chalk.white("q")} quit\n`));
