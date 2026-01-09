@@ -1,8 +1,17 @@
 # @pdfn/react
 
-React components for building PDFs using standard web layout primitives.
+### Write PDF templates as React components.
 
-> **Server-only** - Do not import in `"use client"` files.
+React components for building PDFs with predictable pagination, headers, footers, and Tailwind support.
+
+> **Server-only** — runs in Node.js and Edge runtimes, not in browsers.
+
+## Why pdfn?
+
+- **React & Tailwind** — Write PDFs like you write web UIs. No new syntax to learn.
+- **Predictable pagination** — Table headers repeat, sections stay together, page numbers just work.
+- **What you see is what you get** — Preview matches output. No surprises in PDF.
+- **Use any Chromium** — Works with Puppeteer, Playwright, Browserless, or your own setup.
 
 ## Installation
 

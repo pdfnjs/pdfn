@@ -151,28 +151,27 @@ export default function Home() {
   const previewUrl = `/api/pdf?template=${activeTemplate.id}&html=true${debugParams}`;
   const pdfUrl = `/api/pdf?template=${activeTemplate.id}${debugParams}`;
 
-  // Reset zoom mode when template changes
+  // FIXME: When DevTools panel is opened, the template rendered shrinks incorrectly
+  // Measure preview container dimensions using ResizeObserver
   useEffect(() => {
-    setZoomMode("fit");
-  }, [activeTemplate.id]);
+    const container = previewContainerRef.current;
+    if (!container) return;
 
-  // Measure preview container dimensions on mount and resize
-  useEffect(() => {
-    const updateDimensions = () => {
-      if (previewContainerRef.current) {
-        const { width, height } = previewContainerRef.current.getBoundingClientRect();
-        // Subtract padding (p-6 = 24px on each side)
+    const observer = new ResizeObserver((entries) => {
+      const entry = entries[0];
+      if (entry) {
+        // contentRect is the content box (already excludes padding)
+        const { width, height } = entry.contentRect;
         setPreviewDimensions({
-          width: Math.max(width - 48, 300),
-          height: Math.max(height - 48, 300),
+          width: Math.max(width, 300),
+          height: Math.max(height, 300),
         });
       }
-    };
+    });
 
-    updateDimensions();
-    window.addEventListener("resize", updateDimensions);
-    return () => window.removeEventListener("resize", updateDimensions);
-  }, []);
+    observer.observe(container);
+    return () => observer.disconnect();
+  }, [activeTab]);
 
   // Handle PDF download with error handling
   const handleDownload = async () => {
@@ -207,7 +206,8 @@ export default function Home() {
     setActiveTemplate(template);
     setPdfError(null);
     setMetrics({ render: null, pagination: null, pages: null });
-    setActiveTab("preview"); // Reset to preview on template change
+    setActiveTab("preview");
+    setZoomMode("fit");
   };
 
   // Handle iframe load - capture render time from response header
@@ -239,7 +239,7 @@ export default function Home() {
             Ship consistent PDFs.
           </h2>
           <p className="text-xl text-text-secondary mb-10 max-w-2xl mx-auto animate-fade-in-delay-2">
-            Server-side, Chromium-based PDF generation with built-in pagination, headers, footers and Tailwind.
+            React-first, Chromium-based PDF generation with predictable pagination and Tailwind support.
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 animate-fade-in-delay-2">
             <a

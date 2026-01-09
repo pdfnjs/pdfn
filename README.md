@@ -1,8 +1,7 @@
 # pdfn
 
-### Write React. Ship PDFs.
-
-**Build predictable, paginated PDFs with React and Tailwind. Preview locally, ship the same output everywhere.**
+### Write PDF templates as React components. 
+**React-first, Chromium-based PDF generation with predictable pagination and Tailwind support.**
 
 ---
 
@@ -64,18 +63,28 @@ Does not work in:
 
 ## Usage
 
-Two ways to generate PDFs:
+There are two ways to use pdfn, depending on how much control you want:
 
-- **`render()`** → HTML string (use with Puppeteer/Playwright for full control)
-- **`generate()`** → PDF buffer directly
+- **`render()`** → returns print-ready HTML  
+  Use this with Puppeteer, Playwright, Browserless, or any Chromium setup.
 
-> **Important:** `generate()` requires a running pdfn server. Start one with `npx pdfn serve` (or `npx pdfn dev` for development).
+- **`generate()`** → returns a PDF buffer directly  
+  Uses the local pdfn server to render and print the document.
+
+> **Important:** `generate()` requires a running **local** pdfn server.
+> Start one with:
 >
 > ```bash
-> # Terminal 1: Start the PDF server
+> # Start the local PDF server
 > npx pdfn serve
 >
-> # Terminal 2: Your app calls generate()
+> # Your app calls generate() → pdfn renders + prints via Chromium
+> ```
+>
+> For development with live preview, use:
+>
+> ```bash
+> npx pdfn dev
 > ```
 
 ### Basic Example
@@ -229,6 +238,36 @@ export async function POST(req: Request) {
   });
 }
 ```
+
+### Node.js (Plain)
+
+pdfn works in any Node.js project — no framework required. Just install the peer dependencies:
+
+```bash
+npm i react react-dom @pdfn/react
+```
+
+```ts
+// generate-invoice.ts
+import { Document, Page, PageNumber, generate } from '@pdfn/react';
+import { writeFileSync } from 'fs';
+
+function Invoice() {
+  return (
+    <Document title="Invoice #001">
+      <Page size="A4" margin="1in" footer={<PageNumber />}>
+        <h1 style={{ fontSize: 24 }}>Invoice #001</h1>
+        <p>Total: $148.00</p>
+      </Page>
+    </Document>
+  );
+}
+
+const pdf = await generate(<Invoice />);
+writeFileSync('invoice.pdf', pdf);
+```
+
+Run with `npx tsx generate-invoice.ts` (requires `npx pdfn serve` running).
 
 ## Features
 

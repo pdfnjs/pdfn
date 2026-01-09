@@ -1,0 +1,75 @@
+# pdfn
+
+> Write PDF templates as React components. Server-side, Chromium-based PDF generation with predictable pagination, headers, footers, and Tailwind support.
+
+## Overview
+
+- [README](/README.md): Full documentation, examples, and API reference
+
+## Guides
+
+- [Getting Started](/docs/getting-started.md): Installation and first PDF
+- [Styling](/docs/styling.md): Inline styles, CSS props, Tailwind
+- [Next.js](/docs/nextjs.md): App Router integration and deployment
+
+## Packages
+
+- [@pdfn/react](/packages/react/README.md): Core components and render/generate functions
+- [@pdfn/tailwind](/packages/tailwind/README.md): Tailwind CSS support
+- [@pdfn/next](/packages/next/README.md): Next.js edge runtime plugin
+- [@pdfn/vite](/packages/vite/README.md): Vite edge runtime plugin
+- [pdfn CLI](/packages/cli/README.md): Dev server and production server
+
+## Quick Reference
+
+### Installation
+
+```bash
+# React projects
+npm i @pdfn/react
+
+# Plain Node.js
+npm i react react-dom @pdfn/react
+
+# With Tailwind
+npm i @pdfn/tailwind
+```
+
+### Basic Example
+
+```tsx
+import { Document, Page, PageNumber, generate } from '@pdfn/react';
+
+function Invoice() {
+  return (
+    <Document title="Invoice">
+      <Page size="A4" margin="1in" footer={<PageNumber />}>
+        <h1 style={{ fontSize: 24 }}>Invoice #001</h1>
+        <p>Total: $148.00</p>
+      </Page>
+    </Document>
+  );
+}
+
+const pdf = await generate(<Invoice />);
+```
+
+### Components
+
+| Component | Purpose |
+|-----------|---------|
+| `<Document>` | Root wrapper with metadata, fonts, CSS |
+| `<Page>` | Page container with size, margins, header/footer |
+| `<PageNumber>` | Current page number |
+| `<TotalPages>` | Total page count |
+| `<PageBreak>` | Force page break |
+| `<AvoidBreak>` | Keep content together |
+| `<Thead repeat>` | Repeating table header |
+| `<Tr keep>` | Non-splitting table row |
+
+### Functions
+
+| Function | Returns | Requires |
+|----------|---------|----------|
+| `render()` | HTML string | Nothing |
+| `generate()` | PDF buffer | `npx pdfn serve` running |

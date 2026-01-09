@@ -1,0 +1,445 @@
+# pdfn - Complete Reference
+
+> Write PDF templates as React components. Server-side, Chromium-based PDF generation with predictable pagination, headers, footers, and Tailwind support.
+
+## What is pdfn?
+
+pdfn is a React framework for generating PDFs. You write React components, pdfn renders them to print-ready HTML, and Chromium converts to PDF.
+
+**Key features:**
+- React components for PDF structure
+- Predictable pagination with headers/footers
+- Table headers that repeat on every page
+- Multiple styling options (inline, CSS, Tailwind)
+- Works in Node.js, Next.js, or any server environment
+
+**Not for:**
+- Browser/client-side (server-only)
+- Visual PDF editors
+
+## Installation
+
+```bash
+# React projects (Next.js, Vite, etc.)
+npm i @pdfn/react
+
+# Plain Node.js (install peer deps)
+npm i react react-dom @pdfn/react
+
+# With Tailwind CSS
+npm i @pdfn/tailwind
+
+# Edge runtimes (Vercel Edge, Cloudflare)
+npm i @pdfn/next  # or @pdfn/vite
+```
+
+## Core Concepts
+
+### render() vs generate()
+
+| Function | Returns | Requires | Use when |
+|----------|---------|----------|----------|
+| `render()` | HTML string | Nothing | You have your own Puppeteer/Playwright |
+| `generate()` | PDF buffer | `npx pdfn serve` | You want all-in-one solution |
+
+### Component Hierarchy
+
+```
+<Document>           # Root - metadata, fonts, CSS
+  <Page>             # Page container - size, margins
+    header={}        # Repeated header
+    footer={}        # Repeated footer
+    children         # Content
+  </Page>
+</Document>
+```
+
+## Components
+
+### Document
+
+Root wrapper with PDF metadata and styling.
+
+```tsx
+<Document
+  title="Invoice"              // PDF title
+  author="ACME Corp"           // PDF author
+  subject="Invoice for Q4"     // PDF subject
+  keywords={['invoice']}       // PDF keywords
+  language="en"                // Document language
+  fonts={['Inter']}            // Google Fonts to load
+  css={`...`}                  // Custom CSS string
+  cssFile="./styles.css"       // Path to CSS file
+>
+  {children}
+</Document>
+```
+
+### Page
+
+Page container with size and layout options.
+
+```tsx
+<Page
+  size="A4"                    // A4, Letter, Legal, etc.
+  orientation="portrait"       // portrait | landscape
+  margin="1in"                 // string or { top, right, bottom, left }
+  background="#f5f5f5"         // Page background color
+  header={<div>Header</div>}   // Repeated on each page
+  footer={<PageNumber />}      // Repeated on each page
+  watermark="DRAFT"            // string or { text, opacity, rotation }
+>
+  {children}
+</Page>
+```
+
+**Page sizes:**
+- A3, A4, A5 (ISO)
+- Letter, Legal, Tabloid (US)
+- B4, B5 (JIS)
+- Custom: `['6in', '9in']`
+
+### PageNumber
+
+Renders current page number. Use in header/footer.
+
+```tsx
+<footer>Page <PageNumber /></footer>
+// Output: "Page 1", "Page 2", etc.
+```
+
+### TotalPages
+
+Renders total page count. Use in header/footer.
+
+```tsx
+<footer>Page <PageNumber /> of <TotalPages /></footer>
+// Output: "Page 1 of 5", etc.
+```
+
+### PageBreak
+
+Forces content to next page.
+
+```tsx
+<h1>Chapter 1</h1>
+<p>Content...</p>
+<PageBreak />
+<h1>Chapter 2</h1>
+```
+
+### AvoidBreak
+
+Keeps content together on same page.
+
+```tsx
+<AvoidBreak>
+  <h2>Section Title</h2>
+  <p>This stays with its heading.</p>
+</AvoidBreak>
+```
+
+### Thead (with repeat)
+
+Table header that repeats on every page.
+
+```tsx
+<table>
+  <Thead repeat>
+    <tr>
+      <th>Item</th>
+      <th>Price</th>
+    </tr>
+  </Thead>
+  <tbody>
+    {items.map(item => (
+      <Tr key={item.id} keep>
+        <td>{item.name}</td>
+        <td>${item.price}</td>
+      </Tr>
+    ))}
+  </tbody>
+</table>
+```
+
+### Tr (with keep)
+
+Table row that won't split across pages.
+
+```tsx
+<Tr keep>
+  <td>This row stays together</td>
+</Tr>
+```
+
+## Styling
+
+### 1. Inline Styles (No dependencies)
+
+```tsx
+<h1 style={{ fontSize: 24, fontWeight: 'bold' }}>Title</h1>
+```
+
+### 2. CSS Props (No extra packages)
+
+```tsx
+// Inline CSS
+<Document css={`.title { font-size: 24px; }`}>
+  <Page><h1 className="title">Title</h1></Page>
+</Document>
+
+// External CSS file
+<Document cssFile="./styles/invoice.css">
+  <Page><h1 className="title">Title</h1></Page>
+</Document>
+```
+
+### 3. Tailwind CSS (requires @pdfn/tailwind)
+
+```tsx
+import { Tailwind } from '@pdfn/tailwind';
+
+<Document>
+  <Tailwind>
+    <Page>
+      <h1 className="text-2xl font-bold">Title</h1>
+    </Page>
+  </Tailwind>
+</Document>
+```
+
+With custom theme:
+
+```tsx
+<Tailwind css="./src/app/globals.css">
+  <Page>
+    <div className="text-brand font-inter">Custom theme</div>
+  </Page>
+</Tailwind>
+```
+
+## Fonts
+
+### Google Fonts
+
+```tsx
+<Document fonts={['Inter', 'Roboto Mono']}>
+  ...
+</Document>
+
+// With specific weights
+<Document fonts={[{ family: 'Inter', weights: [400, 500, 700] }]}>
+  ...
+</Document>
+```
+
+### Local Fonts
+
+```tsx
+<Document fonts={[
+  { family: 'CustomFont', src: './fonts/custom.woff2', weight: 400 },
+  { family: 'CustomFont', src: './fonts/custom-bold.woff2', weight: 700 },
+]}>
+  ...
+</Document>
+```
+
+## Examples
+
+### Basic Invoice
+
+```tsx
+import { Document, Page, PageNumber, generate } from '@pdfn/react';
+
+function Invoice({ data }) {
+  return (
+    <Document title={`Invoice ${data.id}`}>
+      <Page size="A4" margin="1in" footer={<PageNumber />}>
+        <h1 style={{ fontSize: 24 }}>Invoice #{data.id}</h1>
+        <p>Customer: {data.customer}</p>
+        <p style={{ fontSize: 20, fontWeight: 'bold' }}>
+          Total: ${data.total}
+        </p>
+      </Page>
+    </Document>
+  );
+}
+
+const pdf = await generate(<Invoice data={{ id: '001', customer: 'Acme', total: 148 }} />);
+```
+
+### Multi-page Table
+
+```tsx
+import { Document, Page, PageNumber, TotalPages, Thead, Tr } from '@pdfn/react';
+
+function Report({ items }) {
+  return (
+    <Document title="Report">
+      <Page
+        size="A4"
+        margin="1in"
+        header={<div>Monthly Report</div>}
+        footer={<div>Page <PageNumber /> of <TotalPages /></div>}
+      >
+        <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+          <Thead repeat>
+            <tr>
+              <th style={{ borderBottom: '2px solid #333', padding: 8 }}>Item</th>
+              <th style={{ borderBottom: '2px solid #333', padding: 8 }}>Amount</th>
+            </tr>
+          </Thead>
+          <tbody>
+            {items.map(item => (
+              <Tr key={item.id} keep>
+                <td style={{ padding: 8, borderBottom: '1px solid #ddd' }}>{item.name}</td>
+                <td style={{ padding: 8, borderBottom: '1px solid #ddd' }}>${item.amount}</td>
+              </Tr>
+            ))}
+          </tbody>
+        </table>
+      </Page>
+    </Document>
+  );
+}
+```
+
+### With Tailwind
+
+```tsx
+import { Document, Page, PageNumber } from '@pdfn/react';
+import { Tailwind } from '@pdfn/tailwind';
+
+function Invoice({ data }) {
+  return (
+    <Document title="Invoice">
+      <Tailwind>
+        <Page size="A4" margin="1in" footer={<PageNumber />}>
+          <h1 className="text-2xl font-bold mb-4">Invoice #{data.id}</h1>
+          <p className="text-gray-600">Customer: {data.customer}</p>
+          <div className="mt-8 p-4 bg-gray-100 rounded-lg">
+            <p className="text-xl font-bold">Total: ${data.total}</p>
+          </div>
+        </Page>
+      </Tailwind>
+    </Document>
+  );
+}
+```
+
+### Next.js API Route
+
+```tsx
+// app/api/invoice/route.ts
+import { Document, Page, generate } from '@pdfn/react';
+
+function Invoice({ data }) {
+  return (
+    <Document title="Invoice">
+      <Page size="A4" margin="1in">
+        <h1 style={{ fontSize: 24 }}>Invoice #{data.id}</h1>
+        <p>Total: ${data.total}</p>
+      </Page>
+    </Document>
+  );
+}
+
+export async function POST(req: Request) {
+  const data = await req.json();
+  const pdf = await generate(<Invoice data={data} />);
+
+  return new Response(pdf, {
+    headers: {
+      'Content-Type': 'application/pdf',
+      'Content-Disposition': `attachment; filename="invoice-${data.id}.pdf"`,
+    },
+  });
+}
+```
+
+### Plain Node.js
+
+```ts
+import { Document, Page, generate } from '@pdfn/react';
+import { writeFileSync } from 'fs';
+
+function Invoice() {
+  return (
+    <Document title="Invoice">
+      <Page size="A4" margin="1in">
+        <h1 style={{ fontSize: 24 }}>Invoice #001</h1>
+      </Page>
+    </Document>
+  );
+}
+
+const pdf = await generate(<Invoice />);
+writeFileSync('invoice.pdf', pdf);
+```
+
+Run: `npx tsx generate.ts` (requires `npx pdfn serve` running)
+
+## CLI Commands
+
+```bash
+# Development server with live preview
+npx pdfn dev
+npx pdfn dev --open
+npx pdfn dev --port 4000
+
+# Production server (headless)
+npx pdfn serve
+npx pdfn serve --port 3456
+npx pdfn serve --max-concurrent 10
+
+# Add starter templates
+npx pdfn add invoice
+npx pdfn add invoice --tailwind
+npx pdfn add --list
+```
+
+## Environment Variables
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `PDFN_HOST` | `http://localhost:3456` | Server URL for generate() |
+| `PDFN_PORT` | `3456` | Server port |
+| `PDFN_MAX_CONCURRENT` | `5` | Max concurrent generations |
+| `DEBUG` | - | Set to `pdfn:*` for logging |
+
+## Common Patterns
+
+### Watermark
+
+```tsx
+<Page watermark="DRAFT">
+  ...
+</Page>
+
+// Or with options
+<Page watermark={{ text: 'CONFIDENTIAL', opacity: 0.1, rotation: -45 }}>
+  ...
+</Page>
+```
+
+### Custom Margins
+
+```tsx
+<Page margin="1in">              {/* All sides */}
+<Page margin="1in 0.5in">        {/* Vertical, horizontal */}
+<Page margin={{ top: '1in', bottom: '1in', left: '0.5in', right: '0.5in' }}>
+```
+
+### Debug Overlays
+
+```tsx
+const html = await render(<Invoice />, { debug: true });
+const pdf = await generate(<Invoice />, { debug: { grid: true, margins: true } });
+```
+
+## Important Notes
+
+1. **Server-only** — pdfn uses react-dom/server, doesn't work in browsers
+2. **generate() needs server** — Run `npx pdfn serve` before calling generate()
+3. **PDFN.ready** — When using render() with Puppeteer, wait for `window.PDFN.ready === true`
+4. **Peer dependencies** — Plain Node.js needs `react` and `react-dom` installed
