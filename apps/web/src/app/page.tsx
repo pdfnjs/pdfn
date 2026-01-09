@@ -259,7 +259,7 @@ export default function Home() {
       </section>
 
       {/* Demo Section */}
-      <section className="py-12 px-6 bg-surface-1">
+      <section className="py-20 px-6 bg-surface-1">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-8 fade-in-section">
             <h2 id="preview" className="text-3xl font-bold text-text-primary mb-4 scroll-mt-16">
@@ -271,34 +271,33 @@ export default function Home() {
           </div>
 
           {/* Template Selector */}
-          {/* Mobile: Dropdown with label */}
-          <div className="md:hidden mb-6">
-            <div className="flex items-center gap-3">
-              <label htmlFor="template-select" className="text-sm font-medium text-text-secondary whitespace-nowrap">
-                Template:
-              </label>
-              <div className="relative flex-1">
-                <select
-                  id="template-select"
-                  value={activeTemplate.id}
-                  onChange={(e) => {
-                    const template = templates.find(t => t.id === e.target.value);
-                    if (template) handleTemplateChange(template);
-                  }}
-                  className="w-full appearance-none bg-surface-1 border-2 border-border hover:border-border-hover rounded-lg px-4 py-3 pr-10 text-text-primary font-medium focus:outline-none focus:border-primary transition-colors cursor-pointer"
-                >
-                  {templates.map((t) => (
-                    <option key={t.id} value={t.id}>
-                      {t.name} · {t.pageSize} · {getStylingLabel(t.styling)}
-                    </option>
-                  ))}
-                </select>
-                <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-text-muted">
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                  </svg>
-                </div>
+          {/* Mobile: Full-width dropdown with info box */}
+          <div className="md:hidden mb-6 space-y-2">
+            <div className="relative">
+              <select
+                id="template-select"
+                value={activeTemplate.id}
+                onChange={(e) => {
+                  const template = templates.find(t => t.id === e.target.value);
+                  if (template) handleTemplateChange(template);
+                }}
+                className="w-full appearance-none bg-surface-1 border border-border rounded-lg px-4 py-3 pr-10 text-text-primary font-medium focus:outline-none focus:border-primary transition-colors cursor-pointer"
+              >
+                {templates.map((t) => (
+                  <option key={t.id} value={t.id}>
+                    {t.name}
+                  </option>
+                ))}
+              </select>
+              <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-text-muted">
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                </svg>
               </div>
+            </div>
+            {/* Template info label */}
+            <div className="text-xs text-text-muted text-center mt-1.5">
+              {activeTemplate.pageSize} · {activeTemplate.orientation} · {getStylingLabel(activeTemplate.styling)}
             </div>
           </div>
 
@@ -350,7 +349,7 @@ export default function Home() {
                     Code
                   </button>
                 </div>
-                <div className="flex items-center gap-2 text-xs text-text-muted">
+                <div className="hidden sm:flex items-center gap-2 text-xs text-text-muted">
                   <span className="font-mono">{activeTemplate.pageSize} · {activeTemplate.orientation}</span>
                   <span className="text-text-muted">·</span>
                   <StylingBadge styling={activeTemplate.styling} size="small" showTooltip />
