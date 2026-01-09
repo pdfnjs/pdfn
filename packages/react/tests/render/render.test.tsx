@@ -249,4 +249,203 @@ describe("render", () => {
     });
   });
 
+  describe("Document CSS support", () => {
+    it("injects inline css prop into rendered HTML", async () => {
+      const html = await render(
+        <Document title="Test" css={`.custom { color: red; }`}>
+          <Page>
+            <div className="custom">Test</div>
+          </Page>
+        </Document>
+      );
+
+      expect(html).toContain(".custom { color: red; }");
+    });
+
+    it("handles CSS with quotes and special characters", async () => {
+      const css = `.test { content: "Hello"; font-family: "Inter", sans-serif; }`;
+
+      const html = await render(
+        <Document title="Test" css={css}>
+          <Page>
+            <div>Test</div>
+          </Page>
+        </Document>
+      );
+
+      expect(html).toContain('content: "Hello"');
+      expect(html).toContain('"Inter"');
+    });
+
+    it("handles CSS with newlines and multi-line rules", async () => {
+      const css = `
+        .multi-line {
+          color: red;
+          background: blue;
+        }
+      `;
+
+      const html = await render(
+        <Document title="Test" css={css}>
+          <Page>
+            <div>Test</div>
+          </Page>
+        </Document>
+      );
+
+      expect(html).toContain(".multi-line");
+      expect(html).toContain("color: red");
+      expect(html).toContain("background: blue");
+    });
+
+    it("places Document CSS after BASE_STYLES in cascade", async () => {
+      const html = await render(
+        <Document title="Test" css={`.custom-after-base { color: red; }`}>
+          <Page>
+            <div>Test</div>
+          </Page>
+        </Document>
+      );
+
+      // BASE_STYLES contains this reset
+      const baseStylesIndex = html.indexOf("box-sizing: border-box");
+      const customCssIndex = html.indexOf(".custom-after-base { color: red; }");
+
+      expect(baseStylesIndex).toBeGreaterThan(-1);
+      expect(customCssIndex).toBeGreaterThan(-1);
+      expect(baseStylesIndex).toBeLessThan(customCssIndex);
+    });
+
+    it("does not include data-pdfn-css attribute in output", async () => {
+      const html = await render(
+        <Document title="Test" css={`.test { color: red; }`}>
+          <Page>
+            <div>Test</div>
+          </Page>
+        </Document>
+      );
+
+      expect(html).not.toContain("data-pdfn-css=");
+    });
+
+    it("does not include data-pdfn-css-file attribute in output", async () => {
+      const html = await render(
+        <Document title="Test" css={`.test { color: red; }`}>
+          <Page>
+            <div>Test</div>
+          </Page>
+        </Document>
+      );
+
+      expect(html).not.toContain("data-pdfn-css-file=");
+    });
+
+    it("handles empty css prop gracefully", async () => {
+      const html = await render(
+        <Document title="Test" css="">
+          <Page>
+            <div>Test</div>
+          </Page>
+        </Document>
+      );
+
+      // Should still render without errors
+      expect(html).toContain("<!DOCTYPE html>");
+      expect(html).toContain("Test");
+    });
+
+    it("handles css with CSS variables", async () => {
+      const css = `
+        :root { --brand-color: #007bff; }
+        .brand { color: var(--brand-color); }
+      `;
+
+      const html = await render(
+        <Document title="Test" css={css}>
+          <Page>
+            <div className="brand">Test</div>
+          </Page>
+        </Document>
+      );
+
+      expect(html).toContain("--brand-color: #007bff");
+      expect(html).toContain("var(--brand-color)");
+    });
+
+    it("handles css with @media queries", async () => {
+      const css = `
+        @media print {
+          .no-print { display: none; }
+        }
+      `;
+
+      const html = await render(
+        <Document title="Test" css={css}>
+          <Page>
+            <div>Test</div>
+          </Page>
+        </Document>
+      );
+
+      expect(html).toContain("@media print");
+      expect(html).toContain(".no-print { display: none; }");
+    });
+
+    describe("cssFile support", () => {
+      const fixturesDir = path.join(__dirname, "../fixtures/css");
+      const testCssPath = path.join(fixturesDir, "test.css");
+
+      beforeAll(() => {
+        fs.mkdirSync(fixturesDir, { recursive: true });
+        fs.writeFileSync(
+          testCssPath,
+          `.from-file { color: blue; font-weight: bold; }`
+        );
+      });
+
+      afterAll(() => {
+        fs.rmSync(fixturesDir, { recursive: true, force: true });
+      });
+
+      it("loads and injects CSS from cssFile path", async () => {
+        const html = await render(
+          <Document title="Test" cssFile={testCssPath}>
+            <Page>
+              <div className="from-file">Test</div>
+            </Page>
+          </Document>
+        );
+
+        expect(html).toContain(".from-file { color: blue; font-weight: bold; }");
+      });
+
+      it("throws error for non-existent cssFile", async () => {
+        await expect(
+          render(
+            <Document title="Test" cssFile="./non-existent.css">
+              <Page>Test</Page>
+            </Document>
+          )
+        ).rejects.toThrow("CSS file not found");
+      });
+
+      it("prefers css prop over cssFile when both are provided", async () => {
+        // When css prop is provided, it takes precedence (cssFile is for build-time inlining)
+        const html = await render(
+          <Document
+            title="Test"
+            css={`.inline { color: green; }`}
+            cssFile={testCssPath}
+          >
+            <Page>Test</Page>
+          </Document>
+        );
+
+        expect(html).toContain(".inline { color: green; }");
+        // cssFile should not be loaded when css is already provided
+        expect(html).not.toContain(".from-file");
+      });
+    });
+  });
+
 });

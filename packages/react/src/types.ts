@@ -33,6 +33,37 @@ export interface DocumentProps {
    * ```
    */
   fonts?: (string | FontConfig)[];
+  /**
+   * Custom CSS to inject into the document.
+   * This CSS is added after Tailwind CSS in the cascade,
+   * allowing you to override Tailwind utilities if needed.
+   *
+   * @example
+   * ```tsx
+   * <Document
+   *   title="Invoice"
+   *   css={`
+   *     .invoice-header { border-bottom: 2px solid blue; }
+   *     .total { font-weight: bold; }
+   *   `}
+   * >
+   * ```
+   */
+  css?: string;
+  /**
+   * Path to a CSS file to include in the document.
+   * The path is relative to the template file.
+   *
+   * - **Vite/Next.js**: Inlined at build time, supports hot reload
+   * - **Node.js runtime**: Read at runtime (fallback)
+   * - **Edge runtime**: Requires @pdfn/vite or @pdfn/next plugin
+   *
+   * @example
+   * ```tsx
+   * <Document title="Invoice" cssFile="./styles/invoice.css">
+   * ```
+   */
+  cssFile?: string;
   /** Document content - should contain Page components */
   children: ReactNode;
 }

@@ -131,6 +131,8 @@ const pdf = await generate(<Invoice />);
   keywords={['invoice', 'q4']} // PDF keywords metadata
   language="en"                // Document language (default: "en")
   fonts={['Inter', 'Roboto Mono']}  // Google Fonts to load
+  css={`...`}                  // Custom CSS string
+  cssFile="./styles.css"       // Path to CSS file (relative to template)
 >
   {children}
 </Document>
@@ -261,6 +263,46 @@ const pdf = await generate(<Invoice />);
   ...
 </Document>
 ```
+
+### Custom CSS
+
+Add custom styles using `css` or `cssFile` props:
+
+```tsx
+// Inline CSS (works everywhere, including edge runtimes)
+<Document
+  title="Invoice"
+  css={`
+    .invoice-header {
+      border-bottom: 2px solid #007bff;
+      padding-bottom: 1rem;
+    }
+    .total-row {
+      font-weight: bold;
+      background: #f5f5f5;
+    }
+  `}
+>
+  <Page>
+    <h1 className="invoice-header">Invoice</h1>
+  </Page>
+</Document>
+
+// External CSS file (inlined at build time by @pdfn/vite or @pdfn/next)
+<Document title="Invoice" cssFile="./styles/invoice.css">
+  <Page>
+    <h1 className="invoice-header">Invoice</h1>
+  </Page>
+</Document>
+```
+
+**CSS Cascade Order:**
+1. Base styles (pdfn framework)
+2. Tailwind CSS (if using `<Tailwind>`)
+3. Document CSS (`css`/`cssFile` props)
+4. Inline styles (`style={}`)
+
+Document CSS comes after Tailwind, so you can override Tailwind utilities.
 
 ## Debug Overlays
 

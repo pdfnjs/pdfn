@@ -15,6 +15,19 @@ function serializeFonts(fonts?: (string | FontConfig)[]): string | undefined {
 }
 
 /**
+ * Base64 encode a string for safe data attribute storage.
+ * Handles CSS with quotes, newlines, and special characters.
+ */
+function encodeForDataAttr(value: string): string {
+  if (typeof Buffer !== "undefined") {
+    return Buffer.from(value).toString("base64");
+  }
+  // Fallback for environments without Buffer (edge, browser)
+  // Handle Unicode characters properly
+  return btoa(unescape(encodeURIComponent(value)));
+}
+
+/**
  * Document - Root component for PDF documents
  *
  * Wraps all Page components and defines document-level metadata.
@@ -53,6 +66,22 @@ function serializeFonts(fonts?: (string | FontConfig)[]): string | undefined {
  *   <Page>...</Page>
  * </Document>
  * ```
+ *
+ * @example With custom CSS
+ * ```tsx
+ * <Document title="Invoice" css={`
+ *   .invoice-header { border-bottom: 2px solid blue; }
+ * `}>
+ *   <Page>...</Page>
+ * </Document>
+ * ```
+ *
+ * @example With external CSS file
+ * ```tsx
+ * <Document title="Invoice" cssFile="./styles/invoice.css">
+ *   <Page>...</Page>
+ * </Document>
+ * ```
  */
 export function Document({
   children,
@@ -62,7 +91,12 @@ export function Document({
   keywords,
   language = "en",
   fonts,
+  css,
+  cssFile,
 }: DocumentProps) {
+  // Base64 encode CSS for safe storage in data attribute
+  const encodedCss = css ? encodeForDataAttr(css) : undefined;
+
   return (
     <div
       data-pdfn-document
@@ -72,6 +106,8 @@ export function Document({
       data-keywords={keywords?.join(",")}
       data-language={language}
       data-fonts={serializeFonts(fonts)}
+      data-pdfn-css={encodedCss}
+      data-pdfn-css-file={cssFile}
     >
       {children}
     </div>

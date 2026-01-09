@@ -237,6 +237,7 @@ export async function POST(req: Request) {
 - Standard page sizes (A4, Letter, etc.) + custom dimensions
 - Layout with clean page breaks, headers, footers, and watermarks
 - Local and web fonts/images auto-embedded
+- Custom CSS via `css` prop or external `cssFile`
 - Tailwind CSS support via `@pdfn/tailwind`
 
 ### pdfn (CLI)
@@ -249,7 +250,7 @@ export async function POST(req: Request) {
 
 | Component | Key Props | Description |
 |-----------|-----------|-------------|
-| `<Document>` | `title`, `author`, `fonts` | Root wrapper with PDF metadata |
+| `<Document>` | `title`, `author`, `fonts`, `css`, `cssFile` | Root wrapper with PDF metadata and custom CSS |
 | `<Page>` | `size`, `margin`, `header`, `footer` | Page container with layout options |
 | `<PageNumber>` | — | Current page number |
 | `<TotalPages>` | — | Total page count |

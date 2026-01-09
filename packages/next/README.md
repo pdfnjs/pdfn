@@ -86,6 +86,7 @@ export async function GET() {
 
 In development (`NODE_ENV !== 'production'`), the plugin:
 - Watches template directories for file changes
+- Watches CSS files used via `cssFile` prop and triggers rebuild on change
 - Recompiles CSS when `.tsx`, `.ts`, `.jsx`, `.js` files change
 - Logs recompilation status in the console
 
@@ -94,6 +95,21 @@ In development (`NODE_ENV !== 'production'`), the plugin:
 [pdfn:next] Compiled 20589 bytes of CSS from 142 classes in 6 files
 [pdfn:next] Watching for changes: /path/to/pdf-templates
 ```
+
+## Custom CSS Files
+
+The plugin also handles `cssFile` props on `<Document>`:
+
+```tsx
+// pdf-templates/invoice.tsx
+<Document title="Invoice" cssFile="./styles/invoice.css">
+  <Page>
+    <h1 className="invoice-header">Invoice</h1>
+  </Page>
+</Document>
+```
+
+At build time, the CSS file is read and inlined. In dev mode, changes to the CSS file trigger rebuild automatically via webpack's `addDependency()`.
 
 ## Using Your Theme
 

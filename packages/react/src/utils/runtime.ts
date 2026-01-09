@@ -158,4 +158,11 @@ export const EdgeErrors = {
     `  1. Use a Vite/Next.js plugin to pre-compile Tailwind at build time\n` +
     `  2. Use inline styles instead of Tailwind classes\n` +
     `  3. Use Node.js runtime (Vercel Serverless instead of Edge)\n`,
+
+  cssFile: (path: string) =>
+    `cssFile="${path}" requires build-time compilation on edge runtimes.\n\n` +
+    `Edge runtimes don't have filesystem access. Options:\n` +
+    `  1. Use @pdfn/vite or @pdfn/next plugin to pre-compile cssFile at build time\n` +
+    `  2. Use inline css prop instead: css={\`...\`}\n` +
+    `  3. Use Node.js runtime (Vercel Serverless instead of Edge)\n`,
 } as const;

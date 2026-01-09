@@ -86,8 +86,24 @@ export async function generateInvoice() {
 
 In development, the plugin:
 - Recompiles CSS when template files change
+- Watches CSS files used via `cssFile` prop and triggers reload on change
 - Triggers a full reload to apply new styles
 - Logs `[pdfn:vite] Template changed: <file>` in the console
+
+## Custom CSS Files
+
+The plugin also handles `cssFile` props on `<Document>`:
+
+```tsx
+// pdf-templates/invoice.tsx
+<Document title="Invoice" cssFile="./styles/invoice.css">
+  <Page>
+    <h1 className="invoice-header">Invoice</h1>
+  </Page>
+</Document>
+```
+
+At build time, the CSS file is read and inlined. In dev mode, changes to the CSS file trigger hot reload.
 
 ## Using Your Theme
 

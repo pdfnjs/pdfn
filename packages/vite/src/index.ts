@@ -1,12 +1,16 @@
 /**
- * @pdfn/vite - Vite plugin for pre-compiling Tailwind CSS
+ * @pdfn/vite - Vite plugin for pre-compiling Tailwind CSS and Document CSS
  *
  * Enables edge runtime support by compiling Tailwind at build time
  * instead of runtime. Works seamlessly with `<Tailwind>` component.
+ *
+ * Also handles cssFile prop on Document component by inlining CSS at build time.
  */
 
 import type { Plugin, ViteDevServer } from "vite";
 import fg from "fast-glob";
+import { readFileSync, existsSync } from "node:fs";
+import { dirname, resolve } from "node:path";
 
 export interface PdfnTailwindOptions {
   /**
@@ -121,6 +125,9 @@ export function pdfnTailwind(options: PdfnTailwindOptions = {}): Plugin {
   let generatedCss = "";
   let server: ViteDevServer | null = null;
   let isBuilding = false;
+
+  // Track CSS file dependencies for HMR (cssFile -> Set of template ids)
+  const cssFileDependencies = new Map<string, Set<string>>();
 
   const log = (...args: unknown[]) => {
     if (debug) console.log("[pdfn:vite]", ...args);
@@ -302,46 +309,114 @@ export default css;`;
 
     /**
      * Transform <Tailwind> to inject pre-compiled CSS
+     * Transform cssFile props to inline CSS
      */
     transform(code, id) {
-      // Only transform files that import from @pdfn/tailwind and use <Tailwind>
-      if (!code.includes("@pdfn/tailwind") || !code.includes("<Tailwind")) {
-        return null;
-      }
-
       // Skip node_modules
       if (id.includes("node_modules")) {
         return null;
       }
 
-      // Check if file already imports from virtual module
-      if (code.includes(VIRTUAL_MODULE_ID)) {
-        return null;
+      let transformed = code;
+      let hasChanges = false;
+
+      // --- Handle Tailwind transform ---
+      if (code.includes("@pdfn/tailwind") && code.includes("<Tailwind")) {
+        // Check if file already imports from virtual module
+        if (!code.includes(VIRTUAL_MODULE_ID)) {
+          // Add import for pre-compiled CSS
+          const importStatement = `import { css as __pdfnPrecompiledCss__ } from "${VIRTUAL_MODULE_ID}";\n`;
+
+          // Transform <Tailwind> to <Tailwind css={__pdfnPrecompiledCss__}>
+          // Handle both <Tailwind> and <Tailwind ...props>
+          let tailwindTransformed = transformed;
+
+          // Replace <Tailwind> with <Tailwind css={__pdfnPrecompiledCss__}>
+          tailwindTransformed = tailwindTransformed.replace(
+            /<Tailwind(\s*)>/g,
+            "<Tailwind css={__pdfnPrecompiledCss__}>"
+          );
+
+          // Replace <Tailwind ...props> with <Tailwind css={__pdfnPrecompiledCss__} ...props>
+          // But only if css prop is not already present
+          tailwindTransformed = tailwindTransformed.replace(
+            /<Tailwind(\s+)(?!css=)/g,
+            "<Tailwind$1css={__pdfnPrecompiledCss__} "
+          );
+
+          // Only add import if we made changes
+          if (tailwindTransformed !== transformed) {
+            transformed = importStatement + tailwindTransformed;
+            hasChanges = true;
+          }
+        }
       }
 
-      // Add import for pre-compiled CSS
-      const importStatement = `import { css as __pdfnPrecompiledCss__ } from "${VIRTUAL_MODULE_ID}";\n`;
+      // --- Handle Document cssFile prop ---
+      if (code.includes("cssFile=")) {
+        const cssFileRegex = /cssFile=["']([^"']+)["']/g;
 
-      // Transform <Tailwind> to <Tailwind css={__pdfnPrecompiledCss__}>
-      // Handle both <Tailwind> and <Tailwind ...props>
-      let transformed = code;
+        // Collect all matches first (we need to process in reverse order)
+        const matches: Array<{ full: string; path: string; index: number }> = [];
+        let cssMatch;
+        while ((cssMatch = cssFileRegex.exec(transformed)) !== null) {
+          const matchPath = cssMatch[1];
+          if (!matchPath) continue;
+          matches.push({
+            full: cssMatch[0],
+            path: matchPath,
+            index: cssMatch.index,
+          });
+        }
 
-      // Replace <Tailwind> with <Tailwind css={__pdfnPrecompiledCss__}>
-      transformed = transformed.replace(
-        /<Tailwind(\s*)>/g,
-        "<Tailwind css={__pdfnPrecompiledCss__}>"
-      );
+        // Process in reverse order to maintain string indices
+        for (const match of matches.reverse()) {
+          const cssFilePath = match.path;
 
-      // Replace <Tailwind ...props> with <Tailwind css={__pdfnPrecompiledCss__} ...props>
-      // But only if css prop is not already present
-      transformed = transformed.replace(
-        /<Tailwind(\s+)(?!css=)/g,
-        "<Tailwind$1css={__pdfnPrecompiledCss__} "
-      );
+          // Resolve path relative to the template file
+          const templateDir = dirname(id);
+          const fullCssPath = resolve(templateDir, cssFilePath);
 
-      // Only add import if we made changes
-      if (transformed !== code) {
-        transformed = importStatement + transformed;
+          // Track for HMR
+          if (!cssFileDependencies.has(fullCssPath)) {
+            cssFileDependencies.set(fullCssPath, new Set());
+          }
+          cssFileDependencies.get(fullCssPath)!.add(id);
+
+          // Check file exists
+          if (!existsSync(fullCssPath)) {
+            this.error(
+              `CSS file not found: ${cssFilePath}\n` +
+                `Resolved to: ${fullCssPath}\n` +
+                `Template: ${id}`
+            );
+            continue;
+          }
+
+          // Read and encode CSS
+          const cssContent = readFileSync(fullCssPath, "utf8");
+          const encoded = Buffer.from(cssContent).toString("base64");
+
+          // Replace cssFile="./x.css" with css={decoded}
+          // Use an IIFE to decode base64 at runtime
+          const replacement = `css={(() => {
+            const e = "${encoded}";
+            return typeof Buffer !== 'undefined'
+              ? Buffer.from(e, 'base64').toString('utf8')
+              : decodeURIComponent(escape(atob(e)));
+          })()}`;
+
+          transformed =
+            transformed.slice(0, match.index) +
+            replacement +
+            transformed.slice(match.index + match.full.length);
+
+          hasChanges = true;
+          log(`Inlined CSS from ${cssFilePath}`);
+        }
+      }
+
+      if (hasChanges) {
         return {
           code: transformed,
           map: null, // TODO: Generate proper source map
@@ -352,10 +427,31 @@ export default css;`;
     },
 
     /**
-     * Handle HMR - regenerate CSS when templates change
+     * Handle HMR - regenerate CSS when templates or CSS files change
      */
     async handleHotUpdate({ file, server: hmrServer }) {
-      // Check if changed file matches our patterns
+      // Check if changed file is a CSS file we're tracking (for cssFile prop)
+      if (file.endsWith(".css") && cssFileDependencies.has(file)) {
+        const dependentTemplates = cssFileDependencies.get(file)!;
+        log(`CSS file changed: ${file} (used by ${dependentTemplates.size} template(s))`);
+
+        // Invalidate all templates that use this CSS file
+        for (const templateId of dependentTemplates) {
+          const mod = hmrServer.moduleGraph.getModuleById(templateId);
+          if (mod) {
+            hmrServer.moduleGraph.invalidateModule(mod);
+          }
+        }
+
+        // Trigger full reload
+        hmrServer.ws.send({
+          type: "full-reload",
+        });
+
+        return;
+      }
+
+      // Check if changed file matches our template patterns
       const isTemplate = templatePatterns.some((pattern) => {
         // Simple glob matching - convert glob to regex
         const regexPattern = pattern

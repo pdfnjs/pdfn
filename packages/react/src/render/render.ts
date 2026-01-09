@@ -5,7 +5,7 @@ import { processCssFontFaces } from "./fonts";
 import { injectDebugSupport } from "../debug";
 import type { RenderOptions, FontConfig } from "../types";
 import { debug } from "../utils/debug";
-import { isBrowser, EdgeErrors } from "../utils/runtime";
+import { isBrowser, isEdge, EdgeErrors } from "../utils/runtime";
 
 // Dynamic import to avoid Next.js static analysis issues
 let renderToStaticMarkup: typeof import("react-dom/server").renderToStaticMarkup;
@@ -63,6 +63,46 @@ function extractPrecompiledCss(html: string): string | undefined {
 function removeTailwindMarker(html: string): string {
   // Remove the hidden div with the marker attribute (with or without CSS path)
   return html.replace(/<div data-pdfn-tailwind="true"[^>]*><\/div>/g, "");
+}
+
+/**
+ * Document CSS marker attributes
+ */
+const DOCUMENT_CSS_ATTR = "data-pdfn-css";
+const DOCUMENT_CSS_FILE_ATTR = "data-pdfn-css-file";
+
+/**
+ * Extract Document CSS from data attribute (base64 encoded)
+ */
+function extractDocumentCss(html: string): string | undefined {
+  const match = html.match(new RegExp(`${DOCUMENT_CSS_ATTR}="([^"]+)"`));
+  if (match?.[1]) {
+    try {
+      // Decode base64
+      return Buffer.from(match[1], "base64").toString("utf8");
+    } catch {
+      debug("document-css: failed to decode base64");
+      return undefined;
+    }
+  }
+  return undefined;
+}
+
+/**
+ * Extract cssFile path from data attribute
+ */
+function extractDocumentCssFile(html: string): string | undefined {
+  const match = html.match(new RegExp(`${DOCUMENT_CSS_FILE_ATTR}="([^"]+)"`));
+  return match?.[1];
+}
+
+/**
+ * Remove Document CSS data attributes from content
+ */
+function removeDocumentCssAttrs(html: string): string {
+  return html
+    .replace(new RegExp(`\\s*${DOCUMENT_CSS_ATTR}="[^"]*"`, "g"), "")
+    .replace(new RegExp(`\\s*${DOCUMENT_CSS_FILE_ATTR}="[^"]*"`, "g"), "");
 }
 
 export interface RenderResult {
@@ -207,20 +247,55 @@ export async function render(
   content = await processImages(content);
   const imagesTime = performance.now() - imagesStart;
 
-  // 5. Extract fonts from Document if present
+  // 5. Extract and process Document CSS (css/cssFile props)
+  const documentCssStart = performance.now();
+  let documentCss = extractDocumentCss(content) || "";
+  const cssFilePath = extractDocumentCssFile(content);
+
+  // Runtime fallback for cssFile (Node.js only)
+  if (cssFilePath && !documentCss) {
+    if (isEdge()) {
+      throw new Error(EdgeErrors.cssFile(cssFilePath));
+    }
+
+    // Dynamic import for Node.js filesystem
+    const fs = await import("node:fs");
+    const path = await import("node:path");
+    const fullPath = path.resolve(process.cwd(), cssFilePath);
+
+    if (!fs.existsSync(fullPath)) {
+      throw new Error(
+        `CSS file not found: ${cssFilePath}\n` +
+          `Resolved to: ${fullPath}\n\n` +
+          `Make sure the path is correct relative to your project root.`
+      );
+    }
+
+    documentCss = fs.readFileSync(fullPath, "utf8");
+    debug(`document-css: loaded from ${cssFilePath}`);
+  }
+
+  // Remove CSS data attributes from content
+  content = removeDocumentCssAttrs(content);
+  const documentCssTime = performance.now() - documentCssStart;
+
+  // 6. Extract fonts from Document if present
   const fonts = extractFonts(content);
 
-  // 6. Assemble final HTML
+  // 7. Combine Tailwind + Document CSS (Document CSS comes after for higher priority)
+  const combinedCss = [tailwindCss, documentCss].filter(Boolean).join("\n\n");
+
+  // 8. Assemble final HTML
   const htmlOptions: HtmlOptions = {
     metadata,
-    css: tailwindCss,
+    css: combinedCss,
     includePagedJs: true,
     fonts,
   };
 
   let html = await assembleHtml(content, htmlOptions);
 
-  // 7. Apply debug overlays if requested
+  // 9. Apply debug overlays if requested
   if (options.debug) {
     html = injectDebugSupport(html, options.debug);
     debug("render: debug overlays applied");
@@ -229,7 +304,7 @@ export async function render(
   const totalTime = performance.now() - startTime;
 
   debug(
-    `render: ${Math.round(totalTime)}ms (react: ${Math.round(reactTime)}ms, tailwind: ${Math.round(tailwindTime)}ms, images: ${Math.round(imagesTime)}ms)`
+    `render: ${Math.round(totalTime)}ms (react: ${Math.round(reactTime)}ms, tailwind: ${Math.round(tailwindTime)}ms, images: ${Math.round(imagesTime)}ms, css: ${Math.round(documentCssTime)}ms)`
   );
 
   return html;
