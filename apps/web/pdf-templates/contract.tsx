@@ -1,5 +1,4 @@
 import { Document, Page, PageNumber, TotalPages, AvoidBreak } from "@pdfn/react";
-import { Tailwind } from "@pdfn/tailwind";
 
 /**
  * Service Agreement Contract template - Legal size (taller page)
@@ -10,6 +9,7 @@ import { Tailwind } from "@pdfn/tailwind";
  * - Repeating footer with page numbers
  * - Multi-page content with numbered terms
  * - AvoidBreak for signature block
+ * - External CSS file via cssFile prop
  */
 
 interface ContractProps {
@@ -112,142 +112,125 @@ export default function Contract({
   },
 }: ContractProps) {
   return (
-    <Document title={title}>
-      <Tailwind>
-        <Page
-          size="Legal"
-          margin="1in"
-          watermark={
-            watermark
-              ? {
-                  text: watermark,
-                  opacity: 0.08,
-                  rotation: -35,
-                }
-              : undefined
-          }
-          header={
-            <div className="flex justify-between items-center pb-3 border-b border-gray-300 mb-6">
-              <div className="flex items-center gap-3">
-                <img src="https://pdfn.dev/logo.svg" alt="Logo" className="h-6" />
-                <div className="text-xs text-gray-400">|</div>
-                <div className="text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                  {title}
-                </div>
-              </div>
-              <div className="text-xs text-gray-500">Effective: {effectiveDate}</div>
+    <Document title={title} cssFile="./styles/contract.css">
+      <Page
+        size="Legal"
+        margin="1in"
+        watermark={
+          watermark
+            ? {
+                text: watermark,
+                opacity: 0.08,
+                rotation: -35,
+              }
+            : undefined
+        }
+        header={
+          <div className="contract-header">
+            <div className="contract-header-logo">
+              <img src="https://pdfn.dev/logo-dark.svg" alt="Logo" />
+              <div className="divider">|</div>
+              <div className="contract-header-title">{title}</div>
             </div>
-          }
-          footer={
-            <div className="pt-3 border-t border-gray-300">
-              <div className="flex justify-between items-center text-xs text-gray-500">
-                <div>{parties.provider.name} — Confidential</div>
-                <div>
-                  Page <PageNumber /> of <TotalPages />
-                </div>
+            <div className="contract-header-date">Effective: {effectiveDate}</div>
+          </div>
+        }
+        footer={
+          <div className="contract-footer">
+            <div className="contract-footer-inner">
+              <div>{parties.provider.name} — Confidential</div>
+              <div>
+                Page <PageNumber /> of <TotalPages />
               </div>
             </div>
-          }
-        >
-          {/* Parties Introduction */}
-          <p className="text-sm text-gray-700 leading-relaxed mb-6">
-            This {title} (&ldquo;Agreement&rdquo;) is entered into as of{" "}
-            <span className="font-semibold">{effectiveDate}</span> by and between the following
-            parties:
+          </div>
+        }
+      >
+        {/* Parties Introduction */}
+        <p className="intro-paragraph">
+          This {title} (&ldquo;Agreement&rdquo;) is entered into as of{" "}
+          <span className="date-highlight">{effectiveDate}</span> by and between the following
+          parties:
+        </p>
+
+        {/* Parties */}
+        <div className="parties-grid">
+          <div className="party-card party-card--provider">
+            <div className="party-label party-label--provider">Service Provider</div>
+            <div className="party-name">{parties.provider.name}</div>
+            <div className="party-address">{parties.provider.address}</div>
+            <div className="party-representative">
+              <span className="font-medium">Representative: </span>
+              {parties.provider.representative}
+            </div>
+          </div>
+          <div className="party-card party-card--client">
+            <div className="party-label party-label--client">Client</div>
+            <div className="party-name">{parties.client.name}</div>
+            <div className="party-address">{parties.client.address}</div>
+            <div className="party-representative">
+              <span className="font-medium">Representative: </span>
+              {parties.client.representative}
+            </div>
+          </div>
+        </div>
+
+        {/* Terms Section Header */}
+        <div className="terms-header">
+          <div className="terms-header-line"></div>
+          <h2 className="terms-header-title">Terms and Conditions</h2>
+          <div className="terms-header-line"></div>
+        </div>
+
+        {/* Terms */}
+        <div className="terms-list">
+          {terms.map((term, i) => (
+            <div key={i} className="term-item">
+              <div className="term-number">{i + 1}</div>
+              <div className="term-content">
+                <h3 className="term-title">{term.title}</h3>
+                <p className="term-text">{term.content}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Agreement Statement */}
+        <div className="agreement-statement">
+          <p>
+            <strong>IN WITNESS WHEREOF</strong>, the parties have executed this Agreement as of the
+            Effective Date. Both parties acknowledge that they have read, understood, and agree to be
+            bound by all terms and conditions set forth herein.
           </p>
+        </div>
 
-          {/* Parties */}
-          <div className="grid grid-cols-2 gap-6 mb-8">
-            <div className="border-2 border-gray-800 rounded-lg p-4">
-              <div className="text-xs font-bold text-gray-800 uppercase tracking-wider mb-2">
-                Service Provider
-              </div>
-              <div className="text-sm font-bold text-gray-900">{parties.provider.name}</div>
-              <div className="text-xs text-gray-600 mt-1">{parties.provider.address}</div>
-              <div className="text-xs text-gray-500 mt-2">
-                <span className="font-medium">Representative: </span>
-                {parties.provider.representative}
+        {/* Signatures */}
+        <AvoidBreak>
+          <div className="signatures-grid">
+            {/* Provider Signature */}
+            <div className="signature-block">
+              <div className="signature-label signature-label--provider">Service Provider</div>
+              <div className="signature-line"></div>
+              <div className="signature-name">{signatures.provider.name}</div>
+              <div className="signature-title">{signatures.provider.title}</div>
+              <div className="signature-date">
+                <div>Date: _______________</div>
               </div>
             </div>
-            <div className="border border-gray-300 rounded-lg p-4">
-              <div className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">
-                Client
-              </div>
-              <div className="text-sm font-bold text-gray-900">{parties.client.name}</div>
-              <div className="text-xs text-gray-600 mt-1">{parties.client.address}</div>
-              <div className="text-xs text-gray-500 mt-2">
-                <span className="font-medium">Representative: </span>
-                {parties.client.representative}
-              </div>
-            </div>
-          </div>
 
-          {/* Terms Section Header */}
-          <div className="flex items-center gap-4 mb-6">
-            <div className="flex-1 border-t-2 border-gray-800"></div>
-            <h2 className="text-sm font-black text-gray-900 uppercase tracking-wider">
-              Terms and Conditions
-            </h2>
-            <div className="flex-1 border-t-2 border-gray-800"></div>
-          </div>
-
-          {/* Terms */}
-          <div className="space-y-5 mb-8">
-            {terms.map((term, i) => (
-              <div key={i} className="flex gap-4">
-                <div className="w-7 h-7 rounded-full bg-gray-800 text-white text-xs font-bold flex items-center justify-center flex-shrink-0">
-                  {i + 1}
-                </div>
-                <div className="flex-1">
-                  <h3 className="text-sm font-bold text-gray-900 mb-1">{term.title}</h3>
-                  <p className="text-xs text-gray-600 leading-relaxed">{term.content}</p>
-                </div>
-              </div>
-            ))}
-          </div>
-
-          {/* Agreement Statement */}
-          <div className="mb-8 bg-gray-100 p-5 rounded-lg">
-            <p className="text-xs text-gray-700 leading-relaxed text-center">
-              <strong className="text-gray-900">IN WITNESS WHEREOF</strong>, the parties have
-              executed this Agreement as of the Effective Date. Both parties acknowledge that they
-              have read, understood, and agree to be bound by all terms and conditions set forth
-              herein.
-            </p>
-          </div>
-
-          {/* Signatures */}
-          <AvoidBreak>
-            <div className="grid grid-cols-2 gap-10">
-              {/* Provider Signature */}
-              <div>
-                <div className="text-xs font-bold text-gray-800 uppercase tracking-wider mb-4">
-                  Service Provider
-                </div>
-                <div className="border-b-2 border-gray-800 mb-2 h-10"></div>
-                <div className="text-sm font-bold text-gray-900">{signatures.provider.name}</div>
-                <div className="text-xs text-gray-600">{signatures.provider.title}</div>
-                <div className="mt-3 flex gap-4 text-xs text-gray-500">
-                  <div>Date: _______________</div>
-                </div>
-              </div>
-
-              {/* Client Signature */}
-              <div>
-                <div className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-4">
-                  Client
-                </div>
-                <div className="border-b-2 border-gray-800 mb-2 h-10"></div>
-                <div className="text-sm font-bold text-gray-900">{signatures.client.name}</div>
-                <div className="text-xs text-gray-600">{signatures.client.title}</div>
-                <div className="mt-3 flex gap-4 text-xs text-gray-500">
-                  <div>Date: _______________</div>
-                </div>
+            {/* Client Signature */}
+            <div className="signature-block">
+              <div className="signature-label signature-label--client">Client</div>
+              <div className="signature-line"></div>
+              <div className="signature-name">{signatures.client.name}</div>
+              <div className="signature-title">{signatures.client.title}</div>
+              <div className="signature-date">
+                <div>Date: _______________</div>
               </div>
             </div>
-          </AvoidBreak>
-        </Page>
-      </Tailwind>
+          </div>
+        </AvoidBreak>
+      </Page>
     </Document>
   );
 }

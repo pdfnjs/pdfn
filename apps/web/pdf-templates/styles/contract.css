@@ -1,0 +1,379 @@
+/**
+ * Contract Template Styles
+ *
+ * This CSS file demonstrates using the cssFile prop with pdfn.
+ * Styles are organized by document section for maintainability.
+ */
+
+/* ==========================================================================
+   Color Variables
+   ========================================================================== */
+
+:root {
+  --gray-50: #f9fafb;
+  --gray-100: #f3f4f6;
+  --gray-300: #d1d5db;
+  --gray-400: #9ca3af;
+  --gray-500: #6b7280;
+  --gray-600: #4b5563;
+  --gray-700: #374151;
+  --gray-800: #1f2937;
+  --gray-900: #111827;
+}
+
+/* ==========================================================================
+   Base Typography
+   ========================================================================== */
+
+.text-xs { font-size: 0.75rem; line-height: 1rem; }
+.text-sm { font-size: 0.875rem; line-height: 1.25rem; }
+
+.font-medium { font-weight: 500; }
+.font-semibold { font-weight: 600; }
+.font-bold { font-weight: 700; }
+.font-black { font-weight: 900; }
+
+.uppercase { text-transform: uppercase; }
+.tracking-wider { letter-spacing: 0.05em; }
+.leading-relaxed { line-height: 1.625; }
+.text-center { text-align: center; }
+
+/* ==========================================================================
+   Colors
+   ========================================================================== */
+
+.text-white { color: white; }
+.text-gray-400 { color: var(--gray-400); }
+.text-gray-500 { color: var(--gray-500); }
+.text-gray-600 { color: var(--gray-600); }
+.text-gray-700 { color: var(--gray-700); }
+.text-gray-800 { color: var(--gray-800); }
+.text-gray-900 { color: var(--gray-900); }
+
+.bg-gray-100 { background-color: var(--gray-100); }
+.bg-gray-800 { background-color: var(--gray-800); }
+
+/* ==========================================================================
+   Layout
+   ========================================================================== */
+
+.flex { display: flex; }
+.grid { display: grid; }
+.grid-cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+
+.items-center { align-items: center; }
+.justify-between { justify-content: space-between; }
+.justify-center { justify-content: center; }
+.flex-1 { flex: 1 1 0%; }
+.flex-shrink-0 { flex-shrink: 0; }
+
+.gap-3 { gap: 0.75rem; }
+.gap-4 { gap: 1rem; }
+.gap-6 { gap: 1.5rem; }
+.gap-10 { gap: 2.5rem; }
+
+/* ==========================================================================
+   Spacing
+   ========================================================================== */
+
+.mb-1 { margin-bottom: 0.25rem; }
+.mb-2 { margin-bottom: 0.5rem; }
+.mb-3 { margin-bottom: 0.75rem; }
+.mb-4 { margin-bottom: 1rem; }
+.mb-6 { margin-bottom: 1.5rem; }
+.mb-8 { margin-bottom: 2rem; }
+.mt-1 { margin-top: 0.25rem; }
+.mt-2 { margin-top: 0.5rem; }
+.mt-3 { margin-top: 0.75rem; }
+
+.p-4 { padding: 1rem; }
+.p-5 { padding: 1.25rem; }
+.pb-3 { padding-bottom: 0.75rem; }
+.pt-3 { padding-top: 0.75rem; }
+
+/* ==========================================================================
+   Sizing
+   ========================================================================== */
+
+.h-6 { height: 1.5rem; }
+.h-7 { height: 1.75rem; }
+.h-10 { height: 2.5rem; }
+.w-7 { width: 1.75rem; }
+
+/* ==========================================================================
+   Borders
+   ========================================================================== */
+
+.border { border-width: 1px; }
+.border-2 { border-width: 2px; }
+.border-b { border-bottom-width: 1px; }
+.border-b-2 { border-bottom-width: 2px; }
+.border-t { border-top-width: 1px; }
+.border-t-2 { border-top-width: 2px; }
+
+.border-gray-300 { border-color: var(--gray-300); }
+.border-gray-800 { border-color: var(--gray-800); }
+
+.rounded-lg { border-radius: 0.5rem; }
+.rounded-full { border-radius: 9999px; }
+
+/* ==========================================================================
+   Section-specific Styles
+   ========================================================================== */
+
+/* Header */
+.contract-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid var(--gray-300);
+  margin-bottom: 1.5rem;
+}
+
+.contract-header-logo {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.contract-header-logo img {
+  height: 1.5rem;
+}
+
+.contract-header-title {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--gray-600);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.contract-header-date {
+  font-size: 0.75rem;
+  color: var(--gray-500);
+}
+
+/* Footer */
+.contract-footer {
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--gray-300);
+}
+
+.contract-footer-inner {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.75rem;
+  color: var(--gray-500);
+}
+
+/* Parties Grid */
+.parties-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.party-card {
+  border-radius: 0.5rem;
+  padding: 1rem;
+}
+
+.party-card--provider {
+  border: 2px solid var(--gray-800);
+}
+
+.party-card--client {
+  border: 1px solid var(--gray-300);
+}
+
+.party-label {
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 0.5rem;
+}
+
+.party-label--provider {
+  color: var(--gray-800);
+}
+
+.party-label--client {
+  color: var(--gray-500);
+}
+
+.party-name {
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: var(--gray-900);
+}
+
+.party-address {
+  font-size: 0.75rem;
+  color: var(--gray-600);
+  margin-top: 0.25rem;
+}
+
+.party-representative {
+  font-size: 0.75rem;
+  color: var(--gray-500);
+  margin-top: 0.5rem;
+}
+
+/* Terms Section */
+.terms-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.terms-header-line {
+  flex: 1 1 0%;
+  border-top: 2px solid var(--gray-800);
+}
+
+.terms-header-title {
+  font-size: 0.875rem;
+  font-weight: 900;
+  color: var(--gray-900);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.terms-list {
+  margin-bottom: 2rem;
+}
+
+.term-item {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+}
+
+.term-item:last-child {
+  margin-bottom: 0;
+}
+
+.term-number {
+  width: 1.75rem;
+  height: 1.75rem;
+  border-radius: 9999px;
+  background-color: var(--gray-800);
+  color: white;
+  font-size: 0.75rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.term-content {
+  flex: 1 1 0%;
+}
+
+.term-title {
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: var(--gray-900);
+  margin-bottom: 0.25rem;
+}
+
+.term-text {
+  font-size: 0.75rem;
+  color: var(--gray-600);
+  line-height: 1.625;
+}
+
+/* Agreement Statement */
+.agreement-statement {
+  margin-bottom: 2rem;
+  background-color: var(--gray-100);
+  padding: 1.25rem;
+  border-radius: 0.5rem;
+}
+
+.agreement-statement p {
+  font-size: 0.75rem;
+  color: var(--gray-700);
+  line-height: 1.625;
+  text-align: center;
+}
+
+.agreement-statement strong {
+  color: var(--gray-900);
+}
+
+/* Signatures */
+.signatures-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 2.5rem;
+}
+
+.signature-block {
+  /* Individual signature block */
+}
+
+.signature-label {
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 1rem;
+}
+
+.signature-label--provider {
+  color: var(--gray-800);
+}
+
+.signature-label--client {
+  color: var(--gray-500);
+}
+
+.signature-line {
+  border-bottom: 2px solid var(--gray-800);
+  margin-bottom: 0.5rem;
+  height: 2.5rem;
+}
+
+.signature-name {
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: var(--gray-900);
+}
+
+.signature-title {
+  font-size: 0.75rem;
+  color: var(--gray-600);
+}
+
+.signature-date {
+  margin-top: 0.75rem;
+  display: flex;
+  gap: 1rem;
+  font-size: 0.75rem;
+  color: var(--gray-500);
+}
+
+/* Introduction Paragraph */
+.intro-paragraph {
+  font-size: 0.875rem;
+  color: var(--gray-700);
+  line-height: 1.625;
+  margin-bottom: 1.5rem;
+}
+
+.intro-paragraph .date-highlight {
+  font-weight: 600;
+}
+
+/* Divider */
+.divider {
+  font-size: 0.75rem;
+  color: var(--gray-400);
+}

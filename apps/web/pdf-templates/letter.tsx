@@ -1,5 +1,4 @@
 import { Document, Page } from "@pdfn/react";
-import { Tailwind } from "@pdfn/tailwind";
 
 /**
  * Business Letter template - US Letter size
@@ -8,6 +7,7 @@ import { Tailwind } from "@pdfn/tailwind";
  * - Professional letterhead with company branding
  * - Proper business letter format
  * - Single page layout
+ * - Inline styles (no Tailwind)
  */
 
 interface LetterProps {
@@ -33,6 +33,17 @@ interface LetterProps {
   closing?: string;
   signature?: string;
 }
+
+// Color palette (matching Tailwind gray scale)
+const colors = {
+  gray900: "#111827",
+  gray800: "#1f2937",
+  gray700: "#374151",
+  gray600: "#4b5563",
+  gray500: "#6b7280",
+  gray300: "#d1d5db",
+  gray50: "#f9fafb",
+};
 
 export default function Letter({
   sender = {
@@ -64,70 +75,176 @@ export default function Letter({
 }: LetterProps) {
   return (
     <Document title={`Letter - ${subject}`}>
-      <Tailwind>
-        <Page size="Letter" margin="1in">
-          {/* Letterhead */}
-          <div className="mb-6 pb-3 border-b-2 border-gray-800">
-            <div className="flex justify-between items-start">
-              <div>
-                <img src="https://pdfn.dev/logo.svg" alt="Company Logo" className="h-8 mb-2" />
-                <div className="text-xs text-gray-500">
-                  {sender.address} • {sender.city}
-                </div>
-              </div>
-              <div className="text-right text-xs text-gray-500">
-                <div>{sender.email}</div>
-                <div>{sender.phone}</div>
+      <Page size="Letter" margin="1in">
+        {/* Letterhead */}
+        <div
+          style={{
+            marginBottom: "1.5rem",
+            paddingBottom: "0.75rem",
+            borderBottom: `2px solid ${colors.gray800}`,
+          }}
+        >
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "flex-start",
+            }}
+          >
+            <div>
+              <img
+                src="https://pdfn.dev/logo-dark.svg"
+                alt="Company Logo"
+                style={{ height: "2rem", marginBottom: "0.5rem" }}
+              />
+              <div style={{ fontSize: "0.75rem", color: colors.gray500 }}>
+                {sender.address} • {sender.city}
               </div>
             </div>
-          </div>
-
-          {/* Date */}
-          <div className="text-sm text-gray-700 mb-6">{date}</div>
-
-          {/* Recipient Info */}
-          <div className="mb-6">
-            <div className="text-sm font-semibold text-gray-900">{recipient.name}</div>
-            {recipient.title && (
-              <div className="text-sm text-gray-600">{recipient.title}</div>
-            )}
-            <div className="text-sm text-gray-600">{recipient.company}</div>
-            <div className="text-sm text-gray-500">
-              {recipient.address}, {recipient.city}
+            <div
+              style={{
+                textAlign: "right",
+                fontSize: "0.75rem",
+                color: colors.gray500,
+              }}
+            >
+              <div>{sender.email}</div>
+              <div>{sender.phone}</div>
             </div>
           </div>
+        </div>
 
-          {/* Subject Line */}
-          <div className="mb-4 py-1.5 border-l-4 border-gray-800 pl-3 bg-gray-50">
-            <span className="text-sm font-bold text-gray-900 uppercase tracking-wide">Re: </span>
-            <span className="text-sm font-medium text-gray-800">{subject}</span>
+        {/* Date */}
+        <div
+          style={{
+            fontSize: "0.875rem",
+            color: colors.gray700,
+            marginBottom: "1.5rem",
+          }}
+        >
+          {date}
+        </div>
+
+        {/* Recipient Info */}
+        <div style={{ marginBottom: "1.5rem" }}>
+          <div
+            style={{
+              fontSize: "0.875rem",
+              fontWeight: 600,
+              color: colors.gray900,
+            }}
+          >
+            {recipient.name}
           </div>
-
-          {/* Salutation */}
-          <div className="text-sm text-gray-900 mb-3">Dear {recipient.name},</div>
-
-          {/* Body */}
-          <div className="space-y-3 mb-6">
-            {body.map((paragraph, i) => (
-              <p key={i} className="text-sm text-gray-700 leading-relaxed">
-                {paragraph}
-              </p>
-            ))}
+          {recipient.title && (
+            <div style={{ fontSize: "0.875rem", color: colors.gray600 }}>
+              {recipient.title}
+            </div>
+          )}
+          <div style={{ fontSize: "0.875rem", color: colors.gray600 }}>
+            {recipient.company}
           </div>
-
-          {/* Closing & Signature */}
-          <div className="mt-6">
-            <div className="text-sm text-gray-900 mb-6">{closing},</div>
-            <div className="border-b border-gray-300 w-40 mb-1"></div>
-            <div className="text-sm font-bold text-gray-900">{signature}</div>
-            {sender.title && (
-              <div className="text-xs text-gray-600">
-                {sender.title}, {sender.company}
-              </div>
-            )}
+          <div style={{ fontSize: "0.875rem", color: colors.gray500 }}>
+            {recipient.address}, {recipient.city}
           </div>
-        </Page>
-      </Tailwind>
+        </div>
+
+        {/* Subject Line */}
+        <div
+          style={{
+            marginBottom: "1rem",
+            paddingTop: "0.375rem",
+            paddingBottom: "0.375rem",
+            borderLeft: `4px solid ${colors.gray800}`,
+            paddingLeft: "0.75rem",
+            backgroundColor: colors.gray50,
+          }}
+        >
+          <span
+            style={{
+              fontSize: "0.875rem",
+              fontWeight: 700,
+              color: colors.gray900,
+              textTransform: "uppercase",
+              letterSpacing: "0.025em",
+            }}
+          >
+            Re:{" "}
+          </span>
+          <span
+            style={{
+              fontSize: "0.875rem",
+              fontWeight: 500,
+              color: colors.gray800,
+            }}
+          >
+            {subject}
+          </span>
+        </div>
+
+        {/* Salutation */}
+        <div
+          style={{
+            fontSize: "0.875rem",
+            color: colors.gray900,
+            marginBottom: "0.75rem",
+          }}
+        >
+          Dear {recipient.name},
+        </div>
+
+        {/* Body */}
+        <div style={{ marginBottom: "1.5rem" }}>
+          {body.map((paragraph, i) => (
+            <p
+              key={i}
+              style={{
+                fontSize: "0.875rem",
+                color: colors.gray700,
+                lineHeight: 1.625,
+                marginTop: i > 0 ? "0.75rem" : 0,
+                marginBottom: 0,
+              }}
+            >
+              {paragraph}
+            </p>
+          ))}
+        </div>
+
+        {/* Closing & Signature */}
+        <div style={{ marginTop: "1.5rem" }}>
+          <div
+            style={{
+              fontSize: "0.875rem",
+              color: colors.gray900,
+              marginBottom: "1.5rem",
+            }}
+          >
+            {closing},
+          </div>
+          <div
+            style={{
+              borderBottom: `1px solid ${colors.gray300}`,
+              width: "10rem",
+              marginBottom: "0.25rem",
+            }}
+          ></div>
+          <div
+            style={{
+              fontSize: "0.875rem",
+              fontWeight: 700,
+              color: colors.gray900,
+            }}
+          >
+            {signature}
+          </div>
+          {sender.title && (
+            <div style={{ fontSize: "0.75rem", color: colors.gray600 }}>
+              {sender.title}, {sender.company}
+            </div>
+          )}
+        </div>
+      </Page>
     </Document>
   );
 }

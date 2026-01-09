@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { nightOwl } from "react-syntax-highlighter/dist/esm/styles/prism";
-import { Header, Footer } from "@/components";
+import { Header, Footer, StylingBadge } from "@/components";
 
 // Page dimensions in points (72 dpi)
 const PAGE_SIZES = {
@@ -23,6 +23,8 @@ interface Template {
   orientation: "portrait" | "landscape";
   components: string[];
   highlights: string[];
+  styling: "tailwind" | "cssFile" | "inline" | "cssProp";
+  stylingFile?: string; // For cssFile templates
 }
 
 const templates: Template[] = [
@@ -34,6 +36,7 @@ const templates: Template[] = [
     orientation: "portrait",
     components: ["Document", "Page", "Thead", "PageNumber", "TotalPages"],
     highlights: ["Multi-page tables", "Repeating headers", "Local images"],
+    styling: "tailwind",
   },
   {
     id: "letter",
@@ -43,6 +46,7 @@ const templates: Template[] = [
     orientation: "portrait",
     components: ["Document", "Page"],
     highlights: ["Single page", "Professional layout", "Print-ready"],
+    styling: "inline",
   },
   {
     id: "contract",
@@ -52,6 +56,8 @@ const templates: Template[] = [
     orientation: "portrait",
     components: ["Document", "Page", "PageNumber", "TotalPages", "AvoidBreak"],
     highlights: ["Watermark", "Header/Footer", "Keep sections together"],
+    styling: "cssFile",
+    stylingFile: "./styles/contract.css",
   },
   {
     id: "ticket",
@@ -61,6 +67,7 @@ const templates: Template[] = [
     orientation: "portrait",
     components: ["Document", "Page"],
     highlights: ["A5 size", "Custom fonts", "Creative design"],
+    styling: "tailwind",
   },
   {
     id: "poster",
@@ -70,6 +77,7 @@ const templates: Template[] = [
     orientation: "landscape",
     components: ["Document", "Page"],
     highlights: ["Tabloid size", "Landscape", "Full-bleed design"],
+    styling: "cssProp",
   },
 ];
 
@@ -181,9 +189,12 @@ export default function TemplatesPage() {
                         }}
                       />
                     </div>
-                    {/* Size badge */}
-                    <div className="absolute top-4 right-4 bg-black/60 text-white text-xs px-2 py-1 rounded font-mono">
-                      {template.pageSize} · {template.orientation}
+                    {/* Size and styling badges */}
+                    <div className="absolute top-4 right-4 flex items-center gap-2">
+                      <div className="bg-black/60 text-white text-xs px-2 py-1 rounded font-mono">
+                        {template.pageSize} · {template.orientation}
+                      </div>
+                      <StylingBadge styling={template.styling} size="small" />
                     </div>
                   </div>
 
@@ -197,6 +208,21 @@ export default function TemplatesPage() {
                         <p className="text-sm text-text-secondary mt-1">
                           {template.description}
                         </p>
+                      </div>
+                    </div>
+
+                    {/* Styling Method */}
+                    <div className="mb-4">
+                      <div className="text-xs font-medium text-text-muted uppercase tracking-wider mb-2">
+                        Styling
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <StylingBadge styling={template.styling} />
+                        {template.stylingFile && (
+                          <span className="text-xs text-text-muted font-mono">
+                            {template.stylingFile}
+                          </span>
+                        )}
                       </div>
                     </div>
 

@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from "react";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { nightOwl } from "react-syntax-highlighter/dist/esm/styles/prism";
 import { templateCode } from "@/lib/template-code";
-import { Header, Footer } from "@/components";
+import { Header, Footer, StylingBadge, getStylingLabel } from "@/components";
 
 // Page dimensions in points (72 dpi)
 const PAGE_SIZES = {
@@ -29,30 +29,35 @@ const templates = [
     name: "Invoice",
     pageSize: "A4" as keyof typeof PAGE_SIZES,
     orientation: "portrait" as const,
+    styling: "tailwind" as const,
   },
   {
     id: "letter",
     name: "Business Letter",
     pageSize: "Letter" as keyof typeof PAGE_SIZES,
     orientation: "portrait" as const,
+    styling: "inline" as const,
   },
   {
     id: "contract",
     name: "Contract",
     pageSize: "Legal" as keyof typeof PAGE_SIZES,
     orientation: "portrait" as const,
+    styling: "cssFile" as const,
   },
   {
     id: "ticket",
     name: "Ticket",
     pageSize: "A5" as keyof typeof PAGE_SIZES,
     orientation: "portrait" as const,
+    styling: "tailwind" as const,
   },
   {
     id: "poster",
     name: "Poster",
     pageSize: "Tabloid" as keyof typeof PAGE_SIZES,
     orientation: "landscape" as const,
+    styling: "cssProp" as const,
   },
 ];
 
@@ -76,7 +81,10 @@ export default function Home() {
   }>({ render: null, pagination: null, pages: null });
   const [consoleExpanded, setConsoleExpanded] = useState(true);
   const [consoleMessages, setConsoleMessages] = useState<Array<{ type: "error" | "warning"; message: string }>>([]);
+  const [zoomMode, setZoomMode] = useState<"fit" | "actual">("fit");
+  const [previewDimensions, setPreviewDimensions] = useState({ width: 800, height: 500 });
   const iframeRef = useRef<HTMLIFrameElement>(null);
+  const previewContainerRef = useRef<HTMLDivElement>(null);
 
   // Get code from build-time generated static data
   const activeCode = templateCode[activeTemplate.id] || "// Template code not found";
@@ -142,6 +150,29 @@ export default function Home() {
   // URLs with debug param when enabled
   const previewUrl = `/api/pdf?template=${activeTemplate.id}&html=true${debugParams}`;
   const pdfUrl = `/api/pdf?template=${activeTemplate.id}${debugParams}`;
+
+  // Reset zoom mode when template changes
+  useEffect(() => {
+    setZoomMode("fit");
+  }, [activeTemplate.id]);
+
+  // Measure preview container dimensions on mount and resize
+  useEffect(() => {
+    const updateDimensions = () => {
+      if (previewContainerRef.current) {
+        const { width, height } = previewContainerRef.current.getBoundingClientRect();
+        // Subtract padding (p-6 = 24px on each side)
+        setPreviewDimensions({
+          width: Math.max(width - 48, 300),
+          height: Math.max(height - 48, 300),
+        });
+      }
+    };
+
+    updateDimensions();
+    window.addEventListener("resize", updateDimensions);
+    return () => window.removeEventListener("resize", updateDimensions);
+  }, []);
 
   // Handle PDF download with error handling
   const handleDownload = async () => {
@@ -215,12 +246,10 @@ export default function Home() {
               href="#preview"
               className="bg-primary hover:bg-primary-hover text-black font-semibold px-6 py-3 rounded-lg transition-colors btn-glow"
             >
-              Open interactive preview
+              Explore templates
             </a>
             <a
-              href="https://github.com/pdfnjs/pdfn#quick-start"
-              target="_blank"
-              rel="noopener noreferrer"
+              href="#quickstart"
               className="bg-surface-1 border border-border hover:border-border-hover rounded-lg px-6 py-3 font-medium text-text-primary transition-colors"
             >
               Get Started
@@ -230,20 +259,20 @@ export default function Home() {
       </section>
 
       {/* Demo Section */}
-      <section className="py-20 px-6">
+      <section className="py-12 px-6 bg-surface-1">
         <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-12 fade-in-section">
+          <div className="text-center mb-8 fade-in-section">
             <h2 id="preview" className="text-3xl font-bold text-text-primary mb-4 scroll-mt-16">
-              Simple, familiar API
+              Write PDFs the same way you write React UIs
             </h2>
             <p className="text-xl text-text-secondary">
-              Write PDFs the same way you write React UIs
+              Explore templates
             </p>
           </div>
 
           {/* Template Selector */}
           {/* Mobile: Dropdown with label */}
-          <div className="md:hidden mb-8">
+          <div className="md:hidden mb-6">
             <div className="flex items-center gap-3">
               <label htmlFor="template-select" className="text-sm font-medium text-text-secondary whitespace-nowrap">
                 Template:
@@ -260,7 +289,7 @@ export default function Home() {
                 >
                   {templates.map((t) => (
                     <option key={t.id} value={t.id}>
-                      {t.name} ({t.pageSize})
+                      {t.name} · {t.pageSize} · {getStylingLabel(t.styling)}
                     </option>
                   ))}
                 </select>
@@ -274,27 +303,20 @@ export default function Home() {
           </div>
 
           {/* Desktop: Button row */}
-          <div className="hidden md:flex flex-wrap justify-center gap-2 mb-8">
+          <div className="hidden md:flex justify-center gap-2 mb-6">
             {templates.map((t) => {
               const isActive = activeTemplate.id === t.id;
               return (
                 <button
                   key={t.id}
                   onClick={() => handleTemplateChange(t)}
-                  className={`flex items-center gap-2 px-4 py-2.5 rounded-lg border-2 transition-all ${
+                  className={`px-4 py-2 rounded-lg font-medium transition-all ${
                     isActive
-                      ? "border-primary bg-primary/10"
-                      : "border-border hover:border-border-hover bg-transparent"
+                      ? "bg-primary text-black"
+                      : "bg-surface-1 text-text-secondary hover:text-text-primary hover:bg-surface-2"
                   }`}
                 >
-                  <span className={`font-medium ${isActive ? "text-text-primary" : "text-text-secondary"}`}>
-                    {t.name}
-                  </span>
-                  <span className={`text-xs px-1.5 py-0.5 rounded ${
-                    isActive ? "bg-primary/20 text-primary" : "bg-surface-2 text-text-muted"
-                  }`}>
-                    {t.pageSize}
-                  </span>
+                  {t.name}
                 </button>
               );
             })}
@@ -303,7 +325,7 @@ export default function Home() {
           {/* Main Content: Preview + Inspector */}
           <div className="flex flex-col lg:flex-row gap-4">
             {/* Preview/Code Panel */}
-            <div className="flex-1 bg-surface-1 border border-border rounded-xl overflow-hidden min-w-0">
+            <div className="flex-1 bg-surface-1 border border-border rounded-xl min-w-0">
               {/* Tab Bar */}
               <div className="px-4 py-3 border-b border-border flex items-center justify-between">
                 <div className="flex items-center gap-1">
@@ -328,42 +350,53 @@ export default function Home() {
                     Code
                   </button>
                 </div>
-                <div className="text-xs text-text-muted font-mono">
-                  {activeTemplate.pageSize} · {activeTemplate.orientation}
+                <div className="flex items-center gap-2 text-xs text-text-muted">
+                  <span className="font-mono">{activeTemplate.pageSize} · {activeTemplate.orientation}</span>
+                  <span className="text-text-muted">·</span>
+                  <StylingBadge styling={activeTemplate.styling} size="small" showTooltip />
                 </div>
               </div>
 
               {/* Content Area */}
-              <div className="relative h-[600px]">
+              <div className="relative h-[50vh] min-h-[360px] max-h-[500px] overflow-hidden rounded-b-xl">
                 {/* Preview */}
                 {activeTab === "preview" && (
-                  <div className="absolute inset-0 bg-zinc-200 dark:bg-zinc-800 p-6 flex items-center justify-center">
-                    {isLoading && (
-                      <div className="absolute inset-0 flex items-center justify-center z-10 pointer-events-none">
-                        <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
-                      </div>
-                    )}
-                    {(() => {
-                      const maxWidth = 800; // Wide enough for landscape pages
-                      const maxHeight = 552; // 600 - 48px padding
-                      const PT_TO_PX = 96 / 72;
-                      const size = PAGE_SIZES[activeTemplate.pageSize];
-                      const pageW = (activeTemplate.orientation === 'landscape' ? size.height : size.width) * PT_TO_PX;
-                      const pageH = (activeTemplate.orientation === 'landscape' ? size.width : size.height) * PT_TO_PX;
-                      const scale = Math.min(maxWidth / pageW, maxHeight / pageH);
-                      const displayW = pageW * scale;
-                      const displayH = pageH * scale;
-                      const scalePercent = Math.round(scale * 100);
+                  <>
+                    <div
+                      ref={previewContainerRef}
+                      className={`absolute inset-0 bg-zinc-200 dark:bg-zinc-800 ${
+                        zoomMode === "actual"
+                          ? "overflow-auto"
+                          : "overflow-hidden flex items-center justify-center p-6"
+                      }`}
+                    >
+                      {isLoading && (
+                        <div className="absolute inset-0 flex items-center justify-center z-10 pointer-events-none">
+                          <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+                        </div>
+                      )}
+                      {(() => {
+                        const maxWidth = previewDimensions.width;
+                        const maxHeight = previewDimensions.height;
+                        const PT_TO_PX = 96 / 72;
+                        const size = PAGE_SIZES[activeTemplate.pageSize];
+                        const pageW = (activeTemplate.orientation === 'landscape' ? size.height : size.width) * PT_TO_PX;
+                        const pageH = (activeTemplate.orientation === 'landscape' ? size.width : size.height) * PT_TO_PX;
+                        const fitScale = Math.min(maxWidth / pageW, maxHeight / pageH);
+                        const scale = zoomMode === "actual" ? 1 : fitScale;
+                        const displayW = pageW * scale;
+                        const displayH = pageH * scale;
 
-                      return (
-                        <>
+                        return (
                           <div
-                            className="bg-white rounded shadow-2xl overflow-hidden flex-shrink-0 transition-opacity duration-200"
+                            className={`bg-white rounded shadow-2xl overflow-hidden flex-shrink-0 transition-opacity duration-200 ${
+                              zoomMode === "actual" ? "m-6" : ""
+                            }`}
                             style={{ width: displayW, height: displayH, opacity: isLoading ? 0.4 : 1 }}
                           >
                             <iframe
                               ref={iframeRef}
-                              key={`${activeTemplate.id}-${debugParams}`}
+                              key={`${activeTemplate.id}-${debugParams}-${zoomMode}`}
                               src={previewUrl}
                               title="Preview"
                               style={{
@@ -376,14 +409,33 @@ export default function Home() {
                               onLoad={handleIframeLoad}
                             />
                           </div>
-                          {/* Scale indicator - positioned on container, not PDF */}
-                          <div className="absolute bottom-3 right-3 bg-black/50 text-white/80 text-[10px] px-1.5 py-0.5 rounded font-mono">
-                            {scalePercent}%
-                          </div>
-                        </>
-                      );
-                    })()}
-                  </div>
+                        );
+                      })()}
+                    </div>
+                    {/* Zoom controls */}
+                    <div className="absolute bottom-3 right-3 flex items-center bg-black/60 rounded-md p-0.5">
+                      <button
+                        onClick={() => setZoomMode("fit")}
+                        className={`w-10 py-1 text-[10px] font-medium rounded transition-colors ${
+                          zoomMode === "fit"
+                            ? "bg-white/20 text-white"
+                            : "text-white/60 hover:text-white"
+                        }`}
+                      >
+                        Fit
+                      </button>
+                      <button
+                        onClick={() => setZoomMode("actual")}
+                        className={`w-10 py-1 text-[10px] font-medium rounded transition-colors ${
+                          zoomMode === "actual"
+                            ? "bg-white/20 text-white"
+                            : "text-white/60 hover:text-white"
+                        }`}
+                      >
+                        100%
+                      </button>
+                    </div>
+                  </>
                 )}
 
                 {/* Code */}
@@ -413,16 +465,14 @@ export default function Home() {
               {/* Mobile Controls - Only visible on small screens */}
               <div className="lg:hidden px-4 py-3 border-t border-border">
                 {activeTab === "preview" ? (
-                  <div className="space-y-3">
-                    {/* Debug toggles - 2x2 grid */}
-                    <div className="flex items-start gap-3">
-                      <span className="text-xs text-text-muted pt-1">Debug:</span>
-                      <div className="flex flex-wrap gap-1.5">
+                  <div className="flex items-center justify-between">
+                    {/* Debug toggles */}
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs text-text-muted">Debug:</span>
+                      <div className="flex gap-1">
                         {[
                           { key: "grid", label: "Grid" },
                           { key: "margins", label: "Margins" },
-                          { key: "headers", label: "Headers" },
-                          { key: "breaks", label: "Pages" },
                         ].map(({ key, label }) => (
                           <button
                             key={key}
@@ -438,43 +488,31 @@ export default function Home() {
                         ))}
                       </div>
                     </div>
-                    {/* Actions row */}
-                    <div className="flex items-center justify-between">
-                      <a
-                        href={previewUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex items-center gap-1.5 text-xs text-text-secondary hover:text-text-primary transition-colors"
-                      >
-                        <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                        </svg>
-                        Open in new tab
-                      </a>
-                      <button
-                        onClick={handleDownload}
-                        className="flex items-center gap-1.5 text-xs font-medium bg-primary hover:bg-primary-hover text-black px-3 py-1.5 rounded-md transition-colors"
-                      >
-                        <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-                        </svg>
-                        Download
-                      </button>
-                    </div>
-                    {/* PDF Error */}
-                    {pdfError && (
-                      <div className="text-xs text-error bg-error/10 px-3 py-2 rounded-md">
-                        {pdfError}
-                      </div>
-                    )}
+                    <a
+                      href={previewUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-1.5 text-xs text-text-secondary hover:text-text-primary transition-colors"
+                    >
+                      <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                      </svg>
+                      Open
+                    </a>
                   </div>
                 ) : (
                   <div className="flex items-center justify-between">
-                    <span className="text-xs text-text-muted font-mono">{activeTemplate.id}.tsx</span>
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs text-text-muted font-mono">{activeTemplate.id}.tsx</span>
+                      <StylingBadge styling={activeTemplate.styling} size="small" />
+                    </div>
                     <button
                       onClick={handleCopy}
-                      className="flex items-center gap-1.5 text-xs font-medium bg-primary hover:bg-primary-hover text-black px-3 py-1.5 rounded-md transition-colors"
+                      className="flex items-center gap-1.5 text-xs font-medium text-text-secondary hover:text-text-primary transition-colors"
                     >
+                      <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                      </svg>
                       {copied ? "Copied!" : "Copy"}
                     </button>
                   </div>
@@ -579,18 +617,6 @@ export default function Home() {
                           </svg>
                           View PDF
                         </a>
-                        <button
-                          onClick={handleDownload}
-                          className="w-full flex items-center justify-center gap-1.5 text-xs font-medium bg-primary hover:bg-primary-hover text-black px-3 py-2 rounded-md transition-colors"
-                        >
-                          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-                          </svg>
-                          Download PDF
-                        </button>
-                        {pdfError && (
-                          <div className="text-xs text-error mt-1">{pdfError}</div>
-                        )}
                       </div>
                     </div>
 
@@ -657,6 +683,14 @@ export default function Home() {
                       </div>
                     </div>
 
+                    {/* Styling Section */}
+                    <div>
+                      <div className="text-xs font-medium text-text-muted uppercase tracking-wider mb-3">
+                        Styling
+                      </div>
+                      <StylingBadge styling={activeTemplate.styling} />
+                    </div>
+
                     {/* Actions Section */}
                     <div>
                       <div className="text-xs font-medium text-text-muted uppercase tracking-wider mb-3">
@@ -688,14 +722,39 @@ export default function Home() {
               </div>
             </div>
           </div>
-          <p className="text-xs text-text-muted text-center mt-6 italic">
+
+          {/* CTA Row */}
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mt-6">
+            <a
+              href="#quickstart"
+              className="flex items-center gap-2 bg-primary hover:bg-primary-hover text-black font-semibold px-5 py-2.5 rounded-lg transition-colors"
+            >
+              Get Started
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+              </svg>
+            </a>
+            <button
+              onClick={handleDownload}
+              className="flex items-center gap-2 bg-surface-1 border border-border hover:border-border-hover text-text-primary font-medium px-5 py-2.5 rounded-lg transition-colors"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+              </svg>
+              Download PDF
+            </button>
+          </div>
+          {pdfError && (
+            <div className="text-sm text-error text-center mt-2">{pdfError}</div>
+          )}
+          <p className="text-xs text-text-muted text-center mt-4 italic">
             Demo uses pre-generated PDFs rendered locally.
           </p>
         </div>
       </section>
 
       {/* How it works */}
-      <section className="py-20 px-6 bg-surface-1">
+      <section className="py-20 px-6">
         <div className="max-w-4xl mx-auto">
           <div className="text-center mb-12 fade-in-section">
             <h2 id="how-it-works" className="text-3xl font-bold text-text-primary mb-4 scroll-mt-16">
@@ -761,7 +820,7 @@ export default function Home() {
       </section>
 
       {/* Why pdfn */}
-      <section className="py-20 px-6">
+      <section className="py-20 px-6 bg-surface-1">
         <div className="max-w-4xl mx-auto">
           <div className="text-center mb-12 fade-in-section">
             <h2 id="why-pdfn" className="text-3xl font-bold text-text-primary mb-4 scroll-mt-16">
@@ -824,12 +883,12 @@ export default function Home() {
       </section>
 
       {/* Quick Start */}
-      <section className="py-20 px-6 bg-surface-1">
+      <section className="py-20 px-6">
         <div className="max-w-3xl mx-auto text-center fade-in-section">
           <h2 id="quickstart" className="text-3xl font-bold text-text-primary mb-4 scroll-mt-16">
             Get started in seconds
           </h2>
-          <p className="text-xl text-text-secondary mb-10">
+          <p className="text-xl text-text-secondary mb-12">
             Add to any React or Next.js project
           </p>
           <div className="flex flex-col gap-3 max-w-md mx-auto font-mono text-left">
@@ -865,7 +924,7 @@ export default function Home() {
       </section>
 
       {/* Features */}
-      <section className="py-20 px-6">
+      <section className="py-20 px-6 bg-surface-1">
         <div className="max-w-5xl mx-auto">
           <div className="text-center mb-12 fade-in-section">
             <h2 id="features" className="text-3xl font-bold text-text-primary mb-4 scroll-mt-16">
@@ -993,7 +1052,7 @@ export default function Home() {
       </section>
 
       {/* Is pdfn Right for You? */}
-      <section className="py-20 px-6 bg-surface-1">
+      <section className="py-20 px-6">
         <div className="max-w-3xl mx-auto">
           <div className="text-center mb-12 fade-in-section">
             <h2 id="is-pdfn-right-for-you" className="text-3xl font-bold text-text-primary mb-4 scroll-mt-16">
@@ -1045,7 +1104,7 @@ export default function Home() {
       </section>
 
       {/* Roadmap */}
-      <section className="py-20 px-6">
+      <section className="py-20 px-6 bg-surface-1">
         <div className="max-w-4xl mx-auto">
           <div className="text-center mb-12 fade-in-section">
             <h2 id="roadmap" className="text-3xl font-bold text-text-primary mb-4 scroll-mt-16">
@@ -1133,7 +1192,7 @@ export default function Home() {
           <p className="text-text-secondary mb-8">
             Join the developers using React and Tailwind to ship predictable, paginated PDFs.
           </p>
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-6">
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
             <a
               href="https://github.com/pdfnjs/pdfn#quick-start"
               target="_blank"
