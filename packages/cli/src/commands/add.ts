@@ -72,10 +72,10 @@ export const addCommand = new Command("add")
   .option("--list", "List available templates")
   .option("--tailwind", "Use Tailwind CSS styling (requires @pdfn/tailwind)")
   .option("--inline", "Use inline styles (default)")
-  .option("--output <path>", "Output directory", "./pdf-templates")
   .option("--force", "Overwrite existing files")
   .action(async (template, options) => {
     const cwd = process.cwd();
+    const outputDir = "./pdfn-templates";
 
     // List templates
     if (options.list || !template) {
@@ -116,7 +116,6 @@ export const addCommand = new Command("add")
 
     const templatesDir = getTemplatesDir(style);
     const sourceFile = join(templatesDir, `${template}.tsx`);
-    const outputDir = options.output;
     const outputFile = join(outputDir, `${template}.tsx`);
 
     // Check if source template exists

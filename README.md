@@ -351,7 +351,6 @@ npx pdfn add --list             # Show all templates
 |--------|-------------|
 | `--inline` | Use inline styles (default) |
 | `--tailwind` | Use Tailwind CSS classes (requires `@pdfn/tailwind`) |
-| `--output` | Output directory (default: `./pdfn-templates`) |
 | `--force` | Overwrite existing files |
 
 ## Is pdfn Right for You?
