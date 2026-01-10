@@ -1,5 +1,11 @@
 # pdfn
 
+## 0.4.1
+
+### Patch Changes
+
+- Fix add command to output templates to ./pdfn-templates/ (matching dev server expectation)
+
 ## 0.4.0
 
 ### Minor Changes
@@ -11,6 +17,7 @@
   - HMR now watches CSS files in `pdfn-templates/` folder
 
   **Migration:**
+
   ```bash
   mv pdf-templates pdfn-templates
   ```
