@@ -1,5 +1,26 @@
 # pdfn
 
+## 0.4.0
+
+### Minor Changes
+
+- Standardize template architecture with `pdfn-templates` convention
+
+  **Breaking Changes:**
+  - Removed `--templates` CLI option (always uses `./pdfn-templates`)
+  - HMR now watches CSS files in `pdfn-templates/` folder
+
+  **Migration:**
+  ```bash
+  mv pdf-templates pdfn-templates
+  ```
+
+### Patch Changes
+
+- Updated dependencies
+  - @pdfn/react@0.3.0
+  - @pdfn/vite@0.4.0
+
 ## 0.3.0
 
 ### Minor Changes

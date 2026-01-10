@@ -1,5 +1,21 @@
 # @pdfn/next
 
+## 0.4.0
+
+### Minor Changes
+
+- Standardize template architecture with `pdfn-templates` convention
+
+  **Breaking Changes:**
+  - Default templates path changed to `./pdfn-templates/**/*.tsx`
+  - Default CSS path changed to `./pdfn-templates/styles.css`
+  - Removed `cssFile` prop handling from transform loader
+
+  **Migration:**
+  ```bash
+  mv pdf-templates pdfn-templates
+  ```
+
 ## 0.3.1
 
 ### Patch Changes

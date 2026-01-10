@@ -1,5 +1,15 @@
 # web
 
+## 0.1.6
+
+### Patch Changes
+
+- Migrate to `pdfn-templates` convention
+- Updated dependencies
+  - @pdfn/react@0.3.0
+  - @pdfn/tailwind@0.2.0
+  - @pdfn/next@0.4.0
+
 ## 0.1.5
 
 ### Patch Changes
