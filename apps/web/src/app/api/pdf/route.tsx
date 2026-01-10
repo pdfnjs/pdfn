@@ -9,11 +9,11 @@ const USE_CACHE = process.env.PDFN_USE_CACHE !== "false"; // Default: true
 const CACHE_DIR = join(process.cwd(), "public", "pdfs");
 
 // Template imports
-import Invoice from "../../../../pdf-templates/invoice";
-import Letter from "../../../../pdf-templates/letter";
-import Contract from "../../../../pdf-templates/contract";
-import Ticket from "../../../../pdf-templates/ticket";
-import Poster from "../../../../pdf-templates/poster";
+import Invoice from "../../../../pdfn-templates/invoice";
+import Letter from "../../../../pdfn-templates/letter";
+import Contract from "../../../../pdfn-templates/contract";
+import Ticket from "../../../../pdfn-templates/ticket";
+import Poster from "../../../../pdfn-templates/poster";
 
 // Template component map
 // eslint-disable-next-line @typescript-eslint/no-explicit-any

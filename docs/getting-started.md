@@ -22,7 +22,7 @@ npm i react react-dom @pdfn/react
 
 ## Create Your First Template
 
-Create a file at `pdf-templates/invoice.tsx`:
+Create a file at `pdfn-templates/invoice.tsx`:
 
 ```tsx
 import { Document, Page, PageNumber } from '@pdfn/react';
@@ -64,7 +64,7 @@ Then generate PDFs in your code:
 
 ```tsx
 import { generate } from '@pdfn/react';
-import Invoice from './pdf-templates/invoice';
+import Invoice from './pdfn-templates/invoice';
 
 const pdf = await generate(<Invoice />);
 // pdf is a Buffer — save it, return it from an API, etc.
@@ -77,7 +77,7 @@ If you have an existing Puppeteer/Playwright setup:
 ```tsx
 import puppeteer from 'puppeteer';
 import { render } from '@pdfn/react';
-import Invoice from './pdf-templates/invoice';
+import Invoice from './pdfn-templates/invoice';
 
 // Render to HTML
 const html = await render(<Invoice />);

@@ -23,8 +23,8 @@ interface Template {
   orientation: "portrait" | "landscape";
   components: string[];
   highlights: string[];
-  styling: "tailwind" | "cssFile" | "inline" | "cssProp";
-  stylingFile?: string; // For cssFile templates
+  // FIXME: plainCss not yet fully supported - @imports in plain CSS files not resolved
+  styling: "tailwind" | "inline" | "cssProp" | "plainCss";
 }
 
 const templates: Template[] = [
@@ -56,8 +56,7 @@ const templates: Template[] = [
     orientation: "portrait",
     components: ["Document", "Page", "PageNumber", "TotalPages", "AvoidBreak"],
     highlights: ["Watermark", "Header/Footer", "Keep sections together"],
-    styling: "cssFile",
-    stylingFile: "./styles/contract.css",
+    styling: "tailwind",
   },
   {
     id: "ticket",
@@ -218,11 +217,6 @@ export default function TemplatesPage() {
                       </div>
                       <div className="flex items-center gap-2">
                         <StylingBadge styling={template.styling} />
-                        {template.stylingFile && (
-                          <span className="text-xs text-text-muted font-mono">
-                            {template.stylingFile}
-                          </span>
-                        )}
                       </div>
                     </div>
 
@@ -321,7 +315,7 @@ export default function TemplatesPage() {
             Start with a template
           </h2>
           <p className="text-text-secondary mb-8">
-            Templates are added to your <code className="text-primary bg-background px-1.5 py-0.5 rounded text-sm">pdf-templates/</code> directory. Customize them to match your needs.
+            Templates are added to your <code className="text-primary bg-background px-1.5 py-0.5 rounded text-sm">pdfn-templates/</code> directory. Customize them to match your needs.
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3 font-mono text-sm">
             <div className="bg-background border border-border rounded-lg px-4 py-2.5">

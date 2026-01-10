@@ -54,6 +54,21 @@ npm i @pdfn/next  # or @pdfn/vite
 </Document>
 ```
 
+### Project Structure (Convention)
+
+Templates are stored in the `pdfn-templates/` folder by convention:
+
+```
+your-project/
+├── pdfn-templates/           # PDF templates
+│   ├── styles.css            # Tailwind theme (auto-detected)
+│   ├── styles/               # Plain CSS files
+│   │   └── contract.css
+│   ├── invoice.tsx
+│   └── contract.tsx
+└── ...
+```
+
 ## Components
 
 ### Document
@@ -69,7 +84,6 @@ Root wrapper with PDF metadata and styling.
   language="en"                // Document language
   fonts={['Inter']}            // Google Fonts to load
   css={`...`}                  // Custom CSS string
-  cssFile="./styles.css"       // Path to CSS file
 >
   {children}
 </Document>
@@ -180,16 +194,10 @@ Table row that won't split across pages.
 <h1 style={{ fontSize: 24, fontWeight: 'bold' }}>Title</h1>
 ```
 
-### 2. CSS Props (No extra packages)
+### 2. CSS Prop (No extra packages)
 
 ```tsx
-// Inline CSS
 <Document css={`.title { font-size: 24px; }`}>
-  <Page><h1 className="title">Title</h1></Page>
-</Document>
-
-// External CSS file
-<Document cssFile="./styles/invoice.css">
   <Page><h1 className="title">Title</h1></Page>
 </Document>
 ```
@@ -208,14 +216,30 @@ import { Tailwind } from '@pdfn/tailwind';
 </Document>
 ```
 
-With custom theme:
+With custom theme (auto-detected from `pdfn-templates/styles.css`):
+
+```css
+/* pdfn-templates/styles.css */
+@import url("https://fonts.googleapis.com/css2?family=Inter&display=swap");
+@import "tailwindcss";
+
+@theme {
+  --font-inter: "Inter", var(--font-sans);
+  --color-brand: #007bff;
+}
+
+/* Import plain CSS for specific templates */
+@import "./styles/contract.css";
+```
 
 ```tsx
-<Tailwind css="./src/app/globals.css">
-  <Page>
-    <div className="text-brand font-inter">Custom theme</div>
-  </Page>
-</Tailwind>
+<Document>
+  <Tailwind>
+    <Page>
+      <div className="font-inter text-brand">Custom theme</div>
+    </Page>
+  </Tailwind>
+</Document>
 ```
 
 ## Fonts
@@ -439,7 +463,9 @@ const pdf = await generate(<Invoice />, { debug: { grid: true, margins: true } }
 
 ## Important Notes
 
-1. **Server-only** — pdfn uses react-dom/server, doesn't work in browsers
-2. **generate() needs server** — Run `npx pdfn serve` before calling generate()
-3. **PDFN.ready** — When using render() with Puppeteer, wait for `window.PDFN.ready === true`
-4. **Peer dependencies** — Plain Node.js needs `react` and `react-dom` installed
+1. **Server-only** - pdfn uses react-dom/server, doesn't work in browsers
+2. **generate() needs server** - Run `npx pdfn serve` before calling generate()
+3. **PDFN.ready** - When using render() with Puppeteer, wait for `window.PDFN.ready === true`
+4. **Peer dependencies** - Plain Node.js needs `react` and `react-dom` installed
+5. **Templates folder** - By convention, templates go in `pdfn-templates/`
+6. **Tailwind theme** - Auto-detected from `pdfn-templates/styles.css`

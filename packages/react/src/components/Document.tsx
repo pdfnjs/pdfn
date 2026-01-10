@@ -76,12 +76,6 @@ function encodeForDataAttr(value: string): string {
  * </Document>
  * ```
  *
- * @example With external CSS file
- * ```tsx
- * <Document title="Invoice" cssFile="./styles/invoice.css">
- *   <Page>...</Page>
- * </Document>
- * ```
  */
 export function Document({
   children,
@@ -92,7 +86,6 @@ export function Document({
   language = "en",
   fonts,
   css,
-  cssFile,
 }: DocumentProps) {
   // Base64 encode CSS for safe storage in data attribute
   const encodedCss = css ? encodeForDataAttr(css) : undefined;
@@ -107,7 +100,6 @@ export function Document({
       data-language={language}
       data-fonts={serializeFonts(fonts)}
       data-pdfn-css={encodedCss}
-      data-pdfn-css-file={cssFile}
     >
       {children}
     </div>

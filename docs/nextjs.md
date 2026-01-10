@@ -135,7 +135,7 @@ app/
 ├── page.tsx
 └── ...
 
-pdf-templates/
+pdfn-templates/
 ├── invoice.tsx
 ├── receipt.tsx
 └── components/
@@ -144,7 +144,7 @@ pdf-templates/
 
 ```tsx
 // app/api/invoice/route.ts
-import Invoice from '@/pdf-templates/invoice';
+import Invoice from '@/pdfn-templates/invoice';
 
 export async function POST(req: Request) {
   const data = await req.json();

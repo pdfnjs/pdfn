@@ -32,7 +32,7 @@ npx pdfn add invoice      # Add a starter invoice template
 npx pdfn dev --open       # Start dev server and open browser
 ```
 
-Opens a preview UI with a working invoice template. Edit `pdf-templates/invoice.tsx` and see changes instantly.
+Opens a preview UI with a working invoice template. Edit `pdfn-templates/invoice.tsx` and see changes instantly.
 
 ![pdfn dev preview](./docs/assets/dev-preview.png)
 
@@ -276,7 +276,7 @@ Run with `npx tsx generate-invoice.ts` (requires `npx pdfn serve` running).
 - Standard page sizes (A4, Letter, etc.) + custom dimensions
 - Layout with clean page breaks, headers, footers, and watermarks
 - Local and web fonts/images auto-embedded
-- Custom CSS via `css` prop or external `cssFile`
+- Custom CSS via `css` prop
 - Tailwind CSS support via `@pdfn/tailwind`
 
 ### pdfn (CLI)
@@ -289,7 +289,7 @@ Run with `npx tsx generate-invoice.ts` (requires `npx pdfn serve` running).
 
 | Component | Key Props | Description |
 |-----------|-----------|-------------|
-| `<Document>` | `title`, `author`, `fonts`, `css`, `cssFile` | Root wrapper with PDF metadata and custom CSS |
+| `<Document>` | `title`, `author`, `fonts`, `css` | Root wrapper with PDF metadata and custom CSS |
 | `<Page>` | `size`, `margin`, `header`, `footer` | Page container with layout options |
 | `<PageNumber>` | — | Current page number |
 | `<TotalPages>` | — | Total page count |
@@ -351,7 +351,7 @@ npx pdfn add --list             # Show all templates
 |--------|-------------|
 | `--inline` | Use inline styles (default) |
 | `--tailwind` | Use Tailwind CSS classes (requires `@pdfn/tailwind`) |
-| `--output` | Output directory (default: `./pdf-templates`) |
+| `--output` | Output directory (default: `./pdfn-templates`) |
 | `--force` | Overwrite existing files |
 
 ## Is pdfn Right for You?

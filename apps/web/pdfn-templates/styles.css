@@ -1,0 +1,26 @@
+/**
+ * PDF Template Styles for pdfn
+ *
+ * This file is automatically loaded by pdfn when processing templates.
+ * It contains:
+ * - Google Fonts imports
+ * - Tailwind CSS
+ * - Custom theme configuration
+ * - Template-specific CSS imports
+ */
+
+/* Google Fonts - used by ticket.tsx */
+@import url("https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Great+Vibes&display=swap");
+
+/* Tailwind CSS */
+@import "tailwindcss";
+
+/* Tailwind v4 theme configuration */
+@theme {
+  /* Custom fonts for elegant typography */
+  --font-display: "Playfair Display", Georgia, serif;
+  --font-script: "Great Vibes", cursive;
+}
+
+/* Template-specific plain CSS (contract uses these classes) */
+@import "./styles/contract.css";

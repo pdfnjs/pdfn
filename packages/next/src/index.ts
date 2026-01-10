@@ -3,12 +3,14 @@
  *
  * Enables optimized PDF generation by compiling Tailwind at build time
  * instead of runtime. Works with both Turbopack (Next.js 16+) and webpack.
+ *
+ * CSS is loaded from `pdfn-templates/styles.css` by convention.
  */
 
 import type { NextConfig } from "next";
 import { compileTailwindCss, type PdfnPluginOptions } from "./plugin.js";
 import { join } from "node:path";
-import { watch } from "node:fs";
+import { watch, existsSync } from "node:fs";
 
 export type { PdfnPluginOptions };
 
@@ -34,7 +36,7 @@ function getCssModuleAbsolutePath(cwd: string): string {
 }
 
 /**
- * Start watching template directories for changes and recompile CSS
+ * Start watching template directories and CSS files for changes and recompile CSS
  */
 function startTemplateWatcher(
   templatePatterns: string[],
@@ -61,12 +63,18 @@ function startTemplateWatcher(
     }
   }
 
+  // Also watch the pdfn-templates/styles directory for CSS changes
+  const stylesDir = join(cwd, "pdfn-templates", "styles");
+  if (existsSync(stylesDir)) {
+    watchDirs.add(stylesDir);
+  }
+
   // Debounce recompilation
   let recompileTimeout: ReturnType<typeof setTimeout> | null = null;
-  const debouncedRecompile = () => {
+  const debouncedRecompile = (reason: string) => {
     if (recompileTimeout) clearTimeout(recompileTimeout);
     recompileTimeout = setTimeout(async () => {
-      log("Template changed, recompiling CSS...");
+      log(`${reason}, recompiling CSS...`);
       try {
         await compileTailwindCss(templatePatterns, cssPath, cwd, debug);
       } catch (error) {
@@ -79,13 +87,35 @@ function startTemplateWatcher(
   for (const dir of watchDirs) {
     try {
       watch(dir, { recursive: true }, (eventType, filename) => {
-        if (filename && /\.(tsx?|jsx?)$/.test(filename)) {
-          debouncedRecompile();
+        if (!filename) return;
+
+        // Handle CSS file changes
+        if (filename.endsWith(".css")) {
+          debouncedRecompile(`CSS file changed: ${filename}`);
+          return;
+        }
+
+        // Handle template file changes
+        if (/\.(tsx?|jsx?)$/.test(filename)) {
+          debouncedRecompile(`Template changed: ${filename}`);
         }
       });
       log(`Watching for changes: ${dir}`);
     } catch {
       // Directory might not exist, ignore
+    }
+  }
+
+  // Also watch the main styles.css file directly
+  const mainStylesPath = join(cwd, "pdfn-templates", "styles.css");
+  if (existsSync(mainStylesPath)) {
+    try {
+      watch(mainStylesPath, () => {
+        debouncedRecompile("styles.css changed");
+      });
+      log(`Watching for changes: ${mainStylesPath}`);
+    } catch {
+      // File might not exist, ignore
     }
   }
 }
@@ -101,9 +131,7 @@ function startTemplateWatcher(
  * // next.config.ts
  * import { withPdfnTailwind } from '@pdfn/next';
  *
- * export default withPdfnTailwind({
- *   templates: ['./pdf-templates/*.tsx'],
- * })({
+ * export default withPdfnTailwind()({
  *   // your Next.js config
  * });
  * ```
@@ -111,7 +139,7 @@ function startTemplateWatcher(
 export function withPdfnTailwind(options: PdfnPluginOptions = {}) {
   return async (nextConfig: NextConfig = {}): Promise<NextConfig> => {
     const cwd = process.cwd();
-    const templates = options.templates || ["./pdf-templates/**/*.tsx", "./src/pdf/**/*.tsx"];
+    const templates = options.templates || ["./pdfn-templates/**/*.tsx"];
     const templatePatterns = Array.isArray(templates) ? templates : [templates];
     const debug = options.debug ?? false;
 

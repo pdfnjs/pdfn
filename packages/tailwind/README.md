@@ -34,22 +34,10 @@ function Invoice() {
 
 ## Using Your Theme
 
-Point to your CSS file to use your custom theme, fonts, and colors:
-
-```tsx
-<Document>
-  <Tailwind css="./src/app/globals.css">
-    <Page>
-      <div className="font-inter text-brand">Uses your theme!</div>
-    </Page>
-  </Tailwind>
-</Document>
-```
-
-Your CSS file should include Tailwind and any customizations:
+Create `pdfn-templates/styles.css` with your custom theme, fonts, and colors:
 
 ```css
-/* globals.css */
+/* pdfn-templates/styles.css */
 @import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap");
 @import "tailwindcss";
 
@@ -57,11 +45,28 @@ Your CSS file should include Tailwind and any customizations:
   --font-inter: "Inter", var(--font-sans);
   --color-brand: #007bff;
 }
+
+/* Import plain CSS files */
+@import "./styles/contract.css";
 ```
 
-## Auto-detection
+This file is automatically detected when you use `<Tailwind>`:
 
-If no `css` prop is provided, auto-detects from common locations like `./src/app/globals.css`, `./app/globals.css`, etc. Falls back to default Tailwind styles if no CSS file is found.
+```tsx
+<Document>
+  <Tailwind>
+    <Page>
+      <div className="font-inter text-brand">Uses your theme!</div>
+    </Page>
+  </Tailwind>
+</Document>
+```
+
+## CSS Auto-detection
+
+The `<Tailwind>` component looks for `./pdfn-templates/styles.css` in your project root. If found, it uses that file for Tailwind processing. If not found, it uses vanilla Tailwind (`@import "tailwindcss"`).
+
+This keeps your PDF template styles isolated from your web app's `globals.css`.
 
 ## API
 

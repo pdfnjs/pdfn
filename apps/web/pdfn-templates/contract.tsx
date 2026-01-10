@@ -1,4 +1,5 @@
 import { Document, Page, PageNumber, TotalPages, AvoidBreak } from "@pdfn/react";
+import { Tailwind } from "@pdfn/tailwind";
 
 /**
  * Service Agreement Contract template - Legal size (taller page)
@@ -9,7 +10,7 @@ import { Document, Page, PageNumber, TotalPages, AvoidBreak } from "@pdfn/react"
  * - Repeating footer with page numbers
  * - Multi-page content with numbered terms
  * - AvoidBreak for signature block
- * - External CSS file via cssFile prop
+ * - Plain CSS via pdfn-templates/styles.css (loaded by Tailwind)
  */
 
 interface ContractProps {
@@ -112,8 +113,9 @@ export default function Contract({
   },
 }: ContractProps) {
   return (
-    <Document title={title} cssFile="./styles/contract.css">
-      <Page
+    <Document title={title}>
+      <Tailwind>
+        <Page
         size="Legal"
         margin="1in"
         watermark={
@@ -231,6 +233,7 @@ export default function Contract({
           </div>
         </AvoidBreak>
       </Page>
+      </Tailwind>
     </Document>
   );
 }

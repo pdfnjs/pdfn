@@ -141,7 +141,6 @@ const pdf = await generate(<Invoice />);
   language="en"                // Document language (default: "en")
   fonts={['Inter', 'Roboto Mono']}  // Google Fonts to load
   css={`...`}                  // Custom CSS string
-  cssFile="./styles.css"       // Path to CSS file (relative to template)
 >
   {children}
 </Document>
@@ -275,10 +274,9 @@ const pdf = await generate(<Invoice />);
 
 ### Custom CSS
 
-Add custom styles using `css` or `cssFile` props:
+Add custom styles using the `css` prop:
 
 ```tsx
-// Inline CSS (works everywhere, including edge runtimes)
 <Document
   title="Invoice"
   css={`
@@ -296,19 +294,26 @@ Add custom styles using `css` or `cssFile` props:
     <h1 className="invoice-header">Invoice</h1>
   </Page>
 </Document>
+```
 
-// External CSS file (inlined at build time by @pdfn/vite or @pdfn/next)
-<Document title="Invoice" cssFile="./styles/invoice.css">
-  <Page>
-    <h1 className="invoice-header">Invoice</h1>
-  </Page>
-</Document>
+For Tailwind users, create `pdfn-templates/styles.css` with your theme:
+
+```css
+/* pdfn-templates/styles.css */
+@import "tailwindcss";
+
+@theme {
+  --color-brand: #007bff;
+}
+
+/* Plain CSS is also supported */
+@import "./styles/invoice.css";
 ```
 
 **CSS Cascade Order:**
 1. Base styles (pdfn framework)
-2. Tailwind CSS (if using `<Tailwind>`)
-3. Document CSS (`css`/`cssFile` props)
+2. Tailwind CSS / styles.css (if using `<Tailwind>`)
+3. Document CSS (`css` prop)
 4. Inline styles (`style={}`)
 
 Document CSS comes after Tailwind, so you can override Tailwind utilities.

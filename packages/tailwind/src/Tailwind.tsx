@@ -18,10 +18,12 @@ export interface TailwindProps {
   /** Optional Tailwind configuration */
   config?: TailwindConfig;
   /**
-   * Path to your CSS file that contains Tailwind imports and theme customizations,
-   * OR pre-compiled CSS string (when using @pdfn/vite plugin).
+   * Pre-compiled CSS string (when using @pdfn/vite plugin).
    *
-   * Your CSS file should look like:
+   * When NOT using a build plugin, CSS is automatically loaded from
+   * `pdfn-templates/styles.css` if it exists. This file should contain
+   * your Tailwind imports and theme customizations:
+   *
    * ```css
    * @import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap");
    * @import "tailwindcss";
@@ -32,13 +34,7 @@ export interface TailwindProps {
    * }
    * ```
    *
-   * If not provided, will auto-detect from common locations:
-   * - ./src/app/globals.css
-   * - ./src/styles/globals.css
-   * - ./app/globals.css
-   * - ./styles/tailwind.css
-   *
-   * Falls back to vanilla Tailwind if no CSS file found.
+   * Falls back to vanilla Tailwind if no `pdfn-templates/styles.css` found.
    *
    * When using @pdfn/vite plugin, this prop is automatically populated
    * with pre-compiled CSS at build time (no runtime processing needed).
@@ -130,14 +126,7 @@ function toBase64(str: string): string {
  * }
  * ```
  *
- * @example With your project's CSS (fonts, colors, etc.)
- * ```tsx
- * <Tailwind css="./src/app/globals.css">
- *   <Page>
- *     <div className="font-inter text-brand">Uses your theme!</div>
- *   </Page>
- * </Tailwind>
- * ```
+  * Note: CSS is automatically loaded from `pdfn-templates/styles.css` if it exists.
  */
 export function Tailwind({ children, css }: TailwindProps): ReactNode {
   // Render a hidden marker element that render() can detect in the HTML

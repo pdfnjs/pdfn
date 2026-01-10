@@ -391,61 +391,6 @@ describe("render", () => {
       expect(html).toContain(".no-print { display: none; }");
     });
 
-    describe("cssFile support", () => {
-      const fixturesDir = path.join(__dirname, "../fixtures/css");
-      const testCssPath = path.join(fixturesDir, "test.css");
-
-      beforeAll(() => {
-        fs.mkdirSync(fixturesDir, { recursive: true });
-        fs.writeFileSync(
-          testCssPath,
-          `.from-file { color: blue; font-weight: bold; }`
-        );
-      });
-
-      afterAll(() => {
-        fs.rmSync(fixturesDir, { recursive: true, force: true });
-      });
-
-      it("loads and injects CSS from cssFile path", async () => {
-        const html = await render(
-          <Document title="Test" cssFile={testCssPath}>
-            <Page>
-              <div className="from-file">Test</div>
-            </Page>
-          </Document>
-        );
-
-        expect(html).toContain(".from-file { color: blue; font-weight: bold; }");
-      });
-
-      it("throws error for non-existent cssFile", async () => {
-        await expect(
-          render(
-            <Document title="Test" cssFile="./non-existent.css">
-              <Page>Test</Page>
-            </Document>
-          )
-        ).rejects.toThrow("CSS file not found");
-      });
-
-      it("prefers css prop over cssFile when both are provided", async () => {
-        // When css prop is provided, it takes precedence (cssFile is for build-time inlining)
-        const html = await render(
-          <Document
-            title="Test"
-            css={`.inline { color: green; }`}
-            cssFile={testCssPath}
-          >
-            <Page>Test</Page>
-          </Document>
-        );
-
-        expect(html).toContain(".inline { color: green; }");
-        // cssFile should not be loaded when css is already provided
-        expect(html).not.toContain(".from-file");
-      });
-    });
   });
 
 });

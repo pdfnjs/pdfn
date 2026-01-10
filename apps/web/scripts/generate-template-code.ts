@@ -1,7 +1,7 @@
 #!/usr/bin/env npx tsx
 
 /**
- * Generates src/lib/template-code.ts from pdf-templates/*.tsx
+ * Generates src/lib/template-code.ts from pdfn-templates/*.tsx
  * Run this before build to keep code in sync
  */
 
@@ -12,7 +12,7 @@ import { fileURLToPath } from "url";
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
 const TEMPLATES = ["invoice", "letter", "contract", "ticket", "poster"];
-const TEMPLATES_DIR = join(__dirname, "..", "pdf-templates");
+const TEMPLATES_DIR = join(__dirname, "..", "pdfn-templates");
 const OUTPUT_FILE = join(__dirname, "..", "src", "lib", "template-code.ts");
 
 function generateTemplateCode() {
@@ -28,7 +28,7 @@ function generateTemplateCode() {
     }
   }
 
-  const output = `// Auto-generated from pdf-templates/*.tsx - DO NOT EDIT MANUALLY
+  const output = `// Auto-generated from pdfn-templates/*.tsx - DO NOT EDIT MANUALLY
 // Run: pnpm generate-template-code
 
 export const templateCode: Record<string, string> = ${JSON.stringify(codeMap, null, 2)};

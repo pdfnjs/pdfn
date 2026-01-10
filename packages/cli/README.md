@@ -26,14 +26,14 @@ Development server with live preview and hot reload. Intended for local developm
 npx pdfn dev                    # Start on port 3456
 npx pdfn dev --open             # Start and open browser
 npx pdfn dev --port 4000        # Custom port
-npx pdfn dev --templates ./src  # Custom templates directory
 ```
 
 | Option | Default | Description |
 |--------|---------|-------------|
 | `--port` | `3456` | Server port |
-| `--templates` | `./pdf-templates` | Templates directory |
 | `--open` | `false` | Open browser automatically |
+
+Templates are loaded from `./pdfn-templates` by convention.
 
 Features:
 - Auto-discovers templates in your templates directory
@@ -76,7 +76,7 @@ npx pdfn add invoice --output ./src/templates
 |--------|---------|-------------|
 | `--inline` | ✓ | Use inline styles (default, no extra dependencies) |
 | `--tailwind` | | Use Tailwind CSS classes (requires `@pdfn/tailwind`) |
-| `--output` | `./pdf-templates` | Output directory |
+| `--output` | `./pdfn-templates` | Output directory |
 | `--force` | | Overwrite existing files |
 
 | Template | Description | Page Size |

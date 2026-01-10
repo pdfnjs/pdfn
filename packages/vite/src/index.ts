@@ -1,27 +1,30 @@
 /**
- * @pdfn/vite - Vite plugin for pre-compiling Tailwind CSS and Document CSS
+ * @pdfn/vite - Vite plugin for pre-compiling Tailwind CSS
  *
  * Enables edge runtime support by compiling Tailwind at build time
  * instead of runtime. Works seamlessly with `<Tailwind>` component.
  *
- * Also handles cssFile prop on Document component by inlining CSS at build time.
+ * CSS is loaded from `pdfn-templates/styles.css` by convention.
  */
 
 import type { Plugin, ViteDevServer } from "vite";
 import fg from "fast-glob";
-import { readFileSync, existsSync } from "node:fs";
-import { dirname, resolve } from "node:path";
+
+/**
+ * Standardized path for PDF template styles
+ */
+const PDF_STYLES_PATH = "./pdfn-templates/styles.css";
 
 export interface PdfnTailwindOptions {
   /**
    * Glob patterns for template files to scan for Tailwind classes.
-   * @default ['./pdf-templates/**\/*.tsx', './src/pdf/**\/*.tsx']
+   * @default ['./pdfn-templates/**\/*.tsx']
    */
   templates?: string | string[];
 
   /**
    * Path to CSS file containing Tailwind imports and theme.
-   * If not provided, will auto-detect from common locations.
+   * @default './pdfn-templates/styles.css'
    */
   cssPath?: string;
 
@@ -99,25 +102,13 @@ function extractClassesFromContent(content: string): string[] {
   return Array.from(classes);
 }
 
-/**
- * Common CSS file locations to auto-detect
- */
-const COMMON_CSS_PATHS = [
-  "./src/app/globals.css",
-  "./src/styles/globals.css",
-  "./app/globals.css",
-  "./styles/globals.css",
-  "./styles/tailwind.css",
-  "./src/index.css",
-  "./src/styles.css",
-];
 
 /**
  * Create the pdfn Tailwind Vite plugin
  */
 export function pdfnTailwind(options: PdfnTailwindOptions = {}): Plugin {
   const {
-    templates = ["./pdf-templates/**/*.tsx", "./src/pdf/**/*.tsx"],
+    templates = ["./pdfn-templates/**/*.tsx"],
     cssPath,
     debug = false,
   } = options;
@@ -125,9 +116,6 @@ export function pdfnTailwind(options: PdfnTailwindOptions = {}): Plugin {
   let generatedCss = "";
   let server: ViteDevServer | null = null;
   let isBuilding = false;
-
-  // Track CSS file dependencies for HMR (cssFile -> Set of template ids)
-  const cssFileDependencies = new Map<string, Set<string>>();
 
   const log = (...args: unknown[]) => {
     if (debug) console.log("[pdfn:vite]", ...args);
@@ -187,6 +175,9 @@ export function pdfnTailwind(options: PdfnTailwindOptions = {}): Plugin {
       throw new Error("Could not find tailwindcss package");
     }
 
+    // The base directory for the initial CSS (pdfn-templates/)
+    const stylesBaseDir = path.resolve(cwd, "pdfn-templates");
+
     // Compile CSS
     const compiler = await compile(baseCss, {
       loadStylesheet: async (id: string, base: string) => {
@@ -205,7 +196,8 @@ export function pdfnTailwind(options: PdfnTailwindOptions = {}): Plugin {
         }
 
         // Handle relative imports
-        const resolveFrom = base || cwd;
+        // Default to pdfn-templates/ for imports from the initial CSS (styles.css)
+        const resolveFrom = base || stylesBaseDir;
         const fullPath = path.resolve(resolveFrom, id);
 
         if (fs.existsSync(fullPath)) {
@@ -240,7 +232,7 @@ export function pdfnTailwind(options: PdfnTailwindOptions = {}): Plugin {
   }
 
   /**
-   * Get base CSS content
+   * Get base CSS content - from pdfn-templates/styles.css or vanilla Tailwind
    */
   async function getBaseCss(
     fs: typeof import("node:fs"),
@@ -258,20 +250,15 @@ export function pdfnTailwind(options: PdfnTailwindOptions = {}): Plugin {
       return fs.readFileSync(fullPath, "utf8");
     }
 
-    // Auto-detect
-    for (const relativePath of COMMON_CSS_PATHS) {
-      const fullPath = path.resolve(cwd, relativePath);
-      if (fs.existsSync(fullPath)) {
-        const content = fs.readFileSync(fullPath, "utf8");
-        if (content.includes("tailwindcss") || content.includes("@tailwind")) {
-          log(`Using CSS file: ${relativePath}`);
-          return content;
-        }
-      }
+    // Check for pdfn-templates/styles.css (convention over configuration)
+    const stylesPath = path.resolve(cwd, PDF_STYLES_PATH);
+    if (fs.existsSync(stylesPath)) {
+      log(`Using CSS file: ${PDF_STYLES_PATH}`);
+      return fs.readFileSync(stylesPath, "utf8");
     }
 
     // Fall back to vanilla Tailwind
-    log("No custom CSS found, using vanilla Tailwind");
+    log("No pdfn-templates/styles.css found, using vanilla Tailwind");
     return '@import "tailwindcss";';
   }
 
@@ -309,7 +296,9 @@ export default css;`;
 
     /**
      * Transform <Tailwind> to inject pre-compiled CSS
-     * Transform cssFile props to inline CSS
+     *
+     * FIXME: Add support for inlining CSS files read via fs.readFileSync at build time
+     * This would enable plain CSS templates to work on edge runtimes without <Tailwind> wrapper
      */
     transform(code, id) {
       // Skip node_modules
@@ -317,109 +306,41 @@ export default css;`;
         return null;
       }
 
+      // Only handle files that use @pdfn/tailwind
+      if (!code.includes("@pdfn/tailwind") || !code.includes("<Tailwind")) {
+        return null;
+      }
+
+      // Check if file already imports from virtual module
+      if (code.includes(VIRTUAL_MODULE_ID)) {
+        return null;
+      }
+
+      // Add import for pre-compiled CSS
+      const importStatement = `import { css as __pdfnPrecompiledCss__ } from "${VIRTUAL_MODULE_ID}";\n`;
+
+      // Transform <Tailwind> to <Tailwind css={__pdfnPrecompiledCss__}>
+      // Handle both <Tailwind> and <Tailwind ...props>
       let transformed = code;
-      let hasChanges = false;
 
-      // --- Handle Tailwind transform ---
-      if (code.includes("@pdfn/tailwind") && code.includes("<Tailwind")) {
-        // Check if file already imports from virtual module
-        if (!code.includes(VIRTUAL_MODULE_ID)) {
-          // Add import for pre-compiled CSS
-          const importStatement = `import { css as __pdfnPrecompiledCss__ } from "${VIRTUAL_MODULE_ID}";\n`;
+      // Replace <Tailwind> with <Tailwind css={__pdfnPrecompiledCss__}>
+      transformed = transformed.replace(
+        /<Tailwind(\s*)>/g,
+        "<Tailwind css={__pdfnPrecompiledCss__}>"
+      );
 
-          // Transform <Tailwind> to <Tailwind css={__pdfnPrecompiledCss__}>
-          // Handle both <Tailwind> and <Tailwind ...props>
-          let tailwindTransformed = transformed;
+      // Replace <Tailwind ...props> with <Tailwind css={__pdfnPrecompiledCss__} ...props>
+      // But only if css prop is not already present
+      transformed = transformed.replace(
+        /<Tailwind(\s+)(?!css=)/g,
+        "<Tailwind$1css={__pdfnPrecompiledCss__} "
+      );
 
-          // Replace <Tailwind> with <Tailwind css={__pdfnPrecompiledCss__}>
-          tailwindTransformed = tailwindTransformed.replace(
-            /<Tailwind(\s*)>/g,
-            "<Tailwind css={__pdfnPrecompiledCss__}>"
-          );
-
-          // Replace <Tailwind ...props> with <Tailwind css={__pdfnPrecompiledCss__} ...props>
-          // But only if css prop is not already present
-          tailwindTransformed = tailwindTransformed.replace(
-            /<Tailwind(\s+)(?!css=)/g,
-            "<Tailwind$1css={__pdfnPrecompiledCss__} "
-          );
-
-          // Only add import if we made changes
-          if (tailwindTransformed !== transformed) {
-            transformed = importStatement + tailwindTransformed;
-            hasChanges = true;
-          }
-        }
-      }
-
-      // --- Handle Document cssFile prop ---
-      if (code.includes("cssFile=")) {
-        const cssFileRegex = /cssFile=["']([^"']+)["']/g;
-
-        // Collect all matches first (we need to process in reverse order)
-        const matches: Array<{ full: string; path: string; index: number }> = [];
-        let cssMatch;
-        while ((cssMatch = cssFileRegex.exec(transformed)) !== null) {
-          const matchPath = cssMatch[1];
-          if (!matchPath) continue;
-          matches.push({
-            full: cssMatch[0],
-            path: matchPath,
-            index: cssMatch.index,
-          });
-        }
-
-        // Process in reverse order to maintain string indices
-        for (const match of matches.reverse()) {
-          const cssFilePath = match.path;
-
-          // Resolve path relative to the template file
-          const templateDir = dirname(id);
-          const fullCssPath = resolve(templateDir, cssFilePath);
-
-          // Track for HMR
-          if (!cssFileDependencies.has(fullCssPath)) {
-            cssFileDependencies.set(fullCssPath, new Set());
-          }
-          cssFileDependencies.get(fullCssPath)!.add(id);
-
-          // Check file exists
-          if (!existsSync(fullCssPath)) {
-            this.error(
-              `CSS file not found: ${cssFilePath}\n` +
-                `Resolved to: ${fullCssPath}\n` +
-                `Template: ${id}`
-            );
-            continue;
-          }
-
-          // Read and encode CSS
-          const cssContent = readFileSync(fullCssPath, "utf8");
-          const encoded = Buffer.from(cssContent).toString("base64");
-
-          // Replace cssFile="./x.css" with css={decoded}
-          // Use an IIFE to decode base64 at runtime
-          const replacement = `css={(() => {
-            const e = "${encoded}";
-            return typeof Buffer !== 'undefined'
-              ? Buffer.from(e, 'base64').toString('utf8')
-              : decodeURIComponent(escape(atob(e)));
-          })()}`;
-
-          transformed =
-            transformed.slice(0, match.index) +
-            replacement +
-            transformed.slice(match.index + match.full.length);
-
-          hasChanges = true;
-          log(`Inlined CSS from ${cssFilePath}`);
-        }
-      }
-
-      if (hasChanges) {
+      // Only add import if we made changes
+      if (transformed !== code) {
         return {
-          code: transformed,
-          map: null, // TODO: Generate proper source map
+          code: importStatement + transformed,
+          map: null,
         };
       }
 
@@ -430,16 +351,22 @@ export default css;`;
      * Handle HMR - regenerate CSS when templates or CSS files change
      */
     async handleHotUpdate({ file, server: hmrServer }) {
-      // Check if changed file is a CSS file we're tracking (for cssFile prop)
-      if (file.endsWith(".css") && cssFileDependencies.has(file)) {
-        const dependentTemplates = cssFileDependencies.get(file)!;
-        log(`CSS file changed: ${file} (used by ${dependentTemplates.size} template(s))`);
+      // Check if changed file is in pdfn-templates CSS paths
+      const isStylesCss = file.endsWith("pdfn-templates/styles.css");
+      const isImportedCss = file.includes("pdfn-templates/styles/") && file.endsWith(".css");
 
-        // Invalidate all templates that use this CSS file
-        for (const templateId of dependentTemplates) {
-          const mod = hmrServer.moduleGraph.getModuleById(templateId);
-          if (mod) {
-            hmrServer.moduleGraph.invalidateModule(mod);
+      if (isStylesCss || isImportedCss) {
+        log(`PDF styles changed: ${file}`);
+
+        // Recompile Tailwind CSS
+        generatedCss = await compileTailwindCss();
+
+        // Invalidate virtual module and all its importers
+        const mod = hmrServer.moduleGraph.getModuleById(RESOLVED_VIRTUAL_MODULE_ID);
+        if (mod) {
+          hmrServer.moduleGraph.invalidateModule(mod);
+          for (const importer of mod.importers) {
+            hmrServer.moduleGraph.invalidateModule(importer);
           }
         }
 

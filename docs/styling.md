@@ -5,7 +5,7 @@ pdfn supports multiple styling approaches. Choose based on your needs:
 | Approach | Dependencies | Best for |
 |----------|--------------|----------|
 | Inline styles | None | Simple templates, no build step |
-| CSS props | None | Custom stylesheets, design systems |
+| CSS prop | None | Custom stylesheets, design systems |
 | Tailwind | `@pdfn/tailwind` | Rapid development, utility classes |
 
 ## 1. Inline Styles
@@ -42,11 +42,9 @@ function Invoice() {
 **Pros:** Zero dependencies, works everywhere, explicit
 **Cons:** Verbose, no pseudo-classes, no media queries
 
-## 2. CSS Props (css / cssFile)
+## 2. CSS Prop
 
-Add custom CSS via `<Document>` props. No extra packages required.
-
-### Inline CSS String
+Add custom CSS via the `css` prop on `<Document>`. No extra packages required.
 
 ```tsx
 import { Document, Page } from '@pdfn/react';
@@ -85,52 +83,14 @@ function Invoice() {
 }
 ```
 
-### External CSS File
-
-Keep styles in a separate file:
-
-```css
-/* styles/invoice.css */
-.invoice-header {
-  font-size: 24px;
-  font-weight: bold;
-  border-bottom: 2px solid #007bff;
-  padding-bottom: 16px;
-  margin-bottom: 24px;
-}
-
-.total {
-  font-size: 20px;
-  font-weight: bold;
-  background: #f5f5f5;
-  padding: 16px;
-  border-radius: 8px;
-}
-```
-
-```tsx
-import { Document, Page } from '@pdfn/react';
-
-function Invoice() {
-  return (
-    <Document title="Invoice" cssFile="./styles/invoice.css">
-      <Page size="A4" margin="1in">
-        <h1 className="invoice-header">Invoice #001</h1>
-        <div className="total">Total: $148.00</div>
-      </Page>
-    </Document>
-  );
-}
-```
-
-**Pros:** Full CSS support, reusable, pseudo-classes work
-**Cons:** Separate file management
+**Pros:** Full CSS support, reusable classes, pseudo-classes work
+**Cons:** CSS embedded in component
 
 ### CSS Cascade Order
 
 1. Base styles (pdfn framework)
 2. Tailwind CSS (if using `<Tailwind>`)
-3. Document CSS (`css`/`cssFile` props)
+3. Document CSS (`css` prop)
 4. Inline styles (`style={}`)
 
 Document CSS comes after Tailwind, so you can override Tailwind utilities.
@@ -176,26 +136,30 @@ function Invoice() {
 
 ### Using Your Theme
 
-Point to your CSS file to use custom theme, fonts, and colors:
-
-```tsx
-<Tailwind css="./src/app/globals.css">
-  <Page>
-    <div className="font-inter text-brand">Uses your theme!</div>
-  </Page>
-</Tailwind>
-```
-
-Your CSS file should include Tailwind:
+Create `pdfn-templates/styles.css` with your custom theme. This file is auto-detected by the `<Tailwind>` component:
 
 ```css
-/* globals.css */
+/* pdfn-templates/styles.css */
+@import url("https://fonts.googleapis.com/css2?family=Inter&display=swap");
 @import "tailwindcss";
 
 @theme {
   --font-inter: "Inter", var(--font-sans);
   --color-brand: #007bff;
 }
+
+/* You can also import plain CSS */
+@import "./styles/contract.css";
+```
+
+```tsx
+<Document>
+  <Tailwind>
+    <Page>
+      <div className="font-inter text-brand">Uses your theme!</div>
+    </Page>
+  </Tailwind>
+</Document>
 ```
 
 ### Edge Runtime Deployment

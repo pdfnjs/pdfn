@@ -7,16 +7,21 @@ import { readFileSync, writeFileSync, existsSync, mkdirSync } from "node:fs";
 import { resolve, dirname, join } from "node:path";
 import { createRequire } from "node:module";
 
+/**
+ * Standardized path for PDF template styles
+ */
+const PDF_STYLES_PATH = "./pdfn-templates/styles.css";
+
 export interface PdfnPluginOptions {
   /**
    * Glob patterns for template files to scan for Tailwind classes.
-   * @default ['./pdf-templates/**\/*.tsx', './src/pdf/**\/*.tsx']
+   * @default ['./pdfn-templates/**\/*.tsx']
    */
   templates?: string | string[];
 
   /**
    * Path to CSS file containing Tailwind imports and theme.
-   * If not provided, will auto-detect from common locations.
+   * @default './pdfn-templates/styles.css'
    */
   cssPath?: string;
 
@@ -31,19 +36,6 @@ export interface PdfnPluginOptions {
  * Module path for pre-compiled Tailwind CSS
  */
 export const CSS_MODULE_PATH = ".pdfn/tailwind.js";
-
-/**
- * Common CSS file locations to auto-detect
- */
-const COMMON_CSS_PATHS = [
-  "./src/app/globals.css",
-  "./src/styles/globals.css",
-  "./app/globals.css",
-  "./styles/globals.css",
-  "./styles/tailwind.css",
-  "./src/index.css",
-  "./src/styles.css",
-];
 
 /**
  * Extract class names from file content
@@ -97,7 +89,7 @@ function extractClassesFromContent(content: string): string[] {
 }
 
 /**
- * Get base CSS content
+ * Get base CSS content - from pdfn-templates/styles.css or vanilla Tailwind
  */
 function getBaseCss(cwd: string, explicitPath: string | undefined, log: (...args: unknown[]) => void): string {
   // Explicit path provided
@@ -109,20 +101,15 @@ function getBaseCss(cwd: string, explicitPath: string | undefined, log: (...args
     return readFileSync(fullPath, "utf8");
   }
 
-  // Auto-detect
-  for (const relativePath of COMMON_CSS_PATHS) {
-    const fullPath = resolve(cwd, relativePath);
-    if (existsSync(fullPath)) {
-      const content = readFileSync(fullPath, "utf8");
-      if (content.includes("tailwindcss") || content.includes("@tailwind")) {
-        log(`Using CSS file: ${relativePath}`);
-        return content;
-      }
-    }
+  // Check for pdfn-templates/styles.css (convention over configuration)
+  const stylesPath = resolve(cwd, PDF_STYLES_PATH);
+  if (existsSync(stylesPath)) {
+    log(`Using CSS file: ${PDF_STYLES_PATH}`);
+    return readFileSync(stylesPath, "utf8");
   }
 
   // Fall back to vanilla Tailwind
-  log("No custom CSS found, using vanilla Tailwind");
+  log("No pdfn-templates/styles.css found, using vanilla Tailwind");
   return '@import "tailwindcss";';
 }
 
@@ -180,6 +167,9 @@ export async function compileTailwindCss(
     throw new Error("Could not find tailwindcss package");
   }
 
+  // The base directory for the initial CSS (pdfn-templates/)
+  const stylesBaseDir = resolve(cwd, "pdfn-templates");
+
   // Compile CSS
   const compiler = await compile(baseCss, {
     loadStylesheet: async (id: string, base: string) => {
@@ -198,7 +188,8 @@ export async function compileTailwindCss(
       }
 
       // Handle relative imports
-      const resolveFrom = base || cwd;
+      // Default to pdfn-templates/ for imports from the initial CSS (styles.css)
+      const resolveFrom = base || stylesBaseDir;
       const fullPath = resolve(resolveFrom, id);
 
       if (existsSync(fullPath)) {

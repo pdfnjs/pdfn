@@ -73,3 +73,24 @@ const pdf = await generate(<Invoice />);
 |----------|---------|----------|
 | `render()` | HTML string | Nothing |
 | `generate()` | PDF buffer | `npx pdfn serve` running |
+
+### Project Structure
+
+Templates are stored in the `pdfn-templates/` folder by convention:
+
+```
+your-project/
+├── pdfn-templates/           # PDF templates (convention)
+│   ├── styles.css            # Tailwind theme (optional)
+│   ├── styles/               # Plain CSS files
+│   │   └── contract.css
+│   ├── invoice.tsx
+│   └── contract.tsx
+└── ...
+```
+
+### Styling Options
+
+1. **Inline styles** - `style={{ fontSize: 24 }}`
+2. **CSS prop** - `<Document css={\`.class { ... }\`}>`
+3. **Tailwind** - `<Tailwind>` wrapper with `pdfn-templates/styles.css`

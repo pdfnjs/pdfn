@@ -30,15 +30,13 @@ import { pdfnTailwind } from "@pdfn/vite";
 export default defineConfig({
   plugins: [
     react(),
-    pdfnTailwind({
-      templates: ["./pdf-templates/**/*.tsx"],
-    }),
+    pdfnTailwind(),
   ],
 });
 ```
 
 ```tsx
-// pdf-templates/invoice.tsx
+// pdfn-templates/invoice.tsx
 import { Document, Page } from "@pdfn/react";
 import { Tailwind } from "@pdfn/tailwind";  // Always import from @pdfn/tailwind
 
@@ -58,7 +56,7 @@ export default function Invoice() {
 ```tsx
 // src/generate-pdf.ts
 import { generate } from "@pdfn/react";
-import Invoice from "./pdf-templates/invoice";
+import Invoice from "../pdfn-templates/invoice";
 
 export async function generateInvoice() {
   const pdf = await generate(<Invoice />);
@@ -72,8 +70,9 @@ export async function generateInvoice() {
 
 | Option | Type | Default | Description |
 |--------|------|---------|-------------|
-| `templates` | `string \| string[]` | `['./pdf-templates/**/*.tsx', './src/pdf/**/*.tsx']` | Glob patterns for template files |
-| `cssPath` | `string` | Auto-detected from `globals.css` etc. | Path to CSS file with Tailwind imports |
+| `templates` | `string \| string[]` | `['./pdfn-templates/**/*.tsx']` | Glob patterns for template files |
+| `cssPath` | `string` | `./pdfn-templates/styles.css` | Path to CSS file with Tailwind imports |
+| `debug` | `boolean` | `false` | Enable debug logging |
 
 ## How It Works
 
@@ -86,46 +85,34 @@ export async function generateInvoice() {
 
 In development, the plugin:
 - Recompiles CSS when template files change
-- Watches CSS files used via `cssFile` prop and triggers reload on change
+- Watches `pdfn-templates/styles.css` and `pdfn-templates/styles/*.css` for changes
 - Triggers a full reload to apply new styles
 - Logs `[pdfn:vite] Template changed: <file>` in the console
 
-## Custom CSS Files
-
-The plugin also handles `cssFile` props on `<Document>`:
-
-```tsx
-// pdf-templates/invoice.tsx
-<Document title="Invoice" cssFile="./styles/invoice.css">
-  <Page>
-    <h1 className="invoice-header">Invoice</h1>
-  </Page>
-</Document>
-```
-
-At build time, the CSS file is read and inlined. In dev mode, changes to the CSS file trigger hot reload.
-
 ## Using Your Theme
 
-Point to your CSS file to use custom colors, fonts, etc:
-
-```ts
-pdfnTailwind({
-  templates: ["./pdf-templates/**/*.tsx"],
-  cssPath: "./src/styles/globals.css",
-})
-```
-
-Your CSS file should include Tailwind:
+Create `pdfn-templates/styles.css` with your custom theme:
 
 ```css
-/* globals.css */
+/* pdfn-templates/styles.css */
+@import url("https://fonts.googleapis.com/css2?family=Inter&display=swap");
 @import "tailwindcss";
 
 @theme {
+  --font-inter: "Inter", var(--font-sans);
   --color-brand: #007bff;
-  --font-heading: "Inter", sans-serif;
 }
+
+/* Import plain CSS for specific templates */
+@import "./styles/contract.css";
+```
+
+This file is auto-detected by the plugin. You can also explicitly set the path:
+
+```ts
+pdfnTailwind({
+  cssPath: "./pdfn-templates/styles.css",
+})
 ```
 
 ## Requirements

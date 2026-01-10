@@ -38,10 +38,16 @@ function isEdgeRuntime(): boolean {
 }
 
 /**
+ * Standardized path for PDF template styles
+ * Convention over configuration - always look here
+ */
+const PDF_STYLES_PATH = "./pdfn-templates/styles.css";
+
+/**
  * Process HTML and generate Tailwind CSS for used classes
  *
  * **Node.js only**: This function requires filesystem access to:
- * - Auto-detect and read user's CSS file (globals.css, etc.)
+ * - Read your CSS file from `pdfn-templates/styles.css`
  * - Locate and load the tailwindcss package
  *
  * For edge runtimes, use a build-time plugin to pre-compile Tailwind CSS.
@@ -56,7 +62,7 @@ export async function processTailwind(html: string, options: ProcessOptions = {}
     throw new Error(
       `Runtime Tailwind CSS processing is not supported on edge runtimes.\n\n` +
       `The @pdfn/tailwind package requires Node.js filesystem access to:\n` +
-      `  - Read your CSS file (globals.css, tailwind.css, etc.)\n` +
+      `  - Read your CSS file (pdfn-templates/styles.css)\n` +
       `  - Load the tailwindcss package\n\n` +
       `Options:\n` +
       `  1. Use a build-time plugin to pre-compile Tailwind CSS\n` +
@@ -88,23 +94,9 @@ export async function processTailwind(html: string, options: ProcessOptions = {}
     ? (message: string) => console.log(`[pdfn:tailwind] ${message}`)
     : () => {};
 
-  // Cache for compilers and auto-detected CSS path
+  // Cache for compilers
   const compilerCache = new Map<string, Awaited<ReturnType<typeof compile>>>();
   let tailwindRoot: string | null = null;
-  let autoDetectedCssPath: string | null | undefined = undefined;
-
-  /**
-   * Common CSS file locations to auto-detect
-   */
-  const COMMON_CSS_PATHS = [
-    "./src/app/globals.css",
-    "./src/styles/globals.css",
-    "./app/globals.css",
-    "./styles/globals.css",
-    "./styles/tailwind.css",
-    "./src/index.css",
-    "./src/styles.css",
-  ];
 
   /**
    * Find the tailwindcss package root directory
@@ -139,78 +131,32 @@ export async function processTailwind(html: string, options: ProcessOptions = {}
   }
 
   /**
-   * Auto-detect user's CSS file from common locations
-   */
-  function autoDetectCssFile(): string | null {
-    if (autoDetectedCssPath !== undefined) {
-      return autoDetectedCssPath;
-    }
-
-    const cwd = process.cwd();
-
-    for (const relativePath of COMMON_CSS_PATHS) {
-      const fullPath = path.resolve(cwd, relativePath);
-      if (fs.existsSync(fullPath)) {
-        const content = fs.readFileSync(fullPath, "utf8");
-        if (content.includes("tailwindcss") || content.includes("@tailwind")) {
-          debug(`Auto-detected CSS: ${relativePath}`);
-          autoDetectedCssPath = fullPath;
-          return fullPath;
-        }
-      }
-    }
-
-    autoDetectedCssPath = null;
-    return null;
-  }
-
-  /**
-   * Read user's CSS file and ensure it has Tailwind import
-   */
-  function getUserCss(cssPath: string): string {
-    if (!fs.existsSync(cssPath)) {
-      throw new Error(
-        `CSS file not found: ${cssPath}\n\n` +
-        `Make sure the path is correct relative to your project root.`
-      );
-    }
-
-    const content = fs.readFileSync(cssPath, "utf8");
-
-    if (!content.includes("tailwindcss") && !content.includes("@tailwind")) {
-      console.warn(
-        `[pdfn:tailwind] Warning: ${cssPath} doesn't appear to import Tailwind CSS.\n` +
-        `Expected to find @import "tailwindcss"; or @tailwind directives.`
-      );
-    }
-
-    return content;
-  }
-
-  /**
-   * Get base CSS content - either from user's file or vanilla Tailwind
+   * Get base CSS content - from pdfn-templates/styles.css or vanilla Tailwind
    */
   function getBaseCss(): { css: string; source: string } {
-    // 1. Explicit path provided
+    // 1. Explicit path provided (for backwards compatibility)
     if (options.cssPath) {
       const fullPath = path.resolve(process.cwd(), options.cssPath);
-      return {
-        css: getUserCss(fullPath),
-        source: options.cssPath,
-      };
+      if (!fs.existsSync(fullPath)) {
+        throw new Error(
+          `CSS file not found: ${options.cssPath}\n\n` +
+          `Make sure the path is correct relative to your project root.`
+        );
+      }
+      const content = fs.readFileSync(fullPath, "utf8");
+      return { css: content, source: options.cssPath };
     }
 
-    // 2. Auto-detect from common locations
-    const autoDetectedPath = autoDetectCssFile();
-    if (autoDetectedPath) {
-      return {
-        css: getUserCss(autoDetectedPath),
-        source: autoDetectedPath,
-      };
+    // 2. Check for pdfn-templates/styles.css (convention over configuration)
+    const stylesPath = path.resolve(process.cwd(), PDF_STYLES_PATH);
+    if (fs.existsSync(stylesPath)) {
+      const content = fs.readFileSync(stylesPath, "utf8");
+      debug(`Using CSS from ${PDF_STYLES_PATH}`);
+      return { css: content, source: PDF_STYLES_PATH };
     }
 
     // 3. Fall back to vanilla Tailwind
-    debug("Using vanilla Tailwind (no custom CSS found)");
+    debug("Using vanilla Tailwind (no pdfn-templates/styles.css found)");
     return {
       css: '@import "tailwindcss";',
       source: "vanilla",
@@ -242,6 +188,8 @@ export async function processTailwind(html: string, options: ProcessOptions = {}
 
     const twRoot = findTailwindRoot();
     const cwd = process.cwd();
+    // The base directory for the initial CSS (pdfn-templates/)
+    const stylesBaseDir = path.resolve(cwd, "pdfn-templates");
 
     const compiler = await compile(baseCss, {
       loadStylesheet: async (id: string, base: string) => {
@@ -261,7 +209,8 @@ export async function processTailwind(html: string, options: ProcessOptions = {}
         }
 
         // Handle relative imports - try multiple locations
-        const resolveFrom = base || cwd;
+        // Default to pdfn-templates/ for imports from the initial CSS (styles.css)
+        const resolveFrom = base || stylesBaseDir;
         const fullPath = path.resolve(resolveFrom, id);
 
         // Try exact path

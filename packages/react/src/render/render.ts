@@ -5,7 +5,7 @@ import { processCssFontFaces } from "./fonts";
 import { injectDebugSupport } from "../debug";
 import type { RenderOptions, FontConfig } from "../types";
 import { debug } from "../utils/debug";
-import { isBrowser, isEdge, EdgeErrors } from "../utils/runtime";
+import { isBrowser, EdgeErrors } from "../utils/runtime";
 
 // Dynamic import to avoid Next.js static analysis issues
 let renderToStaticMarkup: typeof import("react-dom/server").renderToStaticMarkup;
@@ -66,10 +66,9 @@ function removeTailwindMarker(html: string): string {
 }
 
 /**
- * Document CSS marker attributes
+ * Document CSS marker attribute
  */
 const DOCUMENT_CSS_ATTR = "data-pdfn-css";
-const DOCUMENT_CSS_FILE_ATTR = "data-pdfn-css-file";
 
 /**
  * Extract Document CSS from data attribute (base64 encoded)
@@ -89,20 +88,10 @@ function extractDocumentCss(html: string): string | undefined {
 }
 
 /**
- * Extract cssFile path from data attribute
+ * Remove Document CSS data attribute from content
  */
-function extractDocumentCssFile(html: string): string | undefined {
-  const match = html.match(new RegExp(`${DOCUMENT_CSS_FILE_ATTR}="([^"]+)"`));
-  return match?.[1];
-}
-
-/**
- * Remove Document CSS data attributes from content
- */
-function removeDocumentCssAttrs(html: string): string {
-  return html
-    .replace(new RegExp(`\\s*${DOCUMENT_CSS_ATTR}="[^"]*"`, "g"), "")
-    .replace(new RegExp(`\\s*${DOCUMENT_CSS_FILE_ATTR}="[^"]*"`, "g"), "");
+function removeDocumentCssAttr(html: string): string {
+  return html.replace(new RegExp(`\\s*${DOCUMENT_CSS_ATTR}="[^"]*"`, "g"), "");
 }
 
 export interface RenderResult {
@@ -238,6 +227,9 @@ export async function render(
     }
   } else {
     debug("tailwind: no marker found");
+    // FIXME: Add plain CSS bundling support for templates without <Tailwind> wrapper
+    // Currently, templates must use <Tailwind> to get CSS from pdfn-templates/styles.css
+    // See: https://github.com/pdfnjs/pdfn/issues/XXX
   }
   const tailwindTime = performance.now() - tailwindStart;
 
@@ -247,36 +239,12 @@ export async function render(
   content = await processImages(content);
   const imagesTime = performance.now() - imagesStart;
 
-  // 5. Extract and process Document CSS (css/cssFile props)
+  // 5. Extract Document CSS (css prop)
   const documentCssStart = performance.now();
-  let documentCss = extractDocumentCss(content) || "";
-  const cssFilePath = extractDocumentCssFile(content);
+  const documentCss = extractDocumentCss(content) || "";
 
-  // Runtime fallback for cssFile (Node.js only)
-  if (cssFilePath && !documentCss) {
-    if (isEdge()) {
-      throw new Error(EdgeErrors.cssFile(cssFilePath));
-    }
-
-    // Dynamic import for Node.js filesystem
-    const fs = await import("node:fs");
-    const path = await import("node:path");
-    const fullPath = path.resolve(process.cwd(), cssFilePath);
-
-    if (!fs.existsSync(fullPath)) {
-      throw new Error(
-        `CSS file not found: ${cssFilePath}\n` +
-          `Resolved to: ${fullPath}\n\n` +
-          `Make sure the path is correct relative to your project root.`
-      );
-    }
-
-    documentCss = fs.readFileSync(fullPath, "utf8");
-    debug(`document-css: loaded from ${cssFilePath}`);
-  }
-
-  // Remove CSS data attributes from content
-  content = removeDocumentCssAttrs(content);
+  // Remove CSS data attribute from content
+  content = removeDocumentCssAttr(content);
   const documentCssTime = performance.now() - documentCssStart;
 
   // 6. Extract fonts from Document if present

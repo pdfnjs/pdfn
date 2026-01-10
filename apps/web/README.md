@@ -50,14 +50,15 @@ src/
 │   └── template-code.ts      # Auto-generated template source
 └── ...
 
-pdf-templates/
+pdfn-templates/
+├── styles.css                # Shared styles (Tailwind + fonts)
 ├── invoice.tsx               # A4 - Tailwind
 ├── letter.tsx                # Letter - Inline styles
-├── contract.tsx              # Legal - External CSS file
+├── contract.tsx              # Legal - Tailwind + plain CSS
 ├── ticket.tsx                # A5 - Tailwind
 ├── poster.tsx                # Tabloid - css prop
 ├── styles/
-│   └── contract.css          # External CSS for contract
+│   └── contract.css          # Plain CSS for contract
 └── components/               # Shared components
 ```
 
@@ -67,22 +68,22 @@ Each template demonstrates a different styling method:
 
 | Template | Size | Styling | Description |
 |----------|------|---------|-------------|
-| Invoice | A4 | Tailwind | `<Tailwind>` wrapper component |
+| Invoice | A4 | Tailwind | `<Tailwind>` wrapper with vanilla classes |
 | Letter | Letter | Inline | React `style={{}}` prop |
-| Contract | Legal | cssFile | External CSS via `cssFile` prop |
-| Ticket | A5 | Tailwind | `<Tailwind>` wrapper component |
-| Poster | Tabloid | cssProp | Embedded CSS via `css` prop |
+| Contract | Legal | Tailwind | `<Tailwind>` + plain CSS via `styles/contract.css` |
+| Ticket | A5 | Tailwind | `<Tailwind>` with custom fonts from `styles.css` |
+| Poster | Tabloid | cssProp | Embedded CSS via Document's `css` prop |
 
 ## How It Works
 
-1. Templates are React components in `pdf-templates/`
+1. Templates are React components in `pdfn-templates/`
 2. API route uses `render()` for HTML preview and `generate()` for PDF
 3. Demo page shows live preview with inspector panel
 
 ```tsx
 // api/pdf/route.tsx
 import { render, generate } from '@pdfn/react';
-import Invoice from '../../../pdf-templates/invoice';
+import Invoice from '../../../pdfn-templates/invoice';
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);

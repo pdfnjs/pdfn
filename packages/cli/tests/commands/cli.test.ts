@@ -16,10 +16,12 @@ describe("CLI", () => {
     const options = devCommand.options;
 
     const portOption = options.find((o) => o.long === "--port");
-    const templatesOption = options.find((o) => o.long === "--templates");
+    const openOption = options.find((o) => o.long === "--open");
+    const modeOption = options.find((o) => o.long === "--mode");
 
     expect(portOption).toBeDefined();
-    expect(templatesOption).toBeDefined();
+    expect(openOption).toBeDefined();
+    expect(modeOption).toBeDefined();
   });
 
   it("serve command has correct options", async () => {

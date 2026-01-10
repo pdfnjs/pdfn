@@ -23,9 +23,13 @@ interface TemplateInfo {
   sampleData?: Record<string, unknown>;
 }
 
+/**
+ * Standardized templates directory (convention over configuration)
+ */
+const TEMPLATES_DIR = "./pdfn-templates";
+
 interface DevServerOptions {
   port: number;
-  templatesDir: string;
   open: boolean;
   mode: string;
 }
@@ -1091,8 +1095,8 @@ function createPreviewHTML(templates: TemplateInfo[], activeTemplate: string | n
 }
 
 async function startDevServer(options: DevServerOptions) {
-  const { port, templatesDir, open, mode } = options;
-  const absoluteTemplatesDir = resolve(process.cwd(), templatesDir);
+  const { port, open, mode } = options;
+  const absoluteTemplatesDir = resolve(process.cwd(), TEMPLATES_DIR);
 
   // Show header and initializing message
   console.log(chalk.bold("\n  pdfn dev\n"));
@@ -1102,7 +1106,7 @@ async function startDevServer(options: DevServerOptions) {
   let templates = await scanTemplates(absoluteTemplatesDir);
 
   // Show relative path for cleaner output
-  const displayPath = templatesDir.startsWith("./") ? templatesDir : `./${templatesDir}`;
+  const displayPath = TEMPLATES_DIR;
   const templateCount = templates.length === 1 ? "1 template" : `${templates.length} templates`;
 
   // Create base server with shared /generate and /health endpoints
@@ -1187,7 +1191,7 @@ async function startDevServer(options: DevServerOptions) {
       // Pre-compile Tailwind CSS for edge compatibility
       pdfnTailwind({
         templates: [
-          join(templatesDir, "**/*.tsx"),
+          join(TEMPLATES_DIR, "**/*.tsx"),
         ],
       }),
       {
@@ -1209,8 +1213,14 @@ async function startDevServer(options: DevServerOptions) {
   });
 
 
-  // Watch for template changes
-  const watcher = chokidar.watch(absoluteTemplatesDir, {
+  // Watch for template and CSS changes
+  // Watch templates dir and styles.css + styles/ directory for CSS HMR
+  const watchPaths = [
+    absoluteTemplatesDir,
+    join(absoluteTemplatesDir, "styles.css"),
+    join(absoluteTemplatesDir, "styles"),
+  ];
+  const watcher = chokidar.watch(watchPaths, {
     ignored: /(^|[\/\\])\../,
     persistent: true,
   });
@@ -1231,6 +1241,11 @@ async function startDevServer(options: DevServerOptions) {
     return /\.(tsx?|jsx?)$/.test(filePath);
   }
 
+  // Helper to check if file is a CSS file in templates
+  function isCssFile(filePath: string): boolean {
+    return filePath.endsWith(".css");
+  }
+
   // Suppress logging during initial scan
   let watcherReady = false;
 
@@ -1241,6 +1256,26 @@ async function startDevServer(options: DevServerOptions) {
   watcher.on("change", async (filePath) => {
     if (!watcherReady) return;
     const fileName = filePath.split("/").pop() || filePath;
+
+    // Handle CSS file changes (styles.css or styles/*.css)
+    if (isCssFile(filePath)) {
+      console.log(chalk.blue("  ↻"), fileName, chalk.dim("changed"));
+
+      // Invalidate the virtual Tailwind CSS module to force recompilation
+      const virtualMod = vite.moduleGraph.getModuleById("\0virtual:pdfn-tailwind-css");
+      if (virtualMod) {
+        vite.moduleGraph.invalidateModule(virtualMod);
+        // Invalidate all modules that import the virtual module
+        for (const importer of virtualMod.importers) {
+          vite.moduleGraph.invalidateModule(importer);
+        }
+      }
+
+      templates = await scanTemplates(absoluteTemplatesDir);
+      broadcast({ type: "reload" });
+      return;
+    }
+
     // Log all code file changes (templates and components)
     if (isCodeFile(filePath)) {
       console.log(chalk.blue("  ↻"), fileName, chalk.dim("changed"));
@@ -1579,7 +1614,6 @@ async function startDevServer(options: DevServerOptions) {
 export const devCommand = new Command("dev")
   .description("Start development server with live preview")
   .option("--port <number>", "Server port (env: PDFN_PORT)", process.env.PDFN_PORT ?? "3456")
-  .option("--templates <path>", "Templates directory", "./pdf-templates")
   .option("--open", "Open browser automatically")
   .option("--mode <mode>", "Environment mode (loads .env.[mode])", "development")
   .action(async (options) => {
@@ -1590,7 +1624,6 @@ export const devCommand = new Command("dev")
 
     await startDevServer({
       port,
-      templatesDir: options.templates,
       open: options.open ?? false,
       mode: options.mode,
     });
