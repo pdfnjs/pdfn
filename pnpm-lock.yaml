@@ -383,6 +383,9 @@ importers:
 
   packages/vite:
     dependencies:
+      '@pdfn/client':
+        specifier: workspace:*
+        version: link:../client
       '@pdfn/core':
         specifier: workspace:*
         version: link:../core
