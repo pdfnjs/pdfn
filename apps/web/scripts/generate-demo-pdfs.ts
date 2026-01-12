@@ -10,13 +10,14 @@
 
 import { existsSync, mkdirSync, rmSync, writeFileSync, readdirSync, statSync } from "fs";
 import { join } from "path";
+import { templates } from "../src/config/templates.js";
 
 const PDFN_HOST = process.env.PDFN_HOST || "http://localhost:3456";
 const NEXTJS_HOST = process.env.NEXTJS_HOST || "http://localhost:3000";
 const OUTPUT_DIR = join(process.cwd(), "public", "pdfs");
 
-// Templates to generate
-const TEMPLATES = ["invoice", "ticket", "poster", "contract", "letter"];
+// Get all template IDs
+const TEMPLATES = templates.map((t) => t.id);
 
 // Debug options for "debug-all" variant
 const DEBUG_ALL = "grid,margins,headers,breaks";

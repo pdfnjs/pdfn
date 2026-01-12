@@ -20,6 +20,11 @@ export const BUNDLES_DIR = ".pdfn/bundles";
 export const BUNDLES_MANIFEST = ".pdfn/bundles/manifest.json";
 
 /**
+ * Virtual module ID for bundles (resolved by webpack/turbopack alias)
+ */
+const BUNDLES_MODULE_ID = "__pdfn_bundles__";
+
+/**
  * Template bundle manifest entry
  */
 export interface BundleManifestEntry {
@@ -27,6 +32,8 @@ export interface BundleManifestEntry {
   sourcePath: string;
   bundlePath: string;
   bundledAt: string;
+  /** Inlined bundle code (for serverless deployment) */
+  code?: string;
 }
 
 /**
@@ -37,8 +44,19 @@ export interface BundleManifest {
   templates: Record<string, BundleManifestEntry>;
 }
 
+// Cached manifest from module import
+let cachedManifest: BundleManifest | null = null;
+
 /**
- * Load the bundle manifest
+ * Set the bundle manifest (called by transform-loader injected code).
+ * This allows static imports to be traced by webpack/turbopack for serverless.
+ */
+export function __setBundleManifest(manifest: BundleManifest): void {
+  cachedManifest = manifest;
+}
+
+/**
+ * Load the bundle manifest from filesystem (works locally)
  */
 export function loadBundleManifest(cwd: string): BundleManifest | null {
   const manifestPath = join(cwd, "node_modules", BUNDLES_MANIFEST);
@@ -56,9 +74,34 @@ export function loadBundleManifest(cwd: string): BundleManifest | null {
 }
 
 /**
- * Get a pre-compiled bundle for a template
+ * Get a pre-compiled bundle for a template (async version for serverless)
+ */
+export async function getPrecompiledBundleAsync(templateId: string, cwd: string): Promise<string | null> {
+  // First try cached manifest (set via __setBundleManifest from static import)
+  if (cachedManifest && cachedManifest.templates[templateId]) {
+    const entry = cachedManifest.templates[templateId];
+    if (entry.code) {
+      return entry.code;
+    }
+  }
+
+  // Fall back to filesystem (works locally)
+  return getPrecompiledBundle(templateId, cwd);
+}
+
+/**
+ * Get a pre-compiled bundle for a template (sync version)
  */
 export function getPrecompiledBundle(templateId: string, cwd: string): string | null {
+  // If we already loaded from module, use cached manifest
+  if (cachedManifest && cachedManifest.templates[templateId]) {
+    const entry = cachedManifest.templates[templateId];
+    if (entry.code) {
+      return entry.code;
+    }
+  }
+
+  // Try filesystem
   const manifest = loadBundleManifest(cwd);
 
   if (!manifest || !manifest.templates[templateId]) {
@@ -67,9 +110,15 @@ export function getPrecompiledBundle(templateId: string, cwd: string): string | 
 
   const entry = manifest.templates[templateId];
 
-  if (!existsSync(entry.bundlePath)) {
-    return null;
+  // First try inlined code (works on serverless)
+  if (entry.code) {
+    return entry.code;
   }
 
-  return readFileSync(entry.bundlePath, "utf8");
+  // Fall back to reading from file (works locally)
+  if (existsSync(entry.bundlePath)) {
+    return readFileSync(entry.bundlePath, "utf8");
+  }
+
+  return null;
 }

@@ -1183,9 +1183,7 @@ async function startDevServer(options: DevServerOptions) {
     },
     plugins: [
       // Unified pdfn plugin: Tailwind pre-compilation + client/template markers
-      ...pdfn({
-        templates: [join(TEMPLATES_DIR, "**/*.tsx")],
-      }),
+      ...pdfn(),
       {
         name: "mock-server-only",
         enforce: "pre",

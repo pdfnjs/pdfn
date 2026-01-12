@@ -25,7 +25,5 @@ const nextConfig: NextConfig = {
   },
 };
 
-// Pre-compile Tailwind CSS at build time for serverless deployment
-export default withPdfn({
-  templates: ["./pdfn-templates/**/*.tsx"],
-})(nextConfig);
+// Pre-compile Tailwind CSS and bundle client components at build time
+export default withPdfn()(nextConfig);

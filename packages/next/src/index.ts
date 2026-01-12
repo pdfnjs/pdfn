@@ -17,20 +17,23 @@ import type { NextConfig } from "next";
 export {
   renderTemplate,
   requiresClientRendering,
+  __setPrecompiledCss,
   type RenderTemplateOptions,
   type RenderTemplateResult,
 } from "./render-template.js";
-import { compileTailwindCss, bundleClientTemplates, type PdfnPluginOptions } from "./plugin.js";
+
+// Re-export bundle manifest setter (used by transform-loader injected code)
+export { __setBundleManifest } from "./bundle-loader.js";
+import { compileTailwindCss, bundleClientTemplates } from "./plugin.js";
 import { join } from "node:path";
 import { watch, existsSync } from "node:fs";
-
-export type { PdfnPluginOptions };
 
 // Track if watcher is already running (prevent duplicates)
 let watcherStarted = false;
 
-// Virtual module ID used in imports (must not start with . to avoid relative resolution)
-const VIRTUAL_MODULE_ID = "__pdfn_tailwind_css__";
+// Virtual module IDs used in imports (must not start with . to avoid relative resolution)
+const TAILWIND_MODULE_ID = "__pdfn_tailwind_css__";
+const BUNDLES_MODULE_ID = "__pdfn_bundles__";
 
 // Get the loader path - resolve from the user's node_modules
 function getLoaderPath(cwd: string): string {
@@ -47,32 +50,30 @@ function getCssModuleAbsolutePath(cwd: string): string {
   return join(cwd, "node_modules", ".pdfn", "tailwind.js");
 }
 
+// Get the path to the generated bundles module (relative to project root for Turbopack)
+function getBundlesModuleRelativePath(): string {
+  return "./node_modules/.pdfn/bundles.js";
+}
+
+// Get the absolute path to the generated bundles module (for webpack)
+function getBundlesModuleAbsolutePath(cwd: string): string {
+  return join(cwd, "node_modules", ".pdfn", "bundles.js");
+}
+
 /**
- * Start watching template directories and CSS files for changes and recompile CSS/rebundle
+ * Start watching pdfn-templates/ directory for changes and recompile CSS/rebundle
  */
-function startTemplateWatcher(
-  templatePatterns: string[],
-  cssPath: string | undefined,
-  cwd: string,
-  debug = false
-): void {
+function startTemplateWatcher(cwd: string, debug = false): void {
   const log = (...args: unknown[]) => {
     if (debug) console.log("[pdfn:next]", ...args);
   };
 
-  // Extract directory paths from glob patterns
   const watchDirs = new Set<string>();
-  for (const pattern of templatePatterns) {
-    // Get the directory part before any glob wildcards
-    const parts = pattern.split("/");
-    const dirParts: string[] = [];
-    for (const part of parts) {
-      if (part.includes("*")) break;
-      dirParts.push(part);
-    }
-    if (dirParts.length > 0) {
-      watchDirs.add(join(cwd, dirParts.join("/")));
-    }
+
+  // Watch the main templates directory
+  const templatesDir = join(cwd, "pdfn-templates");
+  if (existsSync(templatesDir)) {
+    watchDirs.add(templatesDir);
   }
 
   // Also watch the pdfn-templates/styles directory for CSS changes
@@ -89,10 +90,10 @@ function startTemplateWatcher(
       log(`${reason}, recompiling...`);
       try {
         // Always recompile CSS
-        await compileTailwindCss(templatePatterns, cssPath, cwd, debug);
+        await compileTailwindCss(cwd, debug);
         // Rebundle client templates when template files change
         if (isTemplate) {
-          await bundleClientTemplates(templatePatterns, cwd, debug);
+          await bundleClientTemplates(cwd, debug);
         }
       } catch (error) {
         console.error("[pdfn:next] Recompilation failed:", error);
@@ -140,13 +141,19 @@ function startTemplateWatcher(
 /**
  * Options for the pdfn Next.js plugin
  */
-export interface PdfnNextOptions extends PdfnPluginOptions {
+export interface PdfnNextOptions {
   /**
    * Enable Tailwind CSS pre-compilation.
    * Set to false if you don't use @pdfn/tailwind.
    * @default true
    */
   tailwind?: boolean;
+
+  /**
+   * Enable debug logging.
+   * @default false
+   */
+  debug?: boolean;
 }
 
 /**
@@ -157,57 +164,49 @@ export interface PdfnNextOptions extends PdfnPluginOptions {
  * - Client component marking (for "use client" components like Recharts)
  * - Template marking (for client-side bundling)
  *
- * @example Basic usage
+ * Templates are read from `pdfn-templates/` directory by convention.
+ *
+ * @example
  * ```ts
  * // next.config.ts
  * import { withPdfn } from '@pdfn/next';
  *
- * export default withPdfn()({
- *   // your Next.js config
- * });
- * ```
+ * const nextConfig = {
+ *   // your config
+ * };
  *
- * @example With options
- * ```ts
- * import { withPdfn } from '@pdfn/next';
- *
- * export default withPdfn({
- *   templates: ['./src/templates/**\/*.tsx'],
- *   tailwind: false  // Disable if not using Tailwind
- * })({
- *   // your Next.js config
- * });
+ * export default withPdfn()(nextConfig);
  * ```
  */
 export function withPdfn(options: PdfnNextOptions = {}) {
   return async (nextConfig: NextConfig = {}): Promise<NextConfig> => {
     const cwd = process.cwd();
-    const templates = options.templates || ["./pdfn-templates/**/*.tsx"];
-    const templatePatterns = Array.isArray(templates) ? templates : [templates];
     const debug = options.debug ?? false;
     const enableTailwind = options.tailwind ?? true;
 
     // Pre-compile CSS before build starts (if Tailwind is enabled)
     // This runs when the config is loaded (before webpack or Turbopack)
     if (enableTailwind) {
-      await compileTailwindCss(templatePatterns, options.cssPath, cwd, debug);
+      await compileTailwindCss(cwd, debug);
     }
 
     // Pre-bundle client templates (those with "use client" directive)
     // This eliminates the need for runtime esbuild
-    await bundleClientTemplates(templatePatterns, cwd, debug);
+    await bundleClientTemplates(cwd, debug);
 
     // In dev mode, watch template files for changes and recompile CSS (if Tailwind is enabled)
     const isDev = process.env.NODE_ENV !== "production";
     if (enableTailwind && isDev && !watcherStarted) {
       watcherStarted = true;
-      startTemplateWatcher(templatePatterns, options.cssPath, cwd, debug);
+      startTemplateWatcher(cwd, debug);
     }
 
-    // Path to the loader and CSS module
+    // Path to the loader and modules
     const loaderPath = getLoaderPath(cwd);
     const cssModuleRelative = getCssModuleRelativePath();
     const cssModuleAbsolute = getCssModuleAbsolutePath(cwd);
+    const bundlesModuleRelative = getBundlesModuleRelativePath();
+    const bundlesModuleAbsolute = getBundlesModuleAbsolutePath(cwd);
 
     // Build turbopack config
     const existingTurbopack = (nextConfig as Record<string, unknown>).turbopack as Record<string, unknown> | undefined;
@@ -231,8 +230,9 @@ export function withPdfn(options: PdfnNextOptions = {}) {
         ...existingTurbopack,
         resolveAlias: {
           ...existingResolveAlias,
-          // Map virtual module ID to relative path (Turbopack needs relative)
-          [VIRTUAL_MODULE_ID]: cssModuleRelative,
+          // Map virtual module IDs to relative paths (Turbopack needs relative)
+          [TAILWIND_MODULE_ID]: cssModuleRelative,
+          [BUNDLES_MODULE_ID]: bundlesModuleRelative,
         },
         rules: {
           ...existingRules,
@@ -248,16 +248,17 @@ export function withPdfn(options: PdfnNextOptions = {}) {
 
       // Webpack configuration (for --webpack flag or older Next.js)
       webpack: (config, context) => {
-        // Add resolve alias for the virtual module
+        // Add resolve aliases for the virtual modules
         config.resolve = config.resolve || {};
         config.resolve.alias = config.resolve.alias || {};
         if (Array.isArray(config.resolve.alias)) {
-          config.resolve.alias.push({
-            name: VIRTUAL_MODULE_ID,
-            alias: cssModuleAbsolute,
-          });
+          config.resolve.alias.push(
+            { name: TAILWIND_MODULE_ID, alias: cssModuleAbsolute },
+            { name: BUNDLES_MODULE_ID, alias: bundlesModuleAbsolute }
+          );
         } else {
-          (config.resolve.alias as Record<string, string>)[VIRTUAL_MODULE_ID] = cssModuleAbsolute;
+          (config.resolve.alias as Record<string, string>)[TAILWIND_MODULE_ID] = cssModuleAbsolute;
+          (config.resolve.alias as Record<string, string>)[BUNDLES_MODULE_ID] = bundlesModuleAbsolute;
         }
 
         // Only add loader on server-side build

@@ -59,5 +59,13 @@ export {
   type ClientHtmlOptions,
 } from "./html/index.js";
 
+// Debug utilities
+export {
+  injectDebugSupport,
+  PDFN_DEBUG_CSS,
+  ALL_DEBUG_OPTIONS,
+  type DebugOptions,
+} from "./debug/index.js";
+
 // Note: compileTailwind is exported from @pdfn/core/tailwind (server-only)
 // to avoid bundling Node.js dependencies in browser builds

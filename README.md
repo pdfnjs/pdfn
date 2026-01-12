@@ -190,15 +190,17 @@ function Invoice({ data }: { data: { id: string; customer: string; total: number
 const pdf = await generate(<Invoice data={{ id: 'INV-001', customer: 'Acme Corp', total: 148 }} />);
 ```
 
-**Which Tailwind package do I need?**
+**Which packages do I need?**
 
-| Environment | Package |
-|-------------|---------|
-| Node.js (local, Vercel, any server) | `@pdfn/tailwind` |
-| Vercel Edge | `@pdfn/tailwind` + `@pdfn/next` |
-| Cloudflare Workers | `@pdfn/tailwind` + `@pdfn/vite` |
+| Use Case | Packages |
+|----------|----------|
+| Basic | `@pdfn/react` |
+| With Tailwind CSS | + `@pdfn/tailwind` |
+| Client components or Edge runtime | + `@pdfn/next` or `@pdfn/vite` |
 
-**Most users only need `@pdfn/tailwind`.** Build plugins are only for edge runtimes.
+**Most users need `@pdfn/react` + `@pdfn/tailwind` + `pdfn`.** Build plugins (`@pdfn/next`/`@pdfn/vite`) are needed for client components (charts) or edge runtimes.
+
+> **Note:** `pdfn dev` includes everything automatically — charts and Tailwind work out of the box.
 
 ### Next.js API Route
 
@@ -304,14 +306,14 @@ Run with `npx tsx generate-invoice.ts` (requires `npx pdfn serve` running).
 | Package | Description | When to use |
 |---------|-------------|-------------|
 | [@pdfn/react](./packages/react) | React components, `render()`, `generate()` | Always |
-| [@pdfn/tailwind](./packages/tailwind) | Tailwind CSS support | Want Tailwind styling |
-| [@pdfn/next](./packages/next) | Next.js build plugin | Vercel Edge or client components |
-| [@pdfn/vite](./packages/vite) | Vite build plugin | Edge runtimes (Cloudflare, Deno) |
-| [@pdfn/client](./packages/client) | Client-side rendering for hooks | Templates with Recharts, etc. |
-| [@pdfn/core](./packages/core) | Shared utilities (internal) | Used by other packages |
 | [pdfn](./packages/cli) | CLI dev server and production server | Dev preview + `generate()` |
+| [@pdfn/tailwind](./packages/tailwind) | Tailwind CSS support | Want Tailwind styling |
+| [@pdfn/next](./packages/next) | Next.js build plugin | Client components or Edge runtime |
+| [@pdfn/vite](./packages/vite) | Vite build plugin | Client components or Edge runtime |
+| [@pdfn/client](./packages/client) | `"use client"` component bundling (internal) | Used by build plugins |
+| [@pdfn/core](./packages/core) | Shared utilities (internal) | Used by other packages |
 
-**Progressive install:** Start with `@pdfn/react` + `pdfn`. Add `@pdfn/tailwind` for styling. Add build plugins only for edge runtimes or client components.
+**Progressive install:** Start with `@pdfn/react` + `pdfn`. Add `@pdfn/tailwind` for styling. Add build plugins for client components or edge runtimes.
 
 ## CLI
 

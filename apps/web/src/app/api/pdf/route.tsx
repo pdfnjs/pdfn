@@ -110,31 +110,71 @@ export async function GET(request: NextRequest) {
   // Check if template requires client-side rendering
   if (config.requiresClient) {
     const { name, pageSize, orientation } = config;
-    console.log(`[pdf] render "${name}" (${pageSize} ${orientation}) [client]`);
 
-    try {
-      // Use @pdfn/next's renderTemplate() for client component templates
-      // This handles bundling, Tailwind CSS, and page config automatically
-      const { html } = await renderTemplate(templateId, {
-        props: {},
-        title: name,
-        pageSize,
-        orientation,
-      });
+    // For HTML requests, render the template
+    if (wantHtml) {
+      console.log(`[pdf] render "${name}" (${pageSize} ${orientation}) [client]`);
 
-      const duration = Math.round(performance.now() - start);
-      console.log(`[pdf] ✓ client bundle generated in ${duration}ms`);
+      try {
+        const { html } = await renderTemplate(templateId, {
+          props: {},
+          title: name,
+          pageSize,
+          orientation,
+          debug: debug || undefined,
+        });
 
-      if (wantHtml) {
+        const duration = Math.round(performance.now() - start);
+        console.log(`[pdf] ✓ client bundle generated in ${duration}ms`);
+
         return new Response(html, {
           headers: {
             "Content-Type": "text/html; charset=utf-8",
             "X-Render-Time": duration.toString(),
           },
         });
-      }
+      } catch (error) {
+        const message = error instanceof Error ? error.message : "Unknown error";
+        console.error(`[pdf] ✗ client render failed: ${message}`);
 
-      // For PDF generation, send to pdfn server
+        return new Response(
+          `<!DOCTYPE html><html><body><h1>Error</h1><pre>${message}</pre></body></html>`,
+          { status: 500, headers: { "Content-Type": "text/html" } }
+        );
+      }
+    }
+
+    // For PDF requests, check cache first
+    const hasDebug = debug !== false && Object.values(debug).some(Boolean);
+    const cachedPdf = getCachedPdf(templateId, hasDebug);
+
+    if (cachedPdf) {
+      const duration = Math.round(performance.now() - start);
+      console.log(`[pdf] ✓ served from cache in ${duration}ms (${(cachedPdf.length / 1024).toFixed(1)}KB) [client]`);
+
+      const filename = `${name}-${templateId}.pdf`.replace(/\s+/g, "-");
+      return new Response(new Uint8Array(cachedPdf), {
+        headers: {
+          "Content-Type": "application/pdf",
+          "Content-Disposition": `inline; filename="${filename}"`,
+          "X-PDF-Title": name,
+          "X-PDF-Cache": "hit",
+        },
+      });
+    }
+
+    // No cache - need to generate via pdfn server
+    console.log(`[pdf] generate "${name}" (${pageSize} ${orientation}) [client]`);
+
+    try {
+      const { html } = await renderTemplate(templateId, {
+        props: {},
+        title: name,
+        pageSize,
+        orientation,
+        debug: debug || undefined,
+      });
+
       const pdfnHost = process.env.PDFN_HOST ?? "http://localhost:3456";
       const response = await fetch(`${pdfnHost}/generate`, {
         method: "POST",

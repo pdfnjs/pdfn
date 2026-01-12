@@ -186,19 +186,9 @@ export interface WatermarkConfig {
   rotation?: number;
 }
 
-/**
- * Debug overlay options for PDF preview
- */
-export interface DebugOptions {
-  /** Show 1cm grid overlay */
-  grid?: boolean;
-  /** Show page and margin boundaries */
-  margins?: boolean;
-  /** Highlight header/footer regions */
-  headers?: boolean;
-  /** Show page number badges */
-  breaks?: boolean;
-}
+// Import and re-export DebugOptions from @pdfn/core for public API
+import type { DebugOptions } from "@pdfn/core";
+export type { DebugOptions };
 
 /**
  * Options for the render() function
