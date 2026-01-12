@@ -1,5 +1,11 @@
 # @pdfn/react
 
+## 0.3.2
+
+### Patch Changes
+
+- Make @pdfn/client a direct dependency so client components work with npx pdfn dev
+
 ## 0.3.1
 
 ### Patch Changes
