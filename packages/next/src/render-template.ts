@@ -19,7 +19,9 @@ import { join, resolve, isAbsolute } from "node:path";
 import {
   getPageDimensions,
   generateClientHtml,
+  injectDebugSupport,
   type PageOrientation,
+  type DebugOptions,
 } from "@pdfn/core";
 import { getPrecompiledBundleAsync } from "./bundle-loader.js";
 
@@ -65,6 +67,11 @@ export interface RenderTemplateOptions {
    * @default '0.75in'
    */
   margin?: string;
+
+  /**
+   * Enable debug overlays
+   */
+  debug?: DebugOptions | boolean;
 }
 
 /**
@@ -206,6 +213,7 @@ export async function renderTemplate(
     pageSize = "A4",
     orientation = "portrait",
     margin = "0.75in",
+    debug,
   } = options;
 
   // Normalize template ID (remove path components and extension)
@@ -255,7 +263,7 @@ export async function renderTemplate(
   const { width, height } = getPageDimensions(pageSize, orientation);
 
   // Generate HTML with the pre-compiled bundle, props, CSS, and page config
-  const html = generateClientHtml({
+  let html = generateClientHtml({
     bundleCode,
     props,
     title: resolvedTitle,
@@ -266,6 +274,11 @@ export async function renderTemplate(
       margin,
     },
   });
+
+  // Apply debug overlays if requested
+  if (debug) {
+    html = injectDebugSupport(html, debug);
+  }
 
   console.log(`[pdfn/next] Template rendered: ${resolvedTitle}`);
 
