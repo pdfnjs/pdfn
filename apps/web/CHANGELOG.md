@@ -1,5 +1,13 @@
 # web
 
+## 0.1.7
+
+### Patch Changes
+
+- Updated dependencies [ac4fe30]
+  - @pdfn/next@0.5.0
+  - @pdfn/react@0.3.1
+
 ## 0.1.6
 
 ### Patch Changes
