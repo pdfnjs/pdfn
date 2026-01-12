@@ -15,7 +15,6 @@ import {
   CartesianGrid,
   Tooltip,
   Legend,
-  ResponsiveContainer,
 } from "recharts";
 
 /**
@@ -176,19 +175,15 @@ export default function Report({
             <h2 className="text-lg font-semibold text-gray-800 mb-3 border-b border-gray-200 pb-1">
               Monthly Revenue vs Expenses
             </h2>
-            <div className="h-56">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={monthlySales} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-                  <XAxis dataKey="month" tick={{ fontSize: 10 }} />
-                  <YAxis tick={{ fontSize: 10 }} tickFormatter={(v) => `$${v / 1000}k`} />
-                  <Tooltip formatter={(value: number) => formatCurrency(value)} />
-                  <Legend wrapperStyle={{ fontSize: 10 }} />
-                  <Bar dataKey="revenue" name="Revenue" fill="#3b82f6" radius={[2, 2, 0, 0]} />
-                  <Bar dataKey="expenses" name="Expenses" fill="#ef4444" radius={[2, 2, 0, 0]} />
-                </BarChart>
-              </ResponsiveContainer>
-            </div>
+            <BarChart width={580} height={200} data={monthlySales} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+              <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+              <XAxis dataKey="month" tick={{ fontSize: 10 }} />
+              <YAxis tick={{ fontSize: 10 }} tickFormatter={(v) => `$${v / 1000}k`} />
+              <Tooltip formatter={(value) => formatCurrency(value as number)} />
+              <Legend wrapperStyle={{ fontSize: 10 }} />
+              <Bar dataKey="revenue" name="Revenue" fill="#3b82f6" radius={[2, 2, 0, 0]} isAnimationActive={false} />
+              <Bar dataKey="expenses" name="Expenses" fill="#ef4444" radius={[2, 2, 0, 0]} isAnimationActive={false} />
+            </BarChart>
           </div>
 
           {/* Two Column Layout: Pie Chart and Growth Chart */}
@@ -198,28 +193,29 @@ export default function Report({
               <h2 className="text-lg font-semibold text-gray-800 mb-3 border-b border-gray-200 pb-1">
                 Revenue by Category
               </h2>
-              <div className="h-44">
-                <ResponsiveContainer width="100%" height="100%">
-                  <PieChart>
-                    <Pie
-                      data={categoryBreakdown}
-                      cx="50%"
-                      cy="50%"
-                      innerRadius={35}
-                      outerRadius={60}
-                      paddingAngle={2}
-                      dataKey="value"
-                      label={({ name, value }) => `${name}: ${value}%`}
-                      labelLine={{ stroke: "#9ca3af", strokeWidth: 1 }}
-                    >
-                      {categoryBreakdown.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={entry.color || COLORS[index % COLORS.length]} />
-                      ))}
-                    </Pie>
-                    <Tooltip formatter={(value: number) => `${value}%`} />
-                  </PieChart>
-                </ResponsiveContainer>
-              </div>
+              <PieChart width={280} height={160}>
+                <Pie
+                  data={categoryBreakdown}
+                  cx={70}
+                  cy={80}
+                  innerRadius={25}
+                  outerRadius={55}
+                  paddingAngle={2}
+                  dataKey="value"
+                  isAnimationActive={false}
+                >
+                  {categoryBreakdown.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={entry.color || COLORS[index % COLORS.length]} />
+                  ))}
+                </Pie>
+                <Tooltip formatter={(value) => `${value}%`} />
+                <Legend
+                  layout="vertical"
+                  align="right"
+                  verticalAlign="middle"
+                  wrapperStyle={{ paddingLeft: 20, fontSize: 10 }}
+                />
+              </PieChart>
             </div>
 
             {/* Quarterly Growth */}
@@ -227,23 +223,20 @@ export default function Report({
               <h2 className="text-lg font-semibold text-gray-800 mb-3 border-b border-gray-200 pb-1">
                 Quarterly Growth Rate
               </h2>
-              <div className="h-44">
-                <ResponsiveContainer width="100%" height="100%">
-                  <LineChart data={quarterlyGrowth} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-                    <XAxis dataKey="quarter" tick={{ fontSize: 10 }} />
-                    <YAxis tick={{ fontSize: 10 }} tickFormatter={(v) => `${v}%`} />
-                    <Tooltip formatter={(value: number) => `${value}%`} />
-                    <Line
-                      type="monotone"
-                      dataKey="growth"
-                      stroke="#10b981"
-                      strokeWidth={2}
-                      dot={{ fill: "#10b981", strokeWidth: 2 }}
-                    />
-                  </LineChart>
-                </ResponsiveContainer>
-              </div>
+              <LineChart width={280} height={160} data={quarterlyGrowth} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+                <XAxis dataKey="quarter" tick={{ fontSize: 10 }} />
+                <YAxis tick={{ fontSize: 10 }} tickFormatter={(v) => `${v}%`} />
+                <Tooltip formatter={(value) => `${value}%`} />
+                <Line
+                  type="monotone"
+                  dataKey="growth"
+                  stroke="#10b981"
+                  strokeWidth={2}
+                  dot={{ fill: "#10b981", strokeWidth: 2 }}
+                  isAnimationActive={false}
+                />
+              </LineChart>
             </div>
           </div>
 
@@ -252,25 +245,21 @@ export default function Report({
             <h2 className="text-lg font-semibold text-gray-800 mb-3 border-b border-gray-200 pb-1">
               Monthly Profit Trend
             </h2>
-            <div className="h-44">
-              <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={monthlySales} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-                  <XAxis dataKey="month" tick={{ fontSize: 10 }} />
-                  <YAxis tick={{ fontSize: 10 }} tickFormatter={(v) => `$${v / 1000}k`} />
-                  <Tooltip formatter={(value: number) => formatCurrency(value)} />
-                  <Line
-                    type="monotone"
-                    dataKey="profit"
-                    name="Profit"
-                    stroke="#10b981"
-                    strokeWidth={2}
-                    dot={{ fill: "#10b981", strokeWidth: 2 }}
-                    activeDot={{ r: 6 }}
-                  />
-                </LineChart>
-              </ResponsiveContainer>
-            </div>
+            <LineChart width={580} height={160} data={monthlySales} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+              <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+              <XAxis dataKey="month" tick={{ fontSize: 10 }} />
+              <YAxis tick={{ fontSize: 10 }} tickFormatter={(v) => `$${v / 1000}k`} />
+              <Tooltip formatter={(value) => formatCurrency(value as number)} />
+              <Line
+                type="monotone"
+                dataKey="profit"
+                name="Profit"
+                stroke="#10b981"
+                strokeWidth={2}
+                dot={{ fill: "#10b981", strokeWidth: 2 }}
+                isAnimationActive={false}
+              />
+            </LineChart>
           </div>
         </Page>
       </Tailwind>
