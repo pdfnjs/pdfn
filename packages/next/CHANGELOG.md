@@ -1,5 +1,11 @@
 # @pdfn/next
 
+## 0.5.2
+
+### Patch Changes
+
+- Make @pdfn/client a direct dependency so users don't need to install it separately
+
 ## 0.5.1
 
 ### Patch Changes
