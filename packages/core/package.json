@@ -62,7 +62,7 @@
   "devDependencies": {
     "@pdfn/eslint-config": "workspace:*",
     "@pdfn/typescript-config": "workspace:*",
-    "@types/node": "^22.0.0",
+    "@types/node": "^25.0.6",
     "tsup": "^8.5.1",
     "typescript": "^5.9.3"
   }

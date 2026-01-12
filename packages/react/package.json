@@ -76,9 +76,9 @@
     "@pdfn/eslint-config": "workspace:*",
     "@pdfn/tailwind": "workspace:*",
     "@pdfn/typescript-config": "workspace:*",
-    "@types/node": "^22.0.0",
-    "@types/react": "19.2.2",
-    "@types/react-dom": "19.2.2",
+    "@types/node": "^25.0.6",
+    "@types/react": "19.2.8",
+    "@types/react-dom": "19.2.3",
     "@vitejs/plugin-react": "^5.1.2",
     "jsdom": "^27.3.0",
     "pdf-lib": "^1.17.1",
@@ -87,7 +87,7 @@
     "react-dom": "^19.2.0",
     "tsup": "^8.5.1",
     "typescript": "^5.9.3",
-    "vitest": "^4.0.16"
+    "vitest": "^4.0.17"
   },
   "dependencies": {
     "@pdfn/core": "workspace:*"

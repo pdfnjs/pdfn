@@ -71,11 +71,11 @@
     "@pdfn/eslint-config": "workspace:*",
     "@pdfn/typescript-config": "workspace:*",
     "@types/express": "^5.0.6",
-    "@types/react": "^19.2.7",
+    "@types/react": "^19.2.8",
     "@types/ws": "^8.18.1",
     "pdf-lib": "^1.17.1",
     "tsup": "^8.5.1",
     "typescript": "^5.9.3",
-    "vitest": "^4.0.16"
+    "vitest": "^4.0.17"
   }
 }
