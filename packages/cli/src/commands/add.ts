@@ -33,6 +33,11 @@ const TEMPLATES: Record<string, { name: string; description: string; pageSize: s
     description: "Event poster (landscape)",
     pageSize: "Tabloid",
   },
+  report: {
+    name: "Sales Report",
+    description: "Report with Recharts (npm install recharts)",
+    pageSize: "A4",
+  },
 };
 
 type TemplateStyle = "inline" | "tailwind";

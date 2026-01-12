@@ -1,0 +1,69 @@
+{
+  "name": "@pdfn/core",
+  "version": "0.1.0",
+  "description": "Core utilities and constants for pdfn packages",
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    },
+    "./tailwind": {
+      "types": "./dist/tailwind.d.ts",
+      "import": "./dist/tailwind.js",
+      "require": "./dist/tailwind.cjs"
+    }
+  },
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "lint": "eslint src/",
+    "check-types": "tsc --noEmit",
+    "clean": "rm -rf dist"
+  },
+  "files": [
+    "dist",
+    "LICENSE",
+    "README.md"
+  ],
+  "license": "MIT",
+  "keywords": [
+    "pdf",
+    "pdfn",
+    "core",
+    "utilities"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/pdfnjs/pdfn.git",
+    "directory": "packages/core"
+  },
+  "homepage": "https://pdfn.dev",
+  "author": "gokulsiva (https://github.com/gokulsiva)",
+  "bugs": {
+    "url": "https://github.com/pdfnjs/pdfn/issues"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "sideEffects": false,
+  "dependencies": {
+    "fast-glob": "^3.3.3"
+  },
+  "peerDependencies": {
+    "tailwindcss": "^4.0.0"
+  },
+  "peerDependenciesMeta": {
+    "tailwindcss": {
+      "optional": true
+    }
+  },
+  "devDependencies": {
+    "@pdfn/eslint-config": "workspace:*",
+    "@pdfn/typescript-config": "workspace:*",
+    "@types/node": "^22.0.0",
+    "tsup": "^8.5.1",
+    "typescript": "^5.9.3"
+  }
+}

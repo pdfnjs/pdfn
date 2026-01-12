@@ -1,21 +1,35 @@
 /**
- * @pdfn/vite - Vite plugin for pre-compiling Tailwind CSS
+ * @pdfn/vite - Vite plugin for pdfn
  *
- * Enables edge runtime support by compiling Tailwind at build time
- * instead of runtime. Works seamlessly with `<Tailwind>` component.
+ * Provides build-time support for pdfn features:
+ * - Tailwind CSS pre-compilation (for edge deployment)
+ * - Client component marking (for "use client" components like Recharts)
+ * - Template marking (for client-side bundling)
  *
- * CSS is loaded from `pdfn-templates/styles.css` by convention.
+ * @example
+ * ```ts
+ * // vite.config.ts
+ * import { pdfn } from '@pdfn/vite';
+ *
+ * export default {
+ *   plugins: [pdfn()]
+ * };
+ * ```
  */
 
 import type { Plugin, ViteDevServer } from "vite";
-import fg from "fast-glob";
+import {
+  parseExportsFromCode,
+  hasDefaultExport,
+  getDefaultExportName,
+  hasUseClientDirective,
+} from "@pdfn/core";
+import { compileTailwind } from "@pdfn/core/tailwind";
 
 /**
- * Standardized path for PDF template styles
+ * Options for the Tailwind pre-compilation plugin
  */
-const PDF_STYLES_PATH = "./pdfn-templates/styles.css";
-
-export interface PdfnTailwindOptions {
+interface PdfnTailwindOptions {
   /**
    * Glob patterns for template files to scan for Tailwind classes.
    * @default ['./pdfn-templates/**\/*.tsx']
@@ -44,69 +58,12 @@ const RESOLVED_VIRTUAL_MODULE_ID = "\0" + VIRTUAL_MODULE_ID;
 /**
  * Marker to identify pre-compiled CSS in the bundle
  */
-export const PRECOMPILED_CSS_MARKER = "__PDFN_PRECOMPILED_CSS__";
+const PRECOMPILED_CSS_MARKER = "__PDFN_PRECOMPILED_CSS__";
 
 /**
- * Extract class names from file content
+ * Create the pdfn Tailwind Vite plugin (internal)
  */
-function extractClassesFromContent(content: string): string[] {
-  const classes = new Set<string>();
-
-  // Match className="..." and class="..."
-  const classRegex = /(?:className|class)=["']([^"']+)["']/g;
-  let match;
-  while ((match = classRegex.exec(content)) !== null) {
-    const classValue = match[1];
-    if (classValue) {
-      // Handle template literals and conditional classes
-      // Extract static class names, skip dynamic expressions
-      classValue.split(/\s+/).forEach((cls) => {
-        // Skip template literal expressions ${...}
-        if (cls && !cls.includes("${") && !cls.startsWith("{")) {
-          classes.add(cls);
-        }
-      });
-    }
-  }
-
-  // Also match template literal className={`...`}
-  const templateRegex = /className=\{`([^`]+)`\}/g;
-  while ((match = templateRegex.exec(content)) !== null) {
-    const classValue = match[1];
-    if (classValue) {
-      // Extract static parts, skip ${...} expressions
-      const staticParts = classValue.replace(/\$\{[^}]+\}/g, " ");
-      staticParts.split(/\s+/).forEach((cls) => {
-        if (cls) classes.add(cls);
-      });
-    }
-  }
-
-  // Match clsx/cn function calls: cn("class1", "class2", condition && "class3")
-  const clsxRegex = /(?:cn|clsx|cx)\s*\(\s*([^)]+)\)/g;
-  while ((match = clsxRegex.exec(content)) !== null) {
-    const args = match[1];
-    if (!args) continue;
-    // Extract string literals from arguments
-    const stringRegex = /["']([^"']+)["']/g;
-    let stringMatch;
-    while ((stringMatch = stringRegex.exec(args)) !== null) {
-      const classValue = stringMatch[1];
-      if (!classValue) continue;
-      classValue.split(/\s+/).forEach((cls) => {
-        if (cls) classes.add(cls);
-      });
-    }
-  }
-
-  return Array.from(classes);
-}
-
-
-/**
- * Create the pdfn Tailwind Vite plugin
- */
-export function pdfnTailwind(options: PdfnTailwindOptions = {}): Plugin {
+function pdfnTailwind(options: PdfnTailwindOptions = {}): Plugin {
   const {
     templates = ["./pdfn-templates/**/*.tsx"],
     cssPath,
@@ -125,141 +82,17 @@ export function pdfnTailwind(options: PdfnTailwindOptions = {}): Plugin {
   const templatePatterns = Array.isArray(templates) ? templates : [templates];
 
   /**
-   * Scan templates and compile Tailwind CSS
+   * Compile Tailwind CSS using the shared core function
    */
   async function compileTailwindCss(): Promise<string> {
-    // Dynamically import Node.js modules
-    const [fs, path, { createRequire }, { compile }] = await Promise.all([
-      import("node:fs"),
-      import("node:path"),
-      import("node:module"),
-      import("tailwindcss"),
-    ]);
-
-    const cwd = process.cwd();
-
-    // Find all template files
-    const files = await fg(templatePatterns, {
-      cwd,
-      absolute: true,
-      ignore: ["**/node_modules/**"],
+    const { css } = await compileTailwind({
+      templatePatterns,
+      cssPath,
+      cwd: process.cwd(),
+      debug,
+      logPrefix: "[pdfn:vite]",
     });
-
-    if (files.length === 0) {
-      console.warn("[pdfn:vite] No template files found matching patterns:", templatePatterns);
-      return "";
-    }
-
-    // Extract classes from all files
-    const allClasses = new Set<string>();
-    for (const file of files) {
-      const content = fs.readFileSync(file, "utf8");
-      const classes = extractClassesFromContent(content);
-      classes.forEach((cls) => allClasses.add(cls));
-    }
-
-    if (allClasses.size === 0) {
-      return "";
-    }
-
-    // Get base CSS
-    const baseCss = await getBaseCss(fs, path, cssPath);
-
-    // Find tailwindcss package
-    const req = createRequire(cwd + "/package.json");
-    let tailwindRoot: string;
-    try {
-      const tailwindPkgPath = req.resolve("tailwindcss/package.json");
-      tailwindRoot = path.dirname(tailwindPkgPath);
-    } catch {
-      throw new Error("Could not find tailwindcss package");
-    }
-
-    // The base directory for the initial CSS (pdfn-templates/)
-    const stylesBaseDir = path.resolve(cwd, "pdfn-templates");
-
-    // Compile CSS
-    const compiler = await compile(baseCss, {
-      loadStylesheet: async (id: string, base: string) => {
-        if (id === "tailwindcss") {
-          const twCssPath = path.join(tailwindRoot, "index.css");
-          if (fs.existsSync(twCssPath)) {
-            const content = fs.readFileSync(twCssPath, "utf8");
-            return { path: twCssPath, content, base: tailwindRoot };
-          }
-          throw new Error(`Tailwind CSS index.css not found at: ${twCssPath}`);
-        }
-
-        // Handle URL imports - skip
-        if (id.startsWith("http://") || id.startsWith("https://")) {
-          return { path: id, content: "", base };
-        }
-
-        // Handle relative imports
-        // Default to pdfn-templates/ for imports from the initial CSS (styles.css)
-        const resolveFrom = base || stylesBaseDir;
-        const fullPath = path.resolve(resolveFrom, id);
-
-        if (fs.existsSync(fullPath)) {
-          const content = fs.readFileSync(fullPath, "utf8");
-          return { path: fullPath, content, base: path.dirname(fullPath) };
-        }
-
-        const cssPathWithExt = fullPath + ".css";
-        if (fs.existsSync(cssPathWithExt)) {
-          const content = fs.readFileSync(cssPathWithExt, "utf8");
-          return { path: cssPathWithExt, content, base: path.dirname(cssPathWithExt) };
-        }
-
-        const twPath = path.resolve(tailwindRoot, id);
-        if (fs.existsSync(twPath)) {
-          const content = fs.readFileSync(twPath, "utf8");
-          return { path: twPath, content, base: path.dirname(twPath) };
-        }
-
-        throw new Error(`Could not load stylesheet: ${id}`);
-      },
-      loadModule: async () => {
-        throw new Error("Module loading not supported in build-time compilation");
-      },
-    });
-
-    const css = compiler.build(Array.from(allClasses));
-
-    log(`Compiled ${css.length} bytes of CSS from ${allClasses.size} classes in ${files.length} files`);
-
     return css;
-  }
-
-  /**
-   * Get base CSS content - from pdfn-templates/styles.css or vanilla Tailwind
-   */
-  async function getBaseCss(
-    fs: typeof import("node:fs"),
-    path: typeof import("node:path"),
-    explicitPath?: string
-  ): Promise<string> {
-    const cwd = process.cwd();
-
-    // Explicit path provided
-    if (explicitPath) {
-      const fullPath = path.resolve(cwd, explicitPath);
-      if (!fs.existsSync(fullPath)) {
-        throw new Error(`CSS file not found: ${explicitPath}`);
-      }
-      return fs.readFileSync(fullPath, "utf8");
-    }
-
-    // Check for pdfn-templates/styles.css (convention over configuration)
-    const stylesPath = path.resolve(cwd, PDF_STYLES_PATH);
-    if (fs.existsSync(stylesPath)) {
-      log(`Using CSS file: ${PDF_STYLES_PATH}`);
-      return fs.readFileSync(stylesPath, "utf8");
-    }
-
-    // Fall back to vanilla Tailwind
-    log("No pdfn-templates/styles.css found, using vanilla Tailwind");
-    return '@import "tailwindcss";';
   }
 
   return {
@@ -289,7 +122,7 @@ export function pdfnTailwind(options: PdfnTailwindOptions = {}): Plugin {
         }
         // Export as a module with the CSS string
         return `export const css = ${JSON.stringify(generatedCss)};
-export const marker = "${PRECOMPILED_CSS_MARKER}";
+const marker = "${PRECOMPILED_CSS_MARKER}";
 export default css;`;
       }
     },
@@ -413,4 +246,255 @@ export default css;`;
   };
 }
 
-export default pdfnTailwind;
+/**
+ * Vite plugin that marks "use client" components (internal).
+ *
+ * Adds runtime markers that @pdfn/client can detect:
+ * - `__pdfn_client = true` - marks the component as a client component
+ * - `__pdfn_source = "/path/to/file.tsx"` - stores the source path for bundling
+ */
+function pdfnClientMarker(): Plugin {
+  const debug = process.env.DEBUG?.includes("pdfn");
+
+  return {
+    name: "pdfn-client-marker",
+
+    transform(code, id) {
+      // Skip node_modules
+      if (id.includes("node_modules")) {
+        return null;
+      }
+
+      // Only process .tsx, .ts, .jsx, .js files
+      if (!/\.(tsx?|jsx?)$/.test(id)) {
+        return null;
+      }
+
+      // Check for "use client" directive at the start of the file
+      if (!hasUseClientDirective(code)) {
+        return null;
+      }
+
+      if (debug) {
+        console.log(`[pdfn:vite] client-marker: found "use client" in ${id}`);
+      }
+
+      // Parse exports from the code
+      const exports = parseExportsFromCode(code);
+
+      if (exports.length === 0) {
+        if (debug) {
+          console.log(`[pdfn:vite] client-marker: no exports found in ${id}`);
+        }
+        return null;
+      }
+
+      if (debug) {
+        console.log(`[pdfn:vite] client-marker: marking exports [${exports.join(", ")}] in ${id}`);
+      }
+
+      // Generate marker code
+      const markerCode = exports
+        .map(
+          (name) =>
+            `\ntry { ${name}.__pdfn_client = true; ${name}.__pdfn_source = ${JSON.stringify(id)}; } catch(e) {}`
+        )
+        .join("");
+
+      return {
+        code: code + markerCode,
+        map: null,
+      };
+    },
+  };
+}
+
+interface PdfnTemplateMarkerOptions {
+  /**
+   * Glob patterns for template files.
+   * @default ['./pdfn-templates/*.tsx']
+   */
+  templates?: string | string[];
+}
+
+/**
+ * Vite plugin that marks template files with their source path (internal).
+ *
+ * Adds `__pdfn_template_source` to the default export of template files,
+ * enabling @pdfn/client to bundle the entire template.
+ */
+function pdfnTemplateMarker(options: PdfnTemplateMarkerOptions = {}): Plugin {
+  const { templates = ["./pdfn-templates/*.tsx"] } = options;
+  const debug = process.env.DEBUG?.includes("pdfn");
+
+  // Normalize to array
+  const templatePatterns = Array.isArray(templates) ? templates : [templates];
+
+  if (debug) {
+    console.log(`[pdfn:vite] template-marker: patterns = ${JSON.stringify(templatePatterns)}`);
+  }
+
+  // Extract the significant part of patterns for matching (after ./ or just the path)
+  // This allows matching against absolute file paths
+  const patternRegexes = templatePatterns.map((pattern) => {
+    // Remove leading ./ if present
+    const normalizedPattern = pattern.replace(/^\.\//, "");
+    const regexPattern = normalizedPattern
+      .replace(/\./g, "\\.")
+      .replace(/\*\*/g, ".*")
+      .replace(/\*/g, "[^/]*");
+    // Match anywhere in the path (for absolute paths)
+    return new RegExp(regexPattern + "$");
+  });
+
+  return {
+    name: "pdfn-template-marker",
+
+    transform(code, id) {
+      // Skip node_modules
+      if (id.includes("node_modules")) {
+        return null;
+      }
+
+      // Only process .tsx files
+      if (!id.endsWith(".tsx")) {
+        return null;
+      }
+
+      // Check if file matches template patterns
+      const isTemplate = patternRegexes.some((regex) => regex.test(id));
+      if (!isTemplate) {
+        if (debug) {
+          console.log(`[pdfn:vite] template-marker: ${id} does not match template patterns`);
+        }
+        return null;
+      }
+
+      if (debug) {
+        console.log(`[pdfn:vite] template-marker: processing template ${id}`);
+      }
+
+      // Check if file has a default export
+      if (!hasDefaultExport(code)) {
+        if (debug) {
+          console.log(`[pdfn:vite] template-marker: ${id} has no default export`);
+        }
+        return null;
+      }
+
+      // Get the default export name if available
+      const defaultName = getDefaultExportName(code);
+
+      let markerCode: string;
+      if (defaultName) {
+        // Named default export: export default function Report() {}
+        markerCode = `\ntry { ${defaultName}.__pdfn_template_source = ${JSON.stringify(id)}; } catch(e) {}`;
+        if (debug) {
+          console.log(`[pdfn:vite] template-marker: marking ${defaultName} in ${id}`);
+        }
+      } else {
+        // Anonymous default export: export default () => {}
+        // We need to wrap it - but this is rare for templates
+        // For now, warn and skip
+        console.warn(`[pdfn:vite] Template ${id} has anonymous default export. Use named exports for best compatibility.`);
+        return null;
+      }
+
+      return {
+        code: code + markerCode,
+        map: null,
+      };
+    },
+  };
+}
+
+/**
+ * Options for the unified pdfn() plugin
+ */
+export interface PdfnOptions {
+  /**
+   * Glob patterns for template files.
+   * Used for both Tailwind CSS compilation and template marking.
+   * @default ['./pdfn-templates/**\/*.tsx']
+   */
+  templates?: string | string[];
+
+  /**
+   * Path to CSS file containing Tailwind imports and theme.
+   * @default './pdfn-templates/styles.css'
+   */
+  cssPath?: string;
+
+  /**
+   * Enable debug logging.
+   * @default false
+   */
+  debug?: boolean;
+
+  /**
+   * Enable Tailwind CSS pre-compilation.
+   * Set to false if you don't use @pdfn/tailwind.
+   * @default true
+   */
+  tailwind?: boolean;
+}
+
+/**
+ * Unified pdfn plugin for Vite.
+ *
+ * Combines all pdfn functionality into a single plugin:
+ * - Tailwind CSS pre-compilation (for edge deployment)
+ * - Client component marking (for "use client" components like Recharts)
+ * - Template marking (for client-side bundling)
+ *
+ * @example Basic usage
+ * ```ts
+ * // vite.config.ts
+ * import { pdfn } from '@pdfn/vite';
+ *
+ * export default {
+ *   plugins: [pdfn()]
+ * };
+ * ```
+ *
+ * @example With options
+ * ```ts
+ * import { pdfn } from '@pdfn/vite';
+ *
+ * export default {
+ *   plugins: [pdfn({
+ *     templates: ['./src/templates/**\/*.tsx'],
+ *     tailwind: false  // Disable if not using Tailwind
+ *   })]
+ * };
+ * ```
+ */
+export function pdfn(options: PdfnOptions = {}): Plugin[] {
+  const {
+    templates = ["./pdfn-templates/**/*.tsx"],
+    cssPath,
+    debug = false,
+    tailwind = true,
+  } = options;
+
+  const plugins: Plugin[] = [];
+
+  // Add Tailwind pre-compilation plugin (optional, enabled by default)
+  if (tailwind) {
+    plugins.push(pdfnTailwind({ templates, cssPath, debug }));
+  }
+
+  // Add client component marker plugin (for "use client" components)
+  plugins.push(pdfnClientMarker());
+
+  // Add template marker plugin (for client-side bundling)
+  // Extract root template patterns (files directly in templates dir)
+  const templatePatterns = Array.isArray(templates) ? templates : [templates];
+  const rootTemplatePatterns = templatePatterns.map((pattern) => {
+    // Convert **/*.tsx to *.tsx for root-level only
+    return pattern.replace(/\*\*\/\*\.tsx$/, "*.tsx");
+  });
+  plugins.push(pdfnTemplateMarker({ templates: rootTemplatePatterns }));
+
+  return plugins;
+}

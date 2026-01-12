@@ -1,4 +1,4 @@
-import { type ReactElement } from "react";
+import React, { Children, isValidElement, type ReactElement } from "react";
 import { assembleHtml, type HtmlOptions } from "./html";
 import { processImages } from "./images";
 import { processCssFontFaces } from "./fonts";
@@ -6,6 +6,116 @@ import { injectDebugSupport } from "../debug";
 import type { RenderOptions, FontConfig } from "../types";
 import { debug } from "../utils/debug";
 import { isBrowser, EdgeErrors } from "../utils/runtime";
+import {
+  hasTailwindMarker,
+  extractTailwindCssPath,
+  extractPrecompiledCss,
+  removeTailwindMarker,
+} from "@pdfn/core";
+
+/**
+ * Interface for components marked by the pdfn client marker plugin
+ */
+interface MarkedComponent {
+  __pdfn_client?: boolean;
+  __pdfn_source?: string;
+}
+
+/**
+ * Interface for templates marked by the pdfn template marker plugin
+ */
+interface MarkedTemplate {
+  __pdfn_template_source?: string;
+}
+
+/**
+ * Result of scanning a React element tree for client components
+ */
+interface ClientComponentInfo {
+  hasClient: boolean;
+  sources: string[];
+  templateSource?: string;
+}
+
+/**
+ * Recursively scan a React element tree for client components.
+ * Client components are marked at build time by the pdfn Vite plugin.
+ * Also checks if the root element is a marked template.
+ */
+function findClientComponents(element: ReactElement): ClientComponentInfo {
+  const sources: string[] = [];
+  const seen = new Set<string>();
+  let templateSource: string | undefined;
+
+  function isMarkedClientComponent(type: unknown): type is MarkedComponent {
+    if (!type || typeof type !== "function") return false;
+    const marked = type as MarkedComponent;
+    return marked.__pdfn_client === true && typeof marked.__pdfn_source === "string";
+  }
+
+  function isMarkedTemplate(type: unknown): type is MarkedTemplate {
+    if (!type || typeof type !== "function") return false;
+    const marked = type as MarkedTemplate;
+    return typeof marked.__pdfn_template_source === "string";
+  }
+
+  // Debug: Check root element type and markers
+  if (isValidElement(element)) {
+    const type = element.type;
+    debug(
+      `client-detect: root element type=${typeof type}, isFunction=${typeof type === "function"}`
+    );
+    if (typeof type === "function") {
+      const fn = type as MarkedComponent & MarkedTemplate;
+      debug(
+        `client-detect: root markers - __pdfn_template_source=${fn.__pdfn_template_source}, __pdfn_client=${fn.__pdfn_client}`
+      );
+    }
+  }
+
+  // Check if root element is a marked template
+  if (isValidElement(element) && isMarkedTemplate(element.type)) {
+    templateSource = (element.type as MarkedTemplate).__pdfn_template_source;
+    debug(`client-detect: found template source: ${templateSource}`);
+  }
+
+  function traverse(el: ReactElement | null | undefined): void {
+    if (!el || !isValidElement(el)) return;
+
+    // Debug: log component types being traversed
+    const type = el.type;
+    if (typeof type === "function") {
+      const fn = type as MarkedComponent;
+      if (fn.__pdfn_client) {
+        debug(`client-detect: found client component: ${fn.__pdfn_source}`);
+      }
+    }
+
+    // Check if this component is marked as client
+    if (isMarkedClientComponent(el.type)) {
+      const source = (el.type as MarkedComponent).__pdfn_source!;
+      if (!seen.has(source)) {
+        seen.add(source);
+        sources.push(source);
+      }
+    }
+
+    // Recursively check children
+    const props = el.props as { children?: React.ReactNode };
+    const children = props?.children;
+    if (children) {
+      Children.toArray(children).forEach((child) => {
+        if (isValidElement(child)) {
+          traverse(child as ReactElement);
+        }
+      });
+    }
+  }
+
+  traverse(element);
+  debug(`client-detect: result - hasClient=${sources.length > 0}, sources=${sources.length}, templateSource=${templateSource || "none"}`);
+  return { hasClient: sources.length > 0, sources, templateSource };
+}
 
 // Dynamic import to avoid Next.js static analysis issues
 let renderToStaticMarkup: typeof import("react-dom/server").renderToStaticMarkup;
@@ -19,51 +129,98 @@ async function getRenderer() {
 }
 
 /**
- * Marker attribute used by @pdfn/tailwind to signal Tailwind processing is needed
+ * Check if SSR output contains unrendered Recharts components.
+ * Recharts renders as empty wrapper divs with SSR because it requires browser APIs.
  */
-const TAILWIND_MARKER = "data-pdfn-tailwind";
-const TAILWIND_CSS_ATTR = "data-pdfn-tailwind-css";
-const TAILWIND_PRECOMPILED_ATTR = "data-pdfn-tailwind-precompiled";
-
-/**
- * Check if HTML contains the Tailwind marker
- */
-function hasTailwindMarker(html: string): boolean {
-  return html.includes(TAILWIND_MARKER);
+function hasUnrenderedRecharts(html: string): boolean {
+  // Recharts renders empty wrappers like:
+  // <div class="recharts-wrapper" style="position:relative;...">
+  // with no SVG content inside when rendered with SSR
+  return html.includes('class="recharts-wrapper"') && !html.includes("<svg");
 }
 
 /**
- * Extract CSS path from Tailwind marker if present
+ * Delegate rendering to @pdfn/client for client-side execution.
+ * Used when templates contain components that need browser APIs (like Recharts).
  */
-function extractTailwindCssPath(html: string): string | undefined {
-  const match = html.match(new RegExp(`${TAILWIND_CSS_ATTR}="([^"]+)"`));
-  return match?.[1];
-}
+async function delegateToClientRenderer(
+  element: ReactElement,
+  options: { templateSource?: string; sources: string[]; ssrContent?: string }
+): Promise<string> {
+  const { templateSource, sources, ssrContent } = options;
 
-/**
- * Extract pre-compiled CSS from Tailwind marker if present (base64 encoded)
- */
-function extractPrecompiledCss(html: string): string | undefined {
-  const match = html.match(new RegExp(`${TAILWIND_PRECOMPILED_ATTR}="([^"]+)"`));
-  if (match?.[1]) {
-    try {
-      // Decode base64
-      return Buffer.from(match[1], "base64").toString("utf8");
-    } catch {
-      debug("tailwind: failed to decode pre-compiled CSS");
-      return undefined;
+  try {
+    // Dynamic import to avoid making @pdfn/client a required dependency
+    // Note: Path is constructed at runtime to prevent Turbopack from statically analyzing it
+    const clientModule = "@pdfn" + "/" + "client";
+    const { renderForClient } = await import(/* webpackIgnore: true */ clientModule);
+
+    // Extract metadata for the HTML
+    const metadata = extractMetadata(element);
+
+    // Process Tailwind CSS if SSR content has the marker
+    let css = "";
+    if (ssrContent && hasTailwindMarker(ssrContent)) {
+      // First check for pre-compiled CSS
+      const precompiledCss = extractPrecompiledCss(ssrContent);
+      if (precompiledCss) {
+        css = precompiledCss;
+        debug("client-delegate: using pre-compiled Tailwind CSS");
+      } else {
+        // Try runtime processing
+        try {
+          const cssPath = extractTailwindCssPath(ssrContent);
+          const { processTailwind } = await import("@pdfn/tailwind");
+          css = await processTailwind(ssrContent, { cssPath });
+          debug("client-delegate: processed Tailwind CSS via runtime");
+        } catch (e) {
+          debug(`client-delegate: Tailwind processing failed: ${e}`);
+        }
+      }
+
+      // Also extract Document CSS if present
+      const documentCss = extractDocumentCss(ssrContent);
+      if (documentCss) {
+        css = css ? `${css}\n\n${documentCss}` : documentCss;
+      }
     }
+
+    return renderForClient(element, {
+      // Prefer templateSource (bundles entire template with default export)
+      // Fall back to clientSources (individual client components)
+      templateSource,
+      clientSources: templateSource ? undefined : sources,
+      props: element.props as Record<string, unknown>,
+      title: metadata?.title,
+      css,
+      // Pass SSR content for page config extraction
+      ssrContent,
+    });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Unknown error";
+
+    // Check if @pdfn/client is not installed
+    if (message.includes("Cannot find module") || message.includes("@pdfn/client")) {
+      throw new Error(
+        `Client components detected but @pdfn/client is not installed.\n\n` +
+          `Your template uses "use client" components (like Recharts) that require ` +
+          `client-side rendering. To enable this:\n\n` +
+          `  npm install @pdfn/client\n\n` +
+          `Also ensure the pdfn plugin is configured:\n\n` +
+          `  // vite.config.ts\n` +
+          `  import { pdfn } from '@pdfn/vite';\n` +
+          `  export default { plugins: [pdfn()] };\n\n` +
+          `  // next.config.ts\n` +
+          `  import { withPdfn } from '@pdfn/next';\n` +
+          `  export default withPdfn()(nextConfig);`
+      );
+    }
+
+    throw error;
   }
-  return undefined;
 }
 
-/**
- * Remove the Tailwind marker element from HTML
- */
-function removeTailwindMarker(html: string): string {
-  // Remove the hidden div with the marker attribute (with or without CSS path)
-  return html.replace(/<div data-pdfn-tailwind="true"[^>]*><\/div>/g, "");
-}
+// Tailwind marker utilities are now imported from @pdfn/core
 
 /**
  * Document CSS marker attribute
@@ -151,7 +308,26 @@ export async function render(
 
   const startTime = performance.now();
 
-  // 1. Render React to static HTML
+  // 0. Check for client components (marked by @pdfn/vite plugin)
+  const { hasClient, sources, templateSource } = findClientComponents(element);
+
+  // If client components were found in the static tree, delegate to client rendering
+  // But first do SSR to get Tailwind CSS markers
+  if (hasClient) {
+    debug(`render: found ${sources.length} client component(s) in tree, delegating to @pdfn/client`);
+    // Quick SSR to extract Tailwind CSS (the actual content won't be used)
+    const renderer = await getRenderer();
+    let ssrContent = "";
+    try {
+      ssrContent = renderer(element);
+    } catch {
+      // SSR failed, continue without CSS
+      debug("render: SSR for CSS extraction failed, continuing without");
+    }
+    return delegateToClientRenderer(element, { templateSource, sources, ssrContent });
+  }
+
+  // 1. Render React to static HTML (standard SSR path)
   const reactStart = performance.now();
   const renderer = await getRenderer();
   let content: string;
@@ -167,6 +343,13 @@ export async function render(
         `  - Component threw during render\n` +
         `  - Invalid React element passed to render()`
     );
+  }
+
+  // 1b. Check if SSR output contains unrendered client components (like Recharts)
+  // If so, delegate to client rendering for proper execution
+  if (hasUnrenderedRecharts(content) && templateSource) {
+    debug("render: detected unrendered Recharts in SSR output, delegating to @pdfn/client");
+    return delegateToClientRenderer(element, { templateSource, sources: [], ssrContent: content });
   }
 
   const reactTime = performance.now() - reactStart;

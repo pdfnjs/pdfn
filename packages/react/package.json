@@ -28,11 +28,15 @@
     "clean": "rm -rf dist coverage"
   },
   "peerDependencies": {
+    "@pdfn/client": "workspace:*",
     "@pdfn/tailwind": "workspace:*",
     "react": "^18.0.0 || ^19.0.0",
     "react-dom": "^18.0.0 || ^19.0.0"
   },
   "peerDependenciesMeta": {
+    "@pdfn/client": {
+      "optional": true
+    },
     "@pdfn/tailwind": {
       "optional": true
     }
@@ -85,5 +89,7 @@
     "typescript": "^5.9.3",
     "vitest": "^4.0.16"
   },
-  "dependencies": {}
+  "dependencies": {
+    "@pdfn/core": "workspace:*"
+  }
 }

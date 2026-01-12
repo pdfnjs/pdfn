@@ -1,16 +1,12 @@
 /**
- * CSS compilation for pdfn templates
+ * CSS compilation and template bundling for pdfn templates
  */
 
-import fg from "fast-glob";
 import { readFileSync, writeFileSync, existsSync, mkdirSync } from "node:fs";
-import { resolve, dirname, join } from "node:path";
-import { createRequire } from "node:module";
-
-/**
- * Standardized path for PDF template styles
- */
-const PDF_STYLES_PATH = "./pdfn-templates/styles.css";
+import { resolve, dirname, join, basename } from "node:path";
+import { hasUseClientDirective, hasDefaultExport } from "@pdfn/core";
+import { compileTailwind } from "@pdfn/core/tailwind";
+import fg from "fast-glob";
 
 export interface PdfnPluginOptions {
   /**
@@ -38,83 +34,7 @@ export interface PdfnPluginOptions {
 export const CSS_MODULE_PATH = ".pdfn/tailwind.js";
 
 /**
- * Extract class names from file content
- */
-function extractClassesFromContent(content: string): string[] {
-  const classes = new Set<string>();
-
-  // Match className="..." and class="..."
-  const classRegex = /(?:className|class)=["']([^"']+)["']/g;
-  let match;
-  while ((match = classRegex.exec(content)) !== null) {
-    const classValue = match[1];
-    if (classValue) {
-      classValue.split(/\s+/).forEach((cls) => {
-        if (cls && !cls.includes("${") && !cls.startsWith("{")) {
-          classes.add(cls);
-        }
-      });
-    }
-  }
-
-  // Match template literal className={`...`}
-  const templateRegex = /className=\{`([^`]+)`\}/g;
-  while ((match = templateRegex.exec(content)) !== null) {
-    const classValue = match[1];
-    if (classValue) {
-      const staticParts = classValue.replace(/\$\{[^}]+\}/g, " ");
-      staticParts.split(/\s+/).forEach((cls) => {
-        if (cls) classes.add(cls);
-      });
-    }
-  }
-
-  // Match clsx/cn function calls
-  const clsxRegex = /(?:cn|clsx|cx)\s*\(\s*([^)]+)\)/g;
-  while ((match = clsxRegex.exec(content)) !== null) {
-    const args = match[1];
-    if (!args) continue;
-    const stringRegex = /["']([^"']+)["']/g;
-    let stringMatch;
-    while ((stringMatch = stringRegex.exec(args)) !== null) {
-      const classValue = stringMatch[1];
-      if (!classValue) continue;
-      classValue.split(/\s+/).forEach((cls) => {
-        if (cls) classes.add(cls);
-      });
-    }
-  }
-
-  return Array.from(classes);
-}
-
-/**
- * Get base CSS content - from pdfn-templates/styles.css or vanilla Tailwind
- */
-function getBaseCss(cwd: string, explicitPath: string | undefined, log: (...args: unknown[]) => void): string {
-  // Explicit path provided
-  if (explicitPath) {
-    const fullPath = resolve(cwd, explicitPath);
-    if (!existsSync(fullPath)) {
-      throw new Error(`CSS file not found: ${explicitPath}`);
-    }
-    return readFileSync(fullPath, "utf8");
-  }
-
-  // Check for pdfn-templates/styles.css (convention over configuration)
-  const stylesPath = resolve(cwd, PDF_STYLES_PATH);
-  if (existsSync(stylesPath)) {
-    log(`Using CSS file: ${PDF_STYLES_PATH}`);
-    return readFileSync(stylesPath, "utf8");
-  }
-
-  // Fall back to vanilla Tailwind
-  log("No pdfn-templates/styles.css found, using vanilla Tailwind");
-  return '@import "tailwindcss";';
-}
-
-/**
- * Compile Tailwind CSS for the given classes and write to output file
+ * Compile Tailwind CSS for the given templates and write to output file
  */
 export async function compileTailwindCss(
   templatePatterns: string[],
@@ -122,103 +42,13 @@ export async function compileTailwindCss(
   cwd: string,
   debug = false
 ): Promise<void> {
-  const log = (...args: unknown[]) => {
-    if (debug) console.log("[pdfn:next]", ...args);
-  };
-
-  const { compile } = await import("tailwindcss");
-
-  // Find all template files
-  const files = await fg(templatePatterns, {
+  const { css } = await compileTailwind({
+    templatePatterns,
+    cssPath,
     cwd,
-    absolute: true,
-    ignore: ["**/node_modules/**"],
+    debug,
+    logPrefix: "[pdfn:next]",
   });
-
-  if (files.length === 0) {
-    console.warn("[pdfn:next] No template files found matching patterns:", templatePatterns);
-    writeEmptyCssModule(cwd);
-    return;
-  }
-
-  // Extract classes from all files
-  const allClasses = new Set<string>();
-  for (const file of files) {
-    const content = readFileSync(file, "utf8");
-    const classes = extractClassesFromContent(content);
-    classes.forEach((cls) => allClasses.add(cls));
-  }
-
-  if (allClasses.size === 0) {
-    writeEmptyCssModule(cwd);
-    return;
-  }
-
-  // Get base CSS
-  const baseCss = getBaseCss(cwd, cssPath, log);
-
-  // Find tailwindcss package
-  const req = createRequire(join(cwd, "package.json"));
-  let tailwindRoot: string;
-  try {
-    const tailwindPkgPath = req.resolve("tailwindcss/package.json");
-    tailwindRoot = dirname(tailwindPkgPath);
-  } catch {
-    throw new Error("Could not find tailwindcss package");
-  }
-
-  // The base directory for the initial CSS (pdfn-templates/)
-  const stylesBaseDir = resolve(cwd, "pdfn-templates");
-
-  // Compile CSS
-  const compiler = await compile(baseCss, {
-    loadStylesheet: async (id: string, base: string) => {
-      if (id === "tailwindcss") {
-        const twCssPath = join(tailwindRoot, "index.css");
-        if (existsSync(twCssPath)) {
-          const content = readFileSync(twCssPath, "utf8");
-          return { path: twCssPath, content, base: tailwindRoot };
-        }
-        throw new Error(`Tailwind CSS index.css not found at: ${twCssPath}`);
-      }
-
-      // Handle URL imports - skip
-      if (id.startsWith("http://") || id.startsWith("https://")) {
-        return { path: id, content: "", base };
-      }
-
-      // Handle relative imports
-      // Default to pdfn-templates/ for imports from the initial CSS (styles.css)
-      const resolveFrom = base || stylesBaseDir;
-      const fullPath = resolve(resolveFrom, id);
-
-      if (existsSync(fullPath)) {
-        const content = readFileSync(fullPath, "utf8");
-        return { path: fullPath, content, base: dirname(fullPath) };
-      }
-
-      const cssPathWithExt = fullPath + ".css";
-      if (existsSync(cssPathWithExt)) {
-        const content = readFileSync(cssPathWithExt, "utf8");
-        return { path: cssPathWithExt, content, base: dirname(cssPathWithExt) };
-      }
-
-      const twPath = resolve(tailwindRoot, id);
-      if (existsSync(twPath)) {
-        const content = readFileSync(twPath, "utf8");
-        return { path: twPath, content, base: dirname(twPath) };
-      }
-
-      throw new Error(`Could not load stylesheet: ${id}`);
-    },
-    loadModule: async () => {
-      throw new Error("Module loading not supported in build-time compilation");
-    },
-  });
-
-  const css = compiler.build(Array.from(allClasses));
-
-  log(`Compiled ${css.length} bytes of CSS from ${allClasses.size} classes in ${files.length} files`);
 
   // Write CSS to module file
   writeCssModule(cwd, css);
@@ -248,3 +78,258 @@ export default css;
 function writeEmptyCssModule(cwd: string): void {
   writeCssModule(cwd, "");
 }
+
+// Import types and constants from bundle-loader (runtime code)
+import {
+  BUNDLES_DIR,
+  BUNDLES_MANIFEST,
+  type BundleManifestEntry,
+  type BundleManifest,
+} from "./bundle-loader.js";
+
+// Re-export for backwards compatibility
+export { BUNDLES_DIR, BUNDLES_MANIFEST, type BundleManifestEntry, type BundleManifest };
+
+/**
+ * Get template ID from file path
+ */
+function getTemplateId(filePath: string, templatesDir: string): string {
+  // Get relative path from templates directory
+  const relativePath = filePath.replace(templatesDir + "/", "");
+  // Remove extension and convert to ID
+  return relativePath.replace(/\.(tsx?|jsx?)$/, "").replace(/\//g, "-");
+}
+
+/**
+ * Generate entry point code for a template bundle.
+ * Props are read from window.__PDFN_PROPS__ at runtime.
+ */
+function generateBundleEntryPoint(templateSource: string): string {
+  return `
+import React from "react";
+import { createRoot } from "react-dom/client";
+import Template from ${JSON.stringify(templateSource)};
+
+// Props passed from server via window.__PDFN_PROPS__
+const PROPS = window.__PDFN_PROPS__ || {};
+
+// Initialize PDFN ready state
+window.PDFN = window.PDFN || {
+  ready: false,
+  reactReady: false
+};
+
+// Wait for DOM to be ready
+function init() {
+  const container = document.getElementById("pdfn-root");
+  if (!container) {
+    console.error("[pdfn] Could not find #pdfn-root container");
+    return;
+  }
+
+  const root = createRoot(container);
+  root.render(React.createElement(Template, PROPS));
+
+  // Signal React render complete after a frame
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      if (window.PDFN && window.PDFN.signalReactReady) {
+        window.PDFN.signalReactReady();
+      } else {
+        window.PDFN = window.PDFN || {};
+        window.PDFN.reactReady = true;
+        console.log("[pdfn] React render complete");
+      }
+    });
+  });
+}
+
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", init);
+} else {
+  init();
+}
+`;
+}
+
+/**
+ * esbuild plugin to handle server-only packages when bundling for browser.
+ */
+function serverOnlyPlugin(esbuild: typeof import("esbuild")): import("esbuild").Plugin {
+  // Packages that should be shimmed out when bundling for browser
+  // Note: @pdfn/core main entry is browser-safe, only @pdfn/core/tailwind is server-only
+  const serverPackages = ["@pdfn/client", "@pdfn/core/tailwind", "fast-glob"];
+  const nodeBuiltins = [
+    "fs", "path", "module", "crypto", "os", "child_process", "tty",
+    "stream", "util", "events", "buffer", "assert", "string_decoder",
+    "node:fs", "node:path", "node:module", "node:crypto", "node:os", "node:child_process",
+    "node:stream", "node:util", "node:events", "node:buffer", "node:assert", "node:string_decoder",
+    "node:tty",
+  ];
+
+  return {
+    name: "pdfn-server-only",
+    setup(build) {
+      build.onResolve({ filter: new RegExp(`^(${serverPackages.join("|")})`) }, (args) => ({
+        path: args.path,
+        namespace: "server-only-shim",
+      }));
+
+      build.onResolve({ filter: new RegExp(`^(${nodeBuiltins.join("|")})$`) }, (args) => ({
+        path: args.path,
+        namespace: "node-builtin-shim",
+      }));
+
+      build.onLoad({ filter: /.*/, namespace: "server-only-shim" }, () => ({
+        contents: "export default {}; export const __pdfn_server_only = true;",
+        loader: "js",
+      }));
+
+      build.onLoad({ filter: /.*/, namespace: "node-builtin-shim" }, () => ({
+        contents: "export default {}; export const readFileSync = () => { throw new Error('fs not available in browser'); };",
+        loader: "js",
+      }));
+    },
+  };
+}
+
+/**
+ * Bundle a single template file for client-side rendering.
+ */
+async function bundleTemplate(
+  templatePath: string,
+  outputPath: string,
+  cwd: string,
+  log: (...args: unknown[]) => void
+): Promise<void> {
+  const esbuild = await import("esbuild");
+
+  const entryContent = generateBundleEntryPoint(templatePath);
+  const resolveDir = dirname(templatePath);
+
+  const result = await esbuild.build({
+    stdin: {
+      contents: entryContent,
+      resolveDir,
+      loader: "tsx",
+    },
+    bundle: true,
+    format: "iife",
+    platform: "browser",
+    target: ["es2020"],
+    minify: process.env.NODE_ENV === "production",
+    sourcemap: false,
+    write: false,
+    jsx: "automatic",
+    jsxImportSource: "react",
+    plugins: [serverOnlyPlugin(esbuild)],
+    define: {
+      "process.env.NODE_ENV": '"production"',
+      "process.env.DEBUG": '""',
+      "process.env": "{}",
+    },
+    nodePaths: [resolve(cwd, "node_modules")],
+  });
+
+  const outputFile = result.outputFiles?.[0];
+  if (!outputFile) {
+    throw new Error(`esbuild produced no output for ${templatePath}`);
+  }
+
+  // Ensure output directory exists
+  const outputDir = dirname(outputPath);
+  if (!existsSync(outputDir)) {
+    mkdirSync(outputDir, { recursive: true });
+  }
+
+  writeFileSync(outputPath, outputFile.text);
+  log(`Bundled: ${basename(templatePath)} → ${basename(outputPath)} (${(outputFile.text.length / 1024).toFixed(1)}KB)`);
+}
+
+/**
+ * Bundle all client templates at build time.
+ *
+ * Scans for templates with "use client" directive and pre-bundles them
+ * so no runtime bundling (esbuild) is needed.
+ */
+export async function bundleClientTemplates(
+  templatePatterns: string[],
+  cwd: string,
+  debug = false
+): Promise<BundleManifest> {
+  const log = (...args: unknown[]) => {
+    if (debug) console.log("[pdfn:next]", ...args);
+  };
+
+  // Find all template files
+  const files = await fg(templatePatterns, {
+    cwd,
+    absolute: true,
+    ignore: ["**/node_modules/**"],
+  });
+
+  const bundlesDir = join(cwd, "node_modules", BUNDLES_DIR);
+  const manifestPath = join(cwd, "node_modules", BUNDLES_MANIFEST);
+
+  // Ensure bundles directory exists
+  if (!existsSync(bundlesDir)) {
+    mkdirSync(bundlesDir, { recursive: true });
+  }
+
+  const manifest: BundleManifest = {
+    version: "1.0",
+    templates: {},
+  };
+
+  // Get templates directory for ID generation
+  const templatesDir = resolve(cwd, "pdfn-templates");
+
+  // Find and bundle client templates
+  let clientTemplateCount = 0;
+  for (const file of files) {
+    const content = readFileSync(file, "utf8");
+
+    // Skip non-client templates (no "use client" directive)
+    if (!hasUseClientDirective(content)) {
+      continue;
+    }
+
+    // Skip component files without default export (not templates)
+    if (!hasDefaultExport(content)) {
+      log(`Skipping ${basename(file)} - has "use client" but no default export (component file)`);
+      continue;
+    }
+
+    clientTemplateCount++;
+    const templateId = getTemplateId(file, templatesDir);
+    const bundlePath = join(bundlesDir, `${templateId}.js`);
+
+    try {
+      await bundleTemplate(file, bundlePath, cwd, log);
+
+      manifest.templates[templateId] = {
+        id: templateId,
+        sourcePath: file,
+        bundlePath,
+        bundledAt: new Date().toISOString(),
+      };
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Unknown error";
+      console.error(`[pdfn:next] Failed to bundle ${templateId}: ${message}`);
+    }
+  }
+
+  // Write manifest
+  writeFileSync(manifestPath, JSON.stringify(manifest, null, 2));
+
+  if (clientTemplateCount > 0) {
+    log(`Bundled ${clientTemplateCount} client template(s)`);
+  } else {
+    log("No client templates found (no 'use client' directives)");
+  }
+
+  return manifest;
+}
+
+// Re-export runtime functions from bundle-loader for backwards compatibility
+export { loadBundleManifest, getPrecompiledBundle } from "./bundle-loader.js";

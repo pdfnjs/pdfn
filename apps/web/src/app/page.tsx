@@ -5,9 +5,10 @@ import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { nightOwl } from "react-syntax-highlighter/dist/esm/styles/prism";
 import { templateCode } from "@/lib/template-code";
 import { Header, Footer, StylingBadge, getStylingLabel } from "@/components";
+import { templates, type PageSize } from "@/config/templates";
 
 // Page dimensions in points (72 dpi)
-const PAGE_SIZES = {
+const PAGE_SIZES: Record<PageSize, { width: number; height: number }> = {
   A4: { width: 595, height: 842 },
   A5: { width: 420, height: 595 },
   Letter: { width: 612, height: 792 },
@@ -22,44 +23,6 @@ interface DebugOptions {
   headers: boolean;
   breaks: boolean;
 }
-
-const templates = [
-  {
-    id: "invoice",
-    name: "Invoice",
-    pageSize: "A4" as keyof typeof PAGE_SIZES,
-    orientation: "portrait" as const,
-    styling: "tailwind" as const,
-  },
-  {
-    id: "letter",
-    name: "Business Letter",
-    pageSize: "Letter" as keyof typeof PAGE_SIZES,
-    orientation: "portrait" as const,
-    styling: "inline" as const,
-  },
-  {
-    id: "contract",
-    name: "Contract",
-    pageSize: "Legal" as keyof typeof PAGE_SIZES,
-    orientation: "portrait" as const,
-    styling: "cssFile" as const,
-  },
-  {
-    id: "ticket",
-    name: "Ticket",
-    pageSize: "A5" as keyof typeof PAGE_SIZES,
-    orientation: "portrait" as const,
-    styling: "tailwind" as const,
-  },
-  {
-    id: "poster",
-    name: "Poster",
-    pageSize: "Tabloid" as keyof typeof PAGE_SIZES,
-    orientation: "landscape" as const,
-    styling: "cssProp" as const,
-  },
-];
 
 export default function Home() {
   const [activeTemplate, setActiveTemplate] = useState(templates[0]);

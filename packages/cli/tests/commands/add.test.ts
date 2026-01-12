@@ -3,21 +3,22 @@ import { existsSync, mkdirSync, rmSync, readFileSync } from "fs";
 import { join } from "path";
 import { execSync } from "child_process";
 
-const TEST_OUTPUT_DIR = join(process.cwd(), "test-output-templates");
+// The add command always outputs to ./pdfn-templates
+const OUTPUT_DIR = join(process.cwd(), "pdfn-templates");
 const CLI_PATH = join(process.cwd(), "dist", "cli.js");
 
 describe("add command", () => {
   beforeEach(() => {
-    // Clean up test output directory
-    if (existsSync(TEST_OUTPUT_DIR)) {
-      rmSync(TEST_OUTPUT_DIR, { recursive: true });
+    // Clean up output directory
+    if (existsSync(OUTPUT_DIR)) {
+      rmSync(OUTPUT_DIR, { recursive: true });
     }
   });
 
   afterEach(() => {
     // Clean up after tests
-    if (existsSync(TEST_OUTPUT_DIR)) {
-      rmSync(TEST_OUTPUT_DIR, { recursive: true });
+    if (existsSync(OUTPUT_DIR)) {
+      rmSync(OUTPUT_DIR, { recursive: true });
     }
   });
 
@@ -45,13 +46,13 @@ describe("add command", () => {
   });
 
   it("adds invoice template with inline styles by default", () => {
-    const output = execSync(`node ${CLI_PATH} add invoice --output ${TEST_OUTPUT_DIR}`, {
+    const output = execSync(`node ${CLI_PATH} add invoice`, {
       encoding: "utf-8",
     });
 
     expect(output).toContain("inline styles");
 
-    const templatePath = join(TEST_OUTPUT_DIR, "invoice.tsx");
+    const templatePath = join(OUTPUT_DIR, "invoice.tsx");
     expect(existsSync(templatePath)).toBe(true);
 
     const content = readFileSync(templatePath, "utf-8");
@@ -64,56 +65,56 @@ describe("add command", () => {
   });
 
   it("adds invoice template with --inline flag explicitly", () => {
-    const output = execSync(`node ${CLI_PATH} add invoice --inline --output ${TEST_OUTPUT_DIR}`, {
+    const output = execSync(`node ${CLI_PATH} add invoice --inline`, {
       encoding: "utf-8",
     });
 
     expect(output).toContain("inline styles");
 
-    const content = readFileSync(join(TEST_OUTPUT_DIR, "invoice.tsx"), "utf-8");
+    const content = readFileSync(join(OUTPUT_DIR, "invoice.tsx"), "utf-8");
     expect(content).not.toContain("@pdfn/tailwind");
     expect(content).toContain("style={{");
   });
 
   it("adds letter template", () => {
-    execSync(`node ${CLI_PATH} add letter --output ${TEST_OUTPUT_DIR}`, {
+    execSync(`node ${CLI_PATH} add letter`, {
       encoding: "utf-8",
     });
 
-    const templatePath = join(TEST_OUTPUT_DIR, "letter.tsx");
+    const templatePath = join(OUTPUT_DIR, "letter.tsx");
     expect(existsSync(templatePath)).toBe(true);
   });
 
   it("adds contract template", () => {
-    execSync(`node ${CLI_PATH} add contract --output ${TEST_OUTPUT_DIR}`, {
+    execSync(`node ${CLI_PATH} add contract`, {
       encoding: "utf-8",
     });
 
-    const templatePath = join(TEST_OUTPUT_DIR, "contract.tsx");
+    const templatePath = join(OUTPUT_DIR, "contract.tsx");
     expect(existsSync(templatePath)).toBe(true);
   });
 
   it("adds ticket template", () => {
-    execSync(`node ${CLI_PATH} add ticket --output ${TEST_OUTPUT_DIR}`, {
+    execSync(`node ${CLI_PATH} add ticket`, {
       encoding: "utf-8",
     });
 
-    const templatePath = join(TEST_OUTPUT_DIR, "ticket.tsx");
+    const templatePath = join(OUTPUT_DIR, "ticket.tsx");
     expect(existsSync(templatePath)).toBe(true);
   });
 
   it("adds poster template", () => {
-    execSync(`node ${CLI_PATH} add poster --output ${TEST_OUTPUT_DIR}`, {
+    execSync(`node ${CLI_PATH} add poster`, {
       encoding: "utf-8",
     });
 
-    const templatePath = join(TEST_OUTPUT_DIR, "poster.tsx");
+    const templatePath = join(OUTPUT_DIR, "poster.tsx");
     expect(existsSync(templatePath)).toBe(true);
   });
 
   it("fails for unknown template", () => {
     expect(() => {
-      execSync(`node ${CLI_PATH} add unknown --output ${TEST_OUTPUT_DIR}`, {
+      execSync(`node ${CLI_PATH} add unknown`, {
         encoding: "utf-8",
         stdio: "pipe",
       });
@@ -121,15 +122,14 @@ describe("add command", () => {
   });
 
   it("fails when file exists without --force", () => {
-    // Create directory and file first
-    mkdirSync(TEST_OUTPUT_DIR, { recursive: true });
-    execSync(`node ${CLI_PATH} add invoice --output ${TEST_OUTPUT_DIR}`, {
+    // Create file first
+    execSync(`node ${CLI_PATH} add invoice`, {
       encoding: "utf-8",
     });
 
     // Try to add again without --force
     expect(() => {
-      execSync(`node ${CLI_PATH} add invoice --output ${TEST_OUTPUT_DIR}`, {
+      execSync(`node ${CLI_PATH} add invoice`, {
         encoding: "utf-8",
         stdio: "pipe",
       });
@@ -137,53 +137,65 @@ describe("add command", () => {
   });
 
   it("overwrites file with --force", () => {
-    // Create directory and file first
-    mkdirSync(TEST_OUTPUT_DIR, { recursive: true });
-    execSync(`node ${CLI_PATH} add invoice --output ${TEST_OUTPUT_DIR}`, {
+    // Create file first
+    execSync(`node ${CLI_PATH} add invoice`, {
       encoding: "utf-8",
     });
 
     // Add again with --force should succeed
-    const output = execSync(
-      `node ${CLI_PATH} add invoice --output ${TEST_OUTPUT_DIR} --force`,
-      { encoding: "utf-8" }
-    );
+    const output = execSync(`node ${CLI_PATH} add invoice --force`, {
+      encoding: "utf-8",
+    });
 
     expect(output).toContain("Added");
   });
 
   it("creates output directory if it doesn't exist", () => {
-    const nestedDir = join(TEST_OUTPUT_DIR, "nested", "templates");
+    // Ensure directory doesn't exist
+    if (existsSync(OUTPUT_DIR)) {
+      rmSync(OUTPUT_DIR, { recursive: true });
+    }
 
-    execSync(`node ${CLI_PATH} add invoice --output ${nestedDir}`, {
+    execSync(`node ${CLI_PATH} add invoice`, {
       encoding: "utf-8",
     });
 
-    expect(existsSync(nestedDir)).toBe(true);
-    expect(existsSync(join(nestedDir, "invoice.tsx"))).toBe(true);
+    expect(existsSync(OUTPUT_DIR)).toBe(true);
+    expect(existsSync(join(OUTPUT_DIR, "invoice.tsx"))).toBe(true);
   });
 
   it("warns when --tailwind is used without @pdfn/tailwind installed", () => {
-    // Run from a directory without @pdfn/tailwind
-    expect(() => {
-      execSync(`node ${CLI_PATH} add invoice --tailwind --output ${TEST_OUTPUT_DIR}`, {
-        encoding: "utf-8",
-        stdio: "pipe",
-        cwd: TEST_OUTPUT_DIR.replace("test-output-templates", ""), // Parent dir without node_modules
-      });
-    }).toThrow();
+    // Run from a temp directory without @pdfn/tailwind
+    const tempDir = join(process.cwd(), "test-temp-no-tailwind");
+    mkdirSync(tempDir, { recursive: true });
+
+    try {
+      expect(() => {
+        execSync(`node ${CLI_PATH} add invoice --tailwind`, {
+          encoding: "utf-8",
+          stdio: "pipe",
+          cwd: tempDir,
+        });
+      }).toThrow();
+    } finally {
+      rmSync(tempDir, { recursive: true });
+    }
   });
 
   it("all inline templates exist and are valid", () => {
     const templates = ["invoice", "letter", "contract", "ticket", "poster"];
 
     for (const template of templates) {
-      const outputDir = join(TEST_OUTPUT_DIR, template);
-      execSync(`node ${CLI_PATH} add ${template} --output ${outputDir}`, {
+      // Clean up between templates
+      if (existsSync(OUTPUT_DIR)) {
+        rmSync(OUTPUT_DIR, { recursive: true });
+      }
+
+      execSync(`node ${CLI_PATH} add ${template}`, {
         encoding: "utf-8",
       });
 
-      const templatePath = join(outputDir, `${template}.tsx`);
+      const templatePath = join(OUTPUT_DIR, `${template}.tsx`);
       expect(existsSync(templatePath)).toBe(true);
 
       const content = readFileSync(templatePath, "utf-8");

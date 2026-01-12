@@ -1,21 +1,22 @@
 import { render, type DebugOptions } from "@pdfn/react";
+import { renderTemplate } from "@pdfn/next";
 import { NextRequest } from "next/server";
 import { existsSync, readFileSync } from "fs";
 import { join } from "path";
-import templatesConfig from "@/config/templates.json";
+import { templates } from "@/config/templates";
 
 // PDF cache settings
 const USE_CACHE = process.env.PDFN_USE_CACHE !== "false"; // Default: true
 const CACHE_DIR = join(process.cwd(), "public", "pdfs");
 
-// Template imports
+// Template imports (server-safe only - no "use client" components)
 import Invoice from "../../../../pdfn-templates/invoice";
 import Letter from "../../../../pdfn-templates/letter";
 import Contract from "../../../../pdfn-templates/contract";
 import Ticket from "../../../../pdfn-templates/ticket";
 import Poster from "../../../../pdfn-templates/poster";
 
-// Template component map
+// Template component map (excludes client-only templates like Report)
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const templateComponents: Record<string, React.ComponentType<any>> = {
   invoice: Invoice,
@@ -24,25 +25,6 @@ const templateComponents: Record<string, React.ComponentType<any>> = {
   ticket: Ticket,
   poster: Poster,
 };
-
-interface TemplateConfig {
-  id: string;
-  name: string;
-  pageSize: string;
-  orientation: string;
-}
-
-const templates = templatesConfig.templates as TemplateConfig[];
-
-function getTemplate(id: string) {
-  const config = templates.find((t) => t.id === id);
-  if (!config) return null;
-
-  const Component = templateComponents[id];
-  if (!Component) return null;
-
-  return { config, Component };
-}
 
 /**
  * Check if a cached PDF exists for the given template and debug settings
@@ -109,10 +91,10 @@ export async function GET(request: NextRequest) {
     }
   }
 
-  // Get template
-  const template = getTemplate(templateId);
+  // Get template config
+  const config = templates.find((t) => t.id === templateId);
 
-  if (!template) {
+  if (!config) {
     return new Response(
       JSON.stringify({
         error: `Template "${templateId}" not found`,
@@ -125,7 +107,76 @@ export async function GET(request: NextRequest) {
     );
   }
 
-  const { config, Component } = template;
+  // Check if template requires client-side rendering
+  if (config.requiresClient) {
+    const { name, pageSize, orientation } = config;
+    console.log(`[pdf] render "${name}" (${pageSize} ${orientation}) [client]`);
+
+    try {
+      // Use @pdfn/next's renderTemplate() for client component templates
+      // This handles bundling, Tailwind CSS, and page config automatically
+      const { html } = await renderTemplate(templateId, {
+        props: {},
+        title: name,
+        pageSize,
+        orientation,
+      });
+
+      const duration = Math.round(performance.now() - start);
+      console.log(`[pdf] ✓ client bundle generated in ${duration}ms`);
+
+      if (wantHtml) {
+        return new Response(html, {
+          headers: {
+            "Content-Type": "text/html; charset=utf-8",
+            "X-Render-Time": duration.toString(),
+          },
+        });
+      }
+
+      // For PDF generation, send to pdfn server
+      const pdfnHost = process.env.PDFN_HOST ?? "http://localhost:3456";
+      const response = await fetch(`${pdfnHost}/generate`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ html }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`PDFN server error: ${response.status} ${response.statusText}`);
+      }
+
+      const pdf = Buffer.from(await response.arrayBuffer());
+      const pdfDuration = Math.round(performance.now() - start);
+      console.log(`[pdf] ✓ generated in ${pdfDuration}ms (${(pdf.length / 1024).toFixed(1)}KB)`);
+
+      const filename = `${name}-${templateId}.pdf`.replace(/\s+/g, "-");
+      return new Response(new Uint8Array(pdf), {
+        headers: {
+          "Content-Type": "application/pdf",
+          "Content-Disposition": `inline; filename="${filename}"`,
+          "X-PDF-Title": name,
+        },
+      });
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Unknown error";
+      console.error(`[pdf] ✗ client render failed: ${message}`);
+
+      return new Response(
+        `<!DOCTYPE html><html><body><h1>Error</h1><pre>${message}</pre></body></html>`,
+        { status: 500, headers: { "Content-Type": "text/html" } }
+      );
+    }
+  }
+
+  // Get component (only available for server-safe templates)
+  const Component = templateComponents[templateId];
+  if (!Component) {
+    return new Response(
+      JSON.stringify({ error: `Component for "${templateId}" not available` }),
+      { status: 500, headers: { "Content-Type": "application/json" } }
+    );
+  }
   const { name, pageSize, orientation } = config;
 
   const debugOptions = typeof debug === "object" ? Object.entries(debug).filter(([, v]) => v).map(([k]) => k) : [];

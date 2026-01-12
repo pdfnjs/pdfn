@@ -282,7 +282,7 @@ Run with `npx tsx generate-invoice.ts` (requires `npx pdfn serve` running).
 ### pdfn (CLI)
 
 - Dev server with live preview and hot reload
-- Starter templates (invoice, letter, contract, ticket, poster)
+- Starter templates (invoice, letter, contract, ticket, poster, report)
 - Debug overlays for grid, margins, and headers (also available via `render()` and `generate()` options)
 
 ## Components
@@ -305,11 +305,13 @@ Run with `npx tsx generate-invoice.ts` (requires `npx pdfn serve` running).
 |---------|-------------|-------------|
 | [@pdfn/react](./packages/react) | React components, `render()`, `generate()` | Always |
 | [@pdfn/tailwind](./packages/tailwind) | Tailwind CSS support | Want Tailwind styling |
-| [@pdfn/next](./packages/next) | Next.js build plugin | Vercel Edge only |
+| [@pdfn/next](./packages/next) | Next.js build plugin | Vercel Edge or client components |
 | [@pdfn/vite](./packages/vite) | Vite build plugin | Edge runtimes (Cloudflare, Deno) |
+| [@pdfn/client](./packages/client) | Client-side rendering for hooks | Templates with Recharts, etc. |
+| [@pdfn/core](./packages/core) | Shared utilities (internal) | Used by other packages |
 | [pdfn](./packages/cli) | CLI dev server and production server | Dev preview + `generate()` |
 
-**Progressive install:** Start with `@pdfn/react` + `pdfn`. Add `@pdfn/tailwind` for styling. Add build plugins only for edge runtimes.
+**Progressive install:** Start with `@pdfn/react` + `pdfn`. Add `@pdfn/tailwind` for styling. Add build plugins only for edge runtimes or client components.
 
 ## CLI
 
@@ -344,6 +346,7 @@ npx pdfn add letter             # Add business letter
 npx pdfn add contract           # Add contract template
 npx pdfn add ticket             # Add event ticket
 npx pdfn add poster             # Add poster template
+npx pdfn add report             # Add report with charts (requires @pdfn/next)
 npx pdfn add --list             # Show all templates
 ```
 

@@ -2,7 +2,7 @@ import { defineConfig } from "tsup";
 import { copyFileSync } from "node:fs";
 
 export default defineConfig({
-  entry: ["src/index.ts", "src/plugin.ts"],
+  entry: ["src/index.ts", "src/plugin.ts", "src/render-template.ts"],
   format: ["esm", "cjs"],
   dts: true,
   clean: true,

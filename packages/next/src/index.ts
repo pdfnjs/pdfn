@@ -1,14 +1,26 @@
 /**
- * @pdfn/next - Next.js plugin for pre-compiling Tailwind CSS
+ * @pdfn/next - Next.js plugin for pdfn
  *
- * Enables optimized PDF generation by compiling Tailwind at build time
- * instead of runtime. Works with both Turbopack (Next.js 16+) and webpack.
+ * Provides build-time support for pdfn features:
+ * - Tailwind CSS pre-compilation (for edge deployment)
+ * - Client component marking (for "use client" components like Recharts)
+ * - Template marking (for client-side bundling)
+ * - renderTemplate() helper for API routes
  *
+ * Works with both Turbopack (Next.js 16+) and webpack.
  * CSS is loaded from `pdfn-templates/styles.css` by convention.
  */
 
 import type { NextConfig } from "next";
-import { compileTailwindCss, type PdfnPluginOptions } from "./plugin.js";
+
+// Re-export renderTemplate helper
+export {
+  renderTemplate,
+  requiresClientRendering,
+  type RenderTemplateOptions,
+  type RenderTemplateResult,
+} from "./render-template.js";
+import { compileTailwindCss, bundleClientTemplates, type PdfnPluginOptions } from "./plugin.js";
 import { join } from "node:path";
 import { watch, existsSync } from "node:fs";
 
@@ -36,7 +48,7 @@ function getCssModuleAbsolutePath(cwd: string): string {
 }
 
 /**
- * Start watching template directories and CSS files for changes and recompile CSS
+ * Start watching template directories and CSS files for changes and recompile CSS/rebundle
  */
 function startTemplateWatcher(
   templatePatterns: string[],
@@ -71,14 +83,19 @@ function startTemplateWatcher(
 
   // Debounce recompilation
   let recompileTimeout: ReturnType<typeof setTimeout> | null = null;
-  const debouncedRecompile = (reason: string) => {
+  const debouncedRecompile = (reason: string, isTemplate: boolean) => {
     if (recompileTimeout) clearTimeout(recompileTimeout);
     recompileTimeout = setTimeout(async () => {
-      log(`${reason}, recompiling CSS...`);
+      log(`${reason}, recompiling...`);
       try {
+        // Always recompile CSS
         await compileTailwindCss(templatePatterns, cssPath, cwd, debug);
+        // Rebundle client templates when template files change
+        if (isTemplate) {
+          await bundleClientTemplates(templatePatterns, cwd, debug);
+        }
       } catch (error) {
-        console.error("[pdfn:next] CSS recompilation failed:", error);
+        console.error("[pdfn:next] Recompilation failed:", error);
       }
     }, 100);
   };
@@ -91,13 +108,13 @@ function startTemplateWatcher(
 
         // Handle CSS file changes
         if (filename.endsWith(".css")) {
-          debouncedRecompile(`CSS file changed: ${filename}`);
+          debouncedRecompile(`CSS file changed: ${filename}`, false);
           return;
         }
 
         // Handle template file changes
         if (/\.(tsx?|jsx?)$/.test(filename)) {
-          debouncedRecompile(`Template changed: ${filename}`);
+          debouncedRecompile(`Template changed: ${filename}`, true);
         }
       });
       log(`Watching for changes: ${dir}`);
@@ -111,7 +128,7 @@ function startTemplateWatcher(
   if (existsSync(mainStylesPath)) {
     try {
       watch(mainStylesPath, () => {
-        debouncedRecompile("styles.css changed");
+        debouncedRecompile("styles.css changed", false);
       });
       log(`Watching for changes: ${mainStylesPath}`);
     } catch {
@@ -121,35 +138,68 @@ function startTemplateWatcher(
 }
 
 /**
- * Wrap your Next.js config with pdfn Tailwind pre-compilation
+ * Options for the pdfn Next.js plugin
+ */
+export interface PdfnNextOptions extends PdfnPluginOptions {
+  /**
+   * Enable Tailwind CSS pre-compilation.
+   * Set to false if you don't use @pdfn/tailwind.
+   * @default true
+   */
+  tailwind?: boolean;
+}
+
+/**
+ * Wrap your Next.js config with pdfn support
  *
- * Only needed if you use @pdfn/tailwind and deploy to serverless/edge.
- * If you use inline styles, no build config is required.
+ * Enables:
+ * - Tailwind CSS pre-compilation (for edge deployment)
+ * - Client component marking (for "use client" components like Recharts)
+ * - Template marking (for client-side bundling)
  *
- * @example
+ * @example Basic usage
  * ```ts
  * // next.config.ts
- * import { withPdfnTailwind } from '@pdfn/next';
+ * import { withPdfn } from '@pdfn/next';
  *
- * export default withPdfnTailwind()({
+ * export default withPdfn()({
+ *   // your Next.js config
+ * });
+ * ```
+ *
+ * @example With options
+ * ```ts
+ * import { withPdfn } from '@pdfn/next';
+ *
+ * export default withPdfn({
+ *   templates: ['./src/templates/**\/*.tsx'],
+ *   tailwind: false  // Disable if not using Tailwind
+ * })({
  *   // your Next.js config
  * });
  * ```
  */
-export function withPdfnTailwind(options: PdfnPluginOptions = {}) {
+export function withPdfn(options: PdfnNextOptions = {}) {
   return async (nextConfig: NextConfig = {}): Promise<NextConfig> => {
     const cwd = process.cwd();
     const templates = options.templates || ["./pdfn-templates/**/*.tsx"];
     const templatePatterns = Array.isArray(templates) ? templates : [templates];
     const debug = options.debug ?? false;
+    const enableTailwind = options.tailwind ?? true;
 
-    // Pre-compile CSS before build starts
+    // Pre-compile CSS before build starts (if Tailwind is enabled)
     // This runs when the config is loaded (before webpack or Turbopack)
-    await compileTailwindCss(templatePatterns, options.cssPath, cwd, debug);
+    if (enableTailwind) {
+      await compileTailwindCss(templatePatterns, options.cssPath, cwd, debug);
+    }
 
-    // In dev mode, watch template files for changes and recompile CSS
+    // Pre-bundle client templates (those with "use client" directive)
+    // This eliminates the need for runtime esbuild
+    await bundleClientTemplates(templatePatterns, cwd, debug);
+
+    // In dev mode, watch template files for changes and recompile CSS (if Tailwind is enabled)
     const isDev = process.env.NODE_ENV !== "production";
-    if (isDev && !watcherStarted) {
+    if (enableTailwind && isDev && !watcherStarted) {
       watcherStarted = true;
       startTemplateWatcher(templatePatterns, options.cssPath, cwd, debug);
     }
@@ -164,8 +214,17 @@ export function withPdfnTailwind(options: PdfnPluginOptions = {}) {
     const existingRules = existingTurbopack?.rules as Record<string, unknown> | undefined;
     const existingResolveAlias = existingTurbopack?.resolveAlias as Record<string, string> | undefined;
 
+    // Merge serverExternalPackages - esbuild has native binaries that can't be bundled by Turbopack
+    // This is automatically added so users don't need to configure it manually
+    const existingExternals = (nextConfig.serverExternalPackages as string[]) || [];
+    const pdfnExternals = ["esbuild"];
+    const serverExternalPackages = [...new Set([...existingExternals, ...pdfnExternals])];
+
     return {
       ...nextConfig,
+
+      // Externalize packages with native binaries (esbuild is used at build time for template bundling)
+      serverExternalPackages,
 
       // Turbopack configuration (Next.js 16+ default)
       turbopack: {
@@ -229,4 +288,4 @@ export function withPdfnTailwind(options: PdfnPluginOptions = {}) {
   };
 }
 
-export default withPdfnTailwind;
+export default withPdfn;

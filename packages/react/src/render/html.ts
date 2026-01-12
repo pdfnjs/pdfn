@@ -1,118 +1,14 @@
 import type { FontConfig, GoogleFontConfig } from "../types";
 import { processLocalFonts, separateFonts } from "./fonts";
+import {
+  BASE_STYLES,
+  PAGED_JS_CDN,
+  extractPageConfig,
+  generatePageCss,
+} from "@pdfn/core";
 
-/**
- * Base CSS for PDF rendering
- * Includes print-specific styles and component placeholders
- */
-export const BASE_STYLES = `
-/* Reset and base styles */
-*, *::before, *::after {
-  box-sizing: border-box;
-}
-
-html, body {
-  margin: 0;
-  padding: 0;
-  font-family: system-ui, -apple-system, sans-serif;
-  -webkit-print-color-adjust: exact;
-  print-color-adjust: exact;
-}
-
-/* Page styles */
-[data-pdfn-page] {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-}
-
-[data-pdfn-content] {
-  flex: 1;
-}
-
-[data-pdfn-header] {
-  position: running(header);
-}
-
-[data-pdfn-footer] {
-  position: running(footer);
-}
-
-/* Watermark - now handled via @page CSS for multi-page support */
-[data-pdfn-watermark] {
-  display: none;
-}
-
-/* Page number and total pages - Paged.js counters */
-[data-pdfn-page-number]::after {
-  content: counter(page);
-}
-
-[data-pdfn-total-pages]::after {
-  content: counter(pages);
-}
-
-/* Page break */
-[data-pdfn-page-break] {
-  break-after: page;
-  page-break-after: always;
-  height: 0;
-}
-
-/* Avoid break */
-[data-pdfn-avoid-break] {
-  break-inside: avoid;
-  page-break-inside: avoid;
-}
-
-/* Table header - repeats on each page with paged.js */
-[data-pdfn-table-header] {
-  display: table-header-group;
-  break-inside: avoid;
-}
-
-/* Paged.js table header repetition */
-table {
-  border-collapse: collapse;
-}
-
-thead {
-  display: table-header-group;
-}
-
-tbody {
-  display: table-row-group;
-}
-
-tr {
-  break-inside: avoid;
-}
-
-/* Print styles */
-@media print {
-  body {
-    background: white;
-  }
-
-  [data-pdfn-page] {
-    page-break-after: always;
-  }
-
-  [data-pdfn-page]:last-child {
-    page-break-after: auto;
-  }
-}
-
-/* Paged.js integration */
-@page {
-  @top-center {
-    content: element(header);
-  }
-  @bottom-center {
-    content: element(footer);
-  }
-}
-`;
+// Re-export BASE_STYLES for backward compatibility
+export { BASE_STYLES };
 
 /**
  * Paged.js configuration and event system
@@ -168,10 +64,12 @@ if (typeof Paged !== 'undefined') {
         window.PDFN.metrics.pagedjs_complete - window.PDFN.metrics.pagedjs_start
       );
 
-      // Now mark as ready and notify
-      window.PDFN.ready = true;
-      window.PDFN.emit('ready', { pages: pages.length });
-      window.PDFN.notifyParent();
+      // Wait for fonts to load before signaling ready
+      document.fonts.ready.then(function() {
+        window.PDFN.ready = true;
+        window.PDFN.emit('ready', { pages: pages.length });
+        window.PDFN.notifyParent();
+      });
     }
   }
 
@@ -379,38 +277,7 @@ function generateGoogleFontsLink(fonts: GoogleFontConfig[]): string {
 <link href="https://fonts.googleapis.com/css2?${families.map((f) => `family=${f}`).join("&")}&display=swap" rel="stylesheet">`;
 }
 
-/**
- * Extract page configuration from rendered content
- * Looks for data-pdfn-* attributes
- */
-function extractPageConfig(content: string): {
-  width?: string;
-  height?: string;
-  margin?: string;
-  watermark?: {
-    text?: string;
-    opacity?: number;
-    rotation?: number;
-  };
-} {
-  const widthMatch = content.match(/data-pdfn-width="([^"]+)"/);
-  const heightMatch = content.match(/data-pdfn-height="([^"]+)"/);
-  const marginMatch = content.match(/data-pdfn-margin="([^"]+)"/);
-  const watermarkTextMatch = content.match(/data-pdfn-watermark-text="([^"]+)"/);
-  const watermarkOpacityMatch = content.match(/data-pdfn-watermark-opacity="([^"]+)"/);
-  const watermarkRotationMatch = content.match(/data-pdfn-watermark-rotation="([^"]+)"/);
-
-  return {
-    width: widthMatch?.[1],
-    height: heightMatch?.[1],
-    margin: marginMatch?.[1],
-    watermark: watermarkTextMatch?.[1] ? {
-      text: watermarkTextMatch[1],
-      opacity: watermarkOpacityMatch?.[1] ? parseFloat(watermarkOpacityMatch[1]) : undefined,
-      rotation: watermarkRotationMatch?.[1] ? parseFloat(watermarkRotationMatch[1]) : undefined,
-    } : undefined,
-  };
-}
+// extractPageConfig is now imported from @pdfn/core
 
 /**
  * Assembles the final HTML document
@@ -443,56 +310,12 @@ export async function assembleHtml(content: string, options: HtmlOptions = {}): 
   // This must be in the <head> for Paged.js to see it before processing
   const pageConfig = extractPageConfig(content);
 
-  // Build @page CSS with size, margin, and optional watermark
-  let pageCss = "";
-  if (pageConfig.width && pageConfig.height) {
-    pageCss = `
-/* Page size and margin - extracted from Page component */
-@page {
-  size: ${pageConfig.width} ${pageConfig.height};
-  margin: ${pageConfig.margin || "1in"};
-}`;
-  }
-
-  // Add watermark CSS that repeats on every page
-  if (pageConfig.watermark?.text) {
-    const rotation = pageConfig.watermark.rotation ?? -35;
-    const opacity = pageConfig.watermark.opacity ?? 0.1;
-    // Convert opacity to rgba alpha value (0.1 opacity = 0.15 alpha for visibility)
-    const alpha = Math.min(opacity * 1.5, 0.3);
-
-    pageCss += `
-
-/* Watermark - repeats on every page via @page and paged.js */
-@page {
-  background: transparent;
-}
-
-/* Watermark overlay on each paged.js page */
-.pagedjs_page {
-  position: relative;
-}
-
-.pagedjs_page > .pagedjs_sheet::before {
-  content: "${pageConfig.watermark.text}";
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%) rotate(${rotation}deg);
-  font-size: 5rem;
-  font-weight: 900;
-  color: rgba(156, 163, 175, ${alpha});
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-  white-space: nowrap;
-  pointer-events: none;
-  z-index: 9999;
-}`;
-  }
+  // Build @page CSS with size, margin, and optional watermark using @pdfn/core
+  const pageCss = generatePageCss(pageConfig);
 
   // Paged.js CDN - use polyfill version for print preview compatibility
   const pagedJsScript = includePagedJs
-    ? '<script src="https://unpkg.com/pagedjs/dist/paged.polyfill.js"></script>'
+    ? `<script src="${PAGED_JS_CDN}"></script>`
     : "";
 
   return `<!DOCTYPE html>

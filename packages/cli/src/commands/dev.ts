@@ -11,9 +11,10 @@ import puppeteer from "puppeteer";
 import { createBaseServer } from "../server/base";
 import { generatePdf } from "../server/pdf";
 import type { DebugOptions } from "@pdfn/react";
-import { pdfnTailwind } from "@pdfn/vite";
+import { pdfn } from "@pdfn/vite";
 import chalk from "chalk";
 import { loadEnv } from "../utils/env";
+import React from "react";
 
 interface TemplateInfo {
   id: string;
@@ -943,25 +944,18 @@ function createPreviewHTML(templates: TemplateInfo[], activeTemplate: string | n
       let pageSize = 'A4';
       let orientation = 'portrait';
 
-      // Check for size attribute
-      const sizeMatch = html.match(/size="([^"]+)"/i) || html.match(/data-page-size="([^"]+)"/i);
+      // Check for data-pdfn-size attribute (e.g., "A4", "Letter Landscape", "Tabloid")
+      const sizeMatch = html.match(/data-pdfn-size="([^"]+)"/i);
       if (sizeMatch) {
-        const s = sizeMatch[1];
-        if (PAGE_SIZES[s]) pageSize = s;
-      }
-
-      // Check for orientation attribute
-      const orientMatch = html.match(/orientation="([^"]+)"/i);
-      if (orientMatch && orientMatch[1] === 'landscape') {
-        orientation = 'landscape';
-      }
-
-      // Special handling: Tabloid is typically landscape (posters)
-      if (html.includes('Tabloid') || html.includes('tabloid')) {
-        pageSize = 'Tabloid';
-        // Default Tabloid to landscape unless explicitly portrait
-        if (!html.includes('orientation="portrait"')) {
+        const sizeStr = sizeMatch[1];
+        // Check if it includes "Landscape"
+        if (sizeStr.includes('Landscape')) {
           orientation = 'landscape';
+        }
+        // Extract base size name (remove " Landscape" suffix if present)
+        const baseName = sizeStr.replace(' Landscape', '').replace(' Portrait', '');
+        if (PAGE_SIZES[baseName]) {
+          pageSize = baseName;
         }
       }
 
@@ -1185,14 +1179,12 @@ async function startDevServer(options: DevServerOptions) {
     },
     ssr: {
       // Don't externalize these - we need to transform them
-      noExternal: ["@pdfn/react", "@pdfn/tailwind", "server-only"],
+      noExternal: ["@pdfn/react", "@pdfn/tailwind", "@pdfn/client", "server-only"],
     },
     plugins: [
-      // Pre-compile Tailwind CSS for edge compatibility
-      pdfnTailwind({
-        templates: [
-          join(TEMPLATES_DIR, "**/*.tsx"),
-        ],
+      // Unified pdfn plugin: Tailwind pre-compilation + client/template markers
+      ...pdfn({
+        templates: [join(TEMPLATES_DIR, "**/*.tsx")],
       }),
       {
         name: "mock-server-only",
@@ -1357,9 +1349,11 @@ async function startDevServer(options: DevServerOptions) {
     const mod = await vite.ssrLoadModule(template.path);
     const Component = mod.default;
     const { render } = await vite.ssrLoadModule("@pdfn/react");
-    // Call with empty props - component's default parameter values provide sample data
-    // Debug options are passed directly to render()
-    return render(Component({}), { debug: debugOptions || undefined });
+    // Use React.createElement so element.type === Component (preserves markers)
+    // Empty props - component's default parameter values provide sample data
+    return render(React.createElement(Component, {}), {
+      debug: debugOptions || undefined,
+    });
   }
 
   // Parse debug options from query params

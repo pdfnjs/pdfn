@@ -153,6 +153,60 @@ export async function POST(req: Request) {
 }
 ```
 
+## Client Components (Charts, Hooks)
+
+If your templates use React hooks (Recharts, Chart.js wrappers, etc.), use `@pdfn/next`:
+
+```bash
+npm i @pdfn/next recharts
+```
+
+```ts
+// next.config.ts
+import { withPdfn } from '@pdfn/next';
+
+export default withPdfn({
+  // your Next.js config
+});
+```
+
+Create a template with the `"use client"` directive:
+
+```tsx
+// pdfn-templates/report.tsx
+"use client";
+
+import { Document, Page } from '@pdfn/react';
+import { Tailwind } from '@pdfn/tailwind';
+import { BarChart, Bar, XAxis, YAxis, Tooltip } from 'recharts';
+
+const data = [
+  { name: 'Jan', value: 400 },
+  { name: 'Feb', value: 300 },
+  { name: 'Mar', value: 600 },
+];
+
+export default function Report() {
+  return (
+    <Document title="Sales Report">
+      <Tailwind>
+        <Page size="A4" margin="1in">
+          <h1 className="text-2xl font-bold mb-6">Sales Report</h1>
+          <BarChart width={500} height={300} data={data}>
+            <XAxis dataKey="name" />
+            <YAxis />
+            <Tooltip />
+            <Bar dataKey="value" fill="#3b82f6" />
+          </BarChart>
+        </Page>
+      </Tailwind>
+    </Document>
+  );
+}
+```
+
+`@pdfn/next` bundles client components at build time so charts render correctly in PDFs.
+
 ## Edge Runtime
 
 For Vercel Edge deployment, add the build plugin:
@@ -163,9 +217,9 @@ npm i @pdfn/next
 
 ```ts
 // next.config.ts
-import { withPdfnTailwind } from '@pdfn/next';
+import { withPdfn } from '@pdfn/next';
 
-export default withPdfnTailwind()({
+export default withPdfn({
   // your Next.js config
 });
 ```
