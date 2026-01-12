@@ -156,14 +156,20 @@ module.exports = function pdfnTransformLoader(source) {
     }
   }
 
-  // === Transform 3: Inject bundle manifest for renderTemplate users ===
+  // === Transform 3: Inject bundle manifest and CSS for renderTemplate users ===
   // Detect files that import renderTemplate from @pdfn/next
   if (source.includes("@pdfn/next") && source.includes("renderTemplate")) {
     // Check if already has the bundle manifest import
     if (!source.includes("__pdfnBundleManifest__")) {
-      // Add import for bundles manifest + setter at the top
-      const bundleImports = `import { manifest as __pdfnBundleManifest__ } from "${BUNDLES_MODULE_PATH}";\nimport { __setBundleManifest as __pdfnSetBundleManifest__ } from "@pdfn/next";\n__pdfnSetBundleManifest__(__pdfnBundleManifest__);\n`;
-      transformed = bundleImports + transformed;
+      // Add import for bundles manifest + CSS + setters at the top
+      const imports = [
+        `import { manifest as __pdfnBundleManifest__ } from "${BUNDLES_MODULE_PATH}";`,
+        `import { css as __pdfnPrecompiledCssForClient__ } from "${CSS_MODULE_PATH}";`,
+        `import { __setBundleManifest as __pdfnSetBundleManifest__, __setPrecompiledCss as __pdfnSetPrecompiledCss__ } from "@pdfn/next";`,
+        `__pdfnSetBundleManifest__(__pdfnBundleManifest__);`,
+        `__pdfnSetPrecompiledCss__(__pdfnPrecompiledCssForClient__);`,
+      ].join("\n") + "\n";
+      transformed = imports + transformed;
     }
   }
 

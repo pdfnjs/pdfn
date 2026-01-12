@@ -17,6 +17,7 @@ import type { NextConfig } from "next";
 export {
   renderTemplate,
   requiresClientRendering,
+  __setPrecompiledCss,
   type RenderTemplateOptions,
   type RenderTemplateResult,
 } from "./render-template.js";
