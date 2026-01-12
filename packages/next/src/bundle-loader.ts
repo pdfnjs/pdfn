@@ -46,27 +46,13 @@ export interface BundleManifest {
 
 // Cached manifest from module import
 let cachedManifest: BundleManifest | null = null;
-let manifestLoadAttempted = false;
 
 /**
- * Load the bundle manifest from the virtual module (works on serverless)
+ * Set the bundle manifest (called by transform-loader injected code).
+ * This allows static imports to be traced by webpack/turbopack for serverless.
  */
-async function loadBundleManifestFromModule(): Promise<BundleManifest | null> {
-  if (manifestLoadAttempted) {
-    return cachedManifest;
-  }
-  manifestLoadAttempted = true;
-
-  try {
-    // Dynamic import from virtual module - this gets resolved by webpack/turbopack alias
-    // and the module is traced/bundled for serverless deployment
-    const module = await import(/* webpackIgnore: true */ BUNDLES_MODULE_ID);
-    cachedManifest = module.manifest || module.default;
-    return cachedManifest;
-  } catch {
-    // Module not available - fall back to filesystem
-    return null;
-  }
+export function __setBundleManifest(manifest: BundleManifest): void {
+  cachedManifest = manifest;
 }
 
 /**
@@ -91,10 +77,9 @@ export function loadBundleManifest(cwd: string): BundleManifest | null {
  * Get a pre-compiled bundle for a template (async version for serverless)
  */
 export async function getPrecompiledBundleAsync(templateId: string, cwd: string): Promise<string | null> {
-  // First try loading from virtual module (works on serverless)
-  const moduleManifest = await loadBundleManifestFromModule();
-  if (moduleManifest && moduleManifest.templates[templateId]) {
-    const entry = moduleManifest.templates[templateId];
+  // First try cached manifest (set via __setBundleManifest from static import)
+  if (cachedManifest && cachedManifest.templates[templateId]) {
+    const entry = cachedManifest.templates[templateId];
     if (entry.code) {
       return entry.code;
     }

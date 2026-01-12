@@ -20,6 +20,9 @@ export {
   type RenderTemplateOptions,
   type RenderTemplateResult,
 } from "./render-template.js";
+
+// Re-export bundle manifest setter (used by transform-loader injected code)
+export { __setBundleManifest } from "./bundle-loader.js";
 import { compileTailwindCss, bundleClientTemplates } from "./plugin.js";
 import { join } from "node:path";
 import { watch, existsSync } from "node:fs";

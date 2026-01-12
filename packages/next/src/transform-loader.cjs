@@ -11,6 +11,7 @@
  */
 
 const CSS_MODULE_PATH = "__pdfn_tailwind_css__";
+const BUNDLES_MODULE_PATH = "__pdfn_bundles__";
 
 /**
  * Parse export names from JavaScript/TypeScript code.
@@ -155,7 +156,18 @@ module.exports = function pdfnTransformLoader(source) {
     }
   }
 
-  // === Transform 3: Mark template files with source path ===
+  // === Transform 3: Inject bundle manifest for renderTemplate users ===
+  // Detect files that import renderTemplate from @pdfn/next
+  if (source.includes("@pdfn/next") && source.includes("renderTemplate")) {
+    // Check if already has the bundle manifest import
+    if (!source.includes("__pdfnBundleManifest__")) {
+      // Add import for bundles manifest + setter at the top
+      const bundleImports = `import { manifest as __pdfnBundleManifest__ } from "${BUNDLES_MODULE_PATH}";\nimport { __setBundleManifest as __pdfnSetBundleManifest__ } from "@pdfn/next";\n__pdfnSetBundleManifest__(__pdfnBundleManifest__);\n`;
+      transformed = bundleImports + transformed;
+    }
+  }
+
+  // === Transform 4: Mark template files with source path ===
   if (isTemplateFile(resourcePath) && hasDefaultExport(source)) {
     const defaultName = getDefaultExportName(source);
     if (defaultName) {
