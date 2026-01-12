@@ -1,5 +1,13 @@
 # pdfn
 
+## 0.4.3
+
+### Patch Changes
+
+- Add unified pdfn() plugin export that combines all functionality
+- Updated dependencies
+  - @pdfn/vite@0.5.0
+
 ## 0.4.2
 
 ### Patch Changes

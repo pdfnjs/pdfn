@@ -1,5 +1,11 @@
 # @pdfn/vite
 
+## 0.5.0
+
+### Minor Changes
+
+- Add unified pdfn() plugin export that combines all functionality
+
 ## 0.4.0
 
 ### Minor Changes
@@ -12,6 +18,7 @@
   - Removed `cssFile` prop handling from transform
 
   **Migration:**
+
   ```bash
   mv pdf-templates pdfn-templates
   ```
