@@ -180,13 +180,14 @@ function serverOnlyPlugin(esbuild: typeof import("esbuild")): import("esbuild").
 
 /**
  * Bundle a single template file for client-side rendering.
+ * Returns the bundle code for inlining in the manifest.
  */
 async function bundleTemplate(
   templatePath: string,
   outputPath: string,
   cwd: string,
   log: (...args: unknown[]) => void
-): Promise<void> {
+): Promise<string> {
   const esbuild = await import("esbuild");
 
   const entryContent = generateBundleEntryPoint(templatePath);
@@ -227,8 +228,12 @@ async function bundleTemplate(
     mkdirSync(outputDir, { recursive: true });
   }
 
+  // Write to file (for local development)
   writeFileSync(outputPath, outputFile.text);
   log(`Bundled: ${basename(templatePath)} → ${basename(outputPath)} (${(outputFile.text.length / 1024).toFixed(1)}KB)`);
+
+  // Return bundle code for inlining in manifest
+  return outputFile.text;
 }
 
 /**
@@ -290,13 +295,15 @@ export async function bundleClientTemplates(
     const bundlePath = join(bundlesDir, `${templateId}.js`);
 
     try {
-      await bundleTemplate(file, bundlePath, cwd, log);
+      const bundleCode = await bundleTemplate(file, bundlePath, cwd, log);
 
       manifest.templates[templateId] = {
         id: templateId,
         sourcePath: file,
         bundlePath,
         bundledAt: new Date().toISOString(),
+        // Inline bundle code for serverless deployment
+        code: bundleCode,
       };
     } catch (error) {
       const message = error instanceof Error ? error.message : "Unknown error";

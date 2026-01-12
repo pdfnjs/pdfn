@@ -27,6 +27,8 @@ export interface BundleManifestEntry {
   sourcePath: string;
   bundlePath: string;
   bundledAt: string;
+  /** Inlined bundle code (for serverless deployment) */
+  code?: string;
 }
 
 /**
@@ -67,9 +69,15 @@ export function getPrecompiledBundle(templateId: string, cwd: string): string | 
 
   const entry = manifest.templates[templateId];
 
-  if (!existsSync(entry.bundlePath)) {
-    return null;
+  // First try inlined code (works on serverless)
+  if (entry.code) {
+    return entry.code;
   }
 
-  return readFileSync(entry.bundlePath, "utf8");
+  // Fall back to reading from file (works locally)
+  if (existsSync(entry.bundlePath)) {
+    return readFileSync(entry.bundlePath, "utf8");
+  }
+
+  return null;
 }
