@@ -82,7 +82,7 @@
     "@vitejs/plugin-react": "^5.1.2",
     "jsdom": "^27.3.0",
     "pdf-lib": "^1.17.1",
-    "puppeteer": "^24.33.0",
+    "puppeteer": "^24.35.0",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
     "tsup": "^8.5.1",

@@ -66,13 +66,13 @@
   },
   "dependencies": {
     "@pdfn/core": "workspace:*",
-    "esbuild": "^0.24.0",
+    "esbuild": "^0.27.2",
     "fast-glob": "^3.3.3"
   },
   "devDependencies": {
     "@pdfn/eslint-config": "workspace:*",
     "@pdfn/typescript-config": "workspace:*",
-    "next": "16.1.0",
+    "next": "16.1.1",
     "react": "19.2.3",
     "react-dom": "19.2.3",
     "tsup": "^8.5.1",
