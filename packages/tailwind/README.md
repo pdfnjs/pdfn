@@ -1,8 +1,8 @@
 # @pdfn/tailwind
 
-Tailwind CSS support for pdfn. Use Tailwind classes in your PDF templates.
+Tailwind CSS support for pdfn.
 
-> **Server-only** - Tailwind processing happens during HTML generation and cannot run in the browser.
+> **Server-only** — Tailwind processing runs during HTML generation, not in browsers.
 
 ## Installation
 
@@ -12,7 +12,7 @@ npm install @pdfn/tailwind
 
 ## Quick Start
 
-Wrap your template with `<Tailwind>` to enable Tailwind classes:
+Wrap your template with `<Tailwind>`:
 
 ```tsx
 import { Document, Page } from '@pdfn/react';
@@ -32,9 +32,9 @@ function Invoice() {
 }
 ```
 
-## Using Your Theme
+## Custom Theme
 
-Create `pdfn-templates/styles.css` with your custom theme, fonts, and colors:
+Create `pdfn-templates/styles.css` for custom fonts and colors:
 
 ```css
 /* pdfn-templates/styles.css */
@@ -45,65 +45,25 @@ Create `pdfn-templates/styles.css` with your custom theme, fonts, and colors:
   --font-inter: "Inter", var(--font-sans);
   --color-brand: #007bff;
 }
-
-/* Import plain CSS files */
-@import "./styles/contract.css";
 ```
 
-This file is automatically detected when you use `<Tailwind>`:
+This file is auto-detected when you use `<Tailwind>`.
 
-```tsx
-<Document>
-  <Tailwind>
-    <Page>
-      <div className="font-inter text-brand">Uses your theme!</div>
-    </Page>
-  </Tailwind>
-</Document>
-```
+## Edge Runtimes
 
-## CSS Auto-detection
+`@pdfn/tailwind` works on Node.js but not on edge runtimes (no filesystem).
 
-The `<Tailwind>` component looks for `./pdfn-templates/styles.css` in your project root. If found, it uses that file for Tailwind processing. If not found, it uses vanilla Tailwind (`@import "tailwindcss"`).
-
-This keeps your PDF template styles isolated from your web app's `globals.css`.
-
-## API
-
-| Prop | Type | Description |
-|------|------|-------------|
-| `children` | `ReactNode` | Content to render |
-| `css` | `string` | Optional path to a Tailwind CSS entry file |
-
-## Deployment Compatibility
-
-| Environment | Works? | Notes |
-|-------------|--------|-------|
-| Node.js (local, Vercel, any server) | ✅ Yes | Runtime processing works |
-| Vercel Edge | ❌ No | No filesystem, use `@pdfn/next` |
-| Cloudflare Workers | ❌ No | No filesystem, use `@pdfn/vite` |
-
-**Most users don't need build plugins.** Only edge runtimes require pre-compilation.
-
-## Edge Runtime Deployment
-
-For edge runtimes only (routes with `export const runtime = 'edge'`):
+For Vercel Edge or Cloudflare Workers, add a build plugin:
 
 ```bash
-# Next.js Edge
-npm i @pdfn/tailwind @pdfn/next
+# Next.js
+npm i @pdfn/next
 
-# Vite / Cloudflare Workers
-npm i @pdfn/tailwind @pdfn/vite
+# Vite
+npm i @pdfn/vite
 ```
 
-See [@pdfn/next](../next) and [@pdfn/vite](../vite) for build configuration.
-
-## Environment Variables
-
-| Variable | Default | Description |
-|----------|---------|-------------|
-| `DEBUG` | - | Set to `pdfn:tailwind` or `pdfn:*` to enable logging |
+See [@pdfn/next](../next) or [@pdfn/vite](../vite) for setup.
 
 ## License
 

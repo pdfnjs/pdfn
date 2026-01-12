@@ -87,8 +87,7 @@ const browser = await puppeteer.launch();
 const page = await browser.newPage();
 await page.setContent(html, { waitUntil: 'networkidle0' });
 
-// Wait for pdfn's pagination to complete
-await page.waitForFunction(() => window.PDFN?.ready === true);
+await page.waitForFunction(() => window.PDFN?.ready === true); // Wait for pagination
 
 const pdf = await page.pdf({
   preferCSSPageSize: true,

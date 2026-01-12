@@ -14,8 +14,9 @@ pdfn is a React framework for generating PDFs. You write React components, pdfn 
 - Works in Node.js, Next.js, or any server environment
 
 **Not for:**
-- Browser/client-side (server-only)
-- Visual PDF editors
+- Browser rendering — `@pdfn/react` runs in Node.js
+- Visual PDF editors — Generate from data, no drag-and-drop
+- Serverless without setup — Chromium needs a server (use `@sparticuz/chromium` for Lambda)
 
 ## Installation
 
@@ -465,7 +466,7 @@ const pdf = await generate(<Invoice />, { debug: { grid: true, margins: true } }
 
 1. **Server-only** - pdfn uses react-dom/server, doesn't work in browsers
 2. **generate() needs server** - Run `npx pdfn serve` before calling generate()
-3. **PDFN.ready** - When using render() with Puppeteer, wait for `window.PDFN.ready === true`
+3. **PDFN.ready** - When using render() with Puppeteer, wait for `window.PDFN.ready === true` (pagination complete)
 4. **Peer dependencies** - Plain Node.js needs `react` and `react-dom` installed
 5. **Templates folder** - By convention, templates go in `pdfn-templates/`
 6. **Tailwind theme** - Auto-detected from `pdfn-templates/styles.css`
