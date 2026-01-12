@@ -1,5 +1,11 @@
 # pdfn
 
+## 0.4.4
+
+### Patch Changes
+
+- Fix report template charts: use explicit width/height instead of ResponsiveContainer for PDF compatibility
+
 ## 0.4.3
 
 ### Patch Changes
