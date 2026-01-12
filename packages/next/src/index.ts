@@ -27,8 +27,9 @@ import { watch, existsSync } from "node:fs";
 // Track if watcher is already running (prevent duplicates)
 let watcherStarted = false;
 
-// Virtual module ID used in imports (must not start with . to avoid relative resolution)
-const VIRTUAL_MODULE_ID = "__pdfn_tailwind_css__";
+// Virtual module IDs used in imports (must not start with . to avoid relative resolution)
+const TAILWIND_MODULE_ID = "__pdfn_tailwind_css__";
+const BUNDLES_MODULE_ID = "__pdfn_bundles__";
 
 // Get the loader path - resolve from the user's node_modules
 function getLoaderPath(cwd: string): string {
@@ -43,6 +44,16 @@ function getCssModuleRelativePath(): string {
 // Get the absolute path to the generated CSS module (for webpack)
 function getCssModuleAbsolutePath(cwd: string): string {
   return join(cwd, "node_modules", ".pdfn", "tailwind.js");
+}
+
+// Get the path to the generated bundles module (relative to project root for Turbopack)
+function getBundlesModuleRelativePath(): string {
+  return "./node_modules/.pdfn/bundles.js";
+}
+
+// Get the absolute path to the generated bundles module (for webpack)
+function getBundlesModuleAbsolutePath(cwd: string): string {
+  return join(cwd, "node_modules", ".pdfn", "bundles.js");
 }
 
 /**
@@ -186,10 +197,12 @@ export function withPdfn(options: PdfnNextOptions = {}) {
       startTemplateWatcher(cwd, debug);
     }
 
-    // Path to the loader and CSS module
+    // Path to the loader and modules
     const loaderPath = getLoaderPath(cwd);
     const cssModuleRelative = getCssModuleRelativePath();
     const cssModuleAbsolute = getCssModuleAbsolutePath(cwd);
+    const bundlesModuleRelative = getBundlesModuleRelativePath();
+    const bundlesModuleAbsolute = getBundlesModuleAbsolutePath(cwd);
 
     // Build turbopack config
     const existingTurbopack = (nextConfig as Record<string, unknown>).turbopack as Record<string, unknown> | undefined;
@@ -213,8 +226,9 @@ export function withPdfn(options: PdfnNextOptions = {}) {
         ...existingTurbopack,
         resolveAlias: {
           ...existingResolveAlias,
-          // Map virtual module ID to relative path (Turbopack needs relative)
-          [VIRTUAL_MODULE_ID]: cssModuleRelative,
+          // Map virtual module IDs to relative paths (Turbopack needs relative)
+          [TAILWIND_MODULE_ID]: cssModuleRelative,
+          [BUNDLES_MODULE_ID]: bundlesModuleRelative,
         },
         rules: {
           ...existingRules,
@@ -230,16 +244,17 @@ export function withPdfn(options: PdfnNextOptions = {}) {
 
       // Webpack configuration (for --webpack flag or older Next.js)
       webpack: (config, context) => {
-        // Add resolve alias for the virtual module
+        // Add resolve aliases for the virtual modules
         config.resolve = config.resolve || {};
         config.resolve.alias = config.resolve.alias || {};
         if (Array.isArray(config.resolve.alias)) {
-          config.resolve.alias.push({
-            name: VIRTUAL_MODULE_ID,
-            alias: cssModuleAbsolute,
-          });
+          config.resolve.alias.push(
+            { name: TAILWIND_MODULE_ID, alias: cssModuleAbsolute },
+            { name: BUNDLES_MODULE_ID, alias: bundlesModuleAbsolute }
+          );
         } else {
-          (config.resolve.alias as Record<string, string>)[VIRTUAL_MODULE_ID] = cssModuleAbsolute;
+          (config.resolve.alias as Record<string, string>)[TAILWIND_MODULE_ID] = cssModuleAbsolute;
+          (config.resolve.alias as Record<string, string>)[BUNDLES_MODULE_ID] = bundlesModuleAbsolute;
         }
 
         // Only add loader on server-side build

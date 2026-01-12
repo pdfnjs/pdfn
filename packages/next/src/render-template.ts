@@ -21,7 +21,7 @@ import {
   generateClientHtml,
   type PageOrientation,
 } from "@pdfn/core";
-import { getPrecompiledBundle } from "./bundle-loader.js";
+import { getPrecompiledBundleAsync } from "./bundle-loader.js";
 
 /**
  * Options for rendering a template
@@ -201,7 +201,7 @@ export async function renderTemplate(
   console.log(`[pdfn/next] Rendering template: ${templateId}`);
 
   // Try to load pre-compiled bundle (created by withPdfn at build time)
-  const bundleCode = getPrecompiledBundle(templateId, cwd);
+  const bundleCode = await getPrecompiledBundleAsync(templateId, cwd);
 
   if (!bundleCode) {
     // No pre-compiled bundle found
