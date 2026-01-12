@@ -10,18 +10,6 @@ import fg from "fast-glob";
 
 export interface PdfnPluginOptions {
   /**
-   * Glob patterns for template files to scan for Tailwind classes.
-   * @default ['./pdfn-templates/**\/*.tsx']
-   */
-  templates?: string | string[];
-
-  /**
-   * Path to CSS file containing Tailwind imports and theme.
-   * @default './pdfn-templates/styles.css'
-   */
-  cssPath?: string;
-
-  /**
    * Enable debug logging for CSS compilation.
    * @default false
    */
@@ -34,17 +22,14 @@ export interface PdfnPluginOptions {
 export const CSS_MODULE_PATH = ".pdfn/tailwind.js";
 
 /**
- * Compile Tailwind CSS for the given templates and write to output file
+ * Compile Tailwind CSS for templates in pdfn-templates/ and write to output file
  */
 export async function compileTailwindCss(
-  templatePatterns: string[],
-  cssPath: string | undefined,
   cwd: string,
   debug = false
 ): Promise<void> {
   const { css } = await compileTailwind({
-    templatePatterns,
-    cssPath,
+    templatePatterns: ["./pdfn-templates/**/*.tsx"],
     cwd,
     debug,
     logPrefix: "[pdfn:next]",
@@ -249,14 +234,14 @@ async function bundleTemplate(
 /**
  * Bundle all client templates at build time.
  *
- * Scans for templates with "use client" directive and pre-bundles them
- * so no runtime bundling (esbuild) is needed.
+ * Scans for templates with "use client" directive in pdfn-templates/
+ * and pre-bundles them so no runtime bundling (esbuild) is needed.
  */
 export async function bundleClientTemplates(
-  templatePatterns: string[],
   cwd: string,
   debug = false
 ): Promise<BundleManifest> {
+  const templatePatterns = ["./pdfn-templates/**/*.tsx"];
   const log = (...args: unknown[]) => {
     if (debug) console.log("[pdfn:next]", ...args);
   };

@@ -5,14 +5,25 @@ This guide covers integrating pdfn with Next.js App Router.
 ## Installation
 
 ```bash
-npm i @pdfn/react
+npm i @pdfn/react @pdfn/tailwind @pdfn/next
 ```
 
-For Tailwind support:
+## Build Configuration
 
-```bash
-npm i @pdfn/tailwind
+Add the pdfn plugin to your Next.js config:
+
+```ts
+// next.config.ts
+import { withPdfn } from '@pdfn/next';
+
+const nextConfig = {
+  // your config
+};
+
+export default withPdfn()(nextConfig);
 ```
+
+This enables Tailwind pre-compilation and client component support (charts, hooks).
 
 ## API Route (App Router)
 
@@ -155,20 +166,7 @@ export async function POST(req: Request) {
 
 ## Client Components (Charts, Hooks)
 
-If your templates use React hooks (Recharts, Chart.js wrappers, etc.), use `@pdfn/next`:
-
-```bash
-npm i @pdfn/next recharts
-```
-
-```ts
-// next.config.ts
-import { withPdfn } from '@pdfn/next';
-
-export default withPdfn({
-  // your Next.js config
-});
-```
+Templates with React hooks (Recharts, Chart.js, etc.) work automatically with the build config above.
 
 Create a template with the `"use client"` directive:
 
@@ -205,24 +203,11 @@ export default function Report() {
 }
 ```
 
-`@pdfn/next` bundles client components at build time so charts render correctly in PDFs.
+For charts, install recharts: `npm i recharts`
 
 ## Edge Runtime
 
-For Vercel Edge deployment, add the build plugin:
-
-```bash
-npm i @pdfn/next
-```
-
-```ts
-// next.config.ts
-import { withPdfn } from '@pdfn/next';
-
-export default withPdfn({
-  // your Next.js config
-});
-```
+The build config above also enables Vercel Edge deployment.
 
 **Note:** Edge runtimes can only use `render()` (HTML output). `generate()` requires Node.js runtime.
 
