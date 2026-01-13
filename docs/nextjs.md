@@ -14,9 +14,10 @@ Add the pdfn plugin to your Next.js config:
 
 ```ts
 // next.config.ts
+import type { NextConfig } from 'next';
 import { withPdfn } from '@pdfn/next';
 
-const nextConfig = {
+const nextConfig: NextConfig = {
   // your config
 };
 

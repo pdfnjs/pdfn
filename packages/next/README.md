@@ -21,11 +21,14 @@ npm i @pdfn/react @pdfn/tailwind @pdfn/next
 
 ```ts
 // next.config.ts
+import type { NextConfig } from "next";
 import { withPdfn } from "@pdfn/next";
 
-export default withPdfn()({
+const nextConfig: NextConfig = {
   // your config
-});
+};
+
+export default withPdfn()(nextConfig);
 ```
 
 ## Usage

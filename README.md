@@ -118,11 +118,14 @@ npm install @pdfn/react @pdfn/tailwind @pdfn/next
 
 ```ts
 // next.config.ts
+import type { NextConfig } from 'next';
 import { withPdfn } from '@pdfn/next';
 
-export default withPdfn()({
+const nextConfig: NextConfig = {
   // your existing config
-});
+};
+
+export default withPdfn()(nextConfig);
 ```
 
 ```bash
