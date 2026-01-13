@@ -51,11 +51,15 @@ export default function Invoice() {
 ```
 
 ```tsx
-// src/generate-pdf.ts
+// src/generate-pdf.tsx
+import React from "react";
 import { generate } from "@pdfn/react";
 import Invoice from "../pdfn-templates/invoice";
 
-const pdf = await generate(<Invoice />);
+async function main() {
+  const pdf = await generate(<Invoice />);
+}
+main();
 ```
 
 > **Note:** `generate()` requires `npx pdfn serve` running.

@@ -37,7 +37,7 @@ React → pdfn → HTML → Chromium → PDF
 pdfn works with any Node.js or Next.js project. Below is a minimal setup to try it locally.
 
 ```bash
-mkdir my-pdf-project && cd my-pdf-project
+mkdir pdfn-node && cd pdfn-node
 npm init -y
 npm install react react-dom @pdfn/react
 npx pdfn add invoice
@@ -47,24 +47,14 @@ npx pdfn dev --open
 ![pdfn dev preview](./docs/assets/dev-preview.png)
 
 ```tsx
-// pdfn-templates/invoice.tsx
-import { Document, Page, PageNumber, TotalPages } from '@pdfn/react';
+// pdfn-templates/invoice.tsx — created by `pdfn add invoice`
+import { Document, Page, PageNumber } from '@pdfn/react';
 
-interface InvoiceProps {
-  data: { id: string; customer: string; total: number };
-}
-
-export default function Invoice({ data }: InvoiceProps) {
+export default function Invoice({ number, customer, items, ... }) {
   return (
-    <Document title={`Invoice ${data.id}`}>
-      <Page
-        size="A4"
-        margin="1in"
-        footer={<div>Page <PageNumber /> of <TotalPages /></div>}
-      >
-        <h1>Invoice {data.id}</h1>
-        <p>Customer: {data.customer}</p>
-        <p>Total: ${data.total}</p>
+    <Document title={`Invoice ${number}`}>
+      <Page size="A4" margin="1in" footer={<PageNumber />}>
+        {/* ... */}
       </Page>
     </Document>
   );
@@ -78,41 +68,61 @@ Edit `pdfn-templates/invoice.tsx` — changes appear instantly with hot reload.
 **Using `generate()`** — requires `npx pdfn serve` running
 
 ```tsx
-// generate-pdf.ts
+// generate-pdf.tsx
+import React from 'react';
 import { generate } from '@pdfn/react';
 import { writeFileSync } from 'fs';
 import Invoice from './pdfn-templates/invoice';
 
-const pdf = await generate(<Invoice data={{ id: 'INV-001', customer: 'Acme Corp' }} />);
-writeFileSync('invoice.pdf', pdf);
+async function main() {
+  const pdf = await generate(<Invoice number="INV-2025-042" />);
+  writeFileSync('invoice.pdf', pdf);
+}
+main();
+```
+
+```bash
+npx tsx generate-pdf.tsx  # Generates invoice.pdf
 ```
 
 **Using `render()` + Puppeteer** — bring your own browser
 
+```bash
+npm install puppeteer
+```
+
 ```tsx
-// generate-pdf.ts
+// generate-puppeteer-pdf.tsx
+import React from 'react';
 import { render } from '@pdfn/react';
 import { writeFileSync } from 'fs';
 import Invoice from './pdfn-templates/invoice';
 import puppeteer from 'puppeteer';
 
-const html = await render(<Invoice data={{ id: 'INV-001', customer: 'Acme Corp' }} />);
+async function main() {
+  const html = await render(<Invoice number="INV-2025-042" />);
 
-const browser = await puppeteer.launch();
-const page = await browser.newPage();
-await page.setContent(html, { waitUntil: 'networkidle0' });
-await page.waitForFunction(() => window.PDFN?.ready === true); // Wait for pagination
-const pdf = await page.pdf({ preferCSSPageSize: true, printBackground: true });
-await browser.close();
+  const browser = await puppeteer.launch();
+  const page = await browser.newPage();
+  await page.setContent(html, { waitUntil: 'networkidle0' });
+  await page.waitForFunction(() => window.PDFN?.ready === true); // Wait for pagination
+  const pdf = await page.pdf({ preferCSSPageSize: true, printBackground: true });
+  await browser.close();
 
-writeFileSync('invoice.pdf', pdf);
+  writeFileSync('invoice-puppeteer.pdf', pdf);
+}
+main();
+```
+
+```bash
+npx tsx generate-puppeteer-pdf.tsx  # Generates invoice-puppeteer.pdf
 ```
 
 ## Example: Next.js + Tailwind
 
 ```bash
-npx create-next-app@latest my-app --tailwind
-cd my-app
+npx create-next-app@latest pdfn-next --tailwind --yes
+cd pdfn-next
 npm install @pdfn/react @pdfn/tailwind @pdfn/next
 ```
 
@@ -130,19 +140,35 @@ export default withPdfn()(nextConfig);
 
 ```bash
 npx pdfn add invoice --tailwind
-npx pdfn dev --open
+npx pdfn dev --open  # Preview at http://localhost:3456
 ```
 
+Create the API route at `app/api/invoice/route.tsx`:
+
 ```tsx
-// app/api/invoice/route.ts
+// app/api/invoice/route.tsx
 import { generate } from '@pdfn/react';
 import Invoice from '@/pdfn-templates/invoice';
 
 export async function GET() {
-  const pdf = await generate(<Invoice data={{ id: 'INV-001', customer: 'Acme Corp', total: 1500 }} />);
-  return new Response(pdf, { headers: { 'Content-Type': 'application/pdf' } });
+  const pdf = await generate(<Invoice number="INV-2025-042" />);
+  return new Response(new Uint8Array(pdf), { headers: { 'Content-Type': 'application/pdf' } });
 }
 ```
+
+```bash
+npm run dev  # Start Next.js at http://localhost:3000
+```
+
+Open http://localhost:3000/api/invoice to download the PDF.
+
+> **Note:** `generate()` requires `npx pdfn dev` or `npx pdfn serve` running.
+
+## Examples
+
+Full working examples at [github.com/pdfnjs/pdf-examples](https://github.com/pdfnjs/pdf-examples):
+- [Node.js](https://github.com/pdfnjs/pdf-examples/tree/main/examples/pdfn-node)
+- [Next.js](https://github.com/pdfnjs/pdf-examples/tree/main/examples/pdfn-next)
 
 ## Core Components
 
@@ -190,6 +216,11 @@ npx pdfn add --list       # See all available templates
 - **[@pdfn/vite](./packages/vite)** — Vite integration
 - **[pdfn CLI](./packages/cli)** — Dev server and production server
 
+## Support & Feedback
+
+- Questions or help: [GitHub Discussions](https://github.com/pdfnjs/pdfn/discussions)
+- Bugs: [GitHub Issues](https://github.com/pdfnjs/pdfn/issues)
+
 ---
 
 pdfn focuses on correctness and predictability. For high-throughput workloads, run `pdfn serve` as a dedicated service.
@@ -201,3 +232,5 @@ MIT
 ---
 
 If pdfn saves you time, consider [starring it on GitHub](https://github.com/pdfnjs/pdfn).
+
+Built by [@gokulsiva](https://github.com/gokulsiva)

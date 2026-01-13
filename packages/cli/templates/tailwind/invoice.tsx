@@ -1,3 +1,4 @@
+import React from "react";
 import { Document, Page, Thead, PageNumber, TotalPages } from "@pdfn/react";
 import { Tailwind } from "@pdfn/tailwind";
 

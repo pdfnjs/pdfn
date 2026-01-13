@@ -1,3 +1,4 @@
+import React from "react";
 "use client";
 
 import { Document, Page, PageNumber, TotalPages } from "@pdfn/react";

@@ -274,6 +274,7 @@ With custom theme (auto-detected from `pdfn-templates/styles.css`):
 ### Basic Invoice
 
 ```tsx
+import React from 'react';
 import { Document, Page, PageNumber, generate } from '@pdfn/react';
 
 function Invoice({ data }) {
@@ -290,7 +291,10 @@ function Invoice({ data }) {
   );
 }
 
-const pdf = await generate(<Invoice data={{ id: '001', customer: 'Acme', total: 148 }} />);
+async function main() {
+  const pdf = await generate(<Invoice data={{ id: '001', customer: 'Acme', total: 148 }} />);
+}
+main();
 ```
 
 ### Multi-page Table
@@ -384,7 +388,8 @@ export async function POST(req: Request) {
 
 ### Plain Node.js
 
-```ts
+```tsx
+import React from 'react';
 import { Document, Page, generate } from '@pdfn/react';
 import { writeFileSync } from 'fs';
 
@@ -398,11 +403,14 @@ function Invoice() {
   );
 }
 
-const pdf = await generate(<Invoice />);
-writeFileSync('invoice.pdf', pdf);
+async function main() {
+  const pdf = await generate(<Invoice />);
+  writeFileSync('invoice.pdf', pdf);
+}
+main();
 ```
 
-Run: `npx tsx generate.ts` (requires `npx pdfn serve` running)
+Run: `npx tsx generate.tsx` (requires `npx pdfn serve` running)
 
 ## CLI Commands
 
