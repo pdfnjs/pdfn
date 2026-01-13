@@ -53,6 +53,7 @@ npx pdfn add --list             # Show all templates
 | `contract` | Legal service agreement |
 | `ticket` | Event admission ticket |
 | `poster` | Event poster (landscape) |
+| `report` | Sales report with charts (requires recharts) |
 
 ## Server API
 

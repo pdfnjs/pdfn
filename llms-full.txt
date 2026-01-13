@@ -41,7 +41,7 @@ npm i @pdfn/next  # or @pdfn/vite
 | Function | Returns | Requires | Use when |
 |----------|---------|----------|----------|
 | `render()` | HTML string | Nothing | You have your own Puppeteer/Playwright |
-| `generate()` | PDF buffer | `npx pdfn serve` | You want all-in-one solution |
+| `generate()` | PDF buffer | `npx pdfn dev` or `npx pdfn serve` | You want all-in-one solution |
 
 ### Component Hierarchy
 
@@ -359,7 +359,7 @@ function Invoice({ data }) {
 ### Next.js API Route
 
 ```tsx
-// app/api/invoice/route.ts
+// app/api/invoice/route.tsx
 import { Document, Page, generate } from '@pdfn/react';
 
 function Invoice({ data }) {
@@ -377,7 +377,7 @@ export async function POST(req: Request) {
   const data = await req.json();
   const pdf = await generate(<Invoice data={data} />);
 
-  return new Response(pdf, {
+  return new Response(new Uint8Array(pdf), {
     headers: {
       'Content-Type': 'application/pdf',
       'Content-Disposition': `attachment; filename="invoice-${data.id}.pdf"`,
@@ -410,7 +410,7 @@ async function main() {
 main();
 ```
 
-Run: `npx tsx generate.tsx` (requires `npx pdfn serve` running)
+Run: `npx tsx generate.tsx` (requires `npx pdfn dev` or `npx pdfn serve` running)
 
 ## CLI Commands
 
@@ -473,7 +473,7 @@ const pdf = await generate(<Invoice />, { debug: { grid: true, margins: true } }
 ## Important Notes
 
 1. **Server-only** - pdfn uses react-dom/server, doesn't work in browsers
-2. **generate() needs server** - Run `npx pdfn serve` before calling generate()
+2. **generate() needs server** - Run `npx pdfn dev` or `npx pdfn serve` before calling generate()
 3. **PDFN.ready** - When using render() with Puppeteer, wait for `window.PDFN.ready === true` (pagination complete)
 4. **Peer dependencies** - Plain Node.js needs `react` and `react-dom` installed
 5. **Templates folder** - By convention, templates go in `pdfn-templates/`

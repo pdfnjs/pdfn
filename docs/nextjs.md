@@ -31,7 +31,7 @@ This enables Tailwind pre-compilation and client component support (charts, hook
 Create an API route to generate PDFs:
 
 ```tsx
-// app/api/invoice/route.ts
+// app/api/invoice/route.tsx
 import { Document, Page, PageNumber, generate } from '@pdfn/react';
 import { Tailwind } from '@pdfn/tailwind';
 
@@ -60,7 +60,7 @@ export async function POST(req: Request) {
 
   const pdf = await generate(<Invoice data={data} />);
 
-  return new Response(pdf, {
+  return new Response(new Uint8Array(pdf), {
     headers: {
       'Content-Type': 'application/pdf',
       'Content-Disposition': `attachment; filename="invoice-${data.id}.pdf"`,
@@ -74,7 +74,7 @@ export async function GET() {
     <Invoice data={{ id: '001', customer: 'Acme Corp', total: 148 }} />
   );
 
-  return new Response(pdf, {
+  return new Response(new Uint8Array(pdf), {
     headers: { 'Content-Type': 'application/pdf' },
   });
 }
@@ -108,7 +108,7 @@ npx concurrently "pdfn serve" "next start"
 Add an HTML preview for debugging:
 
 ```tsx
-// app/api/invoice/route.ts
+// app/api/invoice/route.tsx
 import { render, generate } from '@pdfn/react';
 
 export async function GET(req: Request) {
@@ -125,7 +125,7 @@ export async function GET(req: Request) {
   }
 
   const pdf = await generate(invoice);
-  return new Response(pdf, {
+  return new Response(new Uint8Array(pdf), {
     headers: { 'Content-Type': 'application/pdf' },
   });
 }
@@ -143,7 +143,7 @@ Keep templates in a dedicated folder:
 app/
 ├── api/
 │   └── invoice/
-│       └── route.ts
+│       └── route.tsx
 ├── page.tsx
 └── ...
 
@@ -155,7 +155,7 @@ pdfn-templates/
 ```
 
 ```tsx
-// app/api/invoice/route.ts
+// app/api/invoice/route.tsx
 import Invoice from '@/pdfn-templates/invoice';
 
 export async function POST(req: Request) {
@@ -213,7 +213,7 @@ The build config above also enables Vercel Edge deployment.
 **Note:** Edge runtimes can only use `render()` (HTML output). `generate()` requires Node.js runtime.
 
 ```tsx
-// app/api/invoice/route.ts
+// app/api/invoice/route.tsx
 export const runtime = 'edge'; // Only for render(), not generate()
 
 import { render } from '@pdfn/react';

@@ -62,7 +62,7 @@ async function main() {
 main();
 ```
 
-> **Note:** `generate()` requires `npx pdfn serve` running.
+> **Note:** `generate()` requires `npx pdfn dev` or `npx pdfn serve` running.
 
 ## Custom Theme
 

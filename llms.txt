@@ -38,6 +38,7 @@ npm i @pdfn/tailwind
 ### Basic Example
 
 ```tsx
+import React from 'react';
 import { Document, Page, PageNumber, generate } from '@pdfn/react';
 
 function Invoice() {
@@ -51,8 +52,13 @@ function Invoice() {
   );
 }
 
-const pdf = await generate(<Invoice />);
+async function main() {
+  const pdf = await generate(<Invoice />);
+}
+main();
 ```
+
+> **Note:** `generate()` requires `npx pdfn dev` or `npx pdfn serve` running.
 
 ### Components
 
@@ -72,7 +78,7 @@ const pdf = await generate(<Invoice />);
 | Function | Returns | Requires |
 |----------|---------|----------|
 | `render()` | HTML string | Nothing |
-| `generate()` | PDF buffer | `npx pdfn serve` running |
+| `generate()` | PDF buffer | `npx pdfn dev` or `npx pdfn serve` running |
 
 ### Project Structure
 

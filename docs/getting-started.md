@@ -54,10 +54,10 @@ This opens a browser with live preview. Edit your template and see changes insta
 
 ### Option 1: Using generate()
 
-Start the pdfn server in one terminal:
+Requires `npx pdfn dev` or `npx pdfn serve` running:
 
 ```bash
-npx pdfn serve
+npx pdfn dev  # or npx pdfn serve
 ```
 
 Then generate PDFs in your code:

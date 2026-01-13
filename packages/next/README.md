@@ -52,17 +52,17 @@ export default function Invoice() {
 ```
 
 ```tsx
-// app/api/invoice/route.ts
+// app/api/invoice/route.tsx
 import { generate } from "@pdfn/react";
 import Invoice from "@/pdfn-templates/invoice";
 
 export async function GET() {
   const pdf = await generate(<Invoice />);
-  return new Response(pdf, { headers: { "Content-Type": "application/pdf" } });
+  return new Response(new Uint8Array(pdf), { headers: { "Content-Type": "application/pdf" } });
 }
 ```
 
-> **Note:** `generate()` requires `npx pdfn serve` running.
+> **Note:** `generate()` requires `npx pdfn dev` or `npx pdfn serve` running.
 
 ## Custom Theme
 
