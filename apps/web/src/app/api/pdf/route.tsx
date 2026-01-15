@@ -1,4 +1,4 @@
-import { render, type DebugOptions } from "@pdfn/react";
+import { render, generate, generateFromHtml, type DebugOptions } from "@pdfn/react";
 import { renderTemplate } from "@pdfn/next";
 import { NextRequest } from "next/server";
 import { existsSync, readFileSync } from "fs";
@@ -175,18 +175,8 @@ export async function GET(request: NextRequest) {
         debug: debug || undefined,
       });
 
-      const pdfnHost = process.env.PDFN_HOST ?? "http://localhost:3456";
-      const response = await fetch(`${pdfnHost}/generate`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ html }),
-      });
-
-      if (!response.ok) {
-        throw new Error(`PDFN server error: ${response.status} ${response.statusText}`);
-      }
-
-      const pdf = Buffer.from(await response.arrayBuffer());
+      // Generate PDF from pre-rendered HTML
+      const pdf = await generateFromHtml(html);
       const pdfDuration = Math.round(performance.now() - start);
       console.log(`[pdf] ✓ generated in ${pdfDuration}ms (${(pdf.length / 1024).toFixed(1)}KB)`);
 
@@ -227,11 +217,9 @@ export async function GET(request: NextRequest) {
   );
 
   try {
-    // Render React to HTML with optional debug overlays
-    const html = await render(<Component />, { debug: debug || undefined });
-
+    // HTML preview - use render() directly
     if (wantHtml) {
-      // Return HTML for browser preview
+      const html = await render(<Component />, { debug: debug || undefined });
       const duration = Math.round(performance.now() - start);
       console.log(`[pdf] ✓ rendered in ${duration}ms`);
 
@@ -262,19 +250,8 @@ export async function GET(request: NextRequest) {
       });
     }
 
-    // Generate PDF via PDFN server
-    const pdfnHost = process.env.PDFN_HOST ?? "http://localhost:3456";
-    const response = await fetch(`${pdfnHost}/generate`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ html }),
-    });
-
-    if (!response.ok) {
-      throw new Error(`PDFN server error: ${response.status} ${response.statusText}`);
-    }
-
-    const pdf = Buffer.from(await response.arrayBuffer());
+    // Generate PDF using generate() from @pdfn/react
+    const pdf = await generate(<Component />, { debug: debug || undefined });
     const duration = Math.round(performance.now() - start);
 
     console.log(`[pdf] ✓ generated in ${duration}ms (${(pdf.length / 1024).toFixed(1)}KB)`);

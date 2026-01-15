@@ -16,6 +16,25 @@ export interface Template {
 
 export const templates: Template[] = [
   {
+    id: "contract",
+    file: "./contract.tsx",
+    name: "Contract",
+    description: "Legal service agreement",
+    pageSize: "Legal",
+    orientation: "portrait",
+    styling: "cssFile",
+  },
+  {
+    id: "report",
+    file: "./report.tsx",
+    name: "Report",
+    description: "Sales report with Recharts",
+    pageSize: "A4",
+    orientation: "portrait",
+    styling: "tailwind",
+    requiresClient: true,
+  },
+  {
     id: "invoice",
     file: "./invoice.tsx",
     name: "Invoice",
@@ -34,15 +53,6 @@ export const templates: Template[] = [
     styling: "inline",
   },
   {
-    id: "contract",
-    file: "./contract.tsx",
-    name: "Contract",
-    description: "Legal service agreement",
-    pageSize: "Legal",
-    orientation: "portrait",
-    styling: "cssFile",
-  },
-  {
     id: "ticket",
     file: "./ticket.tsx",
     name: "Ticket",
@@ -59,15 +69,5 @@ export const templates: Template[] = [
     pageSize: "Tabloid",
     orientation: "landscape",
     styling: "cssProp",
-  },
-  {
-    id: "report",
-    file: "./report.tsx",
-    name: "Report",
-    description: "Sales report with Recharts",
-    pageSize: "A4",
-    orientation: "portrait",
-    styling: "tailwind",
-    requiresClient: true,
   },
 ];

@@ -1,5 +1,26 @@
 # pdfn
 
+## 0.5.0
+
+### Minor Changes
+
+- Switch to Gotenberg-compatible API for PDF generation
+
+  **@pdfn/react:**
+  - Add `generateFromHtml()` function for pre-rendered HTML
+  - Update `generate()` to use Gotenberg-compatible multipart form API
+  - Export new `GenerateFromHtmlOptions` type
+
+  **pdfn CLI:**
+  - `pdfn serve` now uses Docker + Gotenberg for production PDF generation
+  - `pdfn dev` adds Gotenberg-compatible endpoint (`/forms/chromium/convert/html`)
+  - Both commands expose the same API, making them interchangeable
+
+### Patch Changes
+
+- Updated dependencies
+  - @pdfn/react@0.4.0
+
 ## 0.4.6
 
 ### Patch Changes

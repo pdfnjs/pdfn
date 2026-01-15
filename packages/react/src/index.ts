@@ -15,7 +15,7 @@ export { Tr } from "./components/Tr";
 
 // Functions
 export { render } from "./render/render";
-export { generate } from "./generate";
+export { generate, generateFromHtml } from "./generate";
 
 // Types
 export type * from "./types";
@@ -24,4 +24,4 @@ export type { PageNumberProps } from "./components/PageNumber";
 export type { TotalPagesProps } from "./components/TotalPages";
 export type { TheadProps } from "./components/Thead";
 export type { TrProps } from "./components/Tr";
-export type { GenerateOptions } from "./generate";
+export type { GenerateOptions, GenerateFromHtmlOptions } from "./generate";

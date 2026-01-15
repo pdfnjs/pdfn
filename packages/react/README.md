@@ -32,11 +32,12 @@ const html = await render(<Invoice />);
 
 ## render() vs generate()
 
-| | `render()` | `generate()` |
-|---|---|---|
-| **Returns** | HTML string | PDF buffer |
-| **Requires** | Nothing | `npx pdfn serve` running |
-| **Use when** | You have your own Puppeteer/Playwright | You want an all-in-one solution |
+| | `render()` | `generate()` | `generateFromHtml()` |
+|---|---|---|---|
+| **Input** | React element | React element | HTML string |
+| **Returns** | HTML string | PDF buffer | PDF buffer |
+| **Requires** | Nothing | `npx pdfn serve` | `npx pdfn serve` |
+| **Use when** | You have your own browser | You want an all-in-one solution | You have pre-rendered HTML |
 
 ### Using generate()
 
@@ -45,6 +46,17 @@ import { generate } from '@pdfn/react';
 
 const pdf = await generate(<Invoice />);
 // pdf is a Buffer
+```
+
+### Using generateFromHtml()
+
+When you already have HTML (e.g., from client-side bundling or `renderTemplate()`):
+
+```tsx
+import { generateFromHtml } from '@pdfn/react';
+
+const html = await renderTemplate('invoice', { props: data });
+const pdf = await generateFromHtml(html);
 ```
 
 ### Using render() + Puppeteer

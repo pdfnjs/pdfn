@@ -1,27 +1,23 @@
 import type { ReactElement } from "react";
 import { render, type RenderOptions } from "./render/render";
-import type { PdfOptions } from "./types";
 
 const DEFAULT_HOST = "http://localhost:3456";
 
-export interface GenerateOptions extends RenderOptions {
+export interface GenerateFromHtmlOptions {
+  /**
+   * pdfn server host for PDF generation
+   * Defaults to PDFN_HOST environment variable or http://localhost:3456
+   */
+  host?: string;
+}
+
+export interface GenerateOptions extends RenderOptions, GenerateFromHtmlOptions {
   /**
    * Output format
    * - 'pdf': Generate PDF buffer (default)
    * - 'html': Return HTML string for browser preview
    */
   output?: "html" | "pdf";
-
-  /**
-   * PDFN server host for PDF generation
-   * Defaults to PDFN_HOST environment variable or http://localhost:3456
-   */
-  host?: string;
-
-  /**
-   * PDF-specific options (only used when output is 'pdf')
-   */
-  pdf?: PdfOptions;
 }
 
 /**
@@ -45,7 +41,7 @@ export function generate(
  *
  * This is the main function for converting React components to PDF documents.
  * It renders the React element to HTML and either returns the HTML or sends
- * it to the PDFN server for PDF generation.
+ * it to the pdfn server for PDF generation.
  *
  * @example
  * ```tsx
@@ -76,7 +72,7 @@ export async function generate(
   element: ReactElement,
   options: GenerateOptions = {}
 ): Promise<string | Buffer> {
-  const { output = "pdf", host, pdf: pdfOptions, ...renderOptions } = options;
+  const { output = "pdf", host, ...renderOptions } = options;
 
   // Step 1: Render React to HTML
   const html = await render(element, renderOptions);
@@ -86,25 +82,58 @@ export async function generate(
     return html;
   }
 
-  // PDF generation requires PDFN server
+  // Step 3: Generate PDF from HTML
+  return generateFromHtml(html, { host });
+}
+
+/**
+ * Generate PDF from pre-rendered HTML
+ *
+ * Use this when you already have HTML (e.g., from renderTemplate or client-side bundling).
+ * For React components, use generate() instead.
+ *
+ * @example
+ * ```tsx
+ * import { generateFromHtml } from '@pdfn/react';
+ *
+ * // When you have pre-rendered HTML
+ * const html = await renderTemplate('invoice', { props: {} });
+ * const pdf = await generateFromHtml(html);
+ * ```
+ *
+ * @param html - Pre-rendered HTML string
+ * @param options - Generation options
+ * @returns Promise resolving to PDF Buffer
+ */
+export async function generateFromHtml(
+  html: string,
+  options: GenerateFromHtmlOptions = {}
+): Promise<Buffer> {
+  const { host } = options;
   const pdfnHost = host ?? process.env.PDFN_HOST ?? DEFAULT_HOST;
 
-  // POST to PDFN server
+  // Build multipart form data
+  const form = new FormData();
+  form.append("files", new Blob([html], { type: "text/html" }), "index.html");
+  form.append("waitForExpression", "window.PDFN.ready===true");
+  form.append("preferCssPageSize", "true");
+  form.append("printBackground", "true");
+
+  // POST to pdfn server
   let response: Response;
   try {
-    response = await fetch(`${pdfnHost}/generate`, {
+    response = await fetch(`${pdfnHost}/forms/chromium/convert/html`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ html, options: pdfOptions }),
+      body: form,
     });
   } catch (error) {
     const message = error instanceof Error ? error.message : "Unknown error";
     throw new Error(
-      `Cannot connect to PDFN server at ${pdfnHost}
+      `Cannot connect to pdfn server at ${pdfnHost}
 
 ${message}
 
-Make sure the server is running:
+Start the server with:
   npx pdfn serve`
     );
   }
@@ -112,7 +141,7 @@ Make sure the server is running:
   if (!response.ok) {
     const errorText = await response.text();
     throw new Error(
-      `PDFN server error: ${response.status} ${response.statusText}\n${errorText}`
+      `pdfn server error: ${response.status} ${response.statusText}\n${errorText}`
     );
   }
 

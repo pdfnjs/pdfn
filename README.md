@@ -187,7 +187,7 @@ Full working examples at [github.com/pdfnjs/pdf-examples](https://github.com/pdf
 ```bash
 npx pdfn dev              # Dev server with hot reload
 npx pdfn dev --open       # Dev server + open browser
-npx pdfn serve            # Production server (for generate())
+npx pdfn serve            # Production server (requires Docker)
 npx pdfn add invoice      # Add invoice template
 npx pdfn add --list       # See all available templates
 ```
@@ -206,7 +206,7 @@ npx pdfn add --list       # See all available templates
 ## Requirements
 
 - **Node.js 18+** (server-side only, not browser)
-- **Chromium** (bundled with `pdfn` CLI)
+- **Docker** (for `pdfn serve` production server)
 
 ## Documentation
 

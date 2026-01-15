@@ -8,6 +8,7 @@ import chokidar from "chokidar";
 import { createServer as createHttpServer } from "http";
 import { spawn } from "child_process";
 import puppeteer from "puppeteer";
+import multer from "multer";
 import { createBaseServer } from "../server/base";
 import { generatePdf } from "../server/pdf";
 import type { DebugOptions } from "@pdfn/react";
@@ -1530,6 +1531,57 @@ async function startDevServer(options: DevServerOptions) {
       res.status(500).json({ error: `Error generating PDF: ${error}` });
     }
   });
+
+  // Gotenberg-compatible API: Convert HTML to PDF
+  // This allows generate() from @pdfn/react to work with pdfn dev
+  const upload = multer({ storage: multer.memoryStorage() });
+
+  app.post(
+    "/forms/chromium/convert/html",
+    upload.any(),
+    async (req: Request, res: Response) => {
+      try {
+        // Extract HTML from multipart form
+        const files = req.files as Express.Multer.File[] | undefined;
+        const htmlFile = files?.find(
+          (f) => f.originalname === "index.html" || f.fieldname === "files"
+        );
+
+        if (!htmlFile) {
+          res.status(400).send("Missing index.html file");
+          return;
+        }
+
+        const html = htmlFile.buffer.toString("utf-8");
+
+        // Generate PDF using existing infrastructure
+        const result = await browserManager.withPage(async (page) => {
+          return generatePdf(page, html, { timeout: 30000 });
+        });
+
+        // Log the request
+        const { metrics } = result;
+        console.log(
+          chalk.green("  ✓"),
+          chalk.dim("API →"),
+          "PDF",
+          chalk.dim("•"),
+          chalk.cyan(`${metrics.total}ms`),
+          chalk.dim("•"),
+          formatBytes(metrics.pdfSize),
+          chalk.dim(`• ${metrics.pageCount} page${metrics.pageCount > 1 ? "s" : ""}`)
+        );
+
+        res.setHeader("Content-Type", "application/pdf");
+        res.send(result.buffer);
+      } catch (error) {
+        const message = error instanceof Error ? error.message : String(error);
+        console.log(chalk.red("  ✗"), chalk.dim("API →"), chalk.red("PDF generation failed"));
+        console.error(chalk.dim("   "), message);
+        res.status(500).send(message);
+      }
+    }
+  );
 
   // Start server
   await new Promise<void>((resolve, reject) => {
