@@ -218,16 +218,15 @@ export interface RenderOptions {
 }
 
 /**
- * Options for PDF generation via pdfn Cloud
+ * Options for PDF generation
  *
  * @example
  * ```ts
  * import { generate } from '@pdfn/react';
  *
- * // Set PDFN_API_KEY environment variable, or pass apiKey option
- * const pdf = await generate(<Invoice />, {
- *   apiKey: 'pdfn_...',
- * });
+ * // Local: set PDFN_HOST=http://localhost:3456
+ * // Cloud: set PDFN_API_KEY=pdfn_live_...
+ * const pdf = await generate(<Invoice />);
  * ```
  */
 export interface PdfOptions {

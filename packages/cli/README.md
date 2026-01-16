@@ -26,6 +26,19 @@ npx pdfn dev --open    # Start and open browser
 | `--open` | `false` | Open browser on start |
 | `--no-open` | - | Don't open browser |
 
+**Server API:**
+
+```
+POST /v1/generate   # HTML → PDF
+GET  /health        # Health check
+```
+
+Use with `generate()` by setting `PDFN_HOST`:
+
+```bash
+PDFN_HOST=http://localhost:3456 node your-app.js
+```
+
 ### `pdfn add`
 
 Add starter templates to your project.
@@ -45,11 +58,22 @@ npx pdfn add --list             # Show all templates
 | `poster` | Event poster (landscape) |
 | `report` | Sales report with charts (requires recharts) |
 
-## Production PDFs
+## PDF Generation
 
-For production PDF generation, choose based on your infrastructure:
+For PDF generation, choose based on your infrastructure:
 
-**Option 1: Self-host with Puppeteer/Playwright**
+**Option 1: Local dev server**
+
+Use `pdfn dev` for development with `generate()`:
+
+```tsx
+import { generate } from '@pdfn/react';
+
+// Set PDFN_HOST=http://localhost:3456
+const pdf = await generate(<Invoice />);
+```
+
+**Option 2: Self-host with Puppeteer/Playwright**
 
 Use `render()` to get print-ready HTML, then convert with your own browser:
 
@@ -69,20 +93,20 @@ await browser.close();
 
 Works with Puppeteer, Playwright, Browserless, @sparticuz/chromium, or any Chromium setup.
 
-**Option 2: pdfn Cloud**
+**Option 3: pdfn Cloud**
 
 Let pdfn manage the browser infrastructure:
 
 ```tsx
 import { generate } from '@pdfn/react';
 
-// Set PDFN_API_KEY environment variable
+// Set PDFN_API_KEY=pdfn_live_...
 const pdf = await generate(<Invoice />);
 ```
 
 Get your API key at [console.pdfn.dev](https://console.pdfn.dev).
 
-**Both produce identical PDFs** — same templates, same output.
+**All options produce identical PDFs** — same templates, same output.
 
 ## License
 

@@ -72,9 +72,9 @@ export function createBaseServer(options: BaseServerOptions = {}): BaseServer {
       res.on("finish", () => {
         const duration = performance.now() - start;
 
-        // For /generate, include page count and size
+        // For /v1/generate, include page count and size
         let extra: string | undefined;
-        if (req.path === "/generate" && res.statusCode === 200) {
+        if (req.path === "/v1/generate" && res.statusCode === 200) {
           const pages = res.getHeader("X-PDFN-Page-Count");
           const size = Number(res.getHeader("X-PDFN-PDF-Size")) || 0;
           const sizeKB = (size / 1024).toFixed(1);
@@ -104,9 +104,9 @@ export function createBaseServer(options: BaseServerOptions = {}): BaseServer {
     });
   });
 
-  // PDF generation endpoint
+  // PDF generation endpoint (matches pdfn Cloud API)
   app.post(
-    "/generate",
+    "/v1/generate",
     createGenerateHandler(browserManager, {
       timeout,
       onSuccess: options.onSuccess,

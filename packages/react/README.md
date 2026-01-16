@@ -32,30 +32,37 @@ const html = await render(<Invoice />);
 
 ## render() vs generate()
 
-| | `render()` | `generate()` | `generateFromHtml()` |
-|---|---|---|---|
-| **Input** | React element | React element | HTML string |
-| **Returns** | HTML string | PDF buffer | PDF buffer |
-| **Requires** | Nothing | API key | API key |
-| **Use when** | Full control with your own Chromium | Managed PDF generation | Pre-rendered HTML to PDF |
+| | `render()` | `generate()` |
+|---|---|---|
+| **Input** | React element | React element |
+| **Returns** | HTML string | PDF buffer |
+| **Requires** | Nothing | pdfn server |
+| **Use when** | Full control with your own Chromium | Local dev or pdfn Cloud |
 
 **Both paths produce identical PDFs.** Choose based on your infrastructure preferences:
 - `render()` → You manage Chromium (Puppeteer, Playwright, Browserless, etc.)
-- `generate()` → pdfn Cloud manages it for you
+- `generate()` → pdfn dev server or pdfn Cloud
 
 ### Using generate()
 
-Requires an API key from [console.pdfn.dev](https://console.pdfn.dev).
+Requires either a local pdfn server or pdfn Cloud API key.
 
 ```tsx
 import { generate } from '@pdfn/react';
 
-// Set PDFN_API_KEY environment variable, or pass apiKey option
+// Option 1: Local development
+// Run `npx pdfn dev` and set PDFN_HOST
+// PDFN_HOST=http://localhost:3456
 const pdf = await generate(<Invoice />);
-// pdf is a Buffer
 
-// Or pass API key directly
-const pdf = await generate(<Invoice />, { apiKey: 'pdfn_...' });
+// Option 2: pdfn Cloud
+// Get API key at https://console.pdfn.dev
+// PDFN_API_KEY=pdfn_live_...
+const pdf = await generate(<Invoice />);
+
+// Or pass options directly
+const pdf = await generate(<Invoice />, { host: 'http://localhost:3456' });
+const pdf = await generate(<Invoice />, { apiKey: 'pdfn_live_...' });
 ```
 
 ### Using generateFromHtml()
@@ -67,7 +74,7 @@ import { render, generateFromHtml } from '@pdfn/react';
 
 const html = await render(<Invoice data={data} />);
 const pdf = await generateFromHtml(html);
-// Requires PDFN_API_KEY environment variable
+// Requires PDFN_HOST or PDFN_API_KEY environment variable
 ```
 
 ### Using render() + Puppeteer
