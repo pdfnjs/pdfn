@@ -1,5 +1,12 @@
 # web
 
+## 0.1.13
+
+### Patch Changes
+
+- Updated dependencies
+  - @pdfn/react@0.5.1
+
 ## 0.1.12
 
 ### Patch Changes

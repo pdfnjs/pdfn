@@ -1,5 +1,11 @@
 # @pdfn/react
 
+## 0.5.1
+
+### Patch Changes
+
+- Align local and cloud API to use /v1/generate endpoint. Add PDFN_HOST support for local development.
+
 ## 0.5.0
 
 ### Minor Changes
