@@ -834,7 +834,7 @@ export default function Home() {
               </div>
               <div>
                 <div className="font-medium text-text-primary mb-1">Headless-friendly</div>
-                <div className="text-sm text-text-muted">Works with Puppeteer, Playwright, Browserless, or your own setup</div>
+                <div className="text-sm text-text-muted">Works with Puppeteer, Playwright, Browserless, or pdfn Cloud</div>
               </div>
             </div>
           </div>
@@ -893,7 +893,7 @@ export default function Home() {
               Built for developers
             </h2>
             <p className="text-xl text-text-secondary max-w-2xl mx-auto mb-3">
-              Library + Dev Server + Your Production Setup
+              Library + Dev Server + Production Setup
             </p>
             <p className="text-sm text-text-muted max-w-xl mx-auto mb-2">
               pdfn prepares HTML for clean page breaks. Chromium handles layout and printing.
@@ -1005,7 +1005,7 @@ export default function Home() {
                   <svg className="w-4 h-4 text-primary mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                   </svg>
-                  <span>Docker, AWS Lambda</span>
+                  <span>Docker, AWS Lambda, or pdfn Cloud</span>
                 </li>
               </ul>
             </div>

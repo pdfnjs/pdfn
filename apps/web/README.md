@@ -25,14 +25,16 @@ Official website and interactive demo for pdfn.
 # From monorepo root
 pnpm install
 
-# Set up API key (get one at console.pdfn.dev)
-export PDFN_API_KEY=pdfn_...
+# Terminal 1: Start local pdfn server
+npx pdfn dev
 
-# Start website
-pnpm --filter web dev
+# Terminal 2: Start website
+PDFN_HOST=http://localhost:3456 pnpm --filter web dev
 ```
 
 Open http://localhost:3000
+
+For production, you can use pdfn Cloud (`PDFN_API_KEY`) or self-host with Puppeteer/Gotenberg.
 
 ## Project Structure
 
