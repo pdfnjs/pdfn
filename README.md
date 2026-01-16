@@ -20,11 +20,19 @@ pdfn fixes this:
 - **Dynamic page numbers** — `Page 1 of 5` resolves correctly
 - **Debug overlays** — visualize margins, grid, page breaks
 - **Tailwind CSS support** — works out of the box via `@pdfn/tailwind`
-- **Uses headless Chromium** — via `pdfn serve` or your existing Puppeteer setup
+- **Production PDFs** — via [pdfn Cloud](https://pdfn.dev) or self-host with Puppeteer
 
 ```
 React → pdfn → HTML → Chromium → PDF
 ```
+
+## Who pdfn is for
+
+- Teams generating quotes, contracts, reports, or invoices
+- PDFs that grow beyond a few static templates
+- Cases where preview must match production exactly
+
+If you only need a one-off PDF or visual export, simpler tools may be enough.
 
 ## What pdfn is not
 
@@ -63,29 +71,14 @@ export default function Invoice({ number, customer, items, ... }) {
 
 Edit `pdfn-templates/invoice.tsx` — changes appear instantly with hot reload.
 
-### Generating PDFs
+### Choose your production path
 
-**Using `generate()`** — requires `npx pdfn serve` running
+- **Want full control / already running Puppeteer?** → Self-host with `render()`
+- **Want zero browser infra?** → pdfn Cloud with `generate()`
 
-```tsx
-// generate-pdf.tsx
-import React from 'react';
-import { generate } from '@pdfn/react';
-import { writeFileSync } from 'fs';
-import Invoice from './pdfn-templates/invoice';
+Both produce identical PDFs — same templates, same output.
 
-async function main() {
-  const pdf = await generate(<Invoice number="INV-2025-042" />);
-  writeFileSync('invoice.pdf', pdf);
-}
-main();
-```
-
-```bash
-npx tsx generate-pdf.tsx  # Generates invoice.pdf
-```
-
-**Using `render()` + Puppeteer** — bring your own browser
+**Option 1: Self-host with Puppeteer** — full control, no API key needed
 
 ```bash
 npm install puppeteer
@@ -117,6 +110,29 @@ main();
 ```bash
 npx tsx generate-puppeteer-pdf.tsx  # Generates invoice-puppeteer.pdf
 ```
+
+**Option 2: pdfn Cloud** — managed infrastructure, no browser setup
+
+```tsx
+// generate-pdf.tsx
+import React from 'react';
+import { generate } from '@pdfn/react';
+import { writeFileSync } from 'fs';
+import Invoice from './pdfn-templates/invoice';
+
+async function main() {
+  // Set PDFN_API_KEY environment variable, or pass apiKey option
+  const pdf = await generate(<Invoice number="INV-2025-042" />);
+  writeFileSync('invoice.pdf', pdf);
+}
+main();
+```
+
+```bash
+PDFN_API_KEY=pdfn_... npx tsx generate-pdf.tsx  # Generates invoice.pdf
+```
+
+Get an API key at [console.pdfn.dev](https://console.pdfn.dev).
 
 ## Example: Next.js + Tailwind
 
@@ -162,7 +178,7 @@ npm run dev  # Start Next.js at http://localhost:3000
 
 Open http://localhost:3000/api/invoice to download the PDF.
 
-> **Note:** `generate()` requires `npx pdfn dev` or `npx pdfn serve` running.
+> **Note:** This example uses `generate()` which requires an API key. Alternatively, use `render()` + Puppeteer for self-hosting — see [Generating PDFs](#generating-pdfs) above.
 
 ## Examples
 
@@ -187,7 +203,6 @@ Full working examples at [github.com/pdfnjs/pdf-examples](https://github.com/pdf
 ```bash
 npx pdfn dev              # Dev server with hot reload
 npx pdfn dev --open       # Dev server + open browser
-npx pdfn serve            # Production server (requires Docker)
 npx pdfn add invoice      # Add invoice template
 npx pdfn add --list       # See all available templates
 ```
@@ -206,7 +221,6 @@ npx pdfn add --list       # See all available templates
 ## Requirements
 
 - **Node.js 18+** (server-side only, not browser)
-- **Docker** (for `pdfn serve` production server)
 
 ## Documentation
 
@@ -214,7 +228,7 @@ npx pdfn add --list       # See all available templates
 - **[@pdfn/tailwind](./packages/tailwind)** — Tailwind CSS support
 - **[@pdfn/next](./packages/next)** — Next.js integration
 - **[@pdfn/vite](./packages/vite)** — Vite integration
-- **[pdfn CLI](./packages/cli)** — Dev server and production server
+- **[pdfn CLI](./packages/cli)** — Dev server and template scaffolding
 
 ## Support & Feedback
 
@@ -223,7 +237,7 @@ npx pdfn add --list       # See all available templates
 
 ---
 
-pdfn focuses on correctness and predictability. For high-throughput workloads, run `pdfn serve` as a dedicated service.
+pdfn focuses on correctness and predictability. For production workloads, use [pdfn Cloud](https://pdfn.dev) or [self-host](https://pdfn.dev/docs/self-hosting) with your own Chromium setup.
 
 ## License
 

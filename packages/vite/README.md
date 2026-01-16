@@ -62,7 +62,7 @@ async function main() {
 main();
 ```
 
-> **Note:** `generate()` requires `npx pdfn dev` or `npx pdfn serve` running.
+> **Note:** `generate()` requires a pdfn API key. Alternatively, use `render()` with your own Puppeteer setup — no API key needed.
 
 ## Custom Theme
 

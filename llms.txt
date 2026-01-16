@@ -18,7 +18,7 @@
 - [@pdfn/tailwind](/packages/tailwind/README.md): Tailwind CSS support
 - [@pdfn/next](/packages/next/README.md): Next.js edge runtime plugin
 - [@pdfn/vite](/packages/vite/README.md): Vite edge runtime plugin
-- [pdfn CLI](/packages/cli/README.md): Dev server and production server
+- [pdfn CLI](/packages/cli/README.md): Dev server with live preview
 
 ## Quick Reference
 
@@ -58,7 +58,7 @@ async function main() {
 main();
 ```
 
-> **Note:** `generate()` requires `npx pdfn dev` or `npx pdfn serve` running.
+> **Note:** `generate()` requires a pdfn API key. Alternatively, use `render()` + Puppeteer to self-host.
 
 ### Components
 
@@ -77,8 +77,10 @@ main();
 
 | Function | Returns | Requires |
 |----------|---------|----------|
-| `render()` | HTML string | Nothing |
-| `generate()` | PDF buffer | `npx pdfn dev` or `npx pdfn serve` running |
+| `render()` | HTML string | Nothing (use with your own Puppeteer) |
+| `generate()` | PDF buffer | API key (or use render() to self-host) |
+
+Both produce identical PDFs — choose based on infrastructure preferences.
 
 ### Project Structure
 

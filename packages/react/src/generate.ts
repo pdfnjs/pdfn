@@ -1,14 +1,14 @@
 import type { ReactElement } from "react";
 import { render, type RenderOptions } from "./render/render";
 
-const DEFAULT_HOST = "http://localhost:3456";
+const PDFN_API_URL = "https://api.pdfn.dev";
 
 export interface GenerateFromHtmlOptions {
   /**
-   * pdfn server host for PDF generation
-   * Defaults to PDFN_HOST environment variable or http://localhost:3456
+   * API key for pdfn Cloud
+   * Defaults to PDFN_API_KEY environment variable
    */
-  host?: string;
+  apiKey?: string;
 }
 
 export interface GenerateOptions extends RenderOptions, GenerateFromHtmlOptions {
@@ -41,27 +41,24 @@ export function generate(
  *
  * This is the main function for converting React components to PDF documents.
  * It renders the React element to HTML and either returns the HTML or sends
- * it to the pdfn server for PDF generation.
+ * it to pdfn Cloud for PDF generation.
  *
  * @example
  * ```tsx
  * import { Document, Page, generate } from '@pdfn/react';
  *
- * // Generate PDF (default)
+ * // Set PDFN_API_KEY environment variable, then:
  * const pdf = await generate(
  *   <Document title="Hello">
  *     <Page><h1>Hello World</h1></Page>
  *   </Document>
  * );
  *
- * // Generate HTML for preview
+ * // Or pass API key directly:
+ * const pdf = await generate(<MyDoc />, { apiKey: 'pdfn_...' });
+ *
+ * // Generate HTML for preview (no API key needed)
  * const html = await generate(<MyDoc />, { output: 'html' });
- *
- * // Generate PDF with debug overlays
- * const pdf = await generate(<MyDoc />, { debug: { grid: true, margins: true } });
- *
- * // Generate PDF with custom host
- * const pdf = await generate(<MyDoc />, { host: 'http://my-server:3456' });
  * ```
  *
  * @param element - React element to render (should be a Document component)
@@ -72,7 +69,7 @@ export async function generate(
   element: ReactElement,
   options: GenerateOptions = {}
 ): Promise<string | Buffer> {
-  const { output = "pdf", host, ...renderOptions } = options;
+  const { output = "pdf", apiKey, ...renderOptions } = options;
 
   // Step 1: Render React to HTML
   const html = await render(element, renderOptions);
@@ -82,22 +79,24 @@ export async function generate(
     return html;
   }
 
-  // Step 3: Generate PDF from HTML
-  return generateFromHtml(html, { host });
+  // Step 3: Generate PDF from HTML via pdfn Cloud
+  return generateFromHtml(html, { apiKey });
 }
 
 /**
  * Generate PDF from pre-rendered HTML
  *
- * Use this when you already have HTML (e.g., from renderTemplate or client-side bundling).
+ * Use this when you already have HTML (e.g., from render() or custom templates).
  * For React components, use generate() instead.
+ *
+ * Requires a pdfn API key. Get one at https://console.pdfn.dev
  *
  * @example
  * ```tsx
- * import { generateFromHtml } from '@pdfn/react';
+ * import { render, generateFromHtml } from '@pdfn/react';
  *
  * // When you have pre-rendered HTML
- * const html = await renderTemplate('invoice', { props: {} });
+ * const html = await render(<Invoice data={data} />);
  * const pdf = await generateFromHtml(html);
  * ```
  *
@@ -109,39 +108,67 @@ export async function generateFromHtml(
   html: string,
   options: GenerateFromHtmlOptions = {}
 ): Promise<Buffer> {
-  const { host } = options;
-  const pdfnHost = host ?? process.env.PDFN_HOST ?? DEFAULT_HOST;
+  const { apiKey } = options;
+  const key = apiKey ?? process.env.PDFN_API_KEY;
 
-  // Build multipart form data
-  const form = new FormData();
-  form.append("files", new Blob([html], { type: "text/html" }), "index.html");
-  form.append("waitForExpression", "window.PDFN.ready===true");
-  form.append("preferCssPageSize", "true");
-  form.append("printBackground", "true");
+  if (!key) {
+    throw new Error(
+      `pdfn API key required for PDF generation.
 
-  // POST to pdfn server
+Get your API key at: https://console.pdfn.dev
+
+Then either:
+  1. Set PDFN_API_KEY environment variable
+  2. Pass apiKey option: generate(<Doc />, { apiKey: '...' })
+
+For local development preview, use:
+  npx pdfn dev
+
+For self-hosting, see:
+  https://pdfn.dev/docs/self-hosting`
+    );
+  }
+
+  // POST to pdfn Cloud API
   let response: Response;
   try {
-    response = await fetch(`${pdfnHost}/forms/chromium/convert/html`, {
+    response = await fetch(`${PDFN_API_URL}/v1/generate`, {
       method: "POST",
-      body: form,
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${key}`,
+      },
+      body: JSON.stringify({ html }),
     });
   } catch (error) {
     const message = error instanceof Error ? error.message : "Unknown error";
     throw new Error(
-      `Cannot connect to pdfn server at ${pdfnHost}
+      `Cannot connect to pdfn Cloud at ${PDFN_API_URL}
 
 ${message}
 
-Start the server with:
-  npx pdfn serve`
+Check your network connection or try again later.
+Status: https://status.pdfn.dev`
     );
   }
 
   if (!response.ok) {
-    const errorText = await response.text();
+    const error = await response.json().catch(() => ({ message: response.statusText }));
+
+    if (response.status === 401) {
+      throw new Error(
+        `Invalid API key. Check your PDFN_API_KEY or get a new one at https://console.pdfn.dev`
+      );
+    }
+
+    if (response.status === 429) {
+      throw new Error(
+        `Rate limit exceeded. Upgrade your plan at https://console.pdfn.dev/billing`
+      );
+    }
+
     throw new Error(
-      `pdfn server error: ${response.status} ${response.statusText}\n${errorText}`
+      `pdfn Cloud error: ${response.status} ${error.message || response.statusText}`
     );
   }
 

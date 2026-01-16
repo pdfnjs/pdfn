@@ -181,6 +181,7 @@ function resolveTemplatePath(
  * ```ts
  * // In Next.js API route (app/api/pdf/route.ts)
  * import { renderTemplate } from '@pdfn/next';
+ * import { generateFromHtml } from '@pdfn/react';
  *
  * export async function GET(request: NextRequest) {
  *   const { html } = await renderTemplate('report', {
@@ -188,14 +189,10 @@ function resolveTemplatePath(
  *     title: 'Sales Report'
  *   });
  *
- *   // Send HTML to pdfn server for PDF generation
- *   const response = await fetch('http://localhost:3456/generate', {
- *     method: 'POST',
- *     headers: { 'Content-Type': 'application/json' },
- *     body: JSON.stringify({ html })
- *   });
+ *   // Generate PDF via pdfn Cloud (requires PDFN_API_KEY)
+ *   const pdf = await generateFromHtml(html);
  *
- *   return new Response(await response.arrayBuffer(), {
+ *   return new Response(new Uint8Array(pdf), {
  *     headers: { 'Content-Type': 'application/pdf' }
  *   });
  * }

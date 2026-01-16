@@ -1,8 +1,6 @@
 # pdfn
 
-CLI for pdfn. Dev server with live preview, production server for PDF generation.
-
-> For serverless deployments, use [@sparticuz/chromium](https://github.com/Sparticuz/chromium) or a hosted browser service.
+CLI for pdfn. Dev server with live preview and template scaffolding.
 
 ## Installation
 
@@ -21,21 +19,12 @@ npx pdfn dev           # Start on port 3456
 npx pdfn dev --open    # Start and open browser
 ```
 
-### `pdfn serve`
-
-Production server for PDF generation. Requires Docker (uses [Gotenberg](https://gotenberg.dev)).
-
-```bash
-npx pdfn serve              # Start server on port 3456
-npx pdfn serve --port 8080  # Custom port
-```
-
-| Option | Env Variable | Default | Description |
-|--------|--------------|---------|-------------|
-| `--port` | `PDFN_PORT` | `3456` | Server port |
-| `--mode` | - | `production` | Environment mode (loads .env.[mode]) |
-
-Docker runs Gotenberg which handles PDF rendering with Chromium.
+| Option | Default | Description |
+|--------|---------|-------------|
+| `--port` | `3456` | Server port |
+| `--templates` | `./pdfn-templates` | Templates directory |
+| `--open` | `false` | Open browser on start |
+| `--no-open` | - | Don't open browser |
 
 ### `pdfn add`
 
@@ -56,34 +45,44 @@ npx pdfn add --list             # Show all templates
 | `poster` | Event poster (landscape) |
 | `report` | Sales report with charts (requires recharts) |
 
-## Server API
+## Production PDFs
 
-Both `pdfn dev` and `pdfn serve` expose a Gotenberg-compatible API:
+For production PDF generation, choose based on your infrastructure:
 
-```bash
-POST /forms/chromium/convert/html
-Content-Type: multipart/form-data
-# Form fields: files (index.html), waitForExpression, preferCssPageSize, printBackground
-# Returns: application/pdf
+**Option 1: Self-host with Puppeteer/Playwright**
 
-GET /health
-# Returns: { "status": "ok", ... }
+Use `render()` to get print-ready HTML, then convert with your own browser:
+
+```tsx
+import { render } from '@pdfn/react';
+import puppeteer from 'puppeteer';
+
+const html = await render(<Invoice />);
+
+const browser = await puppeteer.launch();
+const page = await browser.newPage();
+await page.setContent(html, { waitUntil: 'networkidle0' });
+await page.waitForFunction(() => window.PDFN?.ready === true);
+const pdf = await page.pdf({ preferCSSPageSize: true, printBackground: true });
+await browser.close();
 ```
 
-The `generate()` function from `@pdfn/react` handles this API automatically.
+Works with Puppeteer, Playwright, Browserless, @sparticuz/chromium, or any Chromium setup.
 
-## Embedding in Your Server
+**Option 2: pdfn Cloud**
 
-For embedding a PDF server in your Node.js application (without Docker):
+Let pdfn manage the browser infrastructure:
 
-```ts
-import { createServer } from 'pdfn/server';
+```tsx
+import { generate } from '@pdfn/react';
 
-const server = createServer({ port: 3456, maxConcurrent: 10 });
-await server.start();
+// Set PDFN_API_KEY environment variable
+const pdf = await generate(<Invoice />);
 ```
 
-This uses embedded Puppeteer and exposes both the legacy `/generate` endpoint and the Gotenberg-compatible `/forms/chromium/convert/html` endpoint.
+Get your API key at [console.pdfn.dev](https://console.pdfn.dev).
+
+**Both produce identical PDFs** — same templates, same output.
 
 ## License
 

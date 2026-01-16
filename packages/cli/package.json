@@ -6,14 +6,7 @@
   "bin": {
     "pdfn": "./dist/cli.js"
   },
-  "exports": {
-    "./server": {
-      "import": {
-        "types": "./dist/server/index.d.ts",
-        "default": "./dist/server/index.js"
-      }
-    }
-  },
+  "exports": {},
   "scripts": {
     "build": "tsup",
     "dev": "tsup --watch",

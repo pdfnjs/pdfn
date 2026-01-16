@@ -13,6 +13,11 @@ pdfn is a React framework for generating PDFs. You write React components, pdfn 
 - Multiple styling options (inline, CSS, Tailwind)
 - Works in Node.js, Next.js, or any server environment
 
+**Best for:**
+- Teams generating quotes, contracts, reports, or invoices
+- PDFs that grow beyond a few static templates
+- Cases where preview must match production exactly
+
 **Not for:**
 - Browser rendering — `@pdfn/react` runs in Node.js
 - Visual PDF editors — Generate from data, no drag-and-drop
@@ -40,8 +45,10 @@ npm i @pdfn/next  # or @pdfn/vite
 
 | Function | Returns | Requires | Use when |
 |----------|---------|----------|----------|
-| `render()` | HTML string | Nothing | You have your own Puppeteer/Playwright |
-| `generate()` | PDF buffer | `npx pdfn dev` or `npx pdfn serve` | You want all-in-one solution |
+| `render()` | HTML string | Nothing | Full control with your own Chromium |
+| `generate()` | PDF buffer | API key | Managed PDF generation |
+
+**Both produce identical PDFs.** Choose based on your infrastructure preferences.
 
 ### Component Hierarchy
 
@@ -410,7 +417,7 @@ async function main() {
 main();
 ```
 
-Run: `npx tsx generate.tsx` (requires `npx pdfn dev` or `npx pdfn serve` running)
+Run: `PDFN_API_KEY=pdfn_... npx tsx generate.tsx`
 
 ## CLI Commands
 
@@ -419,11 +426,6 @@ Run: `npx tsx generate.tsx` (requires `npx pdfn dev` or `npx pdfn serve` running
 npx pdfn dev
 npx pdfn dev --open
 npx pdfn dev --port 4000
-
-# Production server (headless)
-npx pdfn serve
-npx pdfn serve --port 3456
-npx pdfn serve --max-concurrent 10
 
 # Add starter templates
 npx pdfn add invoice
@@ -435,9 +437,7 @@ npx pdfn add --list
 
 | Variable | Default | Description |
 |----------|---------|-------------|
-| `PDFN_HOST` | `http://localhost:3456` | Server URL for generate() |
-| `PDFN_PORT` | `3456` | Server port |
-| `PDFN_MAX_CONCURRENT` | `5` | Max concurrent generations |
+| `PDFN_API_KEY` | - | API key for generate() (required) |
 | `DEBUG` | - | Set to `pdfn:*` for logging |
 
 ## Common Patterns
@@ -473,7 +473,7 @@ const pdf = await generate(<Invoice />, { debug: { grid: true, margins: true } }
 ## Important Notes
 
 1. **Server-only** - pdfn uses react-dom/server, doesn't work in browsers
-2. **generate() needs server** - Run `npx pdfn dev` or `npx pdfn serve` before calling generate()
+2. **generate() needs API key** - Get one at console.pdfn.dev, set PDFN_API_KEY env var
 3. **PDFN.ready** - When using render() with Puppeteer, wait for `window.PDFN.ready === true` (pagination complete)
 4. **Peer dependencies** - Plain Node.js needs `react` and `react-dom` installed
 5. **Templates folder** - By convention, templates go in `pdfn-templates/`

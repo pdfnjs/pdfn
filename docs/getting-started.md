@@ -52,27 +52,11 @@ This opens a browser with live preview. Edit your template and see changes insta
 
 ## Generate a PDF
 
-### Option 1: Using generate()
+Choose based on your infrastructure — both produce identical PDFs.
 
-Requires `npx pdfn dev` or `npx pdfn serve` running:
+### Option 1: Self-host with Puppeteer
 
-```bash
-npx pdfn dev  # or npx pdfn serve
-```
-
-Then generate PDFs in your code:
-
-```tsx
-import { generate } from '@pdfn/react';
-import Invoice from './pdfn-templates/invoice';
-
-const pdf = await generate(<Invoice />);
-// pdf is a Buffer — save it, return it from an API, etc.
-```
-
-### Option 2: Using render() with Your Own Puppeteer
-
-If you have an existing Puppeteer/Playwright setup:
+Full control with your own Chromium setup:
 
 ```tsx
 import puppeteer from 'puppeteer';
@@ -95,6 +79,21 @@ const pdf = await page.pdf({
 });
 await browser.close();
 ```
+
+### Option 2: pdfn Cloud
+
+Managed infrastructure — no browser setup:
+
+```tsx
+import { generate } from '@pdfn/react';
+import Invoice from './pdfn-templates/invoice';
+
+// Set PDFN_API_KEY environment variable, or pass apiKey option
+const pdf = await generate(<Invoice />);
+// pdf is a Buffer — save it, return it from an API, etc.
+```
+
+Get an API key at [console.pdfn.dev](https://console.pdfn.dev).
 
 ## Next Steps
 

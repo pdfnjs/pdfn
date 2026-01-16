@@ -143,8 +143,8 @@ export default function Home() {
       const response = await fetch(pdfUrl);
       if (!response.ok) {
         const text = await response.text();
-        if (text.includes("pdfn server is not running")) {
-          setPdfError("Start the server: npx pdfn serve");
+        if (text.includes("API key")) {
+          setPdfError("API key not configured");
         } else {
           setPdfError("PDF generation failed");
         }

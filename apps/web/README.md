@@ -25,10 +25,10 @@ Official website and interactive demo for pdfn.
 # From monorepo root
 pnpm install
 
-# Terminal 1: Start pdfn server (for PDF generation)
-pnpm --filter pdfn exec pdfn serve
+# Set up API key (get one at console.pdfn.dev)
+export PDFN_API_KEY=pdfn_...
 
-# Terminal 2: Start website
+# Start website
 pnpm --filter web dev
 ```
 

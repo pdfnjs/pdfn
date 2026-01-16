@@ -36,27 +36,38 @@ const html = await render(<Invoice />);
 |---|---|---|---|
 | **Input** | React element | React element | HTML string |
 | **Returns** | HTML string | PDF buffer | PDF buffer |
-| **Requires** | Nothing | `npx pdfn serve` | `npx pdfn serve` |
-| **Use when** | You have your own browser | You want an all-in-one solution | You have pre-rendered HTML |
+| **Requires** | Nothing | API key | API key |
+| **Use when** | Full control with your own Chromium | Managed PDF generation | Pre-rendered HTML to PDF |
+
+**Both paths produce identical PDFs.** Choose based on your infrastructure preferences:
+- `render()` → You manage Chromium (Puppeteer, Playwright, Browserless, etc.)
+- `generate()` → pdfn Cloud manages it for you
 
 ### Using generate()
+
+Requires an API key from [console.pdfn.dev](https://console.pdfn.dev).
 
 ```tsx
 import { generate } from '@pdfn/react';
 
+// Set PDFN_API_KEY environment variable, or pass apiKey option
 const pdf = await generate(<Invoice />);
 // pdf is a Buffer
+
+// Or pass API key directly
+const pdf = await generate(<Invoice />, { apiKey: 'pdfn_...' });
 ```
 
 ### Using generateFromHtml()
 
-When you already have HTML (e.g., from client-side bundling or `renderTemplate()`):
+When you already have HTML (e.g., from `render()` or custom templates):
 
 ```tsx
-import { generateFromHtml } from '@pdfn/react';
+import { render, generateFromHtml } from '@pdfn/react';
 
-const html = await renderTemplate('invoice', { props: data });
+const html = await render(<Invoice data={data} />);
 const pdf = await generateFromHtml(html);
+// Requires PDFN_API_KEY environment variable
 ```
 
 ### Using render() + Puppeteer

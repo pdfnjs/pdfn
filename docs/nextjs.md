@@ -80,27 +80,45 @@ export async function GET() {
 }
 ```
 
-## Running the PDF Server
+## PDF Generation Options
 
-`generate()` requires a running pdfn server:
+**Option 1: Self-host with Puppeteer**
 
-**Development:**
+Use `render()` to get print-ready HTML, then convert with your own browser:
 
-```bash
-# Terminal 1: pdfn server
-npx pdfn serve
+```tsx
+import { render } from '@pdfn/react';
+import puppeteer from 'puppeteer';
 
-# Terminal 2: Next.js dev
-npm run dev
+export async function GET() {
+  const html = await render(<Invoice />);
+
+  const browser = await puppeteer.launch();
+  const page = await browser.newPage();
+  await page.setContent(html, { waitUntil: 'networkidle0' });
+  await page.waitForFunction(() => window.PDFN?.ready === true);
+  const pdf = await page.pdf({ preferCSSPageSize: true, printBackground: true });
+  await browser.close();
+
+  return new Response(pdf, { headers: { 'Content-Type': 'application/pdf' } });
+}
 ```
 
-**Production:**
+**Option 2: pdfn Cloud**
 
-Run `pdfn serve` as a sidecar process or separate service.
+Use `generate()` for managed PDF generation:
 
 ```bash
-# Start both (example with concurrently)
-npx concurrently "pdfn serve" "next start"
+# .env.local
+PDFN_API_KEY=pdfn_...
+```
+
+Get an API key at [console.pdfn.dev](https://console.pdfn.dev).
+
+**For local development preview**, use:
+
+```bash
+npx pdfn dev
 ```
 
 ## HTML Preview Endpoint
@@ -261,16 +279,16 @@ export default function Page() {
 
 ```bash
 # .env.local
-PDFN_HOST=http://localhost:3456  # Default, change for production
+PDFN_API_KEY=pdfn_...  # Required for generate()
 ```
 
 ## Deployment Checklist
 
-1. **pdfn server** — Run `pdfn serve` as a sidecar or separate service
-2. **PDFN_HOST** — Set to your pdfn server URL in production
-3. **Chromium** — Ensure headless Chrome is available (Docker, Browserless, etc.)
+**Using pdfn Cloud** (recommended):
+1. Set `PDFN_API_KEY` environment variable
+2. That's it — pdfn Cloud handles everything
 
-For serverless (Vercel, AWS Lambda), consider:
-- [@sparticuz/chromium](https://github.com/Sparticuz/chromium) for Lambda
-- [Browserless](https://browserless.io) for managed Chromium
-- Self-hosted pdfn server on a VM/container
+**Self-hosting:**
+1. Set up Puppeteer/Playwright in your infrastructure
+2. Use `render()` to get HTML, then convert with your own browser
+3. See [self-hosting docs](https://pdfn.dev/docs/self-hosting)

@@ -4,7 +4,7 @@
  * Usage: pnpm generate-demo-pdfs
  *
  * Requires:
- * 1. PDFN server running: pnpm --filter pdfn exec pdfn serve
+ * 1. PDFN_API_KEY environment variable set
  * 2. Next.js dev server running: pnpm --filter web dev
  */
 
@@ -12,7 +12,6 @@ import { existsSync, mkdirSync, rmSync, writeFileSync, readdirSync, statSync } f
 import { join } from "path";
 import { templates } from "../src/config/templates.js";
 
-const PDFN_HOST = process.env.PDFN_HOST || "http://localhost:3456";
 const NEXTJS_HOST = process.env.NEXTJS_HOST || "http://localhost:3000";
 const OUTPUT_DIR = join(process.cwd(), "public", "pdfs");
 
@@ -56,20 +55,16 @@ async function generatePdf(
 
 async function main() {
   console.log("\n📄 PDFN Demo PDF Generator\n");
-  console.log(`  PDFN Server: ${PDFN_HOST}`);
   console.log(`  Next.js Server: ${NEXTJS_HOST}`);
   console.log(`  Output: ${OUTPUT_DIR}\n`);
 
-  // Check if PDFN server is running
-  try {
-    const health = await fetch(`${PDFN_HOST}/health`);
-    if (!health.ok) throw new Error("Health check failed");
-    console.log("  ✓ PDFN server is running");
-  } catch {
-    console.error("  ✗ PDFN server is not running");
-    console.error(`    Start it with: pnpm --filter pdfn exec pdfn serve\n`);
+  // Check if PDFN_API_KEY is set
+  if (!process.env.PDFN_API_KEY) {
+    console.error("  ✗ PDFN_API_KEY environment variable not set");
+    console.error(`    Get one at: https://console.pdfn.dev\n`);
     process.exit(1);
   }
+  console.log("  ✓ PDFN_API_KEY is set");
 
   // Check if Next.js server is running
   try {

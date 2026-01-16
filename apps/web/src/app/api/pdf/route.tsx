@@ -163,7 +163,7 @@ export async function GET(request: NextRequest) {
       });
     }
 
-    // No cache - need to generate via pdfn server
+    // No cache - need to generate via pdfn Cloud
     console.log(`[pdf] generate "${name}" (${pageSize} ${orientation}) [client]`);
 
     try {
@@ -271,7 +271,7 @@ export async function GET(request: NextRequest) {
     console.error(`[pdf] ✗ failed: ${message}`);
 
     // Return HTML error page so browser displays it instead of downloading JSON
-    const isServerError = message.includes("PDFN server error") || message.includes("fetch failed");
+    const isApiKeyError = message.includes("API key required") || message.includes("Invalid API key");
     const html = `<!DOCTYPE html>
 <html>
 <head>
@@ -285,10 +285,9 @@ export async function GET(request: NextRequest) {
 </head>
 <body>
   <h1>PDF Generation Failed</h1>
-  ${isServerError ? `
-  <p>The pdfn server is not running. Start it with:</p>
-  <pre>npx pdfn serve</pre>
-  <p>Then refresh this page.</p>
+  ${isApiKeyError ? `
+  <p>pdfn API key is not configured. Set the <code>PDFN_API_KEY</code> environment variable.</p>
+  <p>Get an API key at <a href="https://console.pdfn.dev">console.pdfn.dev</a></p>
   ` : `
   <p>Error details:</p>
   <pre>${message}</pre>

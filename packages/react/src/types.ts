@@ -218,17 +218,15 @@ export interface RenderOptions {
 }
 
 /**
- * Options for PDF generation via the pdfn server
- *
- * These options are passed to Puppeteer's page.pdf() method.
+ * Options for PDF generation via pdfn Cloud
  *
  * @example
  * ```ts
- * import { generate } from 'pdfn';
+ * import { generate } from '@pdfn/react';
  *
+ * // Set PDFN_API_KEY environment variable, or pass apiKey option
  * const pdf = await generate(<Invoice />, {
- *   printBackground: true,
- *   pageRanges: '1-3',
+ *   apiKey: 'pdfn_...',
  * });
  * ```
  */
