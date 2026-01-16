@@ -62,7 +62,7 @@ export async function GET() {
 }
 ```
 
-> **Note:** `generate()` requires a pdfn API key. Alternatively, use `render()` with your own Puppeteer setup — no API key needed.
+> **Note:** `generate()` requires either `PDFN_HOST` (local server) or `PDFN_API_KEY` (pdfn Cloud). Alternatively, use `render()` with your own Puppeteer setup.
 
 ## Custom Theme
 

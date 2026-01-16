@@ -37,7 +37,7 @@ export interface BaseServer {
  * Includes:
  * - JSON body parsing (50mb limit)
  * - Request logging middleware (optional)
- * - POST /generate endpoint
+ * - POST /v1/generate endpoint
  * - GET /health endpoint
  */
 export function createBaseServer(options: BaseServerOptions = {}): BaseServer {

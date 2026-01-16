@@ -21,15 +21,12 @@ interface GenerateHandlerOptions {
 }
 
 /**
- * Create a /generate POST handler for PDF generation
- *
- * This is shared between `dev` and `serve` commands to avoid duplication.
- * Each server provides its own BrowserManager instance.
+ * Create a /v1/generate POST handler for PDF generation
  *
  * @example
  * ```ts
  * const browserManager = new BrowserManager({ maxConcurrent: 5 });
- * app.post("/generate", createGenerateHandler(browserManager));
+ * app.post("/v1/generate", createGenerateHandler(browserManager));
  * ```
  */
 export function createGenerateHandler(

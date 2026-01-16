@@ -82,7 +82,19 @@ export async function GET() {
 
 ## PDF Generation Options
 
-**Option 1: Self-host with Puppeteer**
+**Option 1: Local Development**
+
+Use the dev server with `generate()`:
+
+```bash
+# Terminal 1: Start dev server
+npx pdfn dev
+
+# Terminal 2: Start Next.js
+PDFN_HOST=http://localhost:3456 npm run dev
+```
+
+**Option 2: Self-host with Puppeteer**
 
 Use `render()` to get print-ready HTML, then convert with your own browser:
 
@@ -104,22 +116,16 @@ export async function GET() {
 }
 ```
 
-**Option 2: pdfn Cloud**
+**Option 3: pdfn Cloud**
 
 Use `generate()` for managed PDF generation:
 
 ```bash
 # .env.local
-PDFN_API_KEY=pdfn_...
+PDFN_API_KEY=pdfn_live_...
 ```
 
 Get an API key at [console.pdfn.dev](https://console.pdfn.dev).
-
-**For local development preview**, use:
-
-```bash
-npx pdfn dev
-```
 
 ## HTML Preview Endpoint
 
@@ -279,12 +285,17 @@ export default function Page() {
 
 ```bash
 # .env.local
-PDFN_API_KEY=pdfn_...  # Required for generate()
+
+# Option 1: Local development
+PDFN_HOST=http://localhost:3456
+
+# Option 2: pdfn Cloud (production)
+PDFN_API_KEY=pdfn_live_...
 ```
 
 ## Deployment Checklist
 
-**Using pdfn Cloud** (recommended):
+**Using pdfn Cloud:**
 1. Set `PDFN_API_KEY` environment variable
 2. That's it — pdfn Cloud handles everything
 

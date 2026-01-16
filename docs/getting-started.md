@@ -52,9 +52,29 @@ This opens a browser with live preview. Edit your template and see changes insta
 
 ## Generate a PDF
 
-Choose based on your infrastructure — both produce identical PDFs.
+Choose based on your infrastructure — all options produce identical PDFs.
 
-### Option 1: Self-host with Puppeteer
+### Option 1: Local Development
+
+Use the dev server with `generate()`:
+
+```bash
+# Terminal 1: Start dev server
+npx pdfn dev
+
+# Terminal 2: Run your app
+PDFN_HOST=http://localhost:3456 node your-app.js
+```
+
+```tsx
+import { generate } from '@pdfn/react';
+import Invoice from './pdfn-templates/invoice';
+
+// PDFN_HOST environment variable points to your local server
+const pdf = await generate(<Invoice />);
+```
+
+### Option 2: Self-host with Puppeteer
 
 Full control with your own Chromium setup:
 
@@ -80,7 +100,7 @@ const pdf = await page.pdf({
 await browser.close();
 ```
 
-### Option 2: pdfn Cloud
+### Option 3: pdfn Cloud
 
 Managed infrastructure — no browser setup:
 
@@ -88,7 +108,7 @@ Managed infrastructure — no browser setup:
 import { generate } from '@pdfn/react';
 import Invoice from './pdfn-templates/invoice';
 
-// Set PDFN_API_KEY environment variable, or pass apiKey option
+// Set PDFN_API_KEY environment variable
 const pdf = await generate(<Invoice />);
 // pdf is a Buffer — save it, return it from an API, etc.
 ```

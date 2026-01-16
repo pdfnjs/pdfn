@@ -58,7 +58,7 @@ async function main() {
 main();
 ```
 
-> **Note:** `generate()` requires a pdfn API key. Alternatively, use `render()` + Puppeteer to self-host.
+> **Note:** `generate()` requires either `PDFN_HOST` (local server) or `PDFN_API_KEY` (pdfn Cloud). Alternatively, use `render()` + Puppeteer to self-host.
 
 ### Components
 
@@ -78,7 +78,7 @@ main();
 | Function | Returns | Requires |
 |----------|---------|----------|
 | `render()` | HTML string | Nothing (use with your own Puppeteer) |
-| `generate()` | PDF buffer | API key (or use render() to self-host) |
+| `generate()` | PDF buffer | `PDFN_HOST` or `PDFN_API_KEY` |
 
 Both produce identical PDFs — choose based on infrastructure preferences.
 

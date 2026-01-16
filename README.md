@@ -111,7 +111,15 @@ main();
 npx tsx generate-puppeteer-pdf.tsx  # Generates invoice-puppeteer.pdf
 ```
 
-**Option 2: pdfn Cloud** — managed infrastructure, no browser setup
+**Option 2: Local dev server** — use `generate()` with local server
+
+```bash
+# Terminal 1: Start dev server
+npx pdfn dev
+
+# Terminal 2: Generate PDF
+PDFN_HOST=http://localhost:3456 npx tsx generate-pdf.tsx
+```
 
 ```tsx
 // generate-pdf.tsx
@@ -121,15 +129,17 @@ import { writeFileSync } from 'fs';
 import Invoice from './pdfn-templates/invoice';
 
 async function main() {
-  // Set PDFN_API_KEY environment variable, or pass apiKey option
+  // PDFN_HOST points to local server, or PDFN_API_KEY for pdfn Cloud
   const pdf = await generate(<Invoice number="INV-2025-042" />);
   writeFileSync('invoice.pdf', pdf);
 }
 main();
 ```
 
+**Option 3: pdfn Cloud** — managed infrastructure, no browser setup
+
 ```bash
-PDFN_API_KEY=pdfn_... npx tsx generate-pdf.tsx  # Generates invoice.pdf
+PDFN_API_KEY=pdfn_live_... npx tsx generate-pdf.tsx
 ```
 
 Get an API key at [console.pdfn.dev](https://console.pdfn.dev).
@@ -178,7 +188,7 @@ npm run dev  # Start Next.js at http://localhost:3000
 
 Open http://localhost:3000/api/invoice to download the PDF.
 
-> **Note:** This example uses `generate()` which requires an API key. Alternatively, use `render()` + Puppeteer for self-hosting — see [Generating PDFs](#generating-pdfs) above.
+> **Note:** This example uses `generate()` which requires either `PDFN_HOST` (local server) or `PDFN_API_KEY` (pdfn Cloud). Alternatively, use `render()` + Puppeteer for self-hosting.
 
 ## Examples
 
