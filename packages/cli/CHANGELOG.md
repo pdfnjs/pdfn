@@ -1,5 +1,20 @@
 # pdfn
 
+## 0.6.0
+
+### Minor Changes
+
+- Add pdfn Cloud integration for PDF generation
+  - `generate()` now uses pdfn Cloud API for PDF generation
+  - Supports `PDFN_API_KEY` environment variable or `apiKey` option
+  - `render()` remains free with no API key required - use with your own Puppeteer setup
+  - Both paths produce identical PDFs
+
+### Patch Changes
+
+- Updated dependencies
+  - @pdfn/react@0.5.0
+
 ## 0.5.0
 
 ### Minor Changes
