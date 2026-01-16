@@ -1,5 +1,11 @@
 # pdfn
 
+## 0.6.1
+
+### Patch Changes
+
+- Cleanup unused internal code and simplify build configuration
+
 ## 0.6.0
 
 ### Minor Changes
