@@ -193,24 +193,47 @@ Status: https://status.pdfn.dev`
   }
 
   if (!response.ok) {
-    const error = await response.json().catch(() => ({ message: response.statusText }));
+    // Try to parse error response as JSON, fallback to status text
+    let errorMessage: string;
+    try {
+      const errorBody = await response.json();
+      errorMessage = errorBody.message || errorBody.error || response.statusText;
+    } catch {
+      errorMessage = response.statusText;
+    }
 
+    const serverName = useLocalServer ? "pdfn server" : "pdfn Cloud";
+
+    // 400 - Validation error (invalid HTML, missing fields, etc.)
+    if (response.status === 400) {
+      throw new Error(
+        `${serverName} validation error: ${errorMessage}\n\nCheck your HTML template for issues.`
+      );
+    }
+
+    // 401 - Unauthorized (invalid or missing API key)
     if (response.status === 401) {
       throw new Error(
         `Invalid API key. Check your PDFN_API_KEY or get a new one at https://console.pdfn.dev`
       );
     }
 
+    // 429 - Rate limit exceeded
     if (response.status === 429) {
       throw new Error(
-        `Rate limit exceeded. Upgrade your plan at https://console.pdfn.dev/billing`
+        `Rate limit exceeded. ${errorMessage}\n\nPlease slow down your requests.`
       );
     }
 
-    const serverName = useLocalServer ? "pdfn server" : "pdfn Cloud";
-    throw new Error(
-      `${serverName} error: ${response.status} ${error.message || response.statusText}`
-    );
+    // 504 - Gateway timeout (PDF generation took too long)
+    if (response.status === 504) {
+      throw new Error(
+        `${serverName} timeout: PDF generation took too long.\n\nTry simplifying your template or splitting into smaller documents.`
+      );
+    }
+
+    // Generic error with actual message from server
+    throw new Error(`${serverName} error (${response.status}): ${errorMessage}`);
   }
 
   return Buffer.from(await response.arrayBuffer());
