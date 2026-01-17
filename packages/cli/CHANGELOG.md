@@ -1,5 +1,12 @@
 # pdfn
 
+## 0.6.4
+
+### Patch Changes
+
+- Updated dependencies
+  - @pdfn/react@0.5.2
+
 ## 0.6.3
 
 ### Patch Changes

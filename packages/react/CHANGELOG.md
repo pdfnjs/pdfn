@@ -1,5 +1,11 @@
 # @pdfn/react
 
+## 0.5.2
+
+### Patch Changes
+
+- Improve error handling in generate() with specific messages for validation errors (400), rate limits (429), and timeouts (504)
+
 ## 0.5.1
 
 ### Patch Changes
