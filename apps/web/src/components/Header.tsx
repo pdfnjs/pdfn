@@ -2,18 +2,44 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 
 export function Header() {
   const pathname = usePathname();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [toolsOpen, setToolsOpen] = useState(false);
+  const toolsRef = useRef<HTMLDivElement>(null);
 
   const navLinks = [
-    { href: "/components", label: "Components" },
-    { href: "/templates", label: "Templates" },
-    { href: "/tools/pdf-validator", label: "Validator" },
     { href: "https://github.com/pdfnjs/pdfn#quick-start", label: "Docs", external: true },
+    { href: "/templates", label: "Examples" },
   ];
+
+  const toolsItems = [
+    {
+      href: "/tools/pdf-validator",
+      label: "PDF Validator",
+      description: "Validate PDF structure and metadata",
+      icon: (
+        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+      ),
+    },
+  ];
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (toolsRef.current && !toolsRef.current.contains(event.target as Node)) {
+        setToolsOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  const isToolsActive = toolsItems.some(item => pathname === item.href);
 
   return (
     <header className="border-b border-border">
@@ -50,6 +76,55 @@ export function Header() {
               </Link>
             )
           )}
+          {/* Tools dropdown */}
+          <div className="relative" ref={toolsRef}>
+            <button
+              onClick={() => setToolsOpen(!toolsOpen)}
+              className={`flex items-center gap-1 transition-colors ${
+                isToolsActive
+                  ? "text-text-primary font-medium"
+                  : "text-text-secondary hover:text-text-primary"
+              }`}
+            >
+              Tools
+              <svg
+                className={`w-3.5 h-3.5 transition-transform duration-200 ${toolsOpen ? "rotate-180" : ""}`}
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+              </svg>
+            </button>
+            <div
+              className={`absolute top-full right-0 mt-3 p-2 bg-surface-1 border border-border rounded-xl shadow-xl min-w-[240px] z-50 transition-all duration-200 origin-top-right ${
+                toolsOpen
+                  ? "opacity-100 scale-100 translate-y-0"
+                  : "opacity-0 scale-95 -translate-y-2 pointer-events-none"
+              }`}
+            >
+              {toolsItems.map((item) => (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className={`flex items-start gap-3 px-3 py-2.5 rounded-lg transition-colors ${
+                    pathname === item.href
+                      ? "bg-primary/10 text-text-primary"
+                      : "text-text-secondary hover:text-text-primary hover:bg-surface-2"
+                  }`}
+                  onClick={() => setToolsOpen(false)}
+                >
+                  <span className={`mt-0.5 ${pathname === item.href ? "text-primary" : "text-text-muted"}`}>
+                    {item.icon}
+                  </span>
+                  <div>
+                    <div className="font-medium text-sm text-text-primary">{item.label}</div>
+                    <div className="text-xs text-text-muted mt-0.5">{item.description}</div>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </div>
           <div className="w-px h-5 bg-border" />
           <a
             href="https://github.com/pdfnjs/pdfn"
@@ -107,7 +182,7 @@ export function Header() {
       {/* Mobile menu dropdown */}
       {mobileMenuOpen && (
         <nav className="md:hidden border-t border-border bg-background">
-          <div className="max-w-6xl mx-auto px-4 py-3 flex flex-col gap-3">
+          <div className="max-w-6xl mx-auto px-4 py-3 flex flex-col gap-1">
             {navLinks.map((link) =>
               "external" in link && link.external ? (
                 <a
@@ -135,6 +210,29 @@ export function Header() {
                 </Link>
               )
             )}
+            {/* Tools section */}
+            <div className="pt-2 mt-2 border-t border-border">
+              <span className="text-xs text-text-muted uppercase tracking-wide">Tools</span>
+              <div className="mt-2 flex flex-col gap-1">
+                {toolsItems.map((item) => (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    className={`flex items-center gap-3 py-2 px-2 rounded-lg transition-colors ${
+                      pathname === item.href
+                        ? "bg-primary/10 text-text-primary"
+                        : "text-text-secondary hover:text-text-primary hover:bg-surface-1"
+                    }`}
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    <span className={pathname === item.href ? "text-primary" : "text-text-muted"}>
+                      {item.icon}
+                    </span>
+                    <span className="font-medium">{item.label}</span>
+                  </Link>
+                ))}
+              </div>
+            </div>
           </div>
         </nav>
       )}

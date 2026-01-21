@@ -218,6 +218,13 @@ export default function Home() {
               Get Started
             </a>
           </div>
+          <p className="text-sm text-text-muted mt-6 animate-fade-in-delay-2">
+            Need managed PDF generation or PDF/A compliance?{" "}
+            <a href="/cloud" className="text-text-secondary hover:text-primary transition-colors underline whitespace-nowrap">
+              pdfn Cloud
+            </a>
+            {" "}(early access)
+          </p>
         </div>
       </section>
 
@@ -1005,11 +1012,14 @@ export default function Home() {
                   <svg className="w-4 h-4 text-primary mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                   </svg>
-                  <span>Docker, AWS Lambda, or pdfn Cloud</span>
+                  <span>Docker, AWS Lambda</span>
                 </li>
               </ul>
               <p className="text-xs text-text-muted mt-4 pt-3 border-t border-border">
-                Identical layout everywhere. Optional PDF/A compliance via pdfn Cloud.
+                Identical layout everywhere. Optional PDF/A compliance via{" "}
+                <a href="/cloud" className="text-text-secondary hover:text-primary transition-colors underline whitespace-nowrap">
+                  pdfn Cloud
+                </a>.
               </p>
             </div>
           </div>
@@ -1136,14 +1146,6 @@ export default function Home() {
               </div>
               <p className="text-sm text-text-muted">Auto-compress before embedding</p>
             </div>
-
-            <div className="bg-surface-1 border border-border rounded-lg p-4 card-hover">
-              <div className="flex items-center justify-between mb-2">
-                <span className="font-medium text-text-primary">PDF/A compliance</span>
-                <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-primary/10 text-primary">Cloud</span>
-              </div>
-              <p className="text-sm text-text-muted">Archival standards via pdfn Cloud</p>
-            </div>
           </div>
         </div>
       </section>
@@ -1178,6 +1180,13 @@ export default function Home() {
               Star on GitHub
             </a>
           </div>
+          <p className="text-sm text-text-muted mt-6">
+            Or try{" "}
+            <a href="/cloud" className="text-text-secondary hover:text-primary transition-colors underline whitespace-nowrap">
+              pdfn Cloud
+            </a>
+            {" "}for managed hosting.
+          </p>
         </div>
       </section>
 

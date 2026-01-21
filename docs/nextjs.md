@@ -129,6 +129,18 @@ PDFN_API_KEY=pdfn_live_...
 
 Get an API key at [console.pdfn.dev](https://console.pdfn.dev).
 
+**PDF/A Compliance (Cloud only):**
+
+```tsx
+// Standard PDF (OSS or Cloud)
+const pdf = await generate(<Invoice />);
+
+// PDF/A (Cloud only)
+const pdf = await generate(<Invoice />, { standard: 'PDF/A-2b' });
+```
+
+PDF/A requires pdfn Cloud. Layout remains identical.
+
 ## HTML Preview Endpoint
 
 Add an HTML preview for debugging:
