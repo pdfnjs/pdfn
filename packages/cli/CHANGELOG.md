@@ -1,5 +1,21 @@
 # pdfn
 
+## 0.8.2
+
+### Patch Changes
+
+- Support plain HTML in generateFromHtml
+
+  **pdfn:**
+  - Fix dev server to support plain HTML without pdfn scripts
+  - Update error message for PDF/A compliance requests
+
+  **@pdfn/react:**
+  - Clarify PDFStandard JSDoc: compliance is post-processing, layout is identical everywhere
+
+- Updated dependencies
+  - @pdfn/react@0.7.1
+
 ## 0.8.1
 
 ### Patch Changes
