@@ -1,5 +1,20 @@
 # pdfn
 
+## 0.8.1
+
+### Patch Changes
+
+- Return error when `standard` option is used without API key
+
+  When a standard is specified, pdfn generates the PDF using pdfn Cloud, where required post-processing and validation is applied. Local development does not apply these compliance steps.
+
+  Without an API key, pdfn now fails with a clear error instead of silently generating non-compliant PDFs:
+
+  ```
+  PDF/A-2b requires finalization. Local dev cannot guarantee compliance.
+  Set PDFN_API_KEY to generate compliant PDFs, or remove 'standard' for a non-compliant preview.
+  ```
+
 ## 0.8.0
 
 ### Minor Changes

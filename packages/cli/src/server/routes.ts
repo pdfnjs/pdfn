@@ -4,6 +4,7 @@ import { generatePdf, type PdfResult } from "./pdf";
 
 interface GenerateRequestBody {
   html?: string;
+  standard?: string;
   options?: {
     timeout?: number;
     printBackground?: boolean;
@@ -36,11 +37,19 @@ export function createGenerateHandler(
   const { timeout = 30000, onSuccess, onError } = options;
 
   return async (req: Request, res: Response) => {
-    const { html, options: pdfOptions } = req.body as GenerateRequestBody;
+    const { html, standard, options: pdfOptions } = req.body as GenerateRequestBody;
     const format = req.query.format as string | undefined;
 
     if (!html) {
       res.status(400).json({ error: "HTML content is required" });
+      return;
+    }
+
+    // PDF/A standard requires finalization via pdfn Cloud
+    if (standard) {
+      res.status(400).json({
+        error: `${standard} requires finalization. Local dev cannot guarantee compliance. Set PDFN_API_KEY to generate compliant PDFs, or remove 'standard' for a non-compliant preview.`,
+      });
       return;
     }
 

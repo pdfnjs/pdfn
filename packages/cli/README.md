@@ -31,11 +31,9 @@ npx pdfn dev --open    # Start and open browser
 - Live preview with hot reload
 - Inspector panel (performance, debug overlays)
 - Accessibility checker (axe-core)
-- PDF/A standard dropdown — requires `PDFN_API_KEY`
+- PDF/A compliance dropdown
 
-**PDF/A Standards:**
-
-Generate archival PDFs via pdfn Cloud:
+**PDF/A Compliance:**
 
 | Standard | Description |
 |----------|-------------|
@@ -43,7 +41,7 @@ Generate archival PDFs via pdfn Cloud:
 | PDF/A-2b | PDF 1.7 archival, allows transparency |
 | PDF/A-3b | Like PDF/A-2b plus embedded files |
 
-Select a standard from the dropdown in the dev server UI. PDF/A downloads require a pdfn Cloud API key (`PDFN_API_KEY`).
+When a standard is specified, pdfn generates the PDF using pdfn Cloud, where required post-processing and validation is applied. Local development does not apply these compliance steps. To generate compliant PDFs, set `PDFN_API_KEY`. Without an API key, pdfn will fail if a standard is requested.
 
 **Server API:**
 
