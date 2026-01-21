@@ -41,7 +41,11 @@ npx pdfn dev --open    # Start and open browser
 | PDF/A-2b | PDF 1.7 archival, allows transparency |
 | PDF/A-3b | Like PDF/A-2b plus embedded files |
 
-When a standard is specified, pdfn generates the PDF using pdfn Cloud, where required post-processing and validation is applied. Local development does not apply these compliance steps. To generate compliant PDFs, set `PDFN_API_KEY`. Without an API key, pdfn will fail if a standard is requested.
+> `pdfn dev` focuses on layout preview. PDF/A archival compliance (validation, metadata, color profiles) is applied by pdfn Cloud as post-processing.
+>
+> **Layout is identical** whether you use pdfn dev, pdfn Cloud, or self-host. Compliance does not change layout — it only adds validation and archival metadata.
+
+To generate PDF/A-compliant PDFs, set `PDFN_API_KEY`. Without an API key, requests with a standard will fail.
 
 **Server API:**
 

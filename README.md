@@ -20,7 +20,7 @@ pdfn fixes this:
 - **Dynamic page numbers** — `Page 1 of 5` resolves correctly
 - **Debug overlays** — visualize margins, grid, page breaks
 - **Tailwind CSS support** — works out of the box via `@pdfn/tailwind`
-- **Production PDFs** — via [pdfn Cloud](https://pdfn.dev) or self-host with Puppeteer
+- **Production PDFs** — self-host with Puppeteer, or use pdfn Cloud
 
 ```
 React → pdfn → HTML → Chromium → PDF
@@ -31,6 +31,11 @@ React → pdfn → HTML → Chromium → PDF
 - Teams generating quotes, contracts, reports, or invoices
 - PDFs that grow beyond a few static templates
 - Cases where preview must match production exactly
+
+**pdfn is a good fit if:**
+- You already rely on HTML/CSS for PDFs
+- You've debugged broken page breaks at least once
+- You care more about correctness than visual editors
 
 If you only need a one-off PDF or visual export, simpler tools may be enough.
 
@@ -77,6 +82,23 @@ Edit `pdfn-templates/invoice.tsx` — changes appear instantly with hot reload.
 - **Want zero browser infra?** → pdfn Cloud with `generate()`
 
 Both produce identical PDFs — same templates, same output.
+
+### Layout vs Archival Compliance
+
+| Concern | What it means | Where it happens |
+|---------|---------------|------------------|
+| **Layout** | Pagination, fonts, images, styling | Everywhere (dev, Cloud, self-host) |
+| **Archival compliance** | PDF/A validation, metadata, color profiles | pdfn Cloud only |
+
+**Layout is identical everywhere.** Compliance does not change layout or rendering — it only adds validation and archival metadata. Use it for government, legal, or long-term storage requirements.
+
+```tsx
+// generate() renders PDFs via local server or pdfn Cloud depending on config
+const pdf = await generate(<Invoice />);
+
+// PDF/A archival compliance — requires pdfn Cloud
+const pdf = await generate(<Invoice />, { standard: 'PDF/A-2b' });
+```
 
 **Option 1: Self-host with Puppeteer** — full control, no API key needed
 

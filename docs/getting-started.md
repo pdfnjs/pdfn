@@ -52,7 +52,9 @@ This opens a browser with live preview. Edit your template and see changes insta
 
 ## Generate a PDF
 
-Choose based on your infrastructure — all options produce identical PDFs.
+Choose based on your infrastructure — all options produce identical layout.
+
+> **Layout vs Archival Compliance:** Layout (pagination, fonts, images) is identical everywhere. PDF/A archival compliance is optional post-processing via pdfn Cloud — it doesn't change layout, only adds validation and metadata.
 
 ### Option 1: Local Development
 

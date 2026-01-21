@@ -201,10 +201,10 @@ export async function generatePdf(
     });
     contentLoadTime = performance.now() - contentStart;
 
-    // Wait for PDFN.ready to be true (Paged.js completion)
+    // Wait for PDFN.ready (pdfn HTML) or proceed immediately (plain HTML)
     const pagedStart = performance.now();
     await page.waitForFunction(
-      () => (window as any).PDFN?.ready === true,
+      () => typeof (window as any).PDFN === "undefined" || (window as any).PDFN?.ready === true,
       { timeout }
     );
     pagedJsTime = performance.now() - pagedStart;

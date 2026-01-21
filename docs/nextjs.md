@@ -82,6 +82,8 @@ export async function GET() {
 
 ## PDF Generation Options
 
+All options produce identical layout. PDF/A archival compliance is optional post-processing via pdfn Cloud — it doesn't change layout, only adds validation and metadata.
+
 **Option 1: Local Development**
 
 Use the dev server with `generate()`:

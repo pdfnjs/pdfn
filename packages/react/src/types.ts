@@ -191,15 +191,21 @@ import type { DebugOptions } from "@pdfn/core";
 export type { DebugOptions };
 
 /**
- * PDF standard for archival compliance.
+ * PDF/A standard for archival compliance.
+ *
+ * Compliance is applied as post-processing after rendering. Layout output is
+ * identical whether you use a standard or not — only validation, metadata, and
+ * color profile embedding differ.
  *
  * - `PDF/A-1b`: Basic PDF 1.4 archival (most compatible)
  * - `PDF/A-2b`: PDF 1.7 archival, allows transparency and JPEG2000
  * - `PDF/A-3b`: Like PDF/A-2b plus arbitrary embedded files
  *
+ * Requires pdfn Cloud (`PDFN_API_KEY`). Adds ~1-5s latency for compliance processing.
+ *
  * @example
  * ```tsx
- * // Generate an archival PDF
+ * // Generate an archival PDF (requires pdfn Cloud)
  * const pdf = await generate(<Invoice />, { standard: "PDF/A-2b" });
  * ```
  */

@@ -45,10 +45,19 @@ export function createGenerateHandler(
       return;
     }
 
-    // PDF/A standard requires finalization via pdfn Cloud
+    // PDF/A standard requires pdfn Cloud archival compliance pipeline
     if (standard) {
       res.status(400).json({
-        error: `${standard} requires finalization. Local dev cannot guarantee compliance. Set PDFN_API_KEY to generate compliant PDFs, or remove 'standard' for a non-compliant preview.`,
+        error: `PDF/A archival compliance requires the pdfn Cloud compliance pipeline.
+
+Layout is identical in local dev. Compliance does not change layout or rendering — it only adds validation and archival metadata.
+
+To generate ${standard}-compliant PDFs:
+  Set: PDFN_API_KEY=pdfn_live_...
+  Get key at: https://console.pdfn.dev
+
+To preview layout without compliance:
+  Remove the 'standard' option`,
       });
       return;
     }

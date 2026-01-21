@@ -1008,6 +1008,9 @@ export default function Home() {
                   <span>Docker, AWS Lambda, or pdfn Cloud</span>
                 </li>
               </ul>
+              <p className="text-xs text-text-muted mt-4 pt-3 border-t border-border">
+                Identical layout everywhere. Optional PDF/A compliance via pdfn Cloud.
+              </p>
             </div>
           </div>
         </div>
@@ -1136,10 +1139,10 @@ export default function Home() {
 
             <div className="bg-surface-1 border border-border rounded-lg p-4 card-hover">
               <div className="flex items-center justify-between mb-2">
-                <span className="font-medium text-text-primary">PDF/A support</span>
-                <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-surface-2 text-text-muted">Low</span>
+                <span className="font-medium text-text-primary">PDF/A compliance</span>
+                <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-primary/10 text-primary">Cloud</span>
               </div>
-              <p className="text-sm text-text-muted">Archival compliance</p>
+              <p className="text-sm text-text-muted">Archival standards via pdfn Cloud</p>
             </div>
           </div>
         </div>

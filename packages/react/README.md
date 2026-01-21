@@ -79,7 +79,15 @@ const pdf = await generate(<Invoice />, { standard: 'PDF/A-2b' });
 | `PDF/A-2b` | PDF 1.7 archival, allows transparency |
 | `PDF/A-3b` | Like PDF/A-2b plus embedded files |
 
-When a standard is specified, pdfn generates the PDF using pdfn Cloud, where required post-processing and validation is applied. Local development does not apply these compliance steps. To generate compliant PDFs, set `PDFN_API_KEY`. Without an API key, pdfn will fail if a standard is requested.
+> **Layout vs Archival Compliance**
+>
+> - **Layout** = pagination, fonts, images, styling — identical everywhere
+> - **Archival compliance** = validation, metadata, color profiles — applied after rendering
+>
+> Layout is identical whether you use pdfn dev, pdfn Cloud, or self-host.
+> Compliance does not change layout — it only adds validation and archival metadata.
+
+Requires `PDFN_API_KEY`. Without an API key, requests with `standard` will fail.
 
 ### Using generateFromHtml()
 
