@@ -907,7 +907,6 @@ function createPreviewHTML(templates: TemplateInfo[], activeTemplate: string | n
               <option value="PDF/A-1b">PDF/A-1b (Cloud)</option>
               <option value="PDF/A-2b">PDF/A-2b (Cloud)</option>
               <option value="PDF/A-3b">PDF/A-3b (Cloud)</option>
-              <option value="PDF/UA">PDF/UA (Cloud)</option>
             </select>
             <button class="btn" id="preview-pdf" title="Preview PDF">
               <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -2031,7 +2030,7 @@ async function startDevServer(options: DevServerOptions) {
     }
 
     const conformance = req.query.conformance as string;
-    const validConformance = ["PDF/A-1b", "PDF/A-2b", "PDF/A-3b", "PDF/UA"];
+    const validConformance = ["PDF/A-1b", "PDF/A-2b", "PDF/A-3b"];
     if (!conformance || !validConformance.includes(conformance)) {
       res.status(400).json({ error: `Invalid conformance. Must be one of: ${validConformance.join(", ")}` });
       return;

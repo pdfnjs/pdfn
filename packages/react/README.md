@@ -65,16 +65,13 @@ const pdf = await generate(<Invoice />, { host: 'http://localhost:3456' });
 const pdf = await generate(<Invoice />, { apiKey: 'pdfn_live_...' });
 ```
 
-### Conformance (PDF/A & PDF/UA)
+### Conformance (PDF/A)
 
-Generate archival or accessible PDFs with the `conformance` option:
+Generate archival PDFs with the `conformance` option:
 
 ```tsx
 // PDF/A for archival compliance
 const pdf = await generate(<Invoice />, { conformance: 'PDF/A-2b' });
-
-// PDF/UA for accessibility compliance
-const pdf = await generate(<Report />, { conformance: 'PDF/UA' });
 ```
 
 | Level | Description |
@@ -82,7 +79,6 @@ const pdf = await generate(<Report />, { conformance: 'PDF/UA' });
 | `PDF/A-1b` | Basic PDF 1.4 archival (most compatible) |
 | `PDF/A-2b` | PDF 1.7 archival, allows transparency |
 | `PDF/A-3b` | Like PDF/A-2b plus embedded files |
-| `PDF/UA` | Universal Accessibility (tagged PDF) |
 
 Note: Conformance requires pdfn Cloud and adds ~1-5s latency.
 

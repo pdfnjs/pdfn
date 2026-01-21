@@ -22,12 +22,11 @@ export interface GenerateFromHtmlOptions {
   apiKey?: string;
 
   /**
-   * PDF conformance level for archival or accessibility compliance.
+   * PDF conformance level for archival compliance.
    *
    * - `PDF/A-1b`: Basic PDF 1.4 archival (most compatible)
    * - `PDF/A-2b`: PDF 1.7 archival, allows transparency and JPEG2000
    * - `PDF/A-3b`: Like PDF/A-2b plus arbitrary embedded files
-   * - `PDF/UA`: Universal Accessibility (tagged PDF)
    *
    * Note: Conformance adds ~1-5s latency due to post-processing.
    * Default (undefined) generates a standard PDF (fastest).

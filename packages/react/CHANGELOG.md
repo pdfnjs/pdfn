@@ -1,5 +1,18 @@
 # @pdfn/react
 
+## 0.6.1
+
+### Patch Changes
+
+- Remove PDF/UA from conformance options (not yet implemented in backend)
+
+  Conformance generation now supports PDF/A only:
+  - PDF/A-1b: Basic PDF 1.4 archival
+  - PDF/A-2b: PDF 1.7 archival with transparency
+  - PDF/A-3b: PDF/A-2b plus embedded files
+
+  PDF/UA support will be added in a future release after backend testing.
+
 ## 0.6.0
 
 ### Minor Changes
