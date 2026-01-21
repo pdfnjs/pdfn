@@ -92,7 +92,7 @@ export default function Ticket({
             {/* Tear Line */}
             <div className="flex items-center gap-2 my-5">
               <div className="flex-1 border-t-2 border-dashed border-gray-300"></div>
-              <div className="text-sm text-gray-400">✂</div>
+              <div className="text-sm text-gray-500">✂</div>
               <div className="flex-1 border-t-2 border-dashed border-gray-300"></div>
             </div>
 
@@ -130,7 +130,7 @@ export default function Ticket({
             </div>
 
             {/* Terms */}
-            <p className="text-center text-xs text-gray-400 mt-3">
+            <p className="text-center text-xs text-gray-500 mt-3">
               Non-transferable • Non-refundable • Present at entry
             </p>
           </div>

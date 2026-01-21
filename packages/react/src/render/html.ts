@@ -280,11 +280,41 @@ function generateGoogleFontsLink(fonts: GoogleFontConfig[]): string {
 // extractPageConfig is now imported from @pdfn/core
 
 /**
+ * Extract metadata from Document component's data attributes in rendered HTML.
+ * This is more reliable than extracting from element.props since templates
+ * may be wrapped in other components.
+ */
+function extractMetadataFromContent(content: string): HtmlOptions["metadata"] {
+  const extract = (attr: string): string | undefined => {
+    const match = content.match(new RegExp(`data-${attr}="([^"]*)"`));
+    return match?.[1] || undefined;
+  };
+
+  const keywords = extract("keywords");
+  return {
+    title: extract("title"),
+    author: extract("author"),
+    subject: extract("subject"),
+    keywords: keywords ? keywords.split(",").filter(Boolean) : undefined,
+    language: extract("language"),
+  };
+}
+
+/**
  * Assembles the final HTML document
  */
 export async function assembleHtml(content: string, options: HtmlOptions = {}): Promise<string> {
   const { metadata = {}, css = "", includePagedJs = true, fonts = [] } = options;
-  const { title = "", author = "", subject = "", keywords = [], language = "en" } = metadata;
+
+  // Extract metadata from content's data attributes (more reliable than element.props)
+  const contentMetadata = extractMetadataFromContent(content) ?? {};
+
+  // Merge: explicit metadata takes precedence, fall back to content extraction
+  const title = metadata.title || contentMetadata.title || "";
+  const author = metadata.author || contentMetadata.author || "";
+  const subject = metadata.subject || contentMetadata.subject || "";
+  const keywords = metadata.keywords || contentMetadata.keywords || [];
+  const language = metadata.language || contentMetadata.language || "en";
 
   const metaTags = [
     '<meta charset="UTF-8">',
@@ -318,6 +348,12 @@ export async function assembleHtml(content: string, options: HtmlOptions = {}): 
     ? `<script src="${PAGED_JS_CDN}"></script>`
     : "";
 
+  // Visually hidden h1 for accessibility (sr-only pattern - Tailwind v3 compatible)
+  // Only added if title is provided
+  const accessibleH1 = title
+    ? `<h1 style="position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);clip-path:inset(50%);white-space:nowrap;border:0">${escapeHtml(title)}</h1>`
+    : "";
+
   return `<!DOCTYPE html>
 <html lang="${language}">
   <head>
@@ -332,6 +368,7 @@ ${css}
     ${pagedJsScript}
   </head>
   <body>
+    ${accessibleH1}
     ${content}
     <script>
 ${PDFN_SCRIPT}

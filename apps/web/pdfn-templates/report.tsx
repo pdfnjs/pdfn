@@ -73,7 +73,7 @@ export default function Report({
           size="A4"
           margin="0.75in"
           footer={
-            <div className="flex justify-between items-center text-xs text-gray-500 border-t border-gray-200 pt-3">
+            <div className="flex justify-between items-center text-xs text-gray-600 border-t border-gray-200 pt-3">
               <div>Generated on {generatedAt}</div>
               <div>
                 Page <PageNumber /> of <TotalPages />
@@ -86,7 +86,7 @@ export default function Report({
             <div className="flex justify-between items-start">
               <div>
                 <h1 className="text-2xl font-bold text-gray-900">{title}</h1>
-                <p className="text-gray-500 mt-1">{period}</p>
+                <p className="text-gray-600 mt-1">{period}</p>
               </div>
               <img
                 src="https://pdfn.dev/logo-dark.svg"
@@ -99,7 +99,7 @@ export default function Report({
           {/* Summary Cards */}
           <div className="grid grid-cols-4 gap-4 mb-8">
             <div className="bg-blue-50 rounded-lg p-4">
-              <div className="text-xs text-blue-600 font-medium uppercase">
+              <div className="text-xs text-blue-700 font-medium uppercase">
                 Total Revenue
               </div>
               <div className="text-xl font-bold text-gray-900 mt-1">
@@ -107,7 +107,7 @@ export default function Report({
               </div>
             </div>
             <div className="bg-green-50 rounded-lg p-4">
-              <div className="text-xs text-green-600 font-medium uppercase">
+              <div className="text-xs text-green-700 font-medium uppercase">
                 Growth
               </div>
               <div className="text-xl font-bold text-gray-900 mt-1">
@@ -115,7 +115,7 @@ export default function Report({
               </div>
             </div>
             <div className="bg-purple-50 rounded-lg p-4">
-              <div className="text-xs text-purple-600 font-medium uppercase">
+              <div className="text-xs text-purple-700 font-medium uppercase">
                 New Customers
               </div>
               <div className="text-xl font-bold text-gray-900 mt-1">
@@ -123,7 +123,7 @@ export default function Report({
               </div>
             </div>
             <div className="bg-orange-50 rounded-lg p-4">
-              <div className="text-xs text-orange-600 font-medium uppercase">
+              <div className="text-xs text-orange-700 font-medium uppercase">
                 Avg Order Value
               </div>
               <div className="text-xl font-bold text-gray-900 mt-1">
@@ -203,7 +203,7 @@ export default function Report({
                           {formatCurrency(row.target)}
                         </td>
                         <td
-                          className={`py-2 px-3 text-right font-medium ${variance >= 0 ? "text-green-600" : "text-red-600"}`}
+                          className={`py-2 px-3 text-right font-medium ${variance >= 0 ? "text-green-700" : "text-red-700"}`}
                         >
                           {variance >= 0 ? "+" : ""}
                           {variancePct}%

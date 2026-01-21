@@ -1,5 +1,6 @@
 import type { ReactElement } from "react";
 import { render, type RenderOptions } from "./render/render";
+import type { ConformanceLevel } from "./types";
 
 const PDFN_CLOUD_URL = "https://api.pdfn.dev";
 
@@ -19,6 +20,24 @@ export interface GenerateFromHtmlOptions {
    * Used only if host is not set.
    */
   apiKey?: string;
+
+  /**
+   * PDF conformance level for archival or accessibility compliance.
+   *
+   * - `PDF/A-1b`: Basic PDF 1.4 archival (most compatible)
+   * - `PDF/A-2b`: PDF 1.7 archival, allows transparency and JPEG2000
+   * - `PDF/A-3b`: Like PDF/A-2b plus arbitrary embedded files
+   * - `PDF/UA`: Universal Accessibility (tagged PDF)
+   *
+   * Note: Conformance adds ~1-5s latency due to post-processing.
+   * Default (undefined) generates a standard PDF (fastest).
+   *
+   * @example
+   * ```tsx
+   * const pdf = await generate(<Invoice />, { conformance: "PDF/A-2b" });
+   * ```
+   */
+  conformance?: ConformanceLevel;
 }
 
 export interface GenerateOptions extends RenderOptions, GenerateFromHtmlOptions {
@@ -81,7 +100,7 @@ export async function generate(
   element: ReactElement,
   options: GenerateOptions = {}
 ): Promise<string | Buffer> {
-  const { output = "pdf", host, apiKey, ...renderOptions } = options;
+  const { output = "pdf", host, apiKey, conformance, ...renderOptions } = options;
 
   // Step 1: Render React to HTML
   const html = await render(element, renderOptions);
@@ -92,7 +111,7 @@ export async function generate(
   }
 
   // Step 3: Generate PDF from HTML via pdfn server
-  return generateFromHtml(html, { host, apiKey });
+  return generateFromHtml(html, { host, apiKey, conformance });
 }
 
 /**
@@ -126,7 +145,7 @@ export async function generateFromHtml(
   html: string,
   options: GenerateFromHtmlOptions = {}
 ): Promise<Buffer> {
-  const { host, apiKey } = options;
+  const { host, apiKey, conformance } = options;
 
   // Priority: host option > PDFN_HOST env > apiKey option > PDFN_API_KEY env
   const serverHost = host ?? process.env.PDFN_HOST;
@@ -163,12 +182,18 @@ Option 3: Self-hosting
     headers["Authorization"] = `Bearer ${cloudKey}`;
   }
 
+  // Build request body
+  const body: { html: string; conformance?: ConformanceLevel } = { html };
+  if (conformance) {
+    body.conformance = conformance;
+  }
+
   let response: Response;
   try {
     response = await fetch(url, {
       method: "POST",
       headers,
-      body: JSON.stringify({ html }),
+      body: JSON.stringify(body),
     });
   } catch (error) {
     const message = error instanceof Error ? error.message : "Unknown error";

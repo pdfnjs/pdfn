@@ -7,24 +7,24 @@ interface StylingBadgeProps {
 const stylingConfig: Record<string, { label: string; className: string; tooltip: string }> = {
   tailwind: {
     label: "Tailwind",
-    className: "bg-cyan-500/20 text-cyan-400",
+    className: "bg-cyan-500/20 text-cyan-300",
     tooltip: "Uses Tailwind CSS utility classes via <Tailwind> wrapper",
   },
   inline: {
     label: "Inline Styles",
-    className: "bg-zinc-500/20 text-zinc-400",
+    className: "bg-zinc-500/20 text-zinc-300",
     tooltip: "Uses React's style={{}} prop for styling",
   },
   cssProp: {
     label: "css prop",
-    className: "bg-purple-500/20 text-purple-400",
+    className: "bg-purple-500/20 text-purple-300",
     tooltip: "Embeds CSS string directly via Document's css prop",
   },
   // FIXME: Plain CSS bundling not yet implemented. @imports in plain CSS files
   // are not resolved. Need to fix bundling for both Node.js and edge runtimes.
   plainCss: {
     label: "Plain CSS",
-    className: "bg-emerald-500/20 text-emerald-400",
+    className: "bg-emerald-500/20 text-emerald-300",
     tooltip: "Uses plain CSS file loaded via Document's css prop",
   },
 };

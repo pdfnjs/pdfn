@@ -1,5 +1,28 @@
 # pdfn
 
+## 0.7.0
+
+### Minor Changes
+
+- feat: add PDF/A and PDF/UA conformance support
+
+  **@pdfn/react:**
+  - Add `conformance` option to `generate()` and `generateFromHtml()` for PDF/A and PDF/UA compliance
+  - Support levels: PDF/A-1b, PDF/A-2b, PDF/A-3b, PDF/UA
+  - Improve metadata extraction from Document component
+  - Add visually hidden h1 for accessibility (screen readers)
+
+  **pdfn CLI:**
+  - Add accessibility checker powered by axe-core in dev server
+  - Add conformance dropdown (PDF/A, PDF/UA) in inspector panel
+  - Show "(Cloud)" indicator in logs when using pdfn Cloud for conformance
+  - UI improvements for inspector panel
+
+### Patch Changes
+
+- Updated dependencies
+  - @pdfn/react@0.6.0
+
 ## 0.6.4
 
 ### Patch Changes

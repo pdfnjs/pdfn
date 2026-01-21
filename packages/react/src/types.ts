@@ -191,6 +191,25 @@ import type { DebugOptions } from "@pdfn/core";
 export type { DebugOptions };
 
 /**
+ * PDF conformance level for archival and accessibility compliance.
+ *
+ * - `PDF/A-1b`: Basic PDF 1.4 archival (most compatible)
+ * - `PDF/A-2b`: PDF 1.7 archival, allows transparency and JPEG2000
+ * - `PDF/A-3b`: Like PDF/A-2b plus arbitrary embedded files
+ * - `PDF/UA`: Universal Accessibility (tagged PDF for assistive technologies)
+ *
+ * @example
+ * ```tsx
+ * // Generate an archival PDF
+ * const pdf = await generate(<Invoice />, { conformance: "PDF/A-2b" });
+ *
+ * // Generate an accessible PDF
+ * const pdf = await generate(<Report />, { conformance: "PDF/UA" });
+ * ```
+ */
+export type ConformanceLevel = "PDF/A-1b" | "PDF/A-2b" | "PDF/A-3b" | "PDF/UA";
+
+/**
  * Options for the render() function
  *
  * @example

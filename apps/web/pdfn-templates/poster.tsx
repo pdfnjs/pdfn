@@ -175,7 +175,7 @@ const posterStyles = `
 
   .cta-website {
     font-size: 1rem;
-    color: var(--gray-500);
+    color: var(--gray-400);
     margin-top: 1rem;
     font-family: ui-monospace, monospace;
     letter-spacing: 0.05em;

@@ -11,6 +11,7 @@ export function Header() {
   const navLinks = [
     { href: "/components", label: "Components" },
     { href: "/templates", label: "Templates" },
+    { href: "/tools/pdf-validator", label: "Validator" },
     { href: "https://github.com/pdfnjs/pdfn#quick-start", label: "Docs", external: true },
   ];
 

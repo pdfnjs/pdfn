@@ -13,11 +13,14 @@ Official website and interactive demo for pdfn.
 - Performance metrics (render time, pagination, pages)
 - One-click PDF download
 - Zoom controls (Fit / 100%)
+- Free PDF/A & PDF/UA validator tool
 
 ## Pages
 
 - `/` - Landing page with interactive demo
 - `/templates` - Template gallery with detailed info
+- `/components` - Component documentation
+- `/tools/pdf-validator` - Free PDF/A & PDF/UA compliance checker
 
 ## Development
 
@@ -41,15 +44,20 @@ For production, you can use pdfn Cloud (`PDFN_API_KEY`) or self-host with Puppet
 ```
 src/
 ├── app/
-│   ├── page.tsx              # Landing page with demo
-│   ├── templates/page.tsx    # Template gallery
-│   └── api/pdf/route.tsx     # PDF generation endpoint
+│   ├── page.tsx                    # Landing page with demo
+│   ├── templates/page.tsx          # Template gallery
+│   ├── components/page.tsx         # Component documentation
+│   ├── tools/
+│   │   └── pdf-validator/          # PDF/A & PDF/UA validator
+│   │       ├── page.tsx
+│   │       └── layout.tsx
+│   └── api/pdf/route.tsx           # PDF generation endpoint
 ├── components/
 │   ├── Header.tsx
 │   ├── Footer.tsx
-│   └── StylingBadge.tsx      # Displays styling method
+│   └── StylingBadge.tsx            # Displays styling method
 ├── lib/
-│   └── template-code.ts      # Auto-generated template source
+│   └── template-code.ts            # Auto-generated template source
 └── ...
 
 pdfn-templates/
@@ -103,6 +111,32 @@ export async function GET(request: Request) {
     headers: { 'Content-Type': 'application/pdf' }
   });
 }
+```
+
+## PDF Validator Tool
+
+Free online tool to validate PDF compliance at `/tools/pdf-validator`.
+
+**Supported Standards:**
+
+| Type | Profiles |
+|------|----------|
+| PDF/A (Archival) | 1a, 1b, 2a, 2b, 2u, 3a, 3b, 4 |
+| PDF/UA (Accessibility) | UA-1, UA-2 |
+
+**Features:**
+- Drag & drop or click to upload (max 100 MB)
+- Grouped profile selector with recommended defaults
+- Detailed issue reporting with descriptions
+- Files are not stored on servers
+
+**API Endpoint:**
+```bash
+# Validate PDF/A-2b (most common)
+curl -X POST "https://api.pdfn.dev/v1/validate?profile=2b" -F "file=@document.pdf"
+
+# Validate PDF/UA-1 (accessibility)
+curl -X POST "https://api.pdfn.dev/v1/validate?profile=ua1" -F "file=@document.pdf"
 ```
 
 ## Build

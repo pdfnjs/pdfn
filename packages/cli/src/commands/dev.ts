@@ -15,6 +15,7 @@ import { pdfn } from "@pdfn/vite";
 import chalk from "chalk";
 import { loadEnv } from "../utils/env";
 import React from "react";
+import axeCore from "axe-core";
 
 interface TemplateInfo {
   id: string;
@@ -109,7 +110,7 @@ async function scanTemplates(templatesDir: string): Promise<TemplateInfo[]> {
   return templates;
 }
 
-function createPreviewHTML(templates: TemplateInfo[], activeTemplate: string | null): string {
+function createPreviewHTML(templates: TemplateInfo[], activeTemplate: string | null, hasCloudAccess: boolean): string {
   const templateList = templates
     .map(
       (t) => `
@@ -141,8 +142,8 @@ function createPreviewHTML(templates: TemplateInfo[], activeTemplate: string | n
       --surface-2: #1a1a1a;
       --border: #222;
       --text: #fafafa;
-      --text-muted: #666;
-      --text-secondary: #888;
+      --text-muted: #9a9a9a;
+      --text-secondary: #b0b0b0;
     }
 
     body {
@@ -362,9 +363,13 @@ function createPreviewHTML(templates: TemplateInfo[], activeTemplate: string | n
       to { transform: rotate(360deg); }
     }
 
+    .spin {
+      animation: spin 1s linear infinite;
+    }
+
     /* Inspector panel - right side */
     .inspector-panel {
-      width: 200px;
+      width: 260px;
       background: var(--surface-1);
       border-left: 1px solid var(--border);
       display: flex;
@@ -510,6 +515,215 @@ function createPreviewHTML(templates: TemplateInfo[], activeTemplate: string | n
       opacity: 0.7;
     }
 
+    /* Accessibility section */
+    .a11y-check-btn {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      width: 100%;
+      padding: 8px 12px;
+      background: var(--surface-2);
+      border: 1px solid #444;
+      border-radius: 6px;
+      color: var(--text-secondary);
+      font-size: 13px;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .a11y-check-btn:hover {
+      background: var(--surface-3);
+      border-color: #555;
+      color: var(--text);
+    }
+
+    .a11y-check-btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    .a11y-check-btn.loading {
+      color: var(--text-muted);
+    }
+
+    .a11y-check-btn .status-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      margin-left: 4px;
+    }
+
+    .a11y-check-btn .status-dot.pass { background: #22c55e; }
+    .a11y-check-btn .status-dot.fail { background: #ef4444; }
+
+    .a11y-results {
+      margin-top: 10px;
+      max-height: 350px;
+      overflow-y: auto;
+      scrollbar-width: thin;
+      scrollbar-color: #555 transparent;
+    }
+
+    .a11y-results::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    .a11y-results::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    .a11y-results::-webkit-scrollbar-thumb {
+      background: #555;
+      border-radius: 3px;
+    }
+
+    .a11y-results::-webkit-scrollbar-thumb:hover {
+      background: #666;
+    }
+
+    .a11y-timestamp {
+      font-size: 10px;
+      color: var(--text-muted);
+      text-align: right;
+      margin-bottom: 8px;
+    }
+
+    .a11y-stale {
+      font-size: 11px;
+      color: #f59e0b;
+      background: rgba(245, 158, 11, 0.1);
+      border: 1px solid rgba(245, 158, 11, 0.2);
+      border-radius: 4px;
+      padding: 6px 10px;
+      margin-bottom: 8px;
+      text-align: center;
+    }
+
+    .a11y-empty {
+      font-size: 12px;
+      color: var(--text-muted);
+      text-align: center;
+      padding: 12px 8px;
+    }
+
+    .a11y-pass {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      color: #22c55e;
+      padding: 10px;
+      background: rgba(34, 197, 94, 0.1);
+      border-radius: 4px;
+      border: 1px solid rgba(34, 197, 94, 0.2);
+    }
+
+    .a11y-summary {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 12px;
+      padding: 8px 10px;
+      border-radius: 4px;
+      margin-bottom: 10px;
+    }
+
+    .a11y-summary.has-issues {
+      background: rgba(239, 68, 68, 0.1);
+      border: 1px solid rgba(239, 68, 68, 0.2);
+      color: #fca5a5;
+    }
+
+    .a11y-summary .issue-count {
+      font-weight: 600;
+    }
+
+    .a11y-violation {
+      padding: 10px;
+      margin-bottom: 8px;
+      background: var(--surface-2);
+      border-radius: 4px;
+      border-left: 3px solid;
+      animation: slideIn 0.2s ease-out;
+    }
+
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateX(-4px); }
+      to { opacity: 1; transform: translateX(0); }
+    }
+
+    .a11y-violation.critical { border-color: #ef4444; }
+    .a11y-violation.serious { border-color: #f97316; }
+    .a11y-violation.moderate { border-color: #eab308; }
+    .a11y-violation.minor { border-color: #3b82f6; }
+
+    .a11y-violation-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--text);
+    }
+
+    .a11y-violation-impact {
+      font-size: 9px;
+      padding: 2px 6px;
+      border-radius: 3px;
+      text-transform: uppercase;
+      font-weight: 600;
+      letter-spacing: 0.3px;
+    }
+
+    .a11y-violation-impact.critical { background: #ef4444; color: white; }
+    .a11y-violation-impact.serious { background: #f97316; color: white; }
+    .a11y-violation-impact.moderate { background: #eab308; color: #000; }
+    .a11y-violation-impact.minor { background: #3b82f6; color: white; }
+
+    .a11y-violation-id {
+      font-family: monospace;
+      font-size: 11px;
+    }
+
+    .a11y-violation-desc {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-top: 6px;
+      line-height: 1.4;
+    }
+
+    .a11y-violation-count {
+      font-size: 10px;
+      color: var(--text-muted);
+      margin-top: 4px;
+      opacity: 0.8;
+    }
+
+    /* Accessibility accordion */
+    .a11y-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .a11y-header:hover {
+      color: var(--text-secondary);
+    }
+
+    .a11y-toggle {
+      transition: transform 0.2s;
+    }
+
+    .a11y-toggle.collapsed {
+      transform: rotate(-90deg);
+    }
+
+    .a11y-content {
+      margin-top: 8px;
+    }
+
     /* Console section */
     .console-header {
       display: flex;
@@ -595,6 +809,69 @@ function createPreviewHTML(templates: TemplateInfo[], activeTemplate: string | n
     }
 
     .btn-primary:hover { background: var(--primary-hover); border-color: var(--primary-hover); }
+
+    .conformance-select {
+      padding: 6px 10px;
+      background: var(--surface-2);
+      border: 1px solid #333;
+      border-radius: 6px;
+      color: var(--text-secondary);
+      font-size: 12px;
+      cursor: pointer;
+    }
+
+    .conformance-select:hover { border-color: #444; }
+    .conformance-select:focus { outline: none; border-color: var(--primary); }
+
+    .cloud-key-message {
+      display: none;
+      position: absolute;
+      top: 100%;
+      right: 0;
+      margin-top: 8px;
+      width: 280px;
+      padding: 12px;
+      background: var(--surface-2);
+      border: 1px solid #444;
+      border-radius: 8px;
+      font-size: 12px;
+      color: var(--text-secondary);
+      z-index: 100;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    }
+
+    .cloud-key-message.visible { display: block; }
+
+    .cloud-key-message-title {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 8px;
+    }
+
+    .cloud-key-message code {
+      display: block;
+      background: var(--bg);
+      padding: 8px;
+      border-radius: 4px;
+      font-family: monospace;
+      font-size: 11px;
+      margin: 8px 0;
+      word-break: break-all;
+    }
+
+    .cloud-key-message a {
+      color: var(--primary);
+      text-decoration: none;
+    }
+
+    .cloud-key-message a:hover { text-decoration: underline; }
+
+    .context-actions {
+      position: relative;
+    }
   </style>
 </head>
 <body>
@@ -625,18 +902,42 @@ function createPreviewHTML(templates: TemplateInfo[], activeTemplate: string | n
             <div class="page-info" id="page-info"></div>
           </div>
           <div class="context-actions">
-            <a class="btn" id="view-pdf" href="#" target="_blank" title="View PDF in browser">
+            <select id="conformance-select" class="conformance-select" title="PDF conformance level">
+              <option value="">Standard PDF (Local)</option>
+              <option value="PDF/A-1b">PDF/A-1b (Cloud)</option>
+              <option value="PDF/A-2b">PDF/A-2b (Cloud)</option>
+              <option value="PDF/A-3b">PDF/A-3b (Cloud)</option>
+              <option value="PDF/UA">PDF/UA (Cloud)</option>
+            </select>
+            <button class="btn" id="preview-pdf" title="Preview PDF">
               <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
               </svg>
-              View PDF
-            </a>
+              Preview
+            </button>
             <button class="btn btn-primary" id="download-pdf" title="Download PDF">
               <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
               </svg>
               Download
             </button>
+            <div class="cloud-key-message" id="cloud-key-message">
+              <div class="cloud-key-message-title">
+                <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10"/>
+                </svg>
+                API key required
+              </div>
+              <div>Set <strong>PDFN_API_KEY</strong> in your environment</div>
+              <code>PDFN_API_KEY=pdfn_...</code>
+              <div>
+                <a href="https://console.pdfn.dev" target="_blank">Get your API key →</a>
+              </div>
+              <div style="margin-top: 8px; font-size: 11px; color: var(--text-muted);">
+                Restart dev server after setting
+              </div>
+            </div>
           </div>
         </div>
 
@@ -702,6 +1003,26 @@ function createPreviewHTML(templates: TemplateInfo[], activeTemplate: string | n
           </div>
 
           <div class="inspector-section">
+            <div class="inspector-section-title a11y-header" id="a11y-header">
+              <span>Accessibility</span>
+              <svg class="a11y-toggle" id="a11y-toggle" width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+              </svg>
+            </div>
+            <div class="a11y-content" id="a11y-content">
+              <button class="a11y-check-btn" id="a11y-check-btn">
+                <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+                Check
+              </button>
+              <div id="a11y-results" class="a11y-results">
+                <div class="a11y-empty">Analyze template for WCAG compliance</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="inspector-section">
             <div class="inspector-section-title console-header" id="console-header">
               <span>Console</span>
               <svg class="console-toggle" id="console-toggle" width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -724,6 +1045,9 @@ function createPreviewHTML(templates: TemplateInfo[], activeTemplate: string | n
   </div>
 
   <script>
+    // Cloud access (API key available)
+    const hasCloudAccess = ${hasCloudAccess};
+
     // Page sizes in points (72 dpi)
     const PAGE_SIZES = {
       A3: { width: 842, height: 1191 },
@@ -751,6 +1075,7 @@ function createPreviewHTML(templates: TemplateInfo[], activeTemplate: string | n
         headers: false,
         breaks: false,
       },
+      a11yExpanded: true,
       consoleExpanded: true
     };
 
@@ -783,6 +1108,17 @@ function createPreviewHTML(templates: TemplateInfo[], activeTemplate: string | n
       document.getElementById('overlay-headers').checked = inspectorState.overlays.headers;
       document.getElementById('overlay-breaks').checked = inspectorState.overlays.breaks;
 
+      // Accessibility accordion state
+      const a11yContent = document.getElementById('a11y-content');
+      const a11yToggle = document.getElementById('a11y-toggle');
+      if (inspectorState.a11yExpanded) {
+        a11yContent.style.display = 'block';
+        a11yToggle.classList.remove('collapsed');
+      } else {
+        a11yContent.style.display = 'none';
+        a11yToggle.classList.add('collapsed');
+      }
+
       // Console state
       const consoleContent = document.getElementById('console-content');
       const consoleToggle = document.getElementById('console-toggle');
@@ -793,6 +1129,13 @@ function createPreviewHTML(templates: TemplateInfo[], activeTemplate: string | n
         consoleContent.style.display = 'none';
         consoleToggle.classList.add('collapsed');
       }
+    }
+
+    // Toggle accessibility expanded state
+    function toggleA11y() {
+      inspectorState.a11yExpanded = !inspectorState.a11yExpanded;
+      saveState();
+      applyState();
     }
 
     // Toggle console expanded state
@@ -881,7 +1224,7 @@ function createPreviewHTML(templates: TemplateInfo[], activeTemplate: string | n
       ws.onmessage = (event) => {
         const data = JSON.parse(event.data);
         if (data.type === 'reload') {
-          if (currentTemplate) loadPreview(currentTemplate);
+          if (currentTemplate) loadPreview(currentTemplate, { hotReload: true });
         } else if (data.type === 'templates') {
           updateTemplateList(data.templates);
         }
@@ -976,8 +1319,41 @@ function createPreviewHTML(templates: TemplateInfo[], activeTemplate: string | n
       return { pageW, pageH, scale };
     }
 
-    async function loadPreview(templateId) {
+    function resetA11yState() {
+      a11yHasRun = false;
+      a11yLastStatus = null;
+      const a11yBtn = document.getElementById('a11y-check-btn');
+      const a11yResults = document.getElementById('a11y-results');
+      a11yBtn.innerHTML = '<svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg> Check';
+      a11yResults.innerHTML = '<div class="a11y-empty">Analyze template for WCAG compliance</div>';
+    }
+
+    function markA11yStale() {
+      if (!a11yHasRun) return; // Nothing to mark stale
+      const a11yResults = document.getElementById('a11y-results');
+      // Add stale indicator at top of results
+      const staleMsg = '<div class="a11y-stale">Template changed — results may be outdated</div>';
+      if (!a11yResults.innerHTML.includes('a11y-stale')) {
+        a11yResults.insertAdjacentHTML('afterbegin', staleMsg);
+      }
+    }
+
+    async function loadPreview(templateId, options) {
+      options = options || {};
+      const isTemplateSwitch = templateId !== currentTemplate;
+      const isHotReload = options.hotReload === true;
+
       currentTemplate = templateId;
+
+      // Handle accessibility state based on context
+      if (isTemplateSwitch) {
+        // Switching to different template - full reset
+        resetA11yState();
+      } else if (isHotReload) {
+        // Same template but content changed - mark as stale
+        if (a11yHasRun) markA11yStale();
+      }
+      // For resize/overlay changes - preserve state (do nothing)
 
       // Get template file name from button
       const activeBtn = document.querySelector('.template-btn[data-template="' + templateId + '"]');
@@ -1039,15 +1415,50 @@ function createPreviewHTML(templates: TemplateInfo[], activeTemplate: string | n
         // Set up action buttons
         const pdfUrl = '/api/template/' + templateId + '/pdf' + debugQuery;
         const htmlUrl = '/api/template/' + templateId + '/html' + debugQuery;
+        const spinnerSvg = '<svg class="spin" width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke-width="2" stroke-dasharray="32" stroke-dashoffset="12"/></svg>';
 
-        document.getElementById('view-pdf').href = pdfUrl;
         document.getElementById('view-html').href = htmlUrl;
 
-        document.getElementById('download-pdf').onclick = () => {
-          const link = document.createElement('a');
-          link.href = pdfUrl;
-          link.download = templateId + '.pdf';
-          link.click();
+        // Preview button handler (local only - hidden when conformance selected)
+        document.getElementById('preview-pdf').onclick = () => {
+          window.open(pdfUrl, '_blank');
+        };
+
+        // Download button handler
+        document.getElementById('download-pdf').onclick = async () => {
+          const conformance = document.getElementById('conformance-select').value;
+          const btn = document.getElementById('download-pdf');
+
+          if (conformance) {
+            // Use pdfn cloud for conformance PDFs
+            btn.innerHTML = spinnerSvg + ' Generating...';
+            btn.disabled = true;
+
+            try {
+              const response = await fetch('/api/template/' + templateId + '/pdf-conformance?conformance=' + encodeURIComponent(conformance));
+              if (!response.ok) {
+                const error = await response.json();
+                throw new Error(error.error || 'Failed to generate PDF');
+              }
+              const blob = await response.blob();
+              const link = document.createElement('a');
+              link.href = URL.createObjectURL(blob);
+              link.download = templateId + '.pdf';
+              link.click();
+              URL.revokeObjectURL(link.href);
+            } catch (err) {
+              alert('Error: ' + err.message);
+            } finally {
+              updateActionButtons();
+              btn.disabled = false;
+            }
+          } else {
+            // Standard local PDF
+            const link = document.createElement('a');
+            link.href = pdfUrl;
+            link.download = templateId + '.pdf';
+            link.click();
+          }
         };
 
       } catch (err) {
@@ -1068,6 +1479,142 @@ function createPreviewHTML(templates: TemplateInfo[], activeTemplate: string | n
         if (currentTemplate) loadPreview(currentTemplate);
       };
     });
+
+    // Button icons
+    const previewIcon = '<svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>';
+    const downloadIcon = '<svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>';
+    const cloudDownloadIcon = '<svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10"/></svg>';
+
+    // Update Preview and Download buttons based on conformance selection
+    function updateActionButtons() {
+      const conformance = document.getElementById('conformance-select').value;
+      const previewBtn = document.getElementById('preview-pdf');
+      const downloadBtn = document.getElementById('download-pdf');
+      const cloudMessage = document.getElementById('cloud-key-message');
+      const needsCloud = !!conformance;
+      const cloudAvailable = hasCloudAccess;
+
+      if (needsCloud) {
+        // Cloud mode - hide Preview, show cloud Download
+        previewBtn.style.display = 'none';
+        downloadBtn.innerHTML = cloudDownloadIcon + ' Download';
+        downloadBtn.title = 'Download ' + conformance + ' PDF via pdfn Cloud';
+
+        if (!cloudAvailable) {
+          // Show message and disable Download
+          cloudMessage.classList.add('visible');
+          downloadBtn.disabled = true;
+          downloadBtn.style.opacity = '0.5';
+          downloadBtn.style.cursor = 'not-allowed';
+        } else {
+          // Hide message and enable Download
+          cloudMessage.classList.remove('visible');
+          downloadBtn.disabled = false;
+          downloadBtn.style.opacity = '';
+          downloadBtn.style.cursor = '';
+        }
+      } else {
+        // Local mode - show Preview, show local Download
+        previewBtn.style.display = '';
+        previewBtn.innerHTML = previewIcon + ' Preview';
+        previewBtn.title = 'Preview PDF';
+        downloadBtn.innerHTML = downloadIcon + ' Download';
+        downloadBtn.title = 'Download PDF';
+        // Hide message and enable buttons
+        cloudMessage.classList.remove('visible');
+        downloadBtn.disabled = false;
+        downloadBtn.style.opacity = '';
+        downloadBtn.style.cursor = '';
+      }
+    }
+
+    // Conformance select change handler
+    document.getElementById('conformance-select').onchange = updateActionButtons;
+
+    // Accessibility check handler
+    let a11yHasRun = false;
+    let a11yLastStatus = null; // 'pass' | 'fail' | null
+
+    async function runAccessibilityCheck() {
+      if (!currentTemplate) return;
+
+      const btn = document.getElementById('a11y-check-btn');
+      const results = document.getElementById('a11y-results');
+
+      btn.disabled = true;
+      btn.classList.add('loading');
+      btn.innerHTML = '<svg class="spin" width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke-width="2" stroke-dasharray="31.4" stroke-dashoffset="10"/></svg> Checking...';
+      results.innerHTML = '<div class="a11y-empty">Running accessibility checks...</div>';
+
+      try {
+        const res = await fetch('/api/template/' + currentTemplate + '/accessibility');
+        const data = await res.json();
+        const timestamp = new Date().toLocaleTimeString();
+
+        if (data.violations.length === 0) {
+          a11yLastStatus = 'pass';
+          results.innerHTML = '<div class="a11y-timestamp">Checked at ' + timestamp + '</div>' +
+            '<div class="a11y-pass"><svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg> No accessibility issues found</div>';
+        } else {
+          a11yLastStatus = 'fail';
+          // Count by severity
+          const counts = { critical: 0, serious: 0, moderate: 0, minor: 0 };
+          data.violations.forEach(function(v) { counts[v.impact || 'minor']++; });
+
+          let html = '<div class="a11y-timestamp">Checked at ' + timestamp + '</div>';
+          html += '<div class="a11y-summary has-issues">';
+          html += '<span class="issue-count">' + data.violations.length + ' issue' + (data.violations.length > 1 ? 's' : '') + '</span>';
+          // Show severity breakdown
+          const parts = [];
+          if (counts.critical > 0) parts.push(counts.critical + ' critical');
+          if (counts.serious > 0) parts.push(counts.serious + ' serious');
+          if (counts.moderate > 0) parts.push(counts.moderate + ' moderate');
+          if (counts.minor > 0) parts.push(counts.minor + ' minor');
+          html += '<span style="font-size: 10px; opacity: 0.8;">' + parts.join(', ') + '</span>';
+          html += '</div>';
+
+          // Sort violations by severity (critical first)
+          const severityOrder = { critical: 0, serious: 1, moderate: 2, minor: 3 };
+          const sorted = data.violations.slice().sort(function(a, b) {
+            return (severityOrder[a.impact] || 3) - (severityOrder[b.impact] || 3);
+          });
+
+          for (let i = 0; i < sorted.length; i++) {
+            const v = sorted[i];
+            const impact = v.impact || 'minor';
+            // Escape HTML in description and id
+            const desc = String(v.description || '').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+            const ruleId = String(v.id || 'unknown').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+            html += '<div class="a11y-violation ' + impact + '" style="animation-delay: ' + (i * 0.05) + 's">';
+            html += '<div class="a11y-violation-header">';
+            html += '<span class="a11y-violation-impact ' + impact + '">' + impact + '</span>';
+            html += '<span class="a11y-violation-id">' + ruleId + '</span>';
+            html += '</div>';
+            html += '<div class="a11y-violation-desc">' + desc + '</div>';
+            if (v.nodes && v.nodes.length > 0) {
+              html += '<div class="a11y-violation-count">' + v.nodes.length + ' element' + (v.nodes.length > 1 ? 's' : '') + ' affected</div>';
+            }
+            html += '</div>';
+          }
+
+          results.innerHTML = html;
+        }
+      } catch (err) {
+        a11yLastStatus = null;
+        results.innerHTML = '<div class="a11y-empty" style="color: #ef4444;">Error: ' + err.message + '</div>';
+      }
+
+      a11yHasRun = true;
+      btn.disabled = false;
+      btn.classList.remove('loading');
+
+      // Update button with status indicator
+      const statusDot = a11yLastStatus ? '<span class="status-dot ' + a11yLastStatus + '"></span>' : '';
+      btn.innerHTML = '<svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg> Recheck' + statusDot;
+    }
+
+    document.getElementById('a11y-check-btn').onclick = runAccessibilityCheck;
+    document.getElementById('a11y-header').onclick = toggleA11y;
 
     // Console header click handler
     document.getElementById('console-header').onclick = toggleConsole;
@@ -1319,7 +1866,8 @@ async function startDevServer(options: DevServerOptions) {
   // Serve preview UI
   app.get("/", (_req: Request, res: Response) => {
     const activeTemplate = templates[0]?.id ?? null;
-    res.send(createPreviewHTML(templates, activeTemplate));
+    const hasCloudAccess = !!process.env.PDFN_API_KEY;
+    res.send(createPreviewHTML(templates, activeTemplate, hasCloudAccess));
   });
 
   // API: Get template code
@@ -1471,6 +2019,171 @@ async function startDevServer(options: DevServerOptions) {
       console.log(chalk.red("  ✗"), template.file, chalk.red("PDF generation failed"));
       console.error(chalk.dim("   "), error);
       res.status(500).send(`Error generating PDF: ${error}`);
+    }
+  });
+
+  // API: Generate PDF with conformance (via pdfn Cloud)
+  app.get("/api/template/:id/pdf-conformance", async (req: Request, res: Response) => {
+    const template = templates.find((t) => t.id === req.params.id);
+    if (!template) {
+      res.status(404).json({ error: "Template not found" });
+      return;
+    }
+
+    const conformance = req.query.conformance as string;
+    const validConformance = ["PDF/A-1b", "PDF/A-2b", "PDF/A-3b", "PDF/UA"];
+    if (!conformance || !validConformance.includes(conformance)) {
+      res.status(400).json({ error: `Invalid conformance. Must be one of: ${validConformance.join(", ")}` });
+      return;
+    }
+
+    const apiKey = process.env.PDFN_API_KEY;
+    if (!apiKey) {
+      res.status(400).json({
+        error: "PDFN_API_KEY required for conformance PDFs. Get one at https://console.pdfn.dev"
+      });
+      return;
+    }
+
+    try {
+      const start = performance.now();
+      const html = await renderTemplate(template, false);
+
+      // Call pdfn Cloud API with conformance
+      const response = await fetch("https://api.pdfn.dev/v1/generate", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${apiKey}`,
+        },
+        body: JSON.stringify({ html, conformance }),
+      });
+
+      if (!response.ok) {
+        const error = await response.json().catch(() => ({ message: response.statusText }));
+        throw new Error(error.message || error.error || `API error: ${response.status}`);
+      }
+
+      const pdfBuffer = Buffer.from(await response.arrayBuffer());
+      const duration = Math.round(performance.now() - start);
+      const pdfSize = parseInt(response.headers.get("X-PDF-Size") || String(pdfBuffer.length));
+
+      console.log(
+        chalk.green("  ✓"),
+        template.file,
+        chalk.dim(`→ ${conformance}`),
+        chalk.magenta("(Cloud)"),
+        chalk.dim("•"),
+        chalk.cyan(`${duration}ms`),
+        chalk.dim("•"),
+        formatBytes(pdfSize)
+      );
+
+      res.setHeader("Content-Type", "application/pdf");
+      res.setHeader("Content-Disposition", `attachment; filename="${template.id}.pdf"`);
+      res.send(pdfBuffer);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Unknown error";
+      console.log(chalk.red("  ✗"), template.file, chalk.red(`${conformance} generation failed:`), message);
+      res.status(500).json({ error: message });
+    }
+  });
+
+  // API: Run accessibility check
+  app.get("/api/template/:id/accessibility", async (req: Request, res: Response) => {
+    const template = templates.find((t) => t.id === req.params.id);
+    if (!template) {
+      res.status(404).json({ error: "Template not found" });
+      return;
+    }
+
+    try {
+      const start = performance.now();
+      const html = await renderTemplate(template, false);
+
+      // Run axe-core in Puppeteer
+      const results = await browserManager.withPage(async (page) => {
+        await page.setContent(html, { waitUntil: "domcontentloaded" });
+
+        // Wait for PDFN.ready (Paged.js to finish transforming DOM)
+        await page.waitForFunction("window.PDFN?.ready === true", { timeout: 30000 });
+
+        // Inject axe-core
+        await page.addScriptTag({ content: axeCore.source });
+
+        // Run axe with PDF-relevant configuration
+        const axeResults = await page.evaluate(() => {
+          return new Promise<{
+            violations: Array<{
+              id: string;
+              impact?: string;
+              description: string;
+              nodes: Array<{ target: string[] }>;
+            }>;
+          }>((resolve, reject) => {
+            // @ts-expect-error axe is injected
+            window.axe.run(document, {
+              rules: {
+                // Disable rules not relevant for PDFs
+                "scrollable-region-focusable": { enabled: false },
+                "nested-interactive": { enabled: false },
+                tabindex: { enabled: false },
+                "focus-order-semantics": { enabled: false },
+                "aria-hidden-focus": { enabled: false },
+                "landmark-one-main": { enabled: false },
+                "landmark-no-duplicate-banner": { enabled: false },
+                "landmark-no-duplicate-contentinfo": { enabled: false },
+                "landmark-no-duplicate-main": { enabled: false },
+                "landmark-unique": { enabled: false },
+                region: { enabled: false },
+                bypass: { enabled: false },
+                "skip-link": { enabled: false },
+              },
+            }, (err: Error | null, results: { violations: Array<{ id: string; impact?: string; description: string; nodes: Array<{ target: string[] }> }> }) => {
+              if (err) reject(err);
+              else resolve(results);
+            });
+          });
+        });
+
+        return axeResults;
+      });
+
+      const duration = Math.round(performance.now() - start);
+
+      // Log result
+      const violationCount = results.violations.length;
+      if (violationCount === 0) {
+        console.log(
+          chalk.green("  ✓"),
+          template.file,
+          chalk.dim("→ a11y"),
+          chalk.green("pass"),
+          chalk.dim(`(${duration}ms)`)
+        );
+      } else {
+        console.log(
+          chalk.yellow("  ⚠"),
+          template.file,
+          chalk.dim("→ a11y"),
+          chalk.yellow(`${violationCount} issue${violationCount > 1 ? "s" : ""}`),
+          chalk.dim(`(${duration}ms)`)
+        );
+      }
+
+      res.json({
+        violations: results.violations.map((v) => ({
+          id: v.id,
+          impact: v.impact,
+          description: v.description,
+          nodes: v.nodes.map((n) => ({ target: n.target })),
+        })),
+        duration,
+      });
+    } catch (error) {
+      console.log(chalk.red("  ✗"), template.file, chalk.red("a11y check failed"));
+      console.error(chalk.dim("   "), error);
+      res.status(500).json({ error: `Error running accessibility check: ${error}` });
     }
   });
 

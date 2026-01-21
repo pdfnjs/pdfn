@@ -90,7 +90,7 @@ export default function Ticket({
           {/* Tear Line */}
           <div style={{ display: "flex", alignItems: "center", gap: "8px", margin: "20px 0" }}>
             <div style={{ flex: 1, borderTop: "2px dashed #d1d5db" }}></div>
-            <div style={{ fontSize: "14px", color: "#9ca3af" }}>✂</div>
+            <div style={{ fontSize: "14px", color: "#6b7280" }}>✂</div>
             <div style={{ flex: 1, borderTop: "2px dashed #d1d5db" }}></div>
           </div>
 
@@ -129,7 +129,7 @@ export default function Ticket({
           </div>
 
           {/* Terms */}
-          <p style={{ textAlign: "center", fontSize: "10px", color: "#9ca3af", marginTop: "12px" }}>
+          <p style={{ textAlign: "center", fontSize: "10px", color: "#6b7280", marginTop: "12px" }}>
             Non-transferable • Non-refundable • Present at entry
           </p>
         </div>
