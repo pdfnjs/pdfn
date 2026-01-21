@@ -65,22 +65,22 @@ const pdf = await generate(<Invoice />, { host: 'http://localhost:3456' });
 const pdf = await generate(<Invoice />, { apiKey: 'pdfn_live_...' });
 ```
 
-### Conformance (PDF/A)
+### PDF/A Standard
 
-Generate archival PDFs with the `conformance` option:
+Generate archival PDFs with the `standard` option:
 
 ```tsx
 // PDF/A for archival compliance
-const pdf = await generate(<Invoice />, { conformance: 'PDF/A-2b' });
+const pdf = await generate(<Invoice />, { standard: 'PDF/A-2b' });
 ```
 
-| Level | Description |
-|-------|-------------|
+| Standard | Description |
+|----------|-------------|
 | `PDF/A-1b` | Basic PDF 1.4 archival (most compatible) |
 | `PDF/A-2b` | PDF 1.7 archival, allows transparency |
 | `PDF/A-3b` | Like PDF/A-2b plus embedded files |
 
-Note: Conformance requires pdfn Cloud and adds ~1-5s latency.
+Note: Requires pdfn Cloud and adds ~1-5s latency.
 
 ### Using generateFromHtml()
 

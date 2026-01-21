@@ -1,5 +1,23 @@
 # @pdfn/react
 
+## 0.7.0
+
+### Minor Changes
+
+- BREAKING: Rename `conformance` option to `standard`
+
+  The option for generating archival PDFs has been renamed for better clarity:
+
+  ```tsx
+  // Before
+  const pdf = await generate(<Invoice />, { conformance: "PDF/A-2b" });
+
+  // After
+  const pdf = await generate(<Invoice />, { standard: "PDF/A-2b" });
+  ```
+
+  Type renamed from `ConformanceLevel` to `PDFStandard`.
+
 ## 0.6.1
 
 ### Patch Changes

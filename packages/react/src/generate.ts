@@ -1,6 +1,6 @@
 import type { ReactElement } from "react";
 import { render, type RenderOptions } from "./render/render";
-import type { ConformanceLevel } from "./types";
+import type { PDFStandard } from "./types";
 
 const PDFN_CLOUD_URL = "https://api.pdfn.dev";
 
@@ -22,21 +22,21 @@ export interface GenerateFromHtmlOptions {
   apiKey?: string;
 
   /**
-   * PDF conformance level for archival compliance.
+   * PDF standard for archival compliance.
    *
    * - `PDF/A-1b`: Basic PDF 1.4 archival (most compatible)
    * - `PDF/A-2b`: PDF 1.7 archival, allows transparency and JPEG2000
    * - `PDF/A-3b`: Like PDF/A-2b plus arbitrary embedded files
    *
-   * Note: Conformance adds ~1-5s latency due to post-processing.
-   * Default (undefined) generates a standard PDF (fastest).
+   * Note: Adds ~1-5s latency due to post-processing.
+   * Default (undefined) generates a regular PDF (fastest).
    *
    * @example
    * ```tsx
-   * const pdf = await generate(<Invoice />, { conformance: "PDF/A-2b" });
+   * const pdf = await generate(<Invoice />, { standard: "PDF/A-2b" });
    * ```
    */
-  conformance?: ConformanceLevel;
+  standard?: PDFStandard;
 }
 
 export interface GenerateOptions extends RenderOptions, GenerateFromHtmlOptions {
@@ -99,7 +99,7 @@ export async function generate(
   element: ReactElement,
   options: GenerateOptions = {}
 ): Promise<string | Buffer> {
-  const { output = "pdf", host, apiKey, conformance, ...renderOptions } = options;
+  const { output = "pdf", host, apiKey, standard, ...renderOptions } = options;
 
   // Step 1: Render React to HTML
   const html = await render(element, renderOptions);
@@ -110,7 +110,7 @@ export async function generate(
   }
 
   // Step 3: Generate PDF from HTML via pdfn server
-  return generateFromHtml(html, { host, apiKey, conformance });
+  return generateFromHtml(html, { host, apiKey, standard });
 }
 
 /**
@@ -144,7 +144,7 @@ export async function generateFromHtml(
   html: string,
   options: GenerateFromHtmlOptions = {}
 ): Promise<Buffer> {
-  const { host, apiKey, conformance } = options;
+  const { host, apiKey, standard } = options;
 
   // Priority: host option > PDFN_HOST env > apiKey option > PDFN_API_KEY env
   const serverHost = host ?? process.env.PDFN_HOST;
@@ -182,9 +182,9 @@ Option 3: Self-hosting
   }
 
   // Build request body
-  const body: { html: string; conformance?: ConformanceLevel } = { html };
-  if (conformance) {
-    body.conformance = conformance;
+  const body: { html: string; standard?: PDFStandard } = { html };
+  if (standard) {
+    body.standard = standard;
   }
 
   let response: Response;

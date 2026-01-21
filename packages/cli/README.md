@@ -31,19 +31,19 @@ npx pdfn dev --open    # Start and open browser
 - Live preview with hot reload
 - Inspector panel (performance, debug overlays)
 - Accessibility checker (axe-core)
-- Conformance dropdown (PDF/A) — requires `PDFN_API_KEY`
+- PDF/A standard dropdown — requires `PDFN_API_KEY`
 
-**Conformance Levels:**
+**PDF/A Standards:**
 
 Generate archival PDFs via pdfn Cloud:
 
-| Level | Description |
-|-------|-------------|
+| Standard | Description |
+|----------|-------------|
 | PDF/A-1b | Basic PDF 1.4 archival (most compatible) |
 | PDF/A-2b | PDF 1.7 archival, allows transparency |
 | PDF/A-3b | Like PDF/A-2b plus embedded files |
 
-Select a conformance level from the dropdown in the dev server UI. Downloads with conformance require a pdfn Cloud API key (`PDFN_API_KEY`).
+Select a standard from the dropdown in the dev server UI. PDF/A downloads require a pdfn Cloud API key (`PDFN_API_KEY`).
 
 **Server API:**
 

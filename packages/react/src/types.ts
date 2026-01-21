@@ -191,7 +191,7 @@ import type { DebugOptions } from "@pdfn/core";
 export type { DebugOptions };
 
 /**
- * PDF conformance level for archival compliance.
+ * PDF standard for archival compliance.
  *
  * - `PDF/A-1b`: Basic PDF 1.4 archival (most compatible)
  * - `PDF/A-2b`: PDF 1.7 archival, allows transparency and JPEG2000
@@ -200,10 +200,10 @@ export type { DebugOptions };
  * @example
  * ```tsx
  * // Generate an archival PDF
- * const pdf = await generate(<Invoice />, { conformance: "PDF/A-2b" });
+ * const pdf = await generate(<Invoice />, { standard: "PDF/A-2b" });
  * ```
  */
-export type ConformanceLevel = "PDF/A-1b" | "PDF/A-2b" | "PDF/A-3b";
+export type PDFStandard = "PDF/A-1b" | "PDF/A-2b" | "PDF/A-3b";
 
 /**
  * Options for the render() function

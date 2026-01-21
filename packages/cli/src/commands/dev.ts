@@ -810,7 +810,7 @@ function createPreviewHTML(templates: TemplateInfo[], activeTemplate: string | n
 
     .btn-primary:hover { background: var(--primary-hover); border-color: var(--primary-hover); }
 
-    .conformance-select {
+    .standard-select {
       padding: 6px 10px;
       background: var(--surface-2);
       border: 1px solid #333;
@@ -820,8 +820,8 @@ function createPreviewHTML(templates: TemplateInfo[], activeTemplate: string | n
       cursor: pointer;
     }
 
-    .conformance-select:hover { border-color: #444; }
-    .conformance-select:focus { outline: none; border-color: var(--primary); }
+    .standard-select:hover { border-color: #444; }
+    .standard-select:focus { outline: none; border-color: var(--primary); }
 
     .cloud-key-message {
       display: none;
@@ -902,7 +902,7 @@ function createPreviewHTML(templates: TemplateInfo[], activeTemplate: string | n
             <div class="page-info" id="page-info"></div>
           </div>
           <div class="context-actions">
-            <select id="conformance-select" class="conformance-select" title="PDF conformance level">
+            <select id="standard-select" class="standard-select" title="PDF standard">
               <option value="">Standard PDF (Local)</option>
               <option value="PDF/A-1b">PDF/A-1b (Cloud)</option>
               <option value="PDF/A-2b">PDF/A-2b (Cloud)</option>
@@ -1418,23 +1418,23 @@ function createPreviewHTML(templates: TemplateInfo[], activeTemplate: string | n
 
         document.getElementById('view-html').href = htmlUrl;
 
-        // Preview button handler (local only - hidden when conformance selected)
+        // Preview button handler (local only - hidden when standard selected)
         document.getElementById('preview-pdf').onclick = () => {
           window.open(pdfUrl, '_blank');
         };
 
         // Download button handler
         document.getElementById('download-pdf').onclick = async () => {
-          const conformance = document.getElementById('conformance-select').value;
+          const standard = document.getElementById('standard-select').value;
           const btn = document.getElementById('download-pdf');
 
-          if (conformance) {
-            // Use pdfn cloud for conformance PDFs
+          if (standard) {
+            // Use pdfn cloud for PDF/A standard
             btn.innerHTML = spinnerSvg + ' Generating...';
             btn.disabled = true;
 
             try {
-              const response = await fetch('/api/template/' + templateId + '/pdf-conformance?conformance=' + encodeURIComponent(conformance));
+              const response = await fetch('/api/template/' + templateId + '/pdf-standard?standard=' + encodeURIComponent(standard));
               if (!response.ok) {
                 const error = await response.json();
                 throw new Error(error.error || 'Failed to generate PDF');
@@ -1484,20 +1484,20 @@ function createPreviewHTML(templates: TemplateInfo[], activeTemplate: string | n
     const downloadIcon = '<svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>';
     const cloudDownloadIcon = '<svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10"/></svg>';
 
-    // Update Preview and Download buttons based on conformance selection
+    // Update Preview and Download buttons based on standard selection
     function updateActionButtons() {
-      const conformance = document.getElementById('conformance-select').value;
+      const standard = document.getElementById('standard-select').value;
       const previewBtn = document.getElementById('preview-pdf');
       const downloadBtn = document.getElementById('download-pdf');
       const cloudMessage = document.getElementById('cloud-key-message');
-      const needsCloud = !!conformance;
+      const needsCloud = !!standard;
       const cloudAvailable = hasCloudAccess;
 
       if (needsCloud) {
         // Cloud mode - hide Preview, show cloud Download
         previewBtn.style.display = 'none';
         downloadBtn.innerHTML = cloudDownloadIcon + ' Download';
-        downloadBtn.title = 'Download ' + conformance + ' PDF via pdfn Cloud';
+        downloadBtn.title = 'Download ' + standard + ' PDF via pdfn Cloud';
 
         if (!cloudAvailable) {
           // Show message and disable Download
@@ -1528,7 +1528,7 @@ function createPreviewHTML(templates: TemplateInfo[], activeTemplate: string | n
     }
 
     // Conformance select change handler
-    document.getElementById('conformance-select').onchange = updateActionButtons;
+    document.getElementById('standard-select').onchange = updateActionButtons;
 
     // Accessibility check handler
     let a11yHasRun = false;
@@ -2021,25 +2021,25 @@ async function startDevServer(options: DevServerOptions) {
     }
   });
 
-  // API: Generate PDF with conformance (via pdfn Cloud)
-  app.get("/api/template/:id/pdf-conformance", async (req: Request, res: Response) => {
+  // API: Generate PDF with standard (via pdfn Cloud)
+  app.get("/api/template/:id/pdf-standard", async (req: Request, res: Response) => {
     const template = templates.find((t) => t.id === req.params.id);
     if (!template) {
       res.status(404).json({ error: "Template not found" });
       return;
     }
 
-    const conformance = req.query.conformance as string;
-    const validConformance = ["PDF/A-1b", "PDF/A-2b", "PDF/A-3b"];
-    if (!conformance || !validConformance.includes(conformance)) {
-      res.status(400).json({ error: `Invalid conformance. Must be one of: ${validConformance.join(", ")}` });
+    const standard = req.query.standard as string;
+    const validStandards = ["PDF/A-1b", "PDF/A-2b", "PDF/A-3b"];
+    if (!standard || !validStandards.includes(standard)) {
+      res.status(400).json({ error: `Invalid standard. Must be one of: ${validStandards.join(", ")}` });
       return;
     }
 
     const apiKey = process.env.PDFN_API_KEY;
     if (!apiKey) {
       res.status(400).json({
-        error: "PDFN_API_KEY required for conformance PDFs. Get one at https://console.pdfn.dev"
+        error: "PDFN_API_KEY required for PDF/A standard. Get one at https://console.pdfn.dev"
       });
       return;
     }
@@ -2048,14 +2048,14 @@ async function startDevServer(options: DevServerOptions) {
       const start = performance.now();
       const html = await renderTemplate(template, false);
 
-      // Call pdfn Cloud API with conformance
+      // Call pdfn Cloud API with standard
       const response = await fetch("https://api.pdfn.dev/v1/generate", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           "Authorization": `Bearer ${apiKey}`,
         },
-        body: JSON.stringify({ html, conformance }),
+        body: JSON.stringify({ html, standard }),
       });
 
       if (!response.ok) {
@@ -2070,7 +2070,7 @@ async function startDevServer(options: DevServerOptions) {
       console.log(
         chalk.green("  ✓"),
         template.file,
-        chalk.dim(`→ ${conformance}`),
+        chalk.dim(`→ ${standard}`),
         chalk.magenta("(Cloud)"),
         chalk.dim("•"),
         chalk.cyan(`${duration}ms`),
@@ -2083,7 +2083,7 @@ async function startDevServer(options: DevServerOptions) {
       res.send(pdfBuffer);
     } catch (error) {
       const message = error instanceof Error ? error.message : "Unknown error";
-      console.log(chalk.red("  ✗"), template.file, chalk.red(`${conformance} generation failed:`), message);
+      console.log(chalk.red("  ✗"), template.file, chalk.red(`${standard} generation failed:`), message);
       res.status(500).json({ error: message });
     }
   });
