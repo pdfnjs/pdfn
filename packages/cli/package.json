@@ -65,7 +65,7 @@
     "@pdfn/eslint-config": "workspace:*",
     "@pdfn/typescript-config": "workspace:*",
     "@types/express": "^5.0.6",
-    "@types/react": "^19.2.8",
+    "@types/react": "^19.2.9",
     "@types/ws": "^8.18.1",
     "pdf-lib": "^1.17.1",
     "tsup": "^8.5.1",
