@@ -11,6 +11,8 @@
 
 **[Live Demo](https://pdfn.dev/#preview)** · **[Templates](https://pdfn.dev/templates)** · **[Free PDF Validator](https://pdfn.dev/tools/pdf-validator)**
 
+**Contents:** [Why pdfn](#why-pdfn) · [Who it's for](#who-pdfn-is-for) · [Quick Start](#quick-start) · [Production paths](#choose-your-production-path) · [Examples](#examples) · [Components](#core-components)
+
 ## Why pdfn?
 
 Most PDFs start as HTML. As documents grow, minor CSS changes start breaking pagination, headers/footers drift, and preview no longer matches production — causing silent layout failures in business-critical PDFs.
@@ -48,6 +50,19 @@ If you only need a one-off PDF or visual export, simpler tools may be enough.
 - Not a visual/WYSIWYG PDF editor
 - Not client-side PDF generation
 - Not a replacement for Chromium
+
+## Why not react-pdf, pdf-lib, or jsPDF?
+
+These libraries work well for simple or fixed-layout PDFs.
+
+Teams usually run into limits when:
+- Content flows across pages
+- Tables and headers need to repeat reliably
+- Layout must match production exactly
+- PDFs move server-side or into background jobs
+- Archival or accessibility compliance (PDF/A, PDF/UA) becomes a requirement
+
+pdfn doesn't replace HTML-to-PDF or Chromium — it builds on top of it, adding structure, predictability, and optional compliance without introducing a new document DSL.
 
 ## Quick Start
 
@@ -87,6 +102,26 @@ Edit `pdfn-templates/invoice.tsx` — changes appear instantly with hot reload.
 
 Both produce identical PDFs — same templates, same output.
 
+### API summary
+
+| Function | Returns | Use when |
+|----------|---------|----------|
+| `render()` | HTML string | Self-hosting with your own Chromium |
+| `generate()` | PDF buffer | Using local dev server or pdfn Cloud |
+
+pdfn decides where to run based on environment:
+- `PDFN_HOST` set → uses local dev server
+- `PDFN_API_KEY` set → uses pdfn Cloud
+
+### What is pdfn Cloud?
+
+pdfn Cloud is a managed PDF runtime that:
+- Runs Chromium reliably at scale
+- Handles timeouts, crashes, and retries
+- Adds optional PDF/A and PDF/UA compliance
+
+It uses the **same templates and layout engine** as local and self-hosted runs — no vendor lock-in.
+
 ### Layout vs Archival Compliance
 
 | Concern | What it means | Where it happens |
@@ -94,7 +129,7 @@ Both produce identical PDFs — same templates, same output.
 | **Layout** | Pagination, fonts, images, styling | Everywhere (dev, Cloud, self-host) |
 | **Archival compliance** | PDF/A validation, metadata, color profiles | pdfn Cloud only |
 
-**Layout is identical everywhere.** Compliance does not change layout or rendering — it only adds validation and archival metadata. Use it for government, legal, or long-term storage requirements.
+**Layout is identical everywhere.** Compliance requires post-processing that runs only in pdfn Cloud. Local and self-hosted runs produce identical layout, but do not apply archival validation. Use compliance for government, legal, or long-term storage requirements.
 
 ```tsx
 // generate() renders PDFs via local server or pdfn Cloud depending on config

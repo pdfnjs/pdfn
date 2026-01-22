@@ -2,6 +2,8 @@
 
 > Write PDF templates as React components. Server-side, Chromium-based PDF generation with predictable pagination, headers, footers, and Tailwind support.
 
+**[Live Demo](https://pdfn.dev/#preview)** — Interactive preview
+
 ## What is pdfn?
 
 pdfn is a React framework for generating PDFs. You write React components, pdfn renders them to print-ready HTML, and Chromium converts to PDF.
