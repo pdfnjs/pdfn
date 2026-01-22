@@ -1,5 +1,6 @@
 # pdfn
 
+[![CI](https://github.com/pdfnjs/pdfn/actions/workflows/ci.yml/badge.svg)](https://github.com/pdfnjs/pdfn/actions/workflows/ci.yml)
 [![npm version](https://img.shields.io/npm/v/@pdfn/react.svg)](https://www.npmjs.com/package/@pdfn/react)
 [![license](https://img.shields.io/npm/l/@pdfn/react.svg)](https://github.com/pdfnjs/pdfn/blob/main/LICENSE)
 
