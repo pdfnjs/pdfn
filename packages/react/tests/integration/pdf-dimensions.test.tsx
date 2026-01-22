@@ -3,6 +3,9 @@
  *
  * Integration tests for PDF page dimensions and orientations.
  * These tests generate actual PDFs and verify their dimensions using pdf-lib.
+ *
+ * NOTE: These tests require Puppeteer/Chrome and are skipped in CI.
+ * Run locally with: pnpm test
  */
 import { describe, it, expect, beforeAll, afterAll } from "vitest";
 import puppeteer, { Browser } from "puppeteer";
@@ -23,7 +26,10 @@ import {
   type PageSizeName,
 } from "../helpers/pdf-utils";
 
-describe("PDF Page Dimensions", () => {
+// Skip in CI - these tests require Chrome/Puppeteer
+const isCI = process.env.CI === "true";
+
+describe.skipIf(isCI)("PDF Page Dimensions", () => {
   let browser: Browser;
 
   beforeAll(async () => {

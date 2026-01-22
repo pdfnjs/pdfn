@@ -3,6 +3,9 @@
  *
  * Integration tests for PDF features: headers, footers, page numbers, watermarks.
  * These tests generate actual PDFs and verify content/structure.
+ *
+ * NOTE: These tests require Puppeteer/Chrome and are skipped in CI.
+ * Run locally with: pnpm test
  */
 import { describe, it, expect, beforeAll, afterAll } from "vitest";
 import puppeteer, { Browser } from "puppeteer";
@@ -18,7 +21,10 @@ import { AvoidBreak } from "../../src/components/AvoidBreak";
 import { Thead } from "../../src/components/Thead";
 import { getPdfInfo } from "../helpers/pdf-utils";
 
-describe("PDF Features Integration", () => {
+// Skip in CI - these tests require Chrome/Puppeteer
+const isCI = process.env.CI === "true";
+
+describe.skipIf(isCI)("PDF Features Integration", () => {
   let browser: Browser;
 
   beforeAll(async () => {

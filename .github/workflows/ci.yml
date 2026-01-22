@@ -6,6 +6,9 @@ on:
   pull_request:
     branches: [main]
 
+env:
+  TURBO_CACHE_DIR: .turbo/cache
+
 jobs:
   build:
     name: Build, Lint & Test
@@ -27,6 +30,14 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
           cache: 'pnpm'
+
+      - name: Cache Turbo
+        uses: actions/cache@v4
+        with:
+          path: ${{ env.TURBO_CACHE_DIR }}
+          key: turbo-${{ runner.os }}-node${{ matrix.node-version }}-${{ github.sha }}
+          restore-keys: |
+            turbo-${{ runner.os }}-node${{ matrix.node-version }}-
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
@@ -61,6 +72,14 @@ jobs:
         with:
           node-version: 22.x
           cache: 'pnpm'
+
+      - name: Cache Turbo
+        uses: actions/cache@v4
+        with:
+          path: ${{ env.TURBO_CACHE_DIR }}
+          key: turbo-${{ runner.os }}-node22.x-${{ github.sha }}
+          restore-keys: |
+            turbo-${{ runner.os }}-node22.x-
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
