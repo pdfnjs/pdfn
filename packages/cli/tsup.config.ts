@@ -10,5 +10,5 @@ export default defineConfig({
   banner: {
     js: "#!/usr/bin/env node",
   },
-  external: ["puppeteer", "vite"],
+  external: ["puppeteer", "vite", "react", "react-dom"],
 });
