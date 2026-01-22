@@ -1,0 +1,89 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build:
+    name: Build, Lint & Test
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [18.x, 20.x, 22.x]
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - name: Setup Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build all packages
+        run: pnpm build
+
+      - name: Run linting
+        run: pnpm lint
+
+      - name: Run type checking
+        run: pnpm check-types
+
+      - name: Run tests
+        run: pnpm test
+
+  # Separate job for checking if build artifacts work
+  build-check:
+    name: Build Artifacts Check
+    runs-on: ubuntu-latest
+    needs: build
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20.x
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build all packages
+        run: pnpm build
+
+      - name: Verify CLI is executable
+        run: |
+          cd packages/cli
+          node dist/cli.js --help
+          node dist/cli.js add --list
+
+      - name: Verify package exports
+        run: |
+          # Test that packages can be imported
+          node -e "const { Document, Page, render } = require('./packages/react/dist/index.cjs'); console.log('✓ @pdfn/react');"
+          node -e "const { Tailwind } = require('./packages/tailwind/dist/index.cjs'); console.log('✓ @pdfn/tailwind');"
+          node -e "const { pdfn } = require('./packages/vite/dist/index.js'); console.log('✓ @pdfn/vite');"
+          node -e "const { withPdfn } = require('./packages/next/dist/index.cjs'); console.log('✓ @pdfn/next');"
+          node -e "const core = require('./packages/core/dist/index.cjs'); console.log('✓ @pdfn/core');"
+          node -e "const client = require('./packages/client/dist/index.js'); console.log('✓ @pdfn/client');"

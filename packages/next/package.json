@@ -18,6 +18,8 @@
   "scripts": {
     "build": "tsup",
     "dev": "tsup --watch",
+    "test": "vitest run",
+    "test:watch": "vitest",
     "lint": "eslint src/",
     "check-types": "tsc --noEmit",
     "clean": "rm -rf dist"
@@ -73,6 +75,7 @@
     "react-dom": "19.2.3",
     "tsup": "^8.5.1",
     "typescript": "^5.9.3",
-    "tailwindcss": "^4"
+    "tailwindcss": "^4",
+    "vitest": "^3.1.1"
   }
 }
