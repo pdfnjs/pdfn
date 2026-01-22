@@ -54,7 +54,7 @@ This opens a browser with live preview. Edit your template and see changes insta
 
 Choose based on your infrastructure — all options produce identical layout.
 
-> **Layout vs Archival Compliance:** Layout (pagination, fonts, images) is identical everywhere. PDF/A archival compliance is optional post-processing via pdfn Cloud — it doesn't change layout, only adds validation and metadata.
+> **Layout vs Archival Compliance:** pdfn is fully self-hostable for rendering and layout. PDF/A and PDF/UA compliance require additional post-processing (validation, metadata, color profiles), which is provided by pdfn Cloud. Layout output is identical in all cases — compliance only finalizes the PDF for archival requirements.
 
 ### Option 1: Local Development
 

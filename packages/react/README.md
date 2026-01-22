@@ -81,11 +81,11 @@ const pdf = await generate(<Invoice />, { standard: 'PDF/A-2b' });
 
 > **Layout vs Archival Compliance**
 >
-> - **Layout** = pagination, fonts, images, styling — identical everywhere
-> - **Archival compliance** = validation, metadata, color profiles — applied after rendering
+> pdfn is fully self-hostable for rendering and layout.
 >
-> Layout is identical whether you use pdfn dev, pdfn Cloud, or self-host.
-> Compliance does not change layout — it only adds validation and archival metadata.
+> PDF/A and PDF/UA compliance require additional post-processing (validation, metadata normalization, color profiles, font embedding), which is provided by pdfn Cloud.
+>
+> Layout output is identical in all cases. Compliance does not change rendering — it only finalizes the PDF for archival or accessibility requirements.
 
 Requires `PDFN_API_KEY`. Without an API key, requests with `standard` will fail.
 

@@ -124,18 +124,22 @@ It uses the **same templates and layout engine** as local and self-hosted runs �
 
 ### Layout vs Archival Compliance
 
-| Concern | What it means | Where it happens |
-|---------|---------------|------------------|
+pdfn is fully self-hostable for rendering and layout.
+
+PDF/A and PDF/UA compliance require additional post-processing (validation, metadata normalization, color profiles, font embedding), which is provided by pdfn Cloud.
+
+| Concern | What it means | Where it runs |
+|---------|---------------|---------------|
 | **Layout** | Pagination, fonts, images, styling | Everywhere (dev, Cloud, self-host) |
 | **Archival compliance** | PDF/A validation, metadata, color profiles | pdfn Cloud only |
 
-**Layout is identical everywhere.** Compliance requires post-processing that runs only in pdfn Cloud. Local and self-hosted runs produce identical layout, but do not apply archival validation. Use compliance for government, legal, or long-term storage requirements.
+**Layout output is identical in all cases.** Compliance does not change rendering — it only finalizes the PDF for archival or accessibility requirements.
 
 ```tsx
-// generate() renders PDFs via local server or pdfn Cloud depending on config
+// Works everywhere (self-hosted or Cloud)
 const pdf = await generate(<Invoice />);
 
-// PDF/A archival compliance — requires pdfn Cloud
+// Requires pdfn Cloud (post-processing only)
 const pdf = await generate(<Invoice />, { standard: 'PDF/A-2b' });
 ```
 
