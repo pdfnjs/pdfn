@@ -32,16 +32,37 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Build all packages
-        run: pnpm build
+        run: |
+          if [ "${{ matrix.node-version }}" = "18.x" ]; then
+            # Node 18.x: Skip web app (Next.js requires Node >=20.9.0)
+            pnpm build --filter '!web'
+          else
+            pnpm build
+          fi
 
       - name: Run linting
-        run: pnpm lint
+        run: |
+          if [ "${{ matrix.node-version }}" = "18.x" ]; then
+            pnpm lint --filter '!web'
+          else
+            pnpm lint
+          fi
 
       - name: Run type checking
-        run: pnpm check-types
+        run: |
+          if [ "${{ matrix.node-version }}" = "18.x" ]; then
+            pnpm check-types --filter '!web'
+          else
+            pnpm check-types
+          fi
 
       - name: Run tests
-        run: pnpm test
+        run: |
+          if [ "${{ matrix.node-version }}" = "18.x" ]; then
+            pnpm test --filter '!web'
+          else
+            pnpm test
+          fi
 
   # Separate job for checking if build artifacts work
   build-check:
