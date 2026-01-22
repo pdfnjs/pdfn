@@ -2,11 +2,14 @@
 
 [![CI](https://github.com/pdfnjs/pdfn/actions/workflows/ci.yml/badge.svg)](https://github.com/pdfnjs/pdfn/actions/workflows/ci.yml)
 [![npm version](https://img.shields.io/npm/v/@pdfn/react.svg)](https://www.npmjs.com/package/@pdfn/react)
+[![npm downloads](https://img.shields.io/npm/dm/@pdfn/react.svg)](https://www.npmjs.com/package/@pdfn/react)
 [![license](https://img.shields.io/npm/l/@pdfn/react.svg)](https://github.com/pdfnjs/pdfn/blob/main/LICENSE)
 
 ### Write PDF templates as React components.
 
 **React-first, Chromium-based PDF generation with predictable pagination and Tailwind support.**
+
+**[Live Demo](https://pdfn.dev/#preview)** · **[Templates](https://pdfn.dev/templates)** · **[Free PDF Validator](https://pdfn.dev/tools/pdf-validator)**
 
 ## Why pdfn?
 
@@ -219,6 +222,15 @@ Full working examples at [github.com/pdfnjs/pdf-examples](https://github.com/pdf
 - [Node.js](https://github.com/pdfnjs/pdf-examples/tree/main/examples/pdfn-node)
 - [Next.js](https://github.com/pdfnjs/pdf-examples/tree/main/examples/pdfn-next)
 
+## Free Tools
+
+### [PDF Validator](https://pdfn.dev/tools/pdf-validator)
+
+Validate PDF/A archival and PDF/UA accessibility compliance. Free, instant validation — no registration required.
+
+- **PDF/A** — Archival compliance (1a/1b, 2a/2b/2u, 3a/3b, 4)
+- **PDF/UA** — Accessibility compliance (UA-1, UA-2)
+
 ## Core Components
 
 | Component | Purpose |
@@ -229,6 +241,8 @@ Full working examples at [github.com/pdfnjs/pdf-examples](https://github.com/pdf
 | `<TotalPages>` | Total page count |
 | `<PageBreak>` | Force page break |
 | `<AvoidBreak>` | Keep content together |
+| `<Thead>` | Repeating table header across pages |
+| `<Tr>` | Keep table row together |
 | `<Tailwind>` | Enable Tailwind classes (from `@pdfn/tailwind`) |
 
 ## CLI
