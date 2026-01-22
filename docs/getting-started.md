@@ -4,7 +4,7 @@ Generate your first PDF in under 2 minutes.
 
 ## Prerequisites
 
-- Node.js 18+
+- Node.js 22+
 
 ## Installation
 

@@ -11,6 +11,9 @@ importers:
       '@changesets/cli':
         specifier: ^2.29.8
         version: 2.29.8(@types/node@25.0.9)
+      eslint:
+        specifier: ^9.39.1
+        version: 9.39.2(jiti@2.6.1)
       prettier:
         specifier: ^3.8.0
         version: 3.8.0
@@ -230,7 +233,7 @@ importers:
         version: 3.2.4(@types/node@25.0.9)(jiti@2.6.1)(jsdom@27.4.0)(lightningcss@1.30.2)(tsx@4.21.0)
 
   packages/eslint-config:
-    devDependencies:
+    dependencies:
       '@eslint/js':
         specifier: ^9.39.1
         version: 9.39.2
@@ -258,12 +261,13 @@ importers:
       globals:
         specifier: ^17.0.0
         version: 17.0.0
-      typescript:
-        specifier: ^5.9.3
-        version: 5.9.3
       typescript-eslint:
         specifier: ^8.53.0
         version: 8.53.0(eslint@9.39.2(jiti@2.6.1))(typescript@5.9.3)
+    devDependencies:
+      typescript:
+        specifier: ^5.9.3
+        version: 5.9.3
 
   packages/next:
     dependencies:
