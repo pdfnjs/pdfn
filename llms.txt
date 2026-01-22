@@ -59,7 +59,7 @@ async function main() {
 main();
 ```
 
-> **Note:** `generate()` requires either `PDFN_HOST` (local server) or `PDFN_API_KEY` (pdfn Cloud). Alternatively, use `render()` + Puppeteer to self-host.
+> **Note:** `generate()` requires either `PDFN_HOST` (local dev server) or `PDFN_API_KEY` (pdfn Cloud). Use `render()` + Puppeteer to self-host with full control.
 
 ### Components
 
@@ -71,17 +71,31 @@ main();
 | `<TotalPages>` | Total page count |
 | `<PageBreak>` | Force page break |
 | `<AvoidBreak>` | Keep content together |
-| `<Thead repeat>` | Repeating table header |
-| `<Tr keep>` | Non-splitting table row |
+| `<Thead repeat>` | Repeating table header (`repeat` is a boolean prop) |
+| `<Tr keep>` | Non-splitting table row (`keep` is a boolean prop) |
 
 ### Functions
 
 | Function | Returns | Requires |
 |----------|---------|----------|
-| `render()` | HTML string | Nothing (use with your own Puppeteer) |
-| `generate()` | PDF buffer | `PDFN_HOST` or `PDFN_API_KEY` |
+| `render()` | HTML string | Nothing (self-host with your own Chromium) |
+| `generate()` | PDF buffer | `PDFN_HOST` (local) or `PDFN_API_KEY` (Cloud) |
 
-Both produce identical PDFs — choose based on infrastructure preferences.
+**pdfn is fully self-hostable.** Both functions produce identical layout. Choose based on infrastructure:
+- `render()` → You manage Chromium (Puppeteer, Playwright, etc.)
+- `generate()` → Local dev server or pdfn Cloud
+
+### Compliance (pdfn Cloud only)
+
+PDF/A and PDF/UA compliance require post-processing (validation, metadata, color profiles), provided by pdfn Cloud:
+
+```tsx
+// Works everywhere
+const pdf = await generate(<Invoice />);
+
+// Requires pdfn Cloud
+const pdf = await generate(<Invoice />, { standard: 'PDF/A-2b' });
+```
 
 ### Project Structure
 

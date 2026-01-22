@@ -47,10 +47,13 @@ npm i @pdfn/next  # or @pdfn/vite
 
 | Function | Returns | Requires | Use when |
 |----------|---------|----------|----------|
-| `render()` | HTML string | Nothing | Full control with your own Chromium |
-| `generate()` | PDF buffer | API key | Managed PDF generation |
+| `render()` | HTML string | Nothing | Self-host with your own Chromium |
+| `generate()` | PDF buffer | `PDFN_HOST` or `PDFN_API_KEY` | Local dev server or pdfn Cloud |
 
-**Both produce identical PDFs.** Choose based on your infrastructure preferences.
+**pdfn is fully self-hostable.** Both functions produce identical layout — choose based on infrastructure:
+- `render()` → You manage Chromium (Puppeteer, Playwright, Browserless, etc.)
+- `generate()` with `PDFN_HOST` → Local dev server (`npx pdfn dev`)
+- `generate()` with `PDFN_API_KEY` → pdfn Cloud (managed infrastructure)
 
 ### Component Hierarchy
 
@@ -163,9 +166,9 @@ Keeps content together on same page.
 </AvoidBreak>
 ```
 
-### Thead (with repeat)
+### Thead (with repeat prop)
 
-Table header that repeats on every page.
+Table header that repeats on every page. The `repeat` prop is a boolean (shorthand for `repeat={true}`).
 
 ```tsx
 <table>
@@ -186,9 +189,9 @@ Table header that repeats on every page.
 </table>
 ```
 
-### Tr (with keep)
+### Tr (with keep prop)
 
-Table row that won't split across pages.
+Table row that won't split across pages. The `keep` prop is a boolean (shorthand for `keep={true}`).
 
 ```tsx
 <Tr keep>
@@ -439,8 +442,11 @@ npx pdfn add --list
 
 | Variable | Default | Description |
 |----------|---------|-------------|
-| `PDFN_API_KEY` | - | API key for generate() (required) |
+| `PDFN_HOST` | - | Local dev server URL (e.g., `http://localhost:3456`) |
+| `PDFN_API_KEY` | - | pdfn Cloud API key (get at console.pdfn.dev) |
 | `DEBUG` | - | Set to `pdfn:*` for logging |
+
+> `generate()` checks `PDFN_HOST` first, then `PDFN_API_KEY`. Set one or the other.
 
 ## Common Patterns
 
@@ -472,11 +478,28 @@ const html = await render(<Invoice />, { debug: true });
 const pdf = await generate(<Invoice />, { debug: { grid: true, margins: true } });
 ```
 
+## Compliance (pdfn Cloud only)
+
+PDF/A and PDF/UA compliance require post-processing (validation, metadata normalization, color profiles, font embedding), which is provided by pdfn Cloud.
+
+```tsx
+// Works everywhere (self-hosted or Cloud)
+const pdf = await generate(<Invoice />);
+
+// Requires pdfn Cloud (post-processing only)
+const pdf = await generate(<Invoice />, { standard: 'PDF/A-2b' });
+```
+
+**Layout output is identical in all cases.** Compliance does not change rendering — it only finalizes the PDF for archival or accessibility requirements.
+
+Supported standards: `PDF/A-1b`, `PDF/A-2b`, `PDF/A-3b`, `PDF/UA-1`
+
 ## Important Notes
 
-1. **Server-only** - pdfn uses react-dom/server, doesn't work in browsers
-2. **generate() needs API key** - Get one at console.pdfn.dev, set PDFN_API_KEY env var
-3. **PDFN.ready** - When using render() with Puppeteer, wait for `window.PDFN.ready === true` (pagination complete)
-4. **Peer dependencies** - Plain Node.js needs `react` and `react-dom` installed
-5. **Templates folder** - By convention, templates go in `pdfn-templates/`
-6. **Tailwind theme** - Auto-detected from `pdfn-templates/styles.css`
+1. **Server-only** — pdfn uses react-dom/server, doesn't work in browsers
+2. **Fully self-hostable** — Use `render()` + Puppeteer for complete control, no API key needed
+3. **generate() needs config** — Set `PDFN_HOST` (local) or `PDFN_API_KEY` (Cloud)
+4. **PDFN.ready** — When using render() with Puppeteer, wait for `window.PDFN.ready === true` (pagination complete)
+5. **Peer dependencies** — Plain Node.js needs `react` and `react-dom` installed
+6. **Templates folder** — By convention, templates go in `pdfn-templates/`
+7. **Tailwind theme** — Auto-detected from `pdfn-templates/styles.css`
