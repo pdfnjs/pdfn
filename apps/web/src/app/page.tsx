@@ -70,6 +70,20 @@ export default function Home() {
     return () => window.removeEventListener("message", handleMessage);
   }, []);
 
+  // Handle hash navigation on initial page load
+  useEffect(() => {
+    if (window.location.hash) {
+      const id = window.location.hash.slice(1);
+      const element = document.getElementById(id);
+      if (element) {
+        // Small delay to ensure layout is complete after hydration
+        setTimeout(() => {
+          element.scrollIntoView({ behavior: "smooth" });
+        }, 100);
+      }
+    }
+  }, []);
+
   // Scroll-triggered fade-in animations
   useEffect(() => {
     const observer = new IntersectionObserver(
