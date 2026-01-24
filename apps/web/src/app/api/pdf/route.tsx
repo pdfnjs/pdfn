@@ -1,4 +1,4 @@
-import { render, generate, generateFromHtml, type DebugOptions } from "@pdfn/react";
+import { pdfn, type DebugOptions } from "@pdfn/react";
 import { renderTemplate } from "@pdfn/next";
 import { NextRequest } from "next/server";
 import { existsSync, readFileSync } from "fs";
@@ -25,6 +25,11 @@ const templateComponents: Record<string, React.ComponentType<any>> = {
   ticket: Ticket,
   poster: Poster,
 };
+
+// Create pdfn client (uses PDFN_API_KEY env var for cloud, or localhost:3456 for local)
+const client = process.env.PDFN_API_KEY
+  ? pdfn(process.env.PDFN_API_KEY)
+  : pdfn();
 
 /**
  * Check if a cached PDF exists for the given template and debug settings
@@ -176,12 +181,17 @@ export async function GET(request: NextRequest) {
       });
 
       // Generate PDF from pre-rendered HTML
-      const pdf = await generateFromHtml(html);
+      const { data, error } = await client.generate({ html });
+
+      if (error) {
+        throw new Error(error.message);
+      }
+
       const pdfDuration = Math.round(performance.now() - start);
-      console.log(`[pdf] ✓ generated in ${pdfDuration}ms (${(pdf.length / 1024).toFixed(1)}KB)`);
+      console.log(`[pdf] ✓ generated in ${pdfDuration}ms (${(data.buffer.length / 1024).toFixed(1)}KB)`);
 
       const filename = `${name}-${templateId}.pdf`.replace(/\s+/g, "-");
-      return new Response(new Uint8Array(pdf), {
+      return new Response(new Uint8Array(data.buffer), {
         headers: {
           "Content-Type": "application/pdf",
           "Content-Disposition": `inline; filename="${filename}"`,
@@ -217,13 +227,18 @@ export async function GET(request: NextRequest) {
   );
 
   try {
-    // HTML preview - use render() directly
+    // HTML preview - use render() from client
     if (wantHtml) {
-      const html = await render(<Component />, { debug: debug || undefined });
+      const { data, error } = await client.render(<Component />, { debug: debug || undefined });
+
+      if (error) {
+        throw new Error(error.message);
+      }
+
       const duration = Math.round(performance.now() - start);
       console.log(`[pdf] ✓ rendered in ${duration}ms`);
 
-      return new Response(html, {
+      return new Response(data.html, {
         headers: {
           "Content-Type": "text/html; charset=utf-8",
           "X-Render-Time": duration.toString(),
@@ -250,16 +265,20 @@ export async function GET(request: NextRequest) {
       });
     }
 
-    // Generate PDF using generate() from @pdfn/react
-    const pdf = await generate(<Component />, { debug: debug || undefined });
-    const duration = Math.round(performance.now() - start);
+    // Generate PDF using client.generate()
+    const { data, error } = await client.generate(<Component />, { debug: debug || undefined });
 
-    console.log(`[pdf] ✓ generated in ${duration}ms (${(pdf.length / 1024).toFixed(1)}KB)`);
+    if (error) {
+      throw new Error(error.message);
+    }
+
+    const duration = Math.round(performance.now() - start);
+    console.log(`[pdf] ✓ generated in ${duration}ms (${(data.buffer.length / 1024).toFixed(1)}KB)`);
 
     // Build a descriptive filename
     const filename = `${name}-${templateId}.pdf`.replace(/\s+/g, "-");
 
-    return new Response(new Uint8Array(pdf), {
+    return new Response(new Uint8Array(data.buffer), {
       headers: {
         "Content-Type": "application/pdf",
         "Content-Disposition": `inline; filename="${filename}"`,

@@ -209,7 +209,7 @@ export type { DebugOptions };
  * const pdf = await generate(<Invoice />, { standard: "PDF/A-2b" });
  * ```
  */
-export type PDFStandard = "PDF/A-1b" | "PDF/A-2b" | "PDF/A-3b";
+export type PDFStandard = "PDF/A-1b" | "PDF/A-2b" | "PDF/A-3b" | "PDF/UA";
 
 /**
  * Options for the render() function

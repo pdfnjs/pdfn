@@ -1,8 +1,6 @@
 # @pdfn/react
 
-React components for building PDFs with predictable pagination.
-
-> **Server-only** — runs in Node.js, not in browsers.
+Node.js SDK for pdfn. Generate PDFs from React components.
 
 ## Installation
 
@@ -12,109 +10,137 @@ npm install @pdfn/react
 
 ## Quick Start
 
-```tsx
-import { Document, Page, PageNumber, render } from '@pdfn/react';
+```typescript
+import { pdfn, Document, Page } from '@pdfn/react';
+import fs from 'fs';
 
-function Invoice() {
-  return (
-    <Document title="Invoice #123">
-      <Page size="A4" margin="1in" footer={<PageNumber />}>
-        <h1>Invoice #123</h1>
-        <p>Total: $148.00</p>
-      </Page>
-    </Document>
-  );
+const client = pdfn(process.env.PDFN_API_KEY);
+
+const { data, error } = await client.generate(
+  <Document>
+    <Page size="A4">
+      <h1>Hello World</h1>
+    </Page>
+  </Document>
+);
+
+if (error) {
+  console.error(error.message);
+  process.exit(1);
 }
 
-const html = await render(<Invoice />);
-// → Self-contained HTML ready for Chromium
+fs.writeFileSync('output.pdf', data.buffer);
 ```
 
-## render() vs generate()
+Get your API key at [console.pdfn.dev](https://console.pdfn.dev).
 
-| | `render()` | `generate()` |
-|---|---|---|
-| **Input** | React element | React element |
-| **Returns** | HTML string | PDF buffer |
-| **Requires** | Nothing | pdfn server |
-| **Use when** | Full control with your own Chromium | Local dev or pdfn Cloud |
+## Local Development
 
-**Both paths produce identical PDFs.** Choose based on your infrastructure preferences:
-- `render()` → You manage Chromium (Puppeteer, Playwright, Browserless, etc.)
-- `generate()` → pdfn dev server or pdfn Cloud
+No API key needed — just start the dev server:
 
-### Using generate()
-
-Requires either a local pdfn server or pdfn Cloud API key.
-
-```tsx
-import { generate } from '@pdfn/react';
-
-// Option 1: Local development
-// Run `npx pdfn dev` and set PDFN_HOST
-// PDFN_HOST=http://localhost:3456
-const pdf = await generate(<Invoice />);
-
-// Option 2: pdfn Cloud
-// Get API key at https://console.pdfn.dev
-// PDFN_API_KEY=pdfn_live_...
-const pdf = await generate(<Invoice />);
-
-// Or pass options directly
-const pdf = await generate(<Invoice />, { host: 'http://localhost:3456' });
-const pdf = await generate(<Invoice />, { apiKey: 'pdfn_live_...' });
+```bash
+npx pdfn dev
 ```
 
-### PDF/A Compliance
-
-Generate archival-compliant PDFs with the `standard` option:
-
-```tsx
-const pdf = await generate(<Invoice />, { standard: 'PDF/A-2b' });
+```typescript
+const client = pdfn(); // Uses localhost:3456
 ```
 
-| Standard | Description |
-|----------|-------------|
-| `PDF/A-1b` | Basic PDF 1.4 archival (most compatible) |
-| `PDF/A-2b` | PDF 1.7 archival, allows transparency |
-| `PDF/A-3b` | Like PDF/A-2b plus embedded files |
+## Examples
 
-> **Layout vs Archival Compliance**
+### With Tailwind CSS
+
+```bash
+npm install @pdfn/tailwind
+```
+
+```typescript
+import { Tailwind } from '@pdfn/tailwind';
+
+const { data } = await client.generate(
+  <Document>
+    <Tailwind>
+      <Page size="A4">
+        <h1 className="text-2xl font-bold">Styled PDF</h1>
+      </Page>
+    </Tailwind>
+  </Document>
+);
+```
+
+### With Page Numbers
+
+```typescript
+import { Document, Page, PageNumber, TotalPages } from '@pdfn/react';
+
+<Page
+  size="A4"
+  footer={
+    <div>
+      Page <PageNumber /> of <TotalPages />
+    </div>
+  }
 >
-> pdfn is fully self-hostable for rendering and layout.
->
-> PDF/A and PDF/UA compliance require additional post-processing (validation, metadata normalization, color profiles, font embedding), which is provided by pdfn Cloud.
->
-> Layout output is identical in all cases. Compliance does not change rendering — it only finalizes the PDF for archival or accessibility requirements.
-
-Requires `PDFN_API_KEY`. Without an API key, requests with `standard` will fail.
-
-### Using generateFromHtml()
-
-When you already have HTML (e.g., from `render()` or custom templates):
-
-```tsx
-import { render, generateFromHtml } from '@pdfn/react';
-
-const html = await render(<Invoice data={data} />);
-const pdf = await generateFromHtml(html);
-// Requires PDFN_HOST or PDFN_API_KEY environment variable
+  {/* content */}
+</Page>
 ```
 
-### Using render() + Puppeteer
+### From HTML String
 
-```tsx
-import { render } from '@pdfn/react';
-import puppeteer from 'puppeteer';
+```typescript
+const { data } = await client.generate({
+  html: '<h1>Invoice</h1><p>Amount: $500</p>',
+});
+```
 
-const html = await render(<Invoice />);
+## Error Handling
 
-const browser = await puppeteer.launch();
-const page = await browser.newPage();
-await page.setContent(html, { waitUntil: 'networkidle0' });
-await page.waitForFunction(() => window.PDFN?.ready === true); // Wait for pagination
-const pdf = await page.pdf({ preferCSSPageSize: true, printBackground: true });
-await browser.close();
+```typescript
+const { data, error } = await client.generate(<Invoice />);
+
+if (error) {
+  console.error(error.code);    // "authentication_error"
+  console.error(error.message); // "Invalid API key."
+  console.error(error.suggestion); // "Check your PDFN_API_KEY..."
+  return;
+}
+
+fs.writeFileSync('invoice.pdf', data.buffer);
+```
+
+Error codes: `configuration_error`, `validation_error`, `authentication_error`, `rate_limit_error`, `timeout_error`, `server_error`, `network_error`, `render_error`
+
+## API Reference
+
+### `pdfn()`
+
+```typescript
+pdfn()                              // Local dev (localhost:3456)
+pdfn('pdfn_live_...')               // pdfn Cloud
+pdfn({ apiKey, baseUrl, timeout })  // Custom server with auth
+```
+
+### `client.generate()`
+
+```typescript
+// React component
+const { data, error } = await client.generate(<Invoice />);
+
+// HTML string
+const { data, error } = await client.generate({ html: '<h1>Hello</h1>' });
+
+// With options
+const { data, error } = await client.generate(<Invoice />, {
+  standard: 'PDF/A-2b',  // Archival compliance
+  timeout: 60000,
+});
+```
+
+### `client.render()`
+
+```typescript
+const { data, error } = await client.render(<Invoice />);
+// data.html = self-contained HTML string
 ```
 
 ## Components
@@ -125,78 +151,30 @@ await browser.close();
 | `<Page>` | Page container (size, margins, header/footer) |
 | `<PageNumber>` | Current page number |
 | `<TotalPages>` | Total page count |
-| `<PageBreak>` | Force a page break |
+| `<PageBreak>` | Force page break |
 | `<AvoidBreak>` | Keep content together |
-| `<Thead repeat>` | Table header that repeats on every page |
-| `<Tr keep>` | Table row that won't split across pages |
+| `<Thead>` | Repeating table header |
+| `<Tr>` | Non-breaking table row |
 
 ## Page Sizes
 
-| Size | Dimensions |
-|------|------------|
-| A4 | 210mm × 297mm |
-| Letter | 8.5in × 11in |
-| Legal | 8.5in × 14in |
-| A3, A5, Tabloid, B4, B5 | Standard sizes |
-| Custom | `['6in', '9in']` |
+`A4` · `Letter` · `Legal` · `A3` · `A5` · `Tabloid` · `B4` · `B5` · `['6in', '9in']`
 
-## Document Props
+## TypeScript
 
-```tsx
-<Document
-  title="Invoice"
-  author="ACME Corp"
-  fonts={['Inter', 'Roboto Mono']}
-  css={`/* custom styles */`}
-/>
+Full TypeScript support with exported types:
+
+```typescript
+import type {
+  PdfnClient,
+  PdfnConfig,
+  PdfnError,
+  GenerateResponse,
+  RenderResponse,
+  DocumentProps,
+  PageProps,
+} from '@pdfn/react';
 ```
-
-## Page Props
-
-```tsx
-<Page
-  size="A4"
-  orientation="portrait"
-  margin="1in"
-  background="#f5f5f5"
-  header={<div>Header</div>}
-  footer={<PageNumber />}
-  watermark="DRAFT"
-/>
-```
-
-## Fonts
-
-```tsx
-// Google Fonts
-<Document fonts={['Inter', 'Roboto Mono']} />
-
-// With weights
-<Document fonts={[{ family: 'Inter', weights: [400, 600, 700] }]} />
-
-// Local fonts
-<Document fonts={[
-  { family: 'CustomFont', src: './fonts/custom.woff2', weight: 400 }
-]} />
-```
-
-## Tailwind CSS
-
-Use `@pdfn/tailwind` for Tailwind support:
-
-```tsx
-import { Tailwind } from '@pdfn/tailwind';
-
-<Document>
-  <Tailwind>
-    <Page size="A4">
-      <h1 className="text-2xl font-bold">Styled PDF</h1>
-    </Page>
-  </Tailwind>
-</Document>
-```
-
-See [@pdfn/tailwind](../tailwind) for details.
 
 ## License
 

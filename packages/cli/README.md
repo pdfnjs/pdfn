@@ -1,6 +1,6 @@
 # pdfn
 
-CLI for pdfn. Dev server with live preview and template scaffolding.
+Dev server and CLI for pdfn.
 
 ## Installation
 
@@ -12,122 +12,54 @@ npm install -D pdfn
 
 ### `pdfn dev`
 
-Development server with live preview and hot reload.
+Start dev server with live preview:
 
 ```bash
 npx pdfn dev           # Start on port 3456
-npx pdfn dev --open    # Start and open browser
+npx pdfn dev --open    # Open browser automatically
 ```
 
-| Option | Default | Description |
-|--------|---------|-------------|
+Options:
+
+| Flag | Default | Description |
+|------|---------|-------------|
 | `--port` | `3456` | Server port |
 | `--templates` | `./pdfn-templates` | Templates directory |
 | `--open` | `false` | Open browser on start |
-| `--no-open` | - | Don't open browser |
-
-**Dev Server Features:**
-
-- Live preview with hot reload
-- Inspector panel (performance, debug overlays)
-- Accessibility checker (axe-core)
-- PDF/A compliance dropdown
-
-**PDF/A Compliance:**
-
-| Standard | Description |
-|----------|-------------|
-| PDF/A-1b | Basic PDF 1.4 archival (most compatible) |
-| PDF/A-2b | PDF 1.7 archival, allows transparency |
-| PDF/A-3b | Like PDF/A-2b plus embedded files |
-
-> `pdfn dev` focuses on layout preview. PDF/A archival compliance (validation, metadata, color profiles) is applied by pdfn Cloud as post-processing.
->
-> **Layout is identical** whether you use pdfn dev, pdfn Cloud, or self-host. Compliance does not change layout — it only adds validation and archival metadata.
-
-To generate PDF/A-compliant PDFs, set `PDFN_API_KEY`. Without an API key, requests with a standard will fail.
-
-**Server API:**
-
-```
-POST /v1/generate   # HTML → PDF
-GET  /health        # Health check
-```
-
-Use with `generate()` by setting `PDFN_HOST`:
-
-```bash
-PDFN_HOST=http://localhost:3456 node your-app.js
-```
 
 ### `pdfn add`
 
-Add starter templates to your project.
+Add templates to your project:
 
 ```bash
 npx pdfn add invoice            # Add invoice template
 npx pdfn add invoice --tailwind # With Tailwind classes
-npx pdfn add --list             # Show all templates
+npx pdfn add --list             # List available templates
 ```
 
-| Template | Description |
-|----------|-------------|
-| `invoice` | Professional invoice with itemized billing |
-| `letter` | US business correspondence |
-| `contract` | Legal service agreement |
-| `ticket` | Event admission ticket |
-| `poster` | Event poster (landscape) |
-| `report` | Sales report with charts (requires recharts) |
+Templates: `invoice`, `letter`, `contract`, `ticket`, `poster`, `report`
 
-## PDF Generation
+## Usage
 
-For PDF generation, choose based on your infrastructure:
+```typescript
+import { pdfn } from '@pdfn/react';
+import Invoice from './pdfn-templates/invoice';
 
-**Option 1: Local dev server**
+// Local dev (uses localhost:3456)
+const client = pdfn();
 
-Use `pdfn dev` for development with `generate()`:
+// Or pdfn Cloud
+// const client = pdfn(process.env.PDFN_API_KEY);
 
-```tsx
-import { generate } from '@pdfn/react';
+const { data, error } = await client.generate(<Invoice />);
 
-// Set PDFN_HOST=http://localhost:3456
-const pdf = await generate(<Invoice />);
+if (error) {
+  console.error(error.message);
+  return;
+}
+
+// Use data.buffer
 ```
-
-**Option 2: Self-host with Puppeteer/Playwright**
-
-Use `render()` to get print-ready HTML, then convert with your own browser:
-
-```tsx
-import { render } from '@pdfn/react';
-import puppeteer from 'puppeteer';
-
-const html = await render(<Invoice />);
-
-const browser = await puppeteer.launch();
-const page = await browser.newPage();
-await page.setContent(html, { waitUntil: 'networkidle0' });
-await page.waitForFunction(() => window.PDFN?.ready === true);
-const pdf = await page.pdf({ preferCSSPageSize: true, printBackground: true });
-await browser.close();
-```
-
-Works with Puppeteer, Playwright, Browserless, @sparticuz/chromium, or any Chromium setup.
-
-**Option 3: pdfn Cloud**
-
-Let pdfn manage the browser infrastructure:
-
-```tsx
-import { generate } from '@pdfn/react';
-
-// Set PDFN_API_KEY=pdfn_live_...
-const pdf = await generate(<Invoice />);
-```
-
-Get your API key at [console.pdfn.dev](https://console.pdfn.dev).
-
-**All options produce identical PDFs** — same templates, same output.
 
 ## License
 

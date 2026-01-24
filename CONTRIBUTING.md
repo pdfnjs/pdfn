@@ -23,7 +23,7 @@ Be respectful, inclusive, and constructive. We're all here to build something gr
 
 ### Prerequisites
 
-- Node.js 18 or higher
+- Node.js 22 or higher
 - pnpm 10+ (`npm install -g pnpm`)
 - Git
 

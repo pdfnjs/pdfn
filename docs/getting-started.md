@@ -1,136 +1,97 @@
 # Getting Started
 
-Generate your first PDF in under 2 minutes.
-
-## Prerequisites
-
-- Node.js 22+
+Generate your first PDF in 2 minutes.
 
 ## Installation
 
-**React Projects (Next.js, Vite, etc.):**
-
 ```bash
-npm i @pdfn/react
+npm install @pdfn/react
 ```
 
-**Plain Node.js:**
+## Setup
 
-```bash
-npm i react react-dom @pdfn/react
+Get your API key from [console.pdfn.dev](https://console.pdfn.dev).
+
+```typescript
+import { pdfn } from '@pdfn/react';
+
+const client = pdfn(process.env.PDFN_API_KEY);
 ```
 
-## Create Your First Template
-
-Create a file at `pdfn-templates/invoice.tsx`:
+## Create a Template
 
 ```tsx
+// pdfn-templates/invoice.tsx
 import { Document, Page, PageNumber } from '@pdfn/react';
 
-export default function Invoice() {
+interface InvoiceProps {
+  number: string;
+  customer: string;
+  total: number;
+}
+
+export default function Invoice({ number, customer, total }: InvoiceProps) {
   return (
-    <Document title="Invoice #001">
+    <Document title={`Invoice ${number}`}>
       <Page size="A4" margin="1in" footer={<PageNumber />}>
-        <h1 style={{ fontSize: 24, marginBottom: 16 }}>Invoice #001</h1>
-        <p style={{ color: '#666' }}>Customer: Acme Corp</p>
-        <p style={{ fontSize: 20, fontWeight: 'bold' }}>Total: $148.00</p>
+        <h1>Invoice {number}</h1>
+        <p>Customer: {customer}</p>
+        <p>Total: ${total.toFixed(2)}</p>
       </Page>
     </Document>
   );
 }
 ```
 
-## Preview Your Template
+## Generate PDF
 
-Start the dev server:
+```typescript
+import { pdfn } from '@pdfn/react';
+import Invoice from './pdfn-templates/invoice';
+import fs from 'fs';
+
+const client = pdfn(process.env.PDFN_API_KEY);
+
+const { data, error } = await client.generate(
+  <Invoice number="INV-001" customer="Acme Corp" total={148} />
+);
+
+if (error) {
+  console.error(error.message);
+  process.exit(1);
+}
+
+fs.writeFileSync('invoice.pdf', data.buffer);
+```
+
+## Local Development
+
+Preview templates with hot reload — no API key needed:
 
 ```bash
 npx pdfn dev --open
 ```
 
-This opens a browser with live preview. Edit your template and see changes instantly.
-
-## Generate a PDF
-
-Choose based on your infrastructure — all options produce identical layout.
-
-> **Layout vs Archival Compliance:** pdfn is fully self-hostable for rendering and layout. PDF/A and PDF/UA compliance require additional post-processing (validation, metadata, color profiles), which is provided by pdfn Cloud. Layout output is identical in all cases — compliance only finalizes the PDF for archival requirements.
-
-### Option 1: Local Development
-
-Use the dev server with `generate()`:
-
-```bash
-# Terminal 1: Start dev server
-npx pdfn dev
-
-# Terminal 2: Run your app
-PDFN_HOST=http://localhost:3456 node your-app.js
+```typescript
+const client = pdfn(); // Uses localhost:3456
+const { data } = await client.generate(<Invoice />);
 ```
 
-```tsx
-import { generate } from '@pdfn/react';
-import Invoice from './pdfn-templates/invoice';
+## PDF/A Compliance
 
-// PDFN_HOST environment variable points to your local server
-const pdf = await generate(<Invoice />);
-```
-
-### Option 2: Self-host with Puppeteer
-
-Full control with your own Chromium setup:
-
-```tsx
-import puppeteer from 'puppeteer';
-import { render } from '@pdfn/react';
-import Invoice from './pdfn-templates/invoice';
-
-// Render to HTML
-const html = await render(<Invoice />);
-
-// Generate PDF
-const browser = await puppeteer.launch();
-const page = await browser.newPage();
-await page.setContent(html, { waitUntil: 'networkidle0' });
-
-await page.waitForFunction(() => window.PDFN?.ready === true); // Wait for pagination
-
-const pdf = await page.pdf({
-  preferCSSPageSize: true,
-  printBackground: true,
+```typescript
+const { data } = await client.generate(<Invoice />, {
+  standard: 'PDF/A-2b',
 });
-await browser.close();
 ```
 
-### Option 3: pdfn Cloud
-
-Managed infrastructure — no browser setup:
-
-```tsx
-import { generate } from '@pdfn/react';
-import Invoice from './pdfn-templates/invoice';
-
-// Set PDFN_API_KEY environment variable
-const pdf = await generate(<Invoice />);
-// pdf is a Buffer — save it, return it from an API, etc.
-```
-
-Get an API key at [console.pdfn.dev](https://console.pdfn.dev).
-
-### PDF/A Compliance (Cloud only)
-
-```tsx
-// Standard PDF (OSS or Cloud)
-const pdf = await generate(<Invoice />);
-
-// PDF/A (Cloud only)
-const pdf = await generate(<Invoice />, { standard: 'PDF/A-2b' });
-```
-
-PDF/A requires pdfn Cloud. Layout remains identical.
+Requires pdfn Cloud. Layout is identical.
 
 ## Next Steps
 
-- [Styling Guide](/docs/styling.md) — Inline styles, CSS props, Tailwind
-- [Next.js Integration](/docs/nextjs.md) — API routes and deployment
-- [Components Reference](/packages/react/README.md) — All components and props
+- [Components](./components.md) — Full component reference
+- [Styling](./styling.md) — Tailwind, CSS, inline styles
+- [Next.js](./nextjs.md) — Framework integration
+- [Errors](./errors.md) — Error handling patterns
+- [Self-Hosting](./self-hosting.md) — Puppeteer/Playwright guide
+- [API Reference](../packages/react/README.md) — SDK details

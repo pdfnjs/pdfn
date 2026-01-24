@@ -1,190 +1,127 @@
 # Next.js Integration
 
-This guide covers integrating pdfn with Next.js App Router.
-
 ## Installation
 
 ```bash
-npm i @pdfn/react @pdfn/tailwind @pdfn/next
+npm install @pdfn/react @pdfn/tailwind
 ```
 
-## Build Configuration
-
-Add the pdfn plugin to your Next.js config:
-
-```ts
-// next.config.ts
-import type { NextConfig } from 'next';
-import { withPdfn } from '@pdfn/next';
-
-const nextConfig: NextConfig = {
-  // your config
-};
-
-export default withPdfn()(nextConfig);
-```
-
-This enables Tailwind pre-compilation and client component support (charts, hooks).
-
-## API Route (App Router)
-
-Create an API route to generate PDFs:
+## Create a Template
 
 ```tsx
-// app/api/invoice/route.tsx
-import { Document, Page, PageNumber, generate } from '@pdfn/react';
+// pdfn-templates/invoice.tsx
+import { Document, Page, PageNumber } from '@pdfn/react';
 import { Tailwind } from '@pdfn/tailwind';
 
-interface InvoiceData {
-  id: string;
+interface InvoiceProps {
+  number: string;
   customer: string;
   total: number;
 }
 
-function Invoice({ data }: { data: InvoiceData }) {
+export default function Invoice({ number, customer, total }: InvoiceProps) {
   return (
-    <Document title={`Invoice ${data.id}`}>
+    <Document title={`Invoice ${number}`}>
       <Tailwind>
-        <Page size="A4" margin="1in" footer={<PageNumber />}>
-          <h1 className="text-2xl font-bold mb-4">Invoice #{data.id}</h1>
-          <p className="text-gray-600">Customer: {data.customer}</p>
-          <p className="text-xl font-bold mt-4">Total: ${data.total}</p>
+        <Page size="A4" footer={<PageNumber />}>
+          <h1 className="text-2xl font-bold">Invoice {number}</h1>
+          <p className="text-gray-600">Customer: {customer}</p>
+          <p className="text-xl font-bold mt-4">Total: ${total}</p>
         </Page>
       </Tailwind>
     </Document>
   );
 }
+```
 
-export async function POST(req: Request) {
-  const data: InvoiceData = await req.json();
+## App Router
 
-  const pdf = await generate(<Invoice data={data} />);
+```tsx
+// app/api/invoice/route.tsx
+import { pdfn } from '@pdfn/react';
+import Invoice from '@/pdfn-templates/invoice';
 
-  return new Response(new Uint8Array(pdf), {
-    headers: {
-      'Content-Type': 'application/pdf',
-      'Content-Disposition': `attachment; filename="invoice-${data.id}.pdf"`,
-    },
-  });
-}
+const client = pdfn(process.env.PDFN_API_KEY);
 
-// Optional: GET for testing
 export async function GET() {
-  const pdf = await generate(
-    <Invoice data={{ id: '001', customer: 'Acme Corp', total: 148 }} />
+  const { data, error } = await client.generate(
+    <Invoice number="INV-001" customer="Acme Corp" total={1500} />
   );
 
-  return new Response(new Uint8Array(pdf), {
+  if (error) {
+    return new Response(error.message, { status: 500 });
+  }
+
+  return new Response(data.buffer, {
     headers: { 'Content-Type': 'application/pdf' },
   });
 }
 ```
 
-## PDF Generation Options
-
-All options produce identical layout. PDF/A archival compliance is optional post-processing via pdfn Cloud — it doesn't change layout, only adds validation and metadata.
-
-**Option 1: Local Development**
-
-Use the dev server with `generate()`:
-
-```bash
-# Terminal 1: Start dev server
-npx pdfn dev
-
-# Terminal 2: Start Next.js
-PDFN_HOST=http://localhost:3456 npm run dev
-```
-
-**Option 2: Self-host with Puppeteer**
-
-Use `render()` to get print-ready HTML, then convert with your own browser:
+## Pages Router
 
 ```tsx
-import { render } from '@pdfn/react';
-import puppeteer from 'puppeteer';
+// pages/api/invoice.tsx
+import type { NextApiRequest, NextApiResponse } from 'next';
+import { pdfn } from '@pdfn/react';
+import Invoice from '@/pdfn-templates/invoice';
 
-export async function GET() {
-  const html = await render(<Invoice />);
+const client = pdfn(process.env.PDFN_API_KEY);
 
-  const browser = await puppeteer.launch();
-  const page = await browser.newPage();
-  await page.setContent(html, { waitUntil: 'networkidle0' });
-  await page.waitForFunction(() => window.PDFN?.ready === true);
-  const pdf = await page.pdf({ preferCSSPageSize: true, printBackground: true });
-  await browser.close();
+export default async function handler(
+  req: NextApiRequest,
+  res: NextApiResponse
+) {
+  const { data, error } = await client.generate(
+    <Invoice number="INV-001" customer="Acme Corp" total={1500} />
+  );
 
-  return new Response(pdf, { headers: { 'Content-Type': 'application/pdf' } });
+  if (error) {
+    return res.status(500).send(error.message);
+  }
+
+  res.setHeader('Content-Type', 'application/pdf');
+  res.send(Buffer.from(data.buffer));
 }
 ```
 
-**Option 3: pdfn Cloud**
+## Local Development
 
-Use `generate()` for managed PDF generation:
+```bash
+# Terminal 1
+npx pdfn dev
+
+# Terminal 2
+npm run dev
+```
+
+```typescript
+const client = pdfn(); // Uses localhost:3456
+```
+
+## Environment Variables
 
 ```bash
 # .env.local
 PDFN_API_KEY=pdfn_live_...
 ```
 
-Get an API key at [console.pdfn.dev](https://console.pdfn.dev).
+Get your key at [console.pdfn.dev](https://console.pdfn.dev).
 
-**PDF/A Compliance (Cloud only):**
-
-```tsx
-// Standard PDF (OSS or Cloud)
-const pdf = await generate(<Invoice />);
-
-// PDF/A (Cloud only)
-const pdf = await generate(<Invoice />, { standard: 'PDF/A-2b' });
-```
-
-PDF/A requires pdfn Cloud. Layout remains identical.
-
-## HTML Preview Endpoint
-
-Add an HTML preview for debugging:
-
-```tsx
-// app/api/invoice/route.tsx
-import { render, generate } from '@pdfn/react';
-
-export async function GET(req: Request) {
-  const { searchParams } = new URL(req.url);
-  const format = searchParams.get('format');
-
-  const invoice = <Invoice data={{ id: '001', customer: 'Acme', total: 148 }} />;
-
-  if (format === 'html') {
-    const html = await render(invoice);
-    return new Response(html, {
-      headers: { 'Content-Type': 'text/html' },
-    });
-  }
-
-  const pdf = await generate(invoice);
-  return new Response(new Uint8Array(pdf), {
-    headers: { 'Content-Type': 'application/pdf' },
-  });
-}
-```
-
-Access:
-- PDF: `/api/invoice`
-- HTML: `/api/invoice?format=html`
-
-## Template Organization
-
-Keep templates in a dedicated folder:
+## Project Structure
 
 ```
+# App Router
 app/
-├── api/
-│   └── invoice/
-│       └── route.tsx
-├── page.tsx
-└── ...
+├── api/invoice/route.tsx
+└── page.tsx
 
+# Pages Router
+pages/
+├── api/invoice.tsx
+└── index.tsx
+
+# Shared templates (used by both)
 pdfn-templates/
 ├── invoice.tsx
 ├── receipt.tsx
@@ -192,128 +129,163 @@ pdfn-templates/
     └── Header.tsx
 ```
 
+## Dynamic Data
+
 ```tsx
 // app/api/invoice/route.tsx
-import Invoice from '@/pdfn-templates/invoice';
-
 export async function POST(req: Request) {
-  const data = await req.json();
-  const pdf = await generate(<Invoice data={data} />);
-  // ...
+  const body = await req.json();
+
+  const { data, error } = await client.generate(
+    <Invoice
+      number={body.invoiceNumber}
+      customer={body.customerName}
+      total={body.total}
+    />
+  );
+
+  if (error) {
+    return Response.json({ error: error.message }, { status: 500 });
+  }
+
+  return new Response(data.buffer, {
+    headers: { 'Content-Type': 'application/pdf' },
+  });
 }
 ```
 
-## Client Components (Charts, Hooks)
+## HTML Preview
 
-Templates with React hooks (Recharts, Chart.js, etc.) work automatically with the build config above.
+### App Router
 
-Create a template with the `"use client"` directive:
+```tsx
+// app/api/invoice/route.tsx
+export async function GET(req: Request) {
+  const { searchParams } = new URL(req.url);
+
+  if (searchParams.get('format') === 'html') {
+    const { data, error } = await client.render(<Invoice {...props} />);
+    if (error) return new Response(error.message, { status: 500 });
+    return new Response(data.html, {
+      headers: { 'Content-Type': 'text/html' },
+    });
+  }
+
+  const { data, error } = await client.generate(<Invoice {...props} />);
+  if (error) return new Response(error.message, { status: 500 });
+  return new Response(data.buffer, {
+    headers: { 'Content-Type': 'application/pdf' },
+  });
+}
+```
+
+### Pages Router
+
+```tsx
+// pages/api/invoice.tsx
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+  const { format } = req.query;
+
+  if (format === 'html') {
+    const { data, error } = await client.render(<Invoice {...props} />);
+    if (error) return res.status(500).send(error.message);
+    res.setHeader('Content-Type', 'text/html');
+    return res.send(data.html);
+  }
+
+  const { data, error } = await client.generate(<Invoice {...props} />);
+  if (error) return res.status(500).send(error.message);
+  res.setHeader('Content-Type', 'application/pdf');
+  res.send(Buffer.from(data.buffer));
+}
+```
+
+## Edge Runtime (Vercel Edge)
+
+For deploying to Vercel Edge, add the Next.js plugin:
+
+```bash
+npm install @pdfn/next
+```
+
+```ts
+// next.config.ts
+import { withPdfn } from '@pdfn/next';
+
+export default withPdfn()(nextConfig);
+```
+
+This pre-compiles Tailwind CSS at build time (required for edge runtimes without filesystem access).
+
+## Client Components (Charts)
+
+For templates with React hooks (Recharts, Chart.js):
 
 ```tsx
 // pdfn-templates/report.tsx
 "use client";
 
 import { Document, Page } from '@pdfn/react';
-import { Tailwind } from '@pdfn/tailwind';
-import { BarChart, Bar, XAxis, YAxis, Tooltip } from 'recharts';
+import { BarChart, Bar, XAxis, YAxis } from 'recharts';
 
-const data = [
-  { name: 'Jan', value: 400 },
-  { name: 'Feb', value: 300 },
-  { name: 'Mar', value: 600 },
-];
+interface ReportProps {
+  data: Array<{ name: string; value: number }>;
+}
 
-export default function Report() {
+export default function Report({ data }: ReportProps) {
   return (
-    <Document title="Sales Report">
-      <Tailwind>
-        <Page size="A4" margin="1in">
-          <h1 className="text-2xl font-bold mb-6">Sales Report</h1>
-          <BarChart width={500} height={300} data={data}>
-            <XAxis dataKey="name" />
-            <YAxis />
-            <Tooltip />
-            <Bar dataKey="value" fill="#3b82f6" />
-          </BarChart>
-        </Page>
-      </Tailwind>
+    <Document>
+      <Page size="A4">
+        <h1 className="text-2xl font-bold mb-4">Monthly Report</h1>
+        <BarChart width={500} height={300} data={data}>
+          <XAxis dataKey="name" />
+          <YAxis />
+          <Bar dataKey="value" fill="#3b82f6" />
+        </BarChart>
+      </Page>
     </Document>
   );
 }
 ```
 
-For charts, install recharts: `npm i recharts`
+## Download Button
 
-## Edge Runtime
-
-The build config above also enables Vercel Edge deployment.
-
-**Note:** Edge runtimes can only use `render()` (HTML output). `generate()` requires Node.js runtime.
-
-```tsx
-// app/api/invoice/route.tsx
-export const runtime = 'edge'; // Only for render(), not generate()
-
-import { render } from '@pdfn/react';
-
-export async function GET() {
-  const html = await render(<Invoice />);
-  return new Response(html, {
-    headers: { 'Content-Type': 'text/html' },
-  });
-}
-```
-
-## Client-Side Download Button
+### App Router
 
 ```tsx
 // app/page.tsx
 'use client';
 
 export default function Page() {
-  const downloadInvoice = async () => {
-    const response = await fetch('/api/invoice', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ id: '001', customer: 'Acme', total: 148 }),
-    });
-
-    const blob = await response.blob();
+  const download = async () => {
+    const res = await fetch('/api/invoice');
+    const blob = await res.blob();
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
     a.download = 'invoice.pdf';
     a.click();
-    URL.revokeObjectURL(url);
   };
 
-  return (
-    <button onClick={downloadInvoice}>
-      Download Invoice
-    </button>
-  );
+  return <button onClick={download}>Download PDF</button>;
 }
 ```
 
-## Environment Variables
+### Pages Router
 
-```bash
-# .env.local
+```tsx
+// pages/index.tsx
+export default function Home() {
+  const download = async () => {
+    const res = await fetch('/api/invoice');
+    const blob = await res.blob();
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'invoice.pdf';
+    a.click();
+  };
 
-# Option 1: Local development
-PDFN_HOST=http://localhost:3456
-
-# Option 2: pdfn Cloud (production)
-PDFN_API_KEY=pdfn_live_...
+  return <button onClick={download}>Download PDF</button>;
+}
 ```
-
-## Deployment Checklist
-
-**Using pdfn Cloud:**
-1. Set `PDFN_API_KEY` environment variable
-2. That's it — pdfn Cloud handles everything
-
-**Self-hosting:**
-1. Set up Puppeteer/Playwright in your infrastructure
-2. Use `render()` to get HTML, then convert with your own browser
-3. See [self-hosting docs](https://pdfn.dev/docs/self-hosting)

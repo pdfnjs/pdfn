@@ -1,80 +1,89 @@
 # @pdfn/next
 
-Next.js build plugin for pdfn. Pre-compiles client components and Tailwind classes for Vercel Edge runtime.
+Next.js plugin for pdfn. Pre-compiles Tailwind CSS for edge deployment.
 
-## When Do You Need This?
+## When Needed
 
-**Only if you deploy to Vercel Edge** (routes with `export const runtime = 'edge'`).
-
-| Setup | Plugin Needed? |
-|-------|---------------|
-| Tailwind + Node.js | **No** — runtime processing works |
-| Tailwind + Vercel Edge | **Yes** — Edge has no filesystem |
+Only for Vercel Edge Runtime. Not required for Node.js runtime.
 
 ## Installation
 
 ```bash
-npm i @pdfn/react @pdfn/tailwind @pdfn/next
+npm install @pdfn/next
 ```
 
 ## Setup
 
 ```ts
 // next.config.ts
-import type { NextConfig } from "next";
-import { withPdfn } from "@pdfn/next";
+import type { NextConfig } from 'next';
+import { withPdfn } from '@pdfn/next';
 
 const nextConfig: NextConfig = {
-  // your config
+  // your existing config
 };
 
 export default withPdfn()(nextConfig);
 ```
 
+### With Options
+
+```ts
+// next.config.ts
+import type { NextConfig } from 'next';
+import { withPdfn } from '@pdfn/next';
+
+const nextConfig: NextConfig = {};
+
+export default withPdfn({
+  tailwind: true,  // Enable Tailwind pre-compilation (default: true)
+  debug: false,    // Enable debug logging (default: false)
+})(nextConfig);
+```
+
+### Composing with Other Plugins
+
+```ts
+// next.config.ts
+import type { NextConfig } from 'next';
+import { withPdfn } from '@pdfn/next';
+
+const nextConfig: NextConfig = {};
+
+// Nest plugins (innermost runs first)
+export default withPdfn()(
+  withOtherPlugin()(nextConfig)
+);
+```
+
 ## Usage
 
 ```tsx
-// pdfn-templates/invoice.tsx
-import { Document, Page } from "@pdfn/react";
-import { Tailwind } from "@pdfn/tailwind";
-
-export default function Invoice() {
-  return (
-    <Document>
-      <Tailwind>
-        <Page size="A4">
-          <h1 className="text-2xl font-bold">Invoice</h1>
-        </Page>
-      </Tailwind>
-    </Document>
-  );
-}
-```
-
-```tsx
 // app/api/invoice/route.tsx
-import { generate } from "@pdfn/react";
-import Invoice from "@/pdfn-templates/invoice";
+import { pdfn } from '@pdfn/react';
+import Invoice from '@/pdfn-templates/invoice';
+
+const client = pdfn(process.env.PDFN_API_KEY);
 
 export async function GET() {
-  const pdf = await generate(<Invoice />);
-  return new Response(new Uint8Array(pdf), { headers: { "Content-Type": "application/pdf" } });
+  const { data, error } = await client.generate(<Invoice />);
+
+  if (error) {
+    return new Response(error.message, { status: 500 });
+  }
+
+  return new Response(data.buffer, {
+    headers: { 'Content-Type': 'application/pdf' },
+  });
 }
 ```
 
-> **Note:** `generate()` requires either `PDFN_HOST` (local server) or `PDFN_API_KEY` (pdfn Cloud). Alternatively, use `render()` with your own Puppeteer setup.
+## Options
 
-## Custom Theme
-
-Create `pdfn-templates/styles.css` — auto-detected by the plugin:
-
-```css
-@import "tailwindcss";
-
-@theme {
-  --color-brand: #007bff;
-}
-```
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `tailwind` | `boolean` | `true` | Pre-compile Tailwind CSS for edge runtime |
+| `debug` | `boolean` | `false` | Enable debug logging |
 
 ## Requirements
 

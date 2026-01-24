@@ -1,80 +1,76 @@
 # @pdfn/vite
 
-Vite build plugin for pdfn. Pre-compiles client components and Tailwind classes for edge runtimes.
+Vite plugin for pdfn. Pre-compiles Tailwind CSS for edge deployment.
 
-## When Do You Need This?
+## When Needed
 
-**Only if you deploy to edge runtimes** (Cloudflare Workers, Deno Deploy, etc.).
-
-| Setup | Plugin Needed? |
-|-------|---------------|
-| Tailwind + Node.js | **No** — runtime processing works |
-| Tailwind + Cloudflare Workers | **Yes** — Edge has no filesystem |
+Only for edge deployments (Cloudflare Workers, etc.). Not required for Node.js.
 
 ## Installation
 
 ```bash
-npm i @pdfn/react @pdfn/tailwind @pdfn/vite
+npm install @pdfn/vite
 ```
 
 ## Setup
 
 ```ts
 // vite.config.ts
-import { defineConfig } from "vite";
-import react from "@vitejs/plugin-react";
-import { pdfn } from "@pdfn/vite";
+import { defineConfig } from 'vite';
+import react from '@vitejs/plugin-react';
+import { pdfn } from '@pdfn/vite';
 
 export default defineConfig({
   plugins: [react(), pdfn()],
 });
 ```
 
+### With Options
+
+```ts
+// vite.config.ts
+import { defineConfig } from 'vite';
+import react from '@vitejs/plugin-react';
+import { pdfn } from '@pdfn/vite';
+
+export default defineConfig({
+  plugins: [
+    react(),
+    pdfn({
+      tailwind: true,  // Enable Tailwind pre-compilation (default: true)
+      debug: false,    // Enable debug logging (default: false)
+    }),
+  ],
+});
+```
+
 ## Usage
 
 ```tsx
-// pdfn-templates/invoice.tsx
-import { Document, Page } from "@pdfn/react";
-import { Tailwind } from "@pdfn/tailwind";
-
-export default function Invoice() {
-  return (
-    <Document>
-      <Tailwind>
-        <Page size="A4">
-          <h1 className="text-2xl font-bold">Invoice</h1>
-        </Page>
-      </Tailwind>
-    </Document>
-  );
-}
-```
-
-```tsx
 // src/generate-pdf.tsx
-import React from "react";
-import { generate } from "@pdfn/react";
-import Invoice from "../pdfn-templates/invoice";
+import { pdfn } from '@pdfn/react';
+import Invoice from './pdfn-templates/invoice';
 
-async function main() {
-  const pdf = await generate(<Invoice />);
-}
-main();
-```
+const client = pdfn(process.env.PDFN_API_KEY);
 
-> **Note:** `generate()` requires either `PDFN_HOST` (local server) or `PDFN_API_KEY` (pdfn Cloud). Alternatively, use `render()` with your own Puppeteer setup.
+export async function generateInvoice() {
+  const { data, error } = await client.generate(<Invoice />);
 
-## Custom Theme
+  if (error) {
+    console.error(error.message);
+    return null;
+  }
 
-Create `pdfn-templates/styles.css` — auto-detected by the plugin:
-
-```css
-@import "tailwindcss";
-
-@theme {
-  --color-brand: #007bff;
+  return data.buffer;
 }
 ```
+
+## Options
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `tailwind` | `boolean` | `true` | Pre-compile Tailwind CSS for edge runtime |
+| `debug` | `boolean` | `false` | Enable debug logging |
 
 ## Requirements
 

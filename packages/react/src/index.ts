@@ -3,6 +3,10 @@
 // Note: render() uses react-dom/server which only works in Node.js.
 // Importing in browser will fail with a clear error from react-dom/server.
 
+// Client factory (main API)
+export { pdfn } from "./client";
+export type { PdfnConfig, PdfnClient, HtmlConfig } from "./client";
+
 // Components
 export { Document } from "./components/Document";
 export { Page } from "./components/Page";
@@ -13,15 +17,37 @@ export { TotalPages } from "./components/TotalPages";
 export { Thead } from "./components/Thead";
 export { Tr } from "./components/Tr";
 
-// Functions
-export { render } from "./render/render";
-export { generate, generateFromHtml } from "./generate";
+// Error types
+export { PdfnError, Errors } from "./errors";
+export type { PdfnErrorCode } from "./errors";
+
+// Response types
+export type {
+  PdfnResponse,
+  GenerateData,
+  GenerateResponse,
+  RenderData,
+  RenderResponse,
+} from "./types/responses";
+
+// Option types
+export type { GenerateOptions, RenderOptions } from "./types/options";
 
 // Types
-export type * from "./types";
+export type {
+  DocumentProps,
+  PageProps,
+  PageSize,
+  MarginConfig,
+  FontConfig,
+  WatermarkConfig,
+  PDFStandard,
+  DebugOptions,
+} from "./types";
+
+// Component prop types
 export type { AvoidBreakProps } from "./components/AvoidBreak";
 export type { PageNumberProps } from "./components/PageNumber";
 export type { TotalPagesProps } from "./components/TotalPages";
 export type { TheadProps } from "./components/Thead";
 export type { TrProps } from "./components/Tr";
-export type { GenerateOptions, GenerateFromHtmlOptions } from "./generate";

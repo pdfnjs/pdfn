@@ -32,7 +32,7 @@ pnpm install
 npx pdfn dev
 
 # Terminal 2: Start website
-PDFN_HOST=http://localhost:3456 pnpm --filter web dev
+pnpm --filter web dev
 ```
 
 Open http://localhost:3000
@@ -87,27 +87,37 @@ Each template demonstrates a different styling method:
 ## How It Works
 
 1. Templates are React components in `pdfn-templates/`
-2. API route uses `render()` for HTML preview and `generate()` for PDF
+2. API route uses `client.render()` for HTML preview and `client.generate()` for PDF
 3. Demo page shows live preview with inspector panel
 
 ```tsx
 // api/pdf/route.tsx
-import { render, generate } from '@pdfn/react';
+import { pdfn } from '@pdfn/react';
 import Invoice from '../../../pdfn-templates/invoice';
+
+const client = process.env.PDFN_API_KEY
+  ? pdfn(process.env.PDFN_API_KEY)
+  : pdfn();
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const html = searchParams.get('html');
 
   if (html) {
-    const htmlContent = await render(<Invoice />);
-    return new Response(htmlContent, {
+    const { data, error } = await client.render(<Invoice />);
+    if (error) {
+      return new Response(error.message, { status: 500 });
+    }
+    return new Response(data.html, {
       headers: { 'Content-Type': 'text/html' }
     });
   }
 
-  const pdf = await generate(<Invoice />);
-  return new Response(pdf, {
+  const { data, error } = await client.generate(<Invoice />);
+  if (error) {
+    return new Response(error.message, { status: 500 });
+  }
+  return new Response(data.buffer, {
     headers: { 'Content-Type': 'application/pdf' }
   });
 }
