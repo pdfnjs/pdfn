@@ -2,14 +2,24 @@
   "$schema": "https://mintlify.com/docs.json",
   "theme": "maple",
   "name": "pdfn",
+  "description": "Write React. Ship PDFs. Generate production-ready PDFs from React components with pdfn.",
   "colors": {
-    "primary": "#6366F1"
+    "primary": "#22d3ee",
+    "light": "#22d3ee",
+    "dark": "#0891b2"
   },
   "logo": {
     "light": "/logo/light.svg",
     "dark": "/logo/dark.svg"
   },
   "favicon": "/favicon.svg",
+  "seo": {
+    "metatags": {
+      "og:image": "https://pdfn.dev/opengraph-image",
+      "og:site_name": "pdfn",
+      "twitter:card": "summary_large_image"
+    }
+  },
   "navigation": {
     "tabs": [
       {
@@ -17,7 +27,15 @@
         "groups": [
           {
             "group": "Getting Started",
-            "pages": ["introduction"]
+            "pages": ["introduction", "quickstart"]
+          },
+          {
+            "group": "Core",
+            "pages": ["components", "styling"]
+          },
+          {
+            "group": "Guides",
+            "pages": ["nextjs", "self-hosting", "errors"]
           }
         ]
       }

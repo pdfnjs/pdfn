@@ -1,40 +1,35 @@
 ---
 title: Introduction
-description: Write React. Ship PDFs.
+description: The React-to-PDF library for developers.
 ---
 
-# Welcome to pdfn
+pdfn is the React-to-PDF library for developers.
 
-pdfn makes pagination predictable. Chromium renders to PDF.
+Write React components. Ship pixel-perfect PDFs. Same input, same output.
 
-**React → print-ready, pagination-safe HTML → Headless Chromium → PDF**
+## Quickstart
 
-Same input → same output. What you preview is what you ship.
+Get started with pdfn in your framework of choice.
 
-## Quick Install
+<CardGroup cols={2}>
+  <Card title="Next.js" icon="react" href="/nextjs">
+    Build PDF endpoints with App Router or Pages Router
+  </Card>
+  <Card title="Node.js" icon="node-js" href="/quickstart">
+    Generate PDFs from any Node.js application
+  </Card>
+</CardGroup>
 
-```bash
-npm install @pdfn/react
-npm install -D pdfn
-```
+## Explore
 
-## Quick Example
-
-```tsx
-import { pdfn, Document, Page } from '@pdfn/react';
-
-const client = pdfn();
-
-const { data, error } = await client.generate(
-  <Document title="Invoice">
-    <Page size="A4">
-      <h1>Invoice #001</h1>
-      <p>Amount: $500</p>
-    </Page>
-  </Document>
-);
-```
-
----
-
-*More documentation coming soon.*
+<CardGroup cols={3}>
+  <Card title="Components" icon="cube" href="/components">
+    Document, Page, PageNumber, and more
+  </Card>
+  <Card title="Styling" icon="paintbrush" href="/styling">
+    Tailwind CSS and custom styles
+  </Card>
+  <Card title="Self-Hosting" icon="server" href="/self-hosting">
+    Run on your own infrastructure
+  </Card>
+</CardGroup>

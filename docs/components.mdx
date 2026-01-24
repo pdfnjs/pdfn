@@ -1,0 +1,252 @@
+---
+title: Components
+description: All pdfn components for building PDF templates.
+---
+
+This page explains how to build PDF templates from scratch. If you're just getting started, use `npx pdfn add invoice` to scaffold a template first (see [Quickstart](/quickstart)).
+
+## Template structure
+
+Every template is a React component that exports a `Document` containing one or more `Page` components:
+
+```tsx pdfn-templates/my-template.tsx
+import { Document, Page } from '@pdfn/react';
+
+export default function MyTemplate({ title, content }) {
+  return (
+    <Document title={title}>
+      <Page size="A4" margin="1in">
+        <h1>{title}</h1>
+        <p>{content}</p>
+      </Page>
+    </Document>
+  );
+}
+```
+
+Save this file in `pdfn-templates/` and it will appear in the dev server preview (`npx pdfn dev`).
+
+---
+
+## Document
+
+The root wrapper for every PDF template. Sets metadata and loads custom fonts.
+
+```tsx
+import { Document, Page } from '@pdfn/react';
+
+<Document
+  title="Invoice #001"
+  author="Acme Corp"
+  css={`.custom { color: red; }`}
+  fonts={[{ family: 'Inter', src: '/fonts/Inter.woff2' }]}
+>
+  <Page size="A4">
+    <h1>Content</h1>
+  </Page>
+</Document>
+```
+
+### Document props
+
+| Prop | Type | Description |
+|------|------|-------------|
+| `title` | `string` | PDF title (shows in browser tab and PDF readers) |
+| `author` | `string` | PDF author metadata |
+| `subject` | `string` | PDF subject metadata |
+| `keywords` | `string` | PDF keywords for search |
+| `creator` | `string` | Application name that created the PDF |
+| `css` | `string` | Custom CSS injected into the document |
+| `fonts` | `FontConfig[]` | Custom fonts to load |
+| `children` | `ReactNode` | Page components (required) |
+
+---
+
+## Page
+
+Defines a page with size, margins, headers, footers, and content.
+
+```tsx
+import { Document, Page, PageNumber } from '@pdfn/react';
+
+<Document title="Invoice">
+  <Page
+    size="A4"
+    orientation="portrait"
+    margin="1in"
+    background="#ffffff"
+    header={<div>Acme Corp</div>}
+    footer={<PageNumber />}
+    watermark="DRAFT"
+  >
+    <h1>Page content here</h1>
+  </Page>
+</Document>
+```
+
+### Page props
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `size` | `PageSize` | `'A4'` | Page dimensions |
+| `orientation` | `'portrait'` \| `'landscape'` | `'portrait'` | Page orientation |
+| `margin` | `string` \| `object` | `'1in'` | Page margins |
+| `background` | `string` | — | Background color |
+| `header` | `ReactNode` | — | Content repeated at top of each page |
+| `footer` | `ReactNode` | — | Content repeated at bottom of each page |
+| `watermark` | `string` \| `object` | — | Watermark text or config |
+| `children` | `ReactNode` | — | Page content (required) |
+
+### Page sizes
+
+```typescript
+type PageSize =
+  | 'A3' | 'A4' | 'A5'
+  | 'Letter' | 'Legal' | 'Tabloid'
+  | 'B4' | 'B5'
+  | [number, number]; // Custom: [width, height] in inches
+```
+
+### Margin formats
+
+```tsx
+// Single value (all sides)
+<Page margin="1in">
+
+// Two values (vertical, horizontal)
+<Page margin="1in 0.5in">
+
+// Object (each side)
+<Page margin={{ top: '1in', right: '0.5in', bottom: '1in', left: '0.5in' }}>
+```
+
+### Watermark formats
+
+```tsx
+// Simple string
+<Page watermark="DRAFT">
+
+// With options
+<Page watermark={{ text: 'CONFIDENTIAL', opacity: 0.1, rotation: -45 }}>
+```
+
+---
+
+## PageNumber & TotalPages
+
+Display the current page number or total page count. Use these in headers or footers.
+
+```tsx
+import { Document, Page, PageNumber, TotalPages } from '@pdfn/react';
+
+<Document title="Report">
+  <Page
+    size="A4"
+    footer={
+      <div style={{ textAlign: 'center' }}>
+        Page <PageNumber /> of <TotalPages />
+      </div>
+    }
+  >
+    <h1>Report content</h1>
+  </Page>
+</Document>
+```
+
+Both components accept `className` and `style` props for styling.
+
+---
+
+## PageBreak
+
+Forces content after it to start on a new page.
+
+```tsx
+import { Document, Page, PageBreak } from '@pdfn/react';
+
+<Document title="Book">
+  <Page size="A4">
+    <h1>Chapter 1</h1>
+    <p>First chapter content...</p>
+
+    <PageBreak />
+
+    <h1>Chapter 2</h1>
+    <p>Second chapter content...</p>
+  </Page>
+</Document>
+```
+
+---
+
+## AvoidBreak
+
+Keeps its children together on the same page. If the content doesn't fit, it moves to the next page as a unit.
+
+```tsx
+import { Document, Page, AvoidBreak } from '@pdfn/react';
+
+<Document title="Invoice">
+  <Page size="A4">
+    {items.map(item => (
+      <AvoidBreak key={item.id}>
+        <h3>{item.title}</h3>
+        <p>{item.description}</p>
+        <p>${item.price}</p>
+      </AvoidBreak>
+    ))}
+  </Page>
+</Document>
+```
+
+Use this for content blocks that shouldn't be split across pages, like invoice line items or signature blocks.
+
+---
+
+## Thead & Tr
+
+For tables that span multiple pages, use `Thead` and `Tr` to make headers repeat on each page.
+
+```tsx
+import { Document, Page, Thead, Tr } from '@pdfn/react';
+
+<Document title="Report">
+  <Page size="A4">
+    <table>
+      <Thead>
+        <Tr>
+          <th>Item</th>
+          <th>Quantity</th>
+          <th>Price</th>
+        </Tr>
+      </Thead>
+      <tbody>
+        {items.map(item => (
+          <tr key={item.id}>
+            <td>{item.name}</td>
+            <td>{item.quantity}</td>
+            <td>${item.price}</td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  </Page>
+</Document>
+```
+
+<Note>
+  Standard HTML `<thead>` and `<tr>` work but won't repeat headers across pages. Use `Thead` and `Tr` for multi-page tables.
+</Note>
+
+---
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="Styling" icon="paintbrush" href="/styling">
+    Style your templates with Tailwind CSS
+  </Card>
+  <Card title="Next.js" icon="react" href="/nextjs">
+    Build PDF endpoints in Next.js
+  </Card>
+</CardGroup>

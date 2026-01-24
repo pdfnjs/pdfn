@@ -1,0 +1,134 @@
+---
+title: Quickstart
+description: Generate your first PDF in under 2 minutes.
+---
+
+Generate your first PDF in under 2 minutes. No API key required for local development.
+
+## Prerequisites
+
+- Node.js 22 or higher
+- A new or existing Node.js project
+
+## 1. Install
+
+<CodeGroup>
+```bash npm
+npm install @pdfn/react
+```
+
+```bash yarn
+yarn add @pdfn/react
+```
+
+```bash pnpm
+pnpm add @pdfn/react
+```
+
+```bash bun
+bun add @pdfn/react
+```
+</CodeGroup>
+
+## 2. Start the dev server
+
+Open a terminal and run:
+
+```bash
+npx pdfn dev
+```
+
+This starts a local preview server at `http://localhost:3456`. Keep this running.
+
+## 3. Add a template
+
+```bash
+npx pdfn add invoice
+```
+
+This creates `pdfn-templates/invoice.tsx`. Check your browser — it should appear in the preview UI.
+
+**Other templates:** `letter`, `contract`, `ticket`, `poster`
+
+<Note>
+  Want to build templates from scratch? See [Components](/components).
+</Note>
+
+## 4. Generate a PDF
+
+Create a script to generate the PDF. The invoice template accepts `number`, `customer`, and `total` props:
+
+```typescript scripts/generate-invoice.ts
+import { pdfn } from '@pdfn/react';
+import Invoice from '../pdfn-templates/invoice';
+import fs from 'fs';
+
+async function main() {
+  const client = pdfn(); // Uses localhost:3456 (dev server)
+
+  const { data, error } = await client.generate(
+    <Invoice number="INV-001" customer="Acme Corp" total={148} />
+  );
+
+  if (error) {
+    console.error('Error:', error.message);
+    process.exit(1);
+  }
+
+  fs.writeFileSync('invoice.pdf', data.buffer);
+  console.log('Created invoice.pdf');
+}
+
+main();
+```
+
+Run it in a separate terminal (keep `pdfn dev` running):
+
+```bash
+npx tsx scripts/generate-invoice.ts
+```
+
+<Note>
+  Don't have `tsx`? Install it with `npm install -D tsx` or use `npx ts-node` instead.
+</Note>
+
+Your PDF is now at `invoice.pdf` in your project root.
+
+---
+
+## Going to production
+
+For production, you'll need an API key from [console.pdfn.dev](https://console.pdfn.dev).
+
+Set the environment variable:
+
+```bash
+export PDFN_API_KEY=pdfn_live_...
+```
+
+The `pdfn()` client automatically detects the API key and switches to pdfn Cloud. No code changes needed.
+
+| Environment | What happens |
+|-------------|--------------|
+| No API key | Uses local dev server (`localhost:3456`) |
+| `pdfn_test_*` key | Uses pdfn Cloud (adds watermark) |
+| `pdfn_live_*` key | Uses pdfn Cloud (production) |
+
+---
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="Components" icon="cube" href="/components">
+    Learn about Document, Page, and other components
+  </Card>
+  <Card title="Styling" icon="paintbrush" href="/styling">
+    Style your PDFs with Tailwind CSS
+  </Card>
+  <Card title="Next.js" icon="react" href="/nextjs">
+    Integrate with Next.js
+  </Card>
+  <Card title="Error Handling" icon="triangle-exclamation" href="/errors">
+    Handle errors gracefully
+  </Card>
+</CardGroup>

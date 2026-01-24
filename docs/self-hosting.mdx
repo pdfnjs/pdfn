@@ -1,0 +1,145 @@
+---
+title: Self-Hosting
+description: Generate PDFs with your own Puppeteer or Playwright setup.
+---
+
+Use `client.render()` to get HTML, then convert it to PDF with Puppeteer or Playwright.
+
+<Note>
+  This is for running PDF generation on your own infrastructure. For a managed solution, use [pdfn Cloud](https://console.pdfn.dev).
+</Note>
+
+## How it works
+
+```
+React Component → render() → HTML → Puppeteer/Playwright → PDF
+```
+
+1. `render()` converts your React template to self-contained HTML
+2. You use Puppeteer or Playwright to convert that HTML to PDF
+
+---
+
+## With Puppeteer
+
+```bash
+npm install @pdfn/react puppeteer
+```
+
+```typescript
+import { pdfn } from '@pdfn/react';
+import puppeteer from 'puppeteer';
+import fs from 'fs';
+import Invoice from './pdfn-templates/invoice';
+
+async function generatePdf() {
+  const client = pdfn();
+
+  // 1. Render React to HTML
+  const { data, error } = await client.render(<Invoice />);
+
+  if (error) {
+    console.error(error.message);
+    return;
+  }
+
+  // 2. Convert HTML to PDF with Puppeteer
+  const browser = await puppeteer.launch();
+  const page = await browser.newPage();
+
+  await page.setContent(data.html, { waitUntil: 'networkidle0' });
+  await page.waitForFunction(() => window.PDFN?.ready === true);
+
+  const pdf = await page.pdf({
+    preferCSSPageSize: true,
+    printBackground: true,
+  });
+
+  await browser.close();
+
+  // 3. Save or return the PDF
+  fs.writeFileSync('invoice.pdf', pdf);
+}
+
+generatePdf();
+```
+
+---
+
+## With Playwright
+
+```bash
+npm install @pdfn/react playwright
+```
+
+```typescript
+import { pdfn } from '@pdfn/react';
+import { chromium } from 'playwright';
+import fs from 'fs';
+import Invoice from './pdfn-templates/invoice';
+
+async function generatePdf() {
+  const client = pdfn();
+
+  // 1. Render React to HTML
+  const { data, error } = await client.render(<Invoice />);
+
+  if (error) {
+    console.error(error.message);
+    return;
+  }
+
+  // 2. Convert HTML to PDF with Playwright
+  const browser = await chromium.launch();
+  const page = await browser.newPage();
+
+  await page.setContent(data.html, { waitUntil: 'networkidle' });
+  await page.waitForFunction(() => window.PDFN?.ready === true);
+
+  const pdf = await page.pdf({
+    preferCSSPageSize: true,
+    printBackground: true,
+  });
+
+  await browser.close();
+
+  // 3. Save or return the PDF
+  fs.writeFileSync('invoice.pdf', pdf);
+}
+
+generatePdf();
+```
+
+---
+
+## Important: Wait for ready
+
+Always wait for pdfn to signal that pagination is complete:
+
+```typescript
+await page.waitForFunction(() => window.PDFN?.ready === true);
+```
+
+This ensures fonts are loaded and page breaks are calculated.
+
+## Important: PDF options
+
+Always use these options for correct output:
+
+```typescript
+await page.pdf({
+  preferCSSPageSize: true,  // Respect @page size from CSS
+  printBackground: true,    // Include background colors
+});
+```
+
+---
+
+## Comparison
+
+| | Self-Hosted | pdfn Cloud |
+|---|---|---|
+| Setup | You manage Chromium | Zero config |
+| Scaling | You handle it | Auto-scales |
+| PDF/A compliance | Not available | Available |
+| Cost | Your infrastructure | Pay per PDF |

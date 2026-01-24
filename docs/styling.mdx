@@ -1,0 +1,216 @@
+---
+title: Styling
+description: Style PDFs with Tailwind CSS, custom CSS, or inline styles.
+---
+
+pdfn supports three styling approaches. Choose based on your needs:
+
+| Approach | Install | Best for |
+|----------|---------|----------|
+| Tailwind CSS | `@pdfn/tailwind` | Rapid development, utility classes |
+| CSS prop | Nothing extra | Custom stylesheets, design systems |
+| Inline styles | Nothing extra | Simple templates, quick prototypes |
+
+---
+
+## Tailwind CSS
+
+The recommended way to style PDFs. Install `@pdfn/tailwind`:
+
+```bash
+npm install @pdfn/tailwind
+```
+
+Wrap your `Page` content with the `Tailwind` component:
+
+```tsx
+import { Document, Page } from '@pdfn/react';
+import { Tailwind } from '@pdfn/tailwind';
+
+export default function Invoice() {
+  return (
+    <Document title="Invoice">
+      <Tailwind>
+        <Page size="A4" margin="1in">
+          <h1 className="text-2xl font-bold text-blue-600">Invoice #001</h1>
+          <p className="text-gray-600 mt-2">Thank you for your business.</p>
+          <div className="mt-8 p-4 bg-gray-100 rounded-lg">
+            <p className="text-xl font-bold">Total: $148.00</p>
+          </div>
+        </Page>
+      </Tailwind>
+    </Document>
+  );
+}
+```
+
+<Note>
+  Place `Tailwind` inside `Document` but it can wrap one or more `Page` components.
+</Note>
+
+### Custom theme
+
+Create `pdfn-templates/styles.css` to customize your theme. This file is auto-detected:
+
+```css pdfn-templates/styles.css
+@import "tailwindcss";
+
+@theme {
+  --font-inter: "Inter", var(--font-sans);
+  --color-brand: #007bff;
+}
+```
+
+Use your custom values:
+
+```tsx
+<h1 className="font-inter text-brand">Styled with custom theme</h1>
+```
+
+### Edge runtime (Vercel Edge, Cloudflare Workers)
+
+Edge runtimes don't have filesystem access, so Tailwind must be pre-compiled at build time.
+
+For Next.js:
+
+```bash
+npm install @pdfn/next
+```
+
+```ts next.config.ts
+import { withPdfn } from '@pdfn/next';
+
+export default withPdfn()(nextConfig);
+```
+
+For Vite:
+
+```bash
+npm install @pdfn/vite
+```
+
+```ts vite.config.ts
+import { pdfn } from '@pdfn/vite';
+
+export default defineConfig({
+  plugins: [pdfn()]
+});
+```
+
+---
+
+## CSS prop
+
+Add custom CSS directly via the `css` prop on `Document`. No extra packages needed.
+
+```tsx
+import { Document, Page } from '@pdfn/react';
+
+export default function Invoice() {
+  return (
+    <Document
+      title="Invoice"
+      css={`
+        .header {
+          font-size: 24px;
+          font-weight: bold;
+          border-bottom: 2px solid #007bff;
+          padding-bottom: 16px;
+        }
+        .total {
+          font-size: 20px;
+          font-weight: bold;
+          background: #f5f5f5;
+          padding: 16px;
+          border-radius: 8px;
+        }
+      `}
+    >
+      <Page size="A4" margin="1in">
+        <h1 className="header">Invoice #001</h1>
+        <p className="total">Total: $148.00</p>
+      </Page>
+    </Document>
+  );
+}
+```
+
+---
+
+## Inline styles
+
+Use React's `style` prop for simple styling without any dependencies:
+
+```tsx
+import { Document, Page } from '@pdfn/react';
+
+export default function Invoice() {
+  return (
+    <Document title="Invoice">
+      <Page size="A4" margin="1in">
+        <h1 style={{ fontSize: 24, fontWeight: 'bold', marginBottom: 16 }}>
+          Invoice #001
+        </h1>
+        <p style={{ color: '#666', lineHeight: 1.5 }}>
+          Thank you for your business.
+        </p>
+      </Page>
+    </Document>
+  );
+}
+```
+
+---
+
+## Combining approaches
+
+You can mix all three approaches. Styles are applied in this order (later wins):
+
+1. Base pdfn styles
+2. Tailwind CSS classes
+3. Document `css` prop
+4. Inline `style` prop
+
+```tsx
+<Document css={`.highlight { background: yellow; }`}>
+  <Tailwind>
+    <Page>
+      {/* Tailwind class */}
+      <h1 className="text-2xl font-bold">Title</h1>
+
+      {/* Custom CSS class */}
+      <p className="highlight">Highlighted text</p>
+
+      {/* Inline style (highest priority) */}
+      <p style={{ color: 'red' }}>Red text</p>
+    </Page>
+  </Tailwind>
+</Document>
+```
+
+---
+
+## PDF-specific CSS notes
+
+Some CSS properties behave differently in PDFs:
+
+| Property | Behavior |
+|----------|----------|
+| Flexbox & Grid | Fully supported |
+| `box-shadow` | Works, but avoid blur > 10px (slow rendering) |
+| `position: fixed` | Behaves like `absolute` (no viewport in PDFs) |
+| `vh` / `vw` units | Relative to page size, not browser viewport |
+| `@media print` | Respected — use for PDF-specific styles |
+
+---
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="Components" icon="cube" href="/components">
+    Learn about all available components
+  </Card>
+  <Card title="Next.js" icon="react" href="/nextjs">
+    Integrate with Next.js
+  </Card>
+</CardGroup>
