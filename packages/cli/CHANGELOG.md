@@ -1,5 +1,12 @@
 # pdfn
 
+## 0.8.4
+
+### Patch Changes
+
+- Updated dependencies [0654c3e]
+  - @pdfn/react@0.8.1
+
 ## 0.8.3
 
 ### Patch Changes

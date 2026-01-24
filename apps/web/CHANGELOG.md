@@ -1,5 +1,12 @@
 # web
 
+## 0.1.20
+
+### Patch Changes
+
+- Updated dependencies [0654c3e]
+  - @pdfn/react@0.8.1
+
 ## 0.1.19
 
 ### Patch Changes
