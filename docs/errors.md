@@ -120,7 +120,6 @@ echo $PDFN_API_KEY
 
 ```typescript
 const client = pdfn({
-  apiKey: process.env.PDFN_API_KEY,
   timeout: 60000, // 60 seconds
 });
 ```

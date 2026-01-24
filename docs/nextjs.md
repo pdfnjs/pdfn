@@ -41,7 +41,7 @@ export default function Invoice({ number, customer, total }: InvoiceProps) {
 import { pdfn } from '@pdfn/react';
 import Invoice from '@/pdfn-templates/invoice';
 
-const client = pdfn(process.env.PDFN_API_KEY);
+const client = pdfn(); // Auto-reads PDFN_API_KEY from env
 
 export async function GET() {
   const { data, error } = await client.generate(
@@ -66,7 +66,7 @@ import type { NextApiRequest, NextApiResponse } from 'next';
 import { pdfn } from '@pdfn/react';
 import Invoice from '@/pdfn-templates/invoice';
 
-const client = pdfn(process.env.PDFN_API_KEY);
+const client = pdfn(); // Auto-reads PDFN_API_KEY from env
 
 export default async function handler(
   req: NextApiRequest,
