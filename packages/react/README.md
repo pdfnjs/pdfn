@@ -14,7 +14,7 @@ npm install @pdfn/react
 import { pdfn, Document, Page } from '@pdfn/react';
 import fs from 'fs';
 
-const client = pdfn(process.env.PDFN_API_KEY);
+const client = pdfn(); // Auto-reads PDFN_API_KEY env var
 
 const { data, error } = await client.generate(
   <Document>
@@ -32,6 +32,12 @@ if (error) {
 fs.writeFileSync('output.pdf', data.buffer);
 ```
 
+Set your API key as an environment variable:
+
+```bash
+export PDFN_API_KEY=pdfn_live_...
+```
+
 Get your API key at [console.pdfn.dev](https://console.pdfn.dev).
 
 ## Local Development
@@ -43,7 +49,7 @@ npx pdfn dev
 ```
 
 ```typescript
-const client = pdfn(); // Uses localhost:3456
+const client = pdfn(); // No PDFN_API_KEY set → uses localhost:3456
 ```
 
 ## Examples
@@ -115,9 +121,9 @@ Error codes: `configuration_error`, `validation_error`, `authentication_error`, 
 ### `pdfn()`
 
 ```typescript
-pdfn()                              // Local dev (localhost:3456)
-pdfn('pdfn_live_...')               // pdfn Cloud
-pdfn({ apiKey, baseUrl, timeout })  // Custom server with auth
+pdfn()                              // Auto-reads PDFN_API_KEY, falls back to localhost
+pdfn('pdfn_live_...')               // Explicit API key
+pdfn({ apiKey, baseUrl, timeout })  // Custom config
 ```
 
 ### `client.generate()`

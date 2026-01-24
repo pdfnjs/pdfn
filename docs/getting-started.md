@@ -10,12 +10,18 @@ npm install @pdfn/react
 
 ## Setup
 
+Set your API key as an environment variable:
+
+```bash
+export PDFN_API_KEY=pdfn_live_...
+```
+
 Get your API key from [console.pdfn.dev](https://console.pdfn.dev).
 
 ```typescript
 import { pdfn } from '@pdfn/react';
 
-const client = pdfn(process.env.PDFN_API_KEY);
+const client = pdfn(); // Auto-reads PDFN_API_KEY
 ```
 
 ## Create a Template
@@ -50,7 +56,7 @@ import { pdfn } from '@pdfn/react';
 import Invoice from './pdfn-templates/invoice';
 import fs from 'fs';
 
-const client = pdfn(process.env.PDFN_API_KEY);
+const client = pdfn();
 
 const { data, error } = await client.generate(
   <Invoice number="INV-001" customer="Acme Corp" total={148} />
@@ -73,7 +79,7 @@ npx pdfn dev --open
 ```
 
 ```typescript
-const client = pdfn(); // Uses localhost:3456
+const client = pdfn(); // No PDFN_API_KEY set → uses localhost:3456
 const { data } = await client.generate(<Invoice />);
 ```
 

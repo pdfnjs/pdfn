@@ -19,7 +19,7 @@ npm install @pdfn/react
 import { pdfn, Document, Page } from '@pdfn/react';
 import fs from 'fs';
 
-const client = pdfn(process.env.PDFN_API_KEY);
+const client = pdfn(); // Auto-reads PDFN_API_KEY env var
 
 const { data, error } = await client.generate(
   <Document>
@@ -35,6 +35,12 @@ if (error) {
 }
 
 fs.writeFileSync('output.pdf', data.buffer);
+```
+
+Set your API key as an environment variable:
+
+```bash
+export PDFN_API_KEY=pdfn_live_...
 ```
 
 Get your API key at [console.pdfn.dev](https://console.pdfn.dev).
@@ -57,10 +63,10 @@ Preview templates with hot reload:
 npx pdfn dev
 ```
 
-No API key needed for local development:
+No API key needed — when `PDFN_API_KEY` is not set, it uses localhost:
 
 ```typescript
-const client = pdfn(); // Uses localhost:3456
+const client = pdfn(); // No env var → uses localhost:3456
 ```
 
 ## Examples

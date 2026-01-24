@@ -121,19 +121,17 @@ interface ServerResponse {
 /**
  * Create a pdfn client for PDF generation
  *
- * @example Local development (uses localhost:3456)
+ * The client automatically reads the `PDFN_API_KEY` environment variable.
+ * If set, it connects to pdfn Cloud. If not, it falls back to localhost:3456.
+ *
+ * @example Auto-detect (reads PDFN_API_KEY env var, falls back to localhost)
  * ```typescript
  * const client = pdfn();
  * ```
  *
- * @example pdfn Cloud (always use env vars for security)
+ * @example Explicit API key
  * ```typescript
- * const client = pdfn({ apiKey: process.env.PDFN_API_KEY });
- * ```
- *
- * @example Shorthand for pdfn Cloud
- * ```typescript
- * const client = pdfn(process.env.PDFN_API_KEY);
+ * const client = pdfn('pdfn_live_...');
  * ```
  *
  * @example Custom server (no auth)
@@ -162,8 +160,10 @@ export function pdfn(configOrKey?: string | PdfnConfig): PdfnClient {
   } else if (configOrKey) {
     config = configOrKey;
   } else {
-    // No args - local development mode
-    config = {};
+    // No args - auto-read from PDFN_API_KEY env var, fallback to local dev
+    const envKey =
+      typeof process !== "undefined" ? process.env?.PDFN_API_KEY : undefined;
+    config = envKey ? { apiKey: envKey } : {};
   }
 
   // Resolve baseUrl:
