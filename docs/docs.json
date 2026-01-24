@@ -20,27 +20,20 @@
       "twitter:card": "summary_large_image"
     }
   },
-  "navigation": {
-    "tabs": [
-      {
-        "tab": "Documentation",
-        "groups": [
-          {
-            "group": "Getting Started",
-            "pages": ["introduction", "quickstart"]
-          },
-          {
-            "group": "Core",
-            "pages": ["components", "styling"]
-          },
-          {
-            "group": "Guides",
-            "pages": ["nextjs", "self-hosting", "errors"]
-          }
-        ]
-      }
-    ]
-  },
+  "navigation": [
+    {
+      "group": "Getting Started",
+      "pages": ["introduction", "quickstart"]
+    },
+    {
+      "group": "Core",
+      "pages": ["components", "styling"]
+    },
+    {
+      "group": "Guides",
+      "pages": ["nextjs", "self-hosting", "errors"]
+    }
+  ],
   "footer": {
     "socials": {
       "github": "https://github.com/pdfnjs/pdfn"
