@@ -1,0 +1,40 @@
+---
+title: Introduction
+description: Write React. Ship PDFs.
+---
+
+# Welcome to pdfn
+
+pdfn makes pagination predictable. Chromium renders to PDF.
+
+**React → print-ready, pagination-safe HTML → Headless Chromium → PDF**
+
+Same input → same output. What you preview is what you ship.
+
+## Quick Install
+
+```bash
+npm install @pdfn/react
+npm install -D pdfn
+```
+
+## Quick Example
+
+```tsx
+import { pdfn, Document, Page } from '@pdfn/react';
+
+const client = pdfn();
+
+const { data, error } = await client.generate(
+  <Document title="Invoice">
+    <Page size="A4">
+      <h1>Invoice #001</h1>
+      <p>Amount: $500</p>
+    </Page>
+  </Document>
+);
+```
+
+---
+
+*More documentation coming soon.*
