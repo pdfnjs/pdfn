@@ -1,4 +1,4 @@
-import { pdfn, type DebugOptions } from "@pdfn/react";
+import { pdfn, PdfnError, type DebugOptions } from "@pdfn/react";
 import { renderTemplate } from "@pdfn/next";
 import { NextRequest } from "next/server";
 import { existsSync, readFileSync } from "fs";
@@ -26,10 +26,8 @@ const templateComponents: Record<string, React.ComponentType<any>> = {
   poster: Poster,
 };
 
-// Create pdfn client (uses PDFN_API_KEY env var for cloud, or localhost:3456 for local)
-const client = process.env.PDFN_API_KEY
-  ? pdfn(process.env.PDFN_API_KEY)
-  : pdfn();
+// Create pdfn client (auto-reads PDFN_API_KEY env var, falls back to localhost:3456)
+const client = pdfn();
 
 /**
  * Check if a cached PDF exists for the given template and debug settings
@@ -51,6 +49,85 @@ function getCachedPdf(templateId: string, hasDebug: boolean): Buffer | null {
   }
 
   return null;
+}
+
+/**
+ * Generate HTML error page for pdfn errors
+ */
+function generateErrorHtml(error: unknown): string {
+  const isPdfnError = error instanceof PdfnError;
+  const message = error instanceof Error ? error.message : "Unknown error";
+  const code = isPdfnError ? error.code : undefined;
+  const suggestion = isPdfnError ? error.suggestion : undefined;
+
+  let errorContent: string;
+
+  if (code === "network_error") {
+    errorContent = `
+      <p>Cannot connect to the PDF generation server.</p>
+      <div class="suggestion">
+        <strong>For local development:</strong>
+        <pre>npx pdfn dev</pre>
+        <strong>For production:</strong>
+        <p>Set the <code>PDFN_API_KEY</code> environment variable.</p>
+        <p>Get an API key at <a href="https://console.pdfn.dev">console.pdfn.dev</a></p>
+      </div>
+    `;
+  } else if (code === "authentication_error") {
+    errorContent = `
+      <p>Invalid API key.</p>
+      <div class="suggestion">
+        <p>Check your <code>PDFN_API_KEY</code> environment variable.</p>
+        <p>Get a new key at <a href="https://console.pdfn.dev">console.pdfn.dev</a></p>
+      </div>
+    `;
+  } else if (code === "rate_limit_error") {
+    errorContent = `
+      <p>Rate limit exceeded.</p>
+      <div class="suggestion">
+        <p>Please wait a moment and try again, or upgrade your plan at <a href="https://console.pdfn.dev">console.pdfn.dev</a></p>
+      </div>
+    `;
+  } else if (code === "timeout_error") {
+    errorContent = `
+      <p>PDF generation timed out.</p>
+      <div class="suggestion">
+        <p>Try simplifying your template or splitting into smaller documents.</p>
+      </div>
+    `;
+  } else if (suggestion) {
+    errorContent = `
+      <p>${message}</p>
+      <div class="suggestion">
+        <pre>${suggestion}</pre>
+      </div>
+    `;
+  } else {
+    errorContent = `
+      <p>Error details:</p>
+      <pre>${message}</pre>
+    `;
+  }
+
+  return `<!DOCTYPE html>
+<html>
+<head>
+  <title>PDF Generation Failed</title>
+  <style>
+    body { font-family: system-ui, sans-serif; max-width: 600px; margin: 100px auto; padding: 20px; }
+    h1 { color: #dc2626; }
+    pre { background: #f3f4f6; padding: 16px; border-radius: 8px; overflow-x: auto; white-space: pre-wrap; }
+    code { background: #e5e7eb; padding: 2px 6px; border-radius: 4px; }
+    .suggestion { background: #fef3c7; border: 1px solid #fbbf24; padding: 16px; border-radius: 8px; margin-top: 16px; }
+    .suggestion strong { display: block; margin-bottom: 8px; }
+    a { color: #2563eb; }
+  </style>
+</head>
+<body>
+  <h1>PDF Generation Failed</h1>
+  ${errorContent}
+</body>
+</html>`;
 }
 
 /**
@@ -199,12 +276,14 @@ export async function GET(request: NextRequest) {
         },
       });
     } catch (error) {
+      const isPdfnError = error instanceof PdfnError;
       const message = error instanceof Error ? error.message : "Unknown error";
-      console.error(`[pdf] ✗ client render failed: ${message}`);
+      const code = isPdfnError ? error.code : undefined;
+      console.error(`[pdf] ✗ client render failed: ${code ? `[${code}] ` : ""}${message}`);
 
       return new Response(
-        `<!DOCTYPE html><html><body><h1>Error</h1><pre>${message}</pre></body></html>`,
-        { status: 500, headers: { "Content-Type": "text/html" } }
+        generateErrorHtml(error),
+        { status: isPdfnError && error.statusCode ? error.statusCode : 500, headers: { "Content-Type": "text/html" } }
       );
     }
   }
@@ -286,36 +365,14 @@ export async function GET(request: NextRequest) {
       },
     });
   } catch (error) {
+    const isPdfnError = error instanceof PdfnError;
     const message = error instanceof Error ? error.message : "Unknown error";
-    console.error(`[pdf] ✗ failed: ${message}`);
+    const code = isPdfnError ? error.code : undefined;
 
-    // Return HTML error page so browser displays it instead of downloading JSON
-    const isApiKeyError = message.includes("API key required") || message.includes("Invalid API key");
-    const html = `<!DOCTYPE html>
-<html>
-<head>
-  <title>PDF Generation Failed</title>
-  <style>
-    body { font-family: system-ui, sans-serif; max-width: 600px; margin: 100px auto; padding: 20px; }
-    h1 { color: #dc2626; }
-    pre { background: #f3f4f6; padding: 16px; border-radius: 8px; overflow-x: auto; white-space: pre-wrap; }
-    code { background: #e5e7eb; padding: 2px 6px; border-radius: 4px; }
-  </style>
-</head>
-<body>
-  <h1>PDF Generation Failed</h1>
-  ${isApiKeyError ? `
-  <p>pdfn API key is not configured. Set the <code>PDFN_API_KEY</code> environment variable.</p>
-  <p>Get an API key at <a href="https://console.pdfn.dev">console.pdfn.dev</a></p>
-  ` : `
-  <p>Error details:</p>
-  <pre>${message}</pre>
-  `}
-</body>
-</html>`;
+    console.error(`[pdf] ✗ failed: ${code ? `[${code}] ` : ""}${message}`);
 
-    return new Response(html, {
-      status: 500,
+    return new Response(generateErrorHtml(error), {
+      status: isPdfnError && error.statusCode ? error.statusCode : 500,
       headers: { "Content-Type": "text/html" },
     });
   }
