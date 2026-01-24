@@ -117,6 +117,11 @@ Without `PDFN_API_KEY`, the client uses `localhost:3456` automatically.
 Accept request body for dynamic PDFs:
 
 ```tsx app/api/invoice/route.tsx
+import { pdfn } from '@pdfn/react';
+import Invoice from '@/pdfn-templates/invoice';
+
+const client = pdfn();
+
 export async function POST(req: Request) {
   const body = await req.json();
 
@@ -169,6 +174,8 @@ npm install @pdfn/next
 ```ts next.config.ts
 import { withPdfn } from '@pdfn/next';
 
+const nextConfig = {};
+
 export default withPdfn()(nextConfig);
 ```
 
@@ -187,3 +194,16 @@ pdfn-templates/
 └── components/
     └── Header.tsx
 ```
+
+---
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="Components" icon="cube" href="/components">
+    Learn about all available components
+  </Card>
+  <Card title="Styling" icon="paintbrush" href="/styling">
+    Style your PDFs with Tailwind CSS
+  </Card>
+</CardGroup>
