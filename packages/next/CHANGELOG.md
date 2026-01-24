@@ -1,5 +1,11 @@
 # @pdfn/next
 
+## 0.5.3
+
+### Patch Changes
+
+- 0b429a1: Update documentation with improved examples and options reference
+
 ## 0.5.2
 
 ### Patch Changes

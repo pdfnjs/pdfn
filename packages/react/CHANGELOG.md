@@ -1,5 +1,16 @@
 # @pdfn/react
 
+## 0.8.0
+
+### Minor Changes
+
+- 0b429a1: Add pdfn() client factory with improved developer experience
+  - New `pdfn()` factory function with smart defaults (local dev vs cloud)
+  - Typed `PdfnError` with codes and actionable suggestions
+  - `{ data, error }` response pattern (no try/catch needed)
+  - Renamed `host` to `baseUrl` for consistency
+  - Updated documentation
+
 ## 0.7.1
 
 ### Patch Changes

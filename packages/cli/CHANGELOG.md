@@ -1,5 +1,15 @@
 # pdfn
 
+## 0.8.3
+
+### Patch Changes
+
+- 0b429a1: Update documentation with improved examples
+- Updated dependencies [0b429a1]
+- Updated dependencies [0b429a1]
+  - @pdfn/vite@0.5.2
+  - @pdfn/react@0.8.0
+
 ## 0.8.2
 
 ### Patch Changes
