@@ -137,7 +137,7 @@ import { Tailwind } from '@pdfn/tailwind';
 
 ### Self-Hosting
 
-Need to run on your own infrastructure? See [Self-Hosting Guide](./docs/self-hosting.md).
+Need to run on your own infrastructure? See [Self-Hosting Guide](https://pdfn.dev/docs/self-hosting).
 
 ## Components
 
@@ -169,12 +169,12 @@ npx pdfn add --list       # Show available templates
 
 ## Documentation
 
-- [Getting Started](./docs/getting-started.md) — First PDF in 2 minutes
-- [Components](./docs/components.md) — Full component reference
-- [Styling](./docs/styling.md) — Tailwind, CSS, inline styles
-- [Next.js](./docs/nextjs.md) — Next.js integration guide
-- [Error Handling](./docs/errors.md) — Error codes and handling
-- [Self-Hosting](./docs/self-hosting.md) — Puppeteer/Playwright setup
+- [Getting Started](https://pdfn.dev/docs/quickstart) — First PDF in 2 minutes
+- [Components](https://pdfn.dev/docs/components) — Full component reference
+- [Styling](https://pdfn.dev/docs/styling) — Tailwind, CSS, inline styles
+- [Next.js](https://pdfn.dev/docs/nextjs) — Next.js integration guide
+- [Error Handling](https://pdfn.dev/docs/errors) — Error codes and handling
+- [Self-Hosting](https://pdfn.dev/docs/self-hosting) — Puppeteer/Playwright setup
 
 ## Requirements
 
