@@ -3,6 +3,9 @@
  *
  * Wrap your content with the Tailwind component to enable Tailwind CSS processing.
  *
+ * This package self-registers its processor with @pdfn/core when imported,
+ * enabling @pdfn/react to process Tailwind CSS without a direct dependency.
+ *
  * @example
  * ```tsx
  * import { Document, Page } from '@pdfn/react';
@@ -32,6 +35,13 @@
  * </Tailwind>
  * ```
  */
+
+import { registerTailwindProcessor } from "@pdfn/core";
+import { processTailwind } from "./process.js";
+
+// Self-register the Tailwind processor with @pdfn/core
+// This allows @pdfn/react to use Tailwind processing without importing this package
+registerTailwindProcessor(processTailwind);
 
 export { Tailwind, TAILWIND_MARKER, TAILWIND_CSS_ATTR } from "./Tailwind.js";
 export type { TailwindConfig, TailwindProps } from "./Tailwind.js";

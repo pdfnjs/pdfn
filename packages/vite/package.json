@@ -51,9 +51,18 @@
   },
   "sideEffects": false,
   "peerDependencies": {
+    "@pdfn/react": "workspace:*",
     "@pdfn/tailwind": "workspace:*",
     "vite": "^5.0.0 || ^6.0.0 || ^7.0.0",
     "tailwindcss": "^4.0.0"
+  },
+  "peerDependenciesMeta": {
+    "@pdfn/tailwind": {
+      "optional": true
+    },
+    "tailwindcss": {
+      "optional": true
+    }
   },
   "dependencies": {
     "@pdfn/client": "workspace:*",

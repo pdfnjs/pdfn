@@ -11,6 +11,8 @@ import {
   extractTailwindCssPath,
   extractPrecompiledCss,
   removeTailwindMarker,
+  getTailwindProcessor,
+  hasTailwindProcessor,
 } from "@pdfn/core";
 
 /**
@@ -167,14 +169,18 @@ async function delegateToClientRenderer(
         css = precompiledCss;
         debug("client-delegate: using pre-compiled Tailwind CSS");
       } else {
-        // Try runtime processing
-        try {
-          const cssPath = extractTailwindCssPath(ssrContent);
-          const { processTailwind } = await import("@pdfn/tailwind");
-          css = await processTailwind(ssrContent, { cssPath });
-          debug("client-delegate: processed Tailwind CSS via runtime");
-        } catch (e) {
-          debug(`client-delegate: Tailwind processing failed: ${e}`);
+        // Try runtime processing via registered processor
+        const processor = getTailwindProcessor();
+        if (processor) {
+          try {
+            const cssPath = extractTailwindCssPath(ssrContent);
+            css = await processor(ssrContent, { cssPath });
+            debug("client-delegate: processed Tailwind CSS via runtime");
+          } catch (e) {
+            debug(`client-delegate: Tailwind processing failed: ${e}`);
+          }
+        } else {
+          debug("client-delegate: Tailwind marker found but @pdfn/tailwind not imported");
         }
       }
 
@@ -378,33 +384,42 @@ export async function render(
       // Remove the marker element from the content
       content = removeTailwindMarker(content);
     } else {
-      // Fall back to runtime processing (Node.js only)
-      try {
-        // Extract CSS path from marker if provided
-        const cssPath = extractTailwindCssPath(content);
+      // Fall back to runtime processing via registered processor (Node.js only)
+      const processor = getTailwindProcessor();
+      if (processor) {
+        try {
+          // Extract CSS path from marker if provided
+          const cssPath = extractTailwindCssPath(content);
 
-        // Dynamically import @pdfn/tailwind to process the CSS
-        // This will throw a helpful error on edge runtimes
-        const { processTailwind } = await import("@pdfn/tailwind");
-        tailwindCss = await processTailwind(content, { cssPath });
-        debug(`tailwind: processed via runtime${cssPath ? ` (css: ${cssPath})` : ""}`);
+          tailwindCss = await processor(content, { cssPath });
+          debug(`tailwind: processed via runtime${cssPath ? ` (css: ${cssPath})` : ""}`);
 
-        // Process @font-face declarations in CSS - embed local fonts as base64
-        // This is edge-safe: only throws if local fonts are detected
-        tailwindCss = await processCssFontFaces(tailwindCss);
+          // Process @font-face declarations in CSS - embed local fonts as base64
+          // This is edge-safe: only throws if local fonts are detected
+          tailwindCss = await processCssFontFaces(tailwindCss);
 
-        // Remove the marker element from the content
-        content = removeTailwindMarker(content);
-      } catch (error) {
-        const message = error instanceof Error ? error.message : "Unknown error";
+          // Remove the marker element from the content
+          content = removeTailwindMarker(content);
+        } catch (error) {
+          const message = error instanceof Error ? error.message : "Unknown error";
 
-        // Check if this is an edge runtime error from @pdfn/tailwind
-        if (message.includes("Edge runtimes") || message.includes("filesystem access")) {
-          throw new Error(EdgeErrors.tailwindRuntime());
+          // Check if this is an edge runtime error from @pdfn/tailwind
+          if (message.includes("Edge runtimes") || message.includes("filesystem access")) {
+            throw new Error(EdgeErrors.tailwindRuntime());
+          }
+
+          debug(`tailwind: processor error - ${message}`);
+          // Still remove the marker even if processing fails
+          content = removeTailwindMarker(content);
         }
-
-        debug(`tailwind: processor error - ${message}`);
-        // Still remove the marker even if processing fails
+      } else {
+        // No processor registered - @pdfn/tailwind not imported
+        debug("tailwind: marker found but @pdfn/tailwind not imported - skipping processing");
+        console.warn(
+          "[pdfn] Tailwind marker found but @pdfn/tailwind is not imported.\n" +
+          "Add this import to enable Tailwind CSS processing:\n\n" +
+          "  import '@pdfn/tailwind';\n"
+        );
         content = removeTailwindMarker(content);
       }
     }

@@ -67,5 +67,14 @@ export {
   type DebugOptions,
 } from "./debug/index.js";
 
+// Processor registry (for dependency inversion)
+export {
+  registerTailwindProcessor,
+  getTailwindProcessor,
+  hasTailwindProcessor,
+  type TailwindProcessor,
+  type TailwindProcessorOptions,
+} from "./processor-registry.js";
+
 // Note: compileTailwind is exported from @pdfn/core/tailwind (server-only)
 // to avoid bundling Node.js dependencies in browser builds
