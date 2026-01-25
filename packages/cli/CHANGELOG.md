@@ -1,5 +1,14 @@
 # pdfn
 
+## 0.8.5
+
+### Patch Changes
+
+- Updated dependencies
+  - @pdfn/react@0.8.2
+  - @pdfn/vite@0.5.3
+  - @pdfn/client@0.1.1
+
 ## 0.8.4
 
 ### Patch Changes

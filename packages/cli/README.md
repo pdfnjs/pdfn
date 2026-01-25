@@ -1,12 +1,6 @@
 # pdfn
 
-Dev server and CLI for pdfn.
-
-## Installation
-
-```bash
-npm install -D pdfn
-```
+Dev server and CLI for pdfn. Run with `npx` — no install needed.
 
 ## Commands
 

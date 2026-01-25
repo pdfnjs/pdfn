@@ -1,5 +1,15 @@
 # web
 
+## 0.1.21
+
+### Patch Changes
+
+- Updated dependencies
+  - @pdfn/react@0.8.2
+  - @pdfn/tailwind@0.2.1
+  - @pdfn/next@0.5.4
+  - @pdfn/client@0.1.1
+
 ## 0.1.20
 
 ### Patch Changes

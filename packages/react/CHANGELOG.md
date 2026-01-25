@@ -1,5 +1,20 @@
 # @pdfn/react
 
+## 0.8.2
+
+### Patch Changes
+
+- Implement processor registry for proper dependency inversion
+  - @pdfn/core: Add processor registry for optional package registration
+  - @pdfn/tailwind: Self-register on import, add @pdfn/core as dependency
+  - @pdfn/react: Use registry instead of dynamic import, remove @pdfn/tailwind peer dep
+  - @pdfn/next: Add @pdfn/react as required peer, make tailwind deps optional
+  - @pdfn/vite: Add @pdfn/react as required peer, make tailwind deps optional
+
+- Updated dependencies
+  - @pdfn/core@0.1.1
+  - @pdfn/client@0.1.1
+
 ## 0.8.1
 
 ### Patch Changes

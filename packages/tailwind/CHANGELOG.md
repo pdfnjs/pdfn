@@ -1,5 +1,19 @@
 # @pdfn/tailwind
 
+## 0.2.1
+
+### Patch Changes
+
+- Implement processor registry for proper dependency inversion
+  - @pdfn/core: Add processor registry for optional package registration
+  - @pdfn/tailwind: Self-register on import, add @pdfn/core as dependency
+  - @pdfn/react: Use registry instead of dynamic import, remove @pdfn/tailwind peer dep
+  - @pdfn/next: Add @pdfn/react as required peer, make tailwind deps optional
+  - @pdfn/vite: Add @pdfn/react as required peer, make tailwind deps optional
+
+- Updated dependencies
+  - @pdfn/core@0.1.1
+
 ## 0.2.0
 
 ### Minor Changes
@@ -11,6 +25,7 @@
   - Simplified `processTailwind()` to use single standardized path
 
   **Migration:**
+
   ```bash
   # 1. Rename folder
   mv pdf-templates pdfn-templates
