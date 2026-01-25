@@ -1,4 +1,11 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
-  <rect width="32" height="32" rx="4" fill="#09090b"/>
-  <text x="16" y="24" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="32" font-weight="700" fill="#22d3ee">n</text>
+<svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g clip-path="url(#clip0_2_16)">
+<rect width="32" height="32" rx="4" fill="#09090B"/>
+<path d="M11.7161 14.0154V26H6V5.26992H11.4477V8.92738H11.6893C12.1455 7.72172 12.9103 6.76799 13.9838 6.06619C15.0572 5.3554 16.3588 5 17.8884 5C19.3197 5 20.5676 5.31491 21.6321 5.94473C22.6966 6.57455 23.524 7.47429 24.1144 8.64396C24.7048 9.80463 25 11.1902 25 12.8008V26H19.2839V13.8265C19.2928 12.5578 18.9708 11.5681 18.3178 10.8573C17.6648 10.1375 16.7658 9.77763 15.6208 9.77763C14.8515 9.77763 14.1716 9.94409 13.5812 10.277C12.9998 10.6099 12.5435 11.0958 12.2126 11.7346C11.8905 12.3644 11.725 13.1247 11.7161 14.0154Z" fill="#22D3EE"/>
+</g>
+<defs>
+<clipPath id="clip0_2_16">
+<rect width="32" height="32" fill="white"/>
+</clipPath>
+</defs>
 </svg>
