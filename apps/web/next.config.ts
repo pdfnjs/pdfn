@@ -23,6 +23,18 @@ const nextConfig: NextConfig = {
       },
     ];
   },
+  async rewrites() {
+    return [
+      {
+        source: "/docs",
+        destination: "https://pdfn.mintlify.dev/docs",
+      },
+      {
+        source: "/docs/:path*",
+        destination: "https://pdfn.mintlify.dev/docs/:path*",
+      },
+    ];
+  },
 };
 
 // Pre-compile Tailwind CSS and bundle client components at build time
