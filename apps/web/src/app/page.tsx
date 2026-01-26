@@ -241,7 +241,7 @@ export default function Home() {
           <p className="text-lg md:text-xl text-text-secondary max-w-2xl mx-auto mb-10 animate-fade-in-delay-1">
             Build invoices, contracts, and reports with React components.
             <br className="hidden sm:block" />
-            No more broken layouts, deployment headaches, or environment surprises.
+            Predictable output, every time.
           </p>
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 animate-fade-in-delay-2">
