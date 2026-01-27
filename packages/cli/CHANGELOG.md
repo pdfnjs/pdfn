@@ -1,5 +1,11 @@
 # pdfn
 
+## 0.8.6
+
+### Patch Changes
+
+- 20b26cb: Make --mode flag opt-in with no default, remove PDFN_PORT env var, and add deduplication for env file loading
+
 ## 0.8.5
 
 ### Patch Changes
