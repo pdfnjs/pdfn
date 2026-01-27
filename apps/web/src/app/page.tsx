@@ -66,47 +66,6 @@ function CopyButton({ text, className = "" }: { text: string; className?: string
   );
 }
 
-// Terminal/code window component
-function CodeWindow({
-  children,
-  title,
-  showCopy = false,
-  copyText = "",
-  className = ""
-}: {
-  children: React.ReactNode;
-  title?: string;
-  showCopy?: boolean;
-  copyText?: string;
-  className?: string;
-}) {
-  return (
-    <div className={`rounded-xl overflow-hidden border border-border bg-[#0d1117] ${className}`}>
-      {/* Window title bar */}
-      <div className="flex items-center justify-between px-4 py-3 bg-surface-1 border-b border-border">
-        <div className="flex items-center gap-3">
-          {/* Traffic lights */}
-          <div className="flex items-center gap-1.5">
-            <div className="w-3 h-3 rounded-full bg-[#ff5f56]" />
-            <div className="w-3 h-3 rounded-full bg-[#ffbd2e]" />
-            <div className="w-3 h-3 rounded-full bg-[#27ca40]" />
-          </div>
-          {title && (
-            <span className="text-xs text-text-muted font-mono">{title}</span>
-          )}
-        </div>
-        {showCopy && copyText && (
-          <CopyButton text={copyText} />
-        )}
-      </div>
-      {/* Content */}
-      <div className="overflow-auto">
-        {children}
-      </div>
-    </div>
-  );
-}
-
 // Terminal command component - minimal style
 function TerminalCommand({ command, className = "" }: { command: string; className?: string }) {
   return (
@@ -211,10 +170,6 @@ export default function Home() {
   const size = PAGE_SIZES[activeTemplate.pageSize];
   const pageW = (activeTemplate.orientation === "landscape" ? size.height : size.width) * PT_TO_PX;
   const pageH = (activeTemplate.orientation === "landscape" ? size.width : size.height) * PT_TO_PX;
-  const scale = Math.min(previewDimensions.width / pageW, previewDimensions.height / pageH);
-  const displayW = pageW * scale;
-  const displayH = pageH * scale;
-
   return (
     <div className="min-h-screen bg-background">
       <Header />
@@ -266,14 +221,13 @@ export default function Home() {
           </div>
 
           <p className="text-sm text-text-muted mt-8 animate-fade-in-delay-2">
-            Works with App Router and Pages Router ·{" "}
             <a
               href="https://github.com/pdfnjs/pdfn"
               target="_blank"
               rel="noopener noreferrer"
-              className="hover:text-text-secondary transition-colors"
+              className="text-text-secondary hover:text-text-primary transition-colors underline underline-offset-4"
             >
-              View on GitHub
+              Star us on GitHub
             </a>
           </p>
         </div>
@@ -472,67 +426,122 @@ export default function Home() {
         </div>
       </section>
 
+      {/* Features */}
+      <section className="py-20 md:py-28 px-6 bg-background">
+        <div className="max-w-5xl mx-auto">
+          <div className="text-center mb-14 fade-in-section">
+            <h2 className="text-3xl md:text-4xl font-bold text-text-primary mb-4">
+              Everything you need
+            </h2>
+            <p className="text-lg text-text-secondary">
+              From page layout to production deployment.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 fade-in-section">
+            {[
+              {
+                icon: (
+                  <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M17.25 6.75L22.5 12l-5.25 5.25m-10.5 0L1.5 12l5.25-5.25m7.5-3l-4.5 16.5" />
+                  </svg>
+                ),
+                title: "Write with JSX",
+                description: "Build PDFs using the components you already know",
+              },
+              {
+                icon: (
+                  <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M9.53 16.122a3 3 0 00-5.78 1.128 2.25 2.25 0 01-2.4 2.245 4.5 4.5 0 008.4-2.245c0-.399-.078-.78-.22-1.128zm0 0a15.998 15.998 0 003.388-1.62m-5.043-.025a15.994 15.994 0 011.622-3.395m3.42 3.42a15.995 15.995 0 004.764-4.648l3.876-5.814a1.151 1.151 0 00-1.597-1.597L14.146 6.32a15.996 15.996 0 00-4.649 4.763m3.42 3.42a6.776 6.776 0 00-3.42-3.42" />
+                  </svg>
+                ),
+                title: "Style with Tailwind",
+                description: "Use your existing Tailwind classes and config",
+              },
+              {
+                icon: (
+                  <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
+                  </svg>
+                ),
+                title: "Smart pagination",
+                description: "Page breaks, headers, footers, and page numbers built in",
+              },
+              {
+                icon: (
+                  <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" />
+                  </svg>
+                ),
+                title: "Type safe",
+                description: "Full type safety for templates, props, and API",
+              },
+              {
+                icon: (
+                  <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909M3.75 21h16.5a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H3.75A1.5 1.5 0 002.25 6v13.5A1.5 1.5 0 003.75 21z" />
+                  </svg>
+                ),
+                title: "Custom assets",
+                description: "Google Fonts, local fonts, and image embedding",
+              },
+              {
+                icon: (
+                  <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M5.25 14.25h13.5m-13.5 0a3 3 0 01-3-3m3 3a3 3 0 100 6h13.5a3 3 0 100-6m-16.5-3a3 3 0 013-3h13.5a3 3 0 013 3m-19.5 0a4.5 4.5 0 01.9-2.7L5.737 5.1a3.375 3.375 0 012.7-1.35h7.126c1.062 0 2.062.5 2.7 1.35l2.587 3.45a4.5 4.5 0 01.9 2.7m0 0a3 3 0 01-3 3m0 3h.008v.008h-.008v-.008zm0-6h.008v.008h-.008v-.008zm-3 6h.008v.008h-.008v-.008zm0-6h.008v.008h-.008v-.008z" />
+                  </svg>
+                ),
+                title: "Works everywhere",
+                description: "Next.js, Vite, and Node.js supported",
+              },
+            ].map((feature) => (
+              <div
+                key={feature.title}
+                className="rounded-xl border border-border bg-surface-1 p-6 transition-colors hover:border-border-hover"
+              >
+                <div className="flex items-center gap-3 mb-3">
+                  <div className="flex items-center justify-center w-9 h-9 rounded-lg bg-primary/10 text-primary flex-shrink-0">
+                    {feature.icon}
+                  </div>
+                  <h3 className="text-base font-semibold text-text-primary">
+                    {feature.title}
+                  </h3>
+                </div>
+                <p className="text-sm text-text-secondary leading-relaxed">
+                  {feature.description}
+                </p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* Build with confidence */}
-      <section className="py-20 md:py-28 px-6">
-        <div className="max-w-3xl mx-auto">
-          <div className="text-center mb-12 fade-in-section">
+      <section className="py-20 md:py-28 px-6 bg-surface-1">
+        <div className="max-w-2xl mx-auto">
+          <div className="text-center mb-10 fade-in-section">
             <h2 className="text-3xl md:text-4xl font-bold text-text-primary mb-4">
               Build with confidence
             </h2>
             <p className="text-lg text-text-secondary">
-              Preview PDFs instantly as you build.
+              Preview PDFs as you code. Changes appear instantly.
             </p>
           </div>
 
-          {/* Dev command */}
-          <div className="max-w-md mx-auto mb-16 fade-in-section">
+          <div className="max-w-md mx-auto mb-6 fade-in-section">
             <TerminalCommand command="npx pdfn dev" />
           </div>
 
-          {/* Core value props - what makes pdfn unique */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12 fade-in-section">
-            {[
-              {
-                icon: (
-                  <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 10V7" />
-                  </svg>
-                ),
-                title: "Predictable page breaks",
-                description: "Tables and content render cleanly across pages",
-              },
-              {
-                icon: (
-                  <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 5h16M4 5a1 1 0 00-1 1v12a1 1 0 001 1h16a1 1 0 001-1V6a1 1 0 00-1-1M4 5v14m16-14v14m-8-7h.01" />
-                  </svg>
-                ),
-                title: "Headers & footers",
-                description: "Repeat correctly on every page",
-              },
-              {
-                icon: (
-                  <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                ),
-                title: "Same output everywhere",
-                description: "Locally and in production",
-              },
-            ].map((item, i) => (
-              <div key={i} className="text-center">
-                <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center text-primary mx-auto mb-4">
-                  {item.icon}
-                </div>
-                <h3 className="font-semibold text-text-primary mb-2">{item.title}</h3>
-                <p className="text-sm text-text-muted">{item.description}</p>
-              </div>
+          <div className="flex items-center justify-center gap-2 mb-10 fade-in-section">
+            {["Next.js", "Vite", "Node.js"].map((fw) => (
+              <span
+                key={fw}
+                className="px-3 py-1 rounded-md bg-surface-2 border border-border text-xs font-medium text-text-secondary"
+              >
+                {fw}
+              </span>
             ))}
           </div>
-
-          <p className="text-center text-text-muted mb-8 fade-in-section">
-            What you preview locally is exactly what ships.
-          </p>
 
           <div className="text-center fade-in-section">
             <a
@@ -549,40 +558,63 @@ export default function Home() {
       </section>
 
       {/* Get started */}
-      <section className="py-20 md:py-28 px-6 bg-surface-1">
-        <div className="max-w-2xl mx-auto text-center fade-in-section">
-          <h2 className="text-3xl md:text-4xl font-bold text-text-primary mb-10">
-            Get started
+      <section className="py-20 md:py-28 px-6 bg-background">
+        <div className="max-w-4xl mx-auto fade-in-section">
+          <h2 className="text-3xl md:text-4xl font-bold text-text-primary mb-4 text-center">
+            From development to production
           </h2>
+          <p className="text-lg text-text-secondary text-center mb-12">
+            Build locally, deploy with an API key. No code changes needed.
+          </p>
 
-          <TerminalCommand
-            command="npm install @pdfn/react @pdfn/tailwind @pdfn/next"
-            className="mb-6"
-          />
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
+            {/* Step 1: Install */}
+            <div className="rounded-xl border border-border bg-surface-1 p-6">
+              <div className="flex items-center gap-3 mb-4">
+                <span className="flex items-center justify-center w-7 h-7 rounded-full bg-primary/10 text-primary text-sm font-bold">1</span>
+                <h3 className="text-base font-semibold text-text-primary">Install</h3>
+              </div>
+              <TerminalCommand command="npm install @pdfn/react @pdfn/tailwind @pdfn/next" className="mb-4" />
+              <p className="text-sm text-text-secondary">
+                Add pdfn to your Next.js project.
+              </p>
+            </div>
 
-          <p className="text-text-muted mb-8">
-            Using Vite or Node.js?{" "}
-            <a href="https://pdfn.dev/docs/frameworks" className="text-text-secondary hover:text-primary transition-colors underline underline-offset-4">
-              See other frameworks
+            {/* Step 2: Deploy */}
+            <div className="rounded-xl border border-border bg-surface-1 p-6">
+              <div className="flex items-center gap-3 mb-4">
+                <span className="flex items-center justify-center w-7 h-7 rounded-full bg-primary/10 text-primary text-sm font-bold">2</span>
+                <h3 className="text-base font-semibold text-text-primary">Deploy to production</h3>
+              </div>
+              <div className="flex items-center justify-between gap-4 px-4 py-3 rounded-lg border border-border bg-surface-1 font-mono text-sm mb-4">
+                <span className="text-text-secondary truncate">PDFN_API_KEY=pdfn_live_...</span>
+              </div>
+              <p className="text-sm text-text-secondary">
+                No manual infra or Chromium management. Just add your API key.
+              </p>
+            </div>
+          </div>
+
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+            <a
+              href="https://pdfn.dev/docs/quickstart"
+              className="group flex items-center gap-2 bg-primary hover:bg-primary-hover text-black font-semibold px-6 py-3 rounded-xl transition-all hover:scale-[1.02] hover:shadow-[0_0_30px_rgba(34,211,238,0.3)]"
+            >
+              View the quickstart
+              <svg className="w-4 h-4 transition-transform group-hover:translate-x-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+              </svg>
             </a>
-          </p>
-
-          <a
-            href="https://pdfn.dev/docs/quickstart"
-            className="group inline-flex items-center gap-2 bg-primary hover:bg-primary-hover text-black font-semibold px-8 py-4 rounded-xl transition-all hover:scale-[1.02] hover:shadow-[0_0_30px_rgba(34,211,238,0.3)] text-lg"
-          >
-            View the quickstart
-            <svg className="w-5 h-5 transition-transform group-hover:translate-x-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-            </svg>
-          </a>
-
-          <p className="text-text-muted mt-8">
-            Need managed infrastructure or compliance?{" "}
-            <Link href="/cloud" className="text-text-secondary hover:text-primary transition-colors underline underline-offset-4">
-              See pdfn Cloud
-            </Link>
-          </p>
+            <a
+              href="https://console.pdfn.dev"
+              className="flex items-center gap-2 bg-surface-1 border border-border hover:border-border-hover rounded-xl px-6 py-3 font-medium text-text-primary transition-all hover:bg-surface-2"
+            >
+              Get your API key
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+              </svg>
+            </a>
+          </div>
         </div>
       </section>
 

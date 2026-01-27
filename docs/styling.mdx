@@ -1,6 +1,7 @@
 ---
 title: Styling
 description: Style PDFs with Tailwind CSS, custom CSS, or inline styles.
+keywords: ["PDF styling", "Tailwind CSS", "custom CSS", "inline styles", "PDF design"]
 ---
 
 pdfn supports three styling approaches. Choose based on your needs:
@@ -50,7 +51,7 @@ export default function Invoice() {
 
 ### Custom theme
 
-Create `pdfn-templates/styles.css` to customize your theme. This file is auto-detected:
+Customize your PDF theme in `pdfn-templates/styles.css`. This file is auto-detected and isolated from your app's styles — your app and PDF templates never interfere with each other.
 
 ```css pdfn-templates/styles.css
 @import "tailwindcss";
@@ -80,7 +81,7 @@ npm install @pdfn/next
 ```ts next.config.ts
 import { withPdfn } from '@pdfn/next';
 
-const nextConfig = {};
+const nextConfig = { /* your existing config */ };
 
 export default withPdfn()(nextConfig);
 ```
@@ -92,6 +93,7 @@ npm install @pdfn/vite
 ```
 
 ```ts vite.config.ts
+import { defineConfig } from 'vite';
 import { pdfn } from '@pdfn/vite';
 
 export default defineConfig({

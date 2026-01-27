@@ -1,6 +1,7 @@
 ---
 title: Components
-description: All pdfn components for building PDF templates.
+description: Document, Page, PageNumber, PageBreak, and table helpers.
+keywords: ["PDF components", "Document", "Page", "PageNumber", "PageBreak", "React PDF layout"]
 ---
 
 This page explains how to build PDF templates from scratch. If you're just getting started, use `npx pdfn add invoice` to scaffold a template first (see [Quickstart](/quickstart)).
@@ -35,16 +36,20 @@ The root wrapper for every PDF template. Sets metadata and loads custom fonts.
 ```tsx
 import { Document, Page } from '@pdfn/react';
 
-<Document
-  title="Invoice #001"
-  author="Acme Corp"
-  css={`.custom { color: red; }`}
-  fonts={[{ family: 'Inter', src: '/fonts/Inter.woff2' }]}
->
-  <Page size="A4">
-    <h1>Content</h1>
-  </Page>
-</Document>
+export default function MyPdf() {
+  return (
+    <Document
+      title="Invoice #001"
+      author="Acme Corp"
+      css={`.custom { color: red; }`}
+      fonts={[{ family: 'Inter', src: '/fonts/Inter.woff2' }]}
+    >
+      <Page size="A4">
+        <h1>Content</h1>
+      </Page>
+    </Document>
+  );
+}
 ```
 
 ### Document props
@@ -54,8 +59,9 @@ import { Document, Page } from '@pdfn/react';
 | `title` | `string` | PDF title (shows in browser tab and PDF readers) |
 | `author` | `string` | PDF author metadata |
 | `subject` | `string` | PDF subject metadata |
-| `keywords` | `string` | PDF keywords for search |
+| `keywords` | `string[]` | PDF keywords for search |
 | `creator` | `string` | Application name that created the PDF |
+| `language` | `string` | Document language (default: `"en"`) |
 | `css` | `string` | Custom CSS injected into the document |
 | `fonts` | `FontConfig[]` | Custom fonts to load |
 | `children` | `ReactNode` | Page components (required) |
@@ -91,7 +97,7 @@ import { Document, Page, PageNumber } from '@pdfn/react';
 | `size` | `PageSize` | `'A4'` | Page dimensions |
 | `orientation` | `'portrait'` \| `'landscape'` | `'portrait'` | Page orientation |
 | `margin` | `string` \| `object` | `'1in'` | Page margins |
-| `background` | `string` | — | Background color |
+| `background` | `string` | `'#ffffff'` | Background color |
 | `header` | `ReactNode` | — | Content repeated at top of each page |
 | `footer` | `ReactNode` | — | Content repeated at bottom of each page |
 | `watermark` | `string` \| `object` | — | Watermark text or config |
@@ -104,7 +110,7 @@ type PageSize =
   | 'A3' | 'A4' | 'A5'
   | 'Letter' | 'Legal' | 'Tabloid'
   | 'B4' | 'B5'
-  | [number, number]; // Custom: [width, height] in inches
+  | [string, string]; // Custom: [width, height] e.g. ['8.5in', '11in']
 ```
 
 ### Margin formats
@@ -127,7 +133,7 @@ type PageSize =
 <Page watermark="DRAFT">
 
 // With options
-<Page watermark={{ text: 'CONFIDENTIAL', opacity: 0.1, rotation: -45 }}>
+<Page watermark={{ text: 'CONFIDENTIAL', opacity: 0.1, rotation: -35 }}>
 ```
 
 ---
@@ -153,7 +159,7 @@ import { Document, Page, PageNumber, TotalPages } from '@pdfn/react';
 </Document>
 ```
 
-Both components accept `className` and `style` props for styling.
+Both components accept a `className` prop for styling.
 
 ---
 
@@ -233,6 +239,8 @@ import { Document, Page, Thead, Tr } from '@pdfn/react';
   </Page>
 </Document>
 ```
+
+`Thead` accepts a `repeat` prop (default: `true`) to control whether headers repeat on each page. `Tr` accepts a `keep` prop to prevent a row from splitting across pages.
 
 <Note>
   Standard HTML `<thead>` and `<tr>` work but won't repeat headers across pages. Use `Thead` and `Tr` for multi-page tables.

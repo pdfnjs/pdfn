@@ -3,24 +3,27 @@ import { resolve } from "node:path";
 import { config } from "dotenv";
 
 /**
- * Load environment variables following Vite's pattern.
- * Priority (later overrides earlier):
- * .env → .env.local → .env.[mode] → .env.[mode].local
+ * Load environment variables.
+ * Always loads: .env → .env.local
+ * With mode: also loads .env.[mode] → .env.[mode].local
  *
- * @param mode - Environment mode (e.g., "development", "production")
+ * @param mode - Optional environment mode (e.g., "production")
  */
-export function loadEnv(mode: string): void {
+export function loadEnv(mode?: string): void {
   const cwd = process.cwd();
 
-  // Files in order of priority (first loaded = lowest priority)
-  const envFiles = [
-    ".env",
-    ".env.local",
-    `.env.${mode}`,
-    `.env.${mode}.local`,
-  ];
+  // Always load base env files
+  const envFiles: string[] = [".env", ".env.local"];
 
-  for (const file of envFiles) {
+  // Optionally load mode-specific files
+  if (mode) {
+    envFiles.push(`.env.${mode}`, `.env.${mode}.local`);
+  }
+
+  // Deduplicate (e.g. --mode local would produce .env.local twice)
+  const unique = [...new Set(envFiles)];
+
+  for (const file of unique) {
     const filePath = resolve(cwd, file);
     if (existsSync(filePath)) {
       // quiet: true suppresses dotenv's verbose output in v17+

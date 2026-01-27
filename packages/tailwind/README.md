@@ -34,7 +34,7 @@ function Invoice() {
 
 ## Custom Theme
 
-Create `pdfn-templates/styles.css` for custom fonts and colors:
+Create `pdfn-templates/styles.css` for custom fonts and colors. This file is isolated from your app's styles — your app and PDF templates never interfere with each other.
 
 ```css
 /* pdfn-templates/styles.css */
@@ -47,7 +47,7 @@ Create `pdfn-templates/styles.css` for custom fonts and colors:
 }
 ```
 
-This file is auto-detected when you use `<Tailwind>`.
+Auto-detected when you use `<Tailwind>`.
 
 ## Edge Runtimes
 

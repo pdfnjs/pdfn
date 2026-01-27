@@ -1,0 +1,80 @@
+---
+title: Dev Workflow
+description: Preview PDFs with hot reload using npx pdfn dev.
+keywords: ["pdfn dev", "PDF preview", "hot reload", "development server", "live preview"]
+---
+
+The dev server gives you a live preview of your PDF templates. Edit a file, see the output update.
+
+```bash
+npx pdfn dev
+```
+
+This opens a preview UI at `http://localhost:3456`.
+
+| Flag | Default | Description |
+|------|---------|-------------|
+| `--port` | `3456` | Port for the dev server |
+| `--open` | — | Open browser automatically |
+| `--mode` | — | Load additional `.env.[mode]` files |
+
+## How it works
+
+The dev server runs inside your project context:
+
+- **Your dependencies work** — import dayjs, lodash, or any package from `node_modules`
+- **Your path aliases work** — `@/components/...` resolves from your `tsconfig.json`
+- **Isolated Tailwind styles** — `pdfn-templates/styles.css` is auto-detected, separate from your app's styles
+
+The preview UI shows all top-level `.tsx` files in your templates directory with zoom controls (fit-to-window or 100%).
+
+## Template directory
+
+By default, pdfn looks for templates in `pdfn-templates/` at your project root:
+
+```
+your-project/
+├── pdfn-templates/
+│   ├── invoice.tsx
+│   ├── receipt.tsx
+│   ├── styles.css
+│   └── components/
+│       └── Header.tsx
+├── next.config.ts
+└── package.json
+```
+
+Files inside `pdfn-templates/components/` are not treated as templates — only top-level `.tsx` files appear in the preview.
+
+## Default props for preview
+
+Templates should use default parameters so the preview renders without an API call:
+
+```tsx pdfn-templates/invoice.tsx
+import { Document, Page } from '@pdfn/react';
+
+const sampleData = { number: 'INV-001', customer: 'Acme Corp', total: 148 };
+
+export default function Invoice({ data = sampleData }: { data?: InvoiceData }) {
+  return (
+    <Document title={`Invoice ${data.number}`}>
+      <Page size="A4" margin="1in">
+        {/* template content */}
+      </Page>
+    </Document>
+  );
+}
+```
+
+---
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="Components" icon="cube" href="/components">
+    Document, Page, and layout components
+  </Card>
+  <Card title="Styling" icon="paintbrush" href="/styling">
+    Tailwind CSS, custom CSS, and inline styles
+  </Card>
+</CardGroup>

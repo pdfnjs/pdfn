@@ -1,110 +1,123 @@
 ---
 title: Quickstart
-description: Generate your first PDF in under 2 minutes.
+description: Generate your first PDF in a Next.js project.
+keywords: ["pdfn quickstart", "PDF generation", "Next.js PDF", "getting started", "install pdfn"]
 ---
 
-Generate your first PDF in under 2 minutes. No API key required for local development.
+Get a PDF endpoint running in your Next.js project. No API key required for local development.
+
+<Note>
+  Not using Next.js? pdfn works with any framework. Install `@pdfn/react` and `@pdfn/tailwind`, then use the same `client.generate()` API. See [Styling](/styling) for Vite plugin setup.
+</Note>
 
 ## Prerequisites
 
 - Node.js 22 or higher
-- A new or existing Node.js project
+- A Next.js project (App Router or Pages Router)
 
 ## 1. Install
 
 <CodeGroup>
 ```bash npm
-npm install @pdfn/react
+npm install @pdfn/react @pdfn/tailwind @pdfn/next
 ```
 
 ```bash yarn
-yarn add @pdfn/react
+yarn add @pdfn/react @pdfn/tailwind @pdfn/next
 ```
 
 ```bash pnpm
-pnpm add @pdfn/react
+pnpm add @pdfn/react @pdfn/tailwind @pdfn/next
 ```
 
 ```bash bun
-bun add @pdfn/react
+bun add @pdfn/react @pdfn/tailwind @pdfn/next
 ```
 </CodeGroup>
 
-## 2. Add a template
+## 2. Add the build plugin
 
-```bash
-npx pdfn add invoice
+```ts next.config.ts
+import { withPdfn } from '@pdfn/next';
+
+const nextConfig = { /* your existing config */ };
+
+export default withPdfn()(nextConfig);
 ```
 
-This creates `pdfn-templates/invoice.tsx`.
+## 3. Add a template
 
-**Other templates:** `letter`, `contract`, `ticket`, `poster`
+```bash
+npx pdfn add invoice --tailwind
+```
+
+This creates `pdfn-templates/invoice.tsx` with sample data.
 
 <Note>
-  Want Tailwind CSS styling? Use `npx pdfn add invoice --tailwind` (requires `@pdfn/tailwind`). Want to build templates from scratch? See [Components](/components).
+  Want to build templates from scratch? See [Components](/components).
 </Note>
 
-## 3. Start the dev server
+## 4. Start the dev server
+
+In one terminal, start the pdfn preview server:
 
 ```bash
 npx pdfn dev
 ```
 
-This starts a local preview server at `http://localhost:3456`. Your template should appear in the preview UI. Keep this running.
+This runs at `http://localhost:3456` with live preview of your templates. See [Dev Workflow](/dev-workflow) for details.
 
-## 4. Generate a PDF
+In another terminal, start Next.js:
 
-Create a script to generate the PDF. The invoice template accepts `number`, `customer`, and `total` props:
+```bash
+npm run dev
+```
 
-```typescript scripts/generate-invoice.ts
+## 5. Create an API route
+
+```tsx app/api/invoice/route.tsx
 import { pdfn } from '@pdfn/react';
-import Invoice from '../pdfn-templates/invoice';
-import fs from 'fs';
+import Invoice from '@/pdfn-templates/invoice';
 
-async function main() {
-  const client = pdfn(); // Uses localhost:3456 (dev server)
+const client = pdfn();
 
+export async function GET() {
   const { data, error } = await client.generate(
-    <Invoice number="INV-001" customer="Acme Corp" total={148} />
+    <Invoice number="INV-001" customer="Acme Corp" total={1500} />
   );
 
   if (error) {
-    console.error('Error:', error.message);
-    process.exit(1);
+    return Response.json(
+      { error: error.code, message: error.message },
+      { status: error.statusCode || 500 }
+    );
   }
 
-  fs.writeFileSync('invoice.pdf', data.buffer);
-  console.log('Created invoice.pdf');
+  return new Response(data.buffer, {
+    headers: { 'Content-Type': 'application/pdf' },
+  });
 }
-
-main();
-```
-
-Run it in a separate terminal (keep `pdfn dev` running):
-
-```bash
-npx tsx scripts/generate-invoice.ts
 ```
 
 <Note>
-  Don't have `tsx`? Install it with `npm install -D tsx` or use `npx ts-node` instead.
+  Using Pages Router? See the [Pages Router example](/nextjs).
 </Note>
 
-Your PDF is now at `invoice.pdf` in your project root.
+## 6. Test it
+
+Visit `http://localhost:3000/api/invoice` in your browser. You should see your PDF.
 
 ---
 
 ## Going to production
 
-For production, you'll need an API key from [console.pdfn.dev](https://console.pdfn.dev).
+Add your API key and deploy. No code changes needed — the same `client.generate()` call works with pdfn Cloud.
 
-Set the environment variable:
-
-```bash
-export PDFN_API_KEY=pdfn_live_...
+```bash .env.local
+PDFN_API_KEY=pdfn_live_...
 ```
 
-The `pdfn()` client automatically detects the API key and switches to pdfn Cloud. No code changes needed.
+Get your key at [console.pdfn.dev](https://console.pdfn.dev).
 
 | Environment | What happens |
 |-------------|--------------|
@@ -117,16 +130,16 @@ The `pdfn()` client automatically detects the API key and switches to pdfn Cloud
 ## Next steps
 
 <CardGroup cols={2}>
+  <Card title="Dev Workflow" icon="terminal" href="/dev-workflow">
+    Live preview with hot reload
+  </Card>
   <Card title="Components" icon="cube" href="/components">
-    Learn about Document, Page, and other components
+    Document, Page, and layout components
   </Card>
   <Card title="Styling" icon="paintbrush" href="/styling">
-    Style your PDFs with Tailwind CSS
+    Tailwind CSS, custom CSS, and inline styles
   </Card>
   <Card title="Next.js" icon="code" href="/nextjs">
-    Integrate with Next.js
-  </Card>
-  <Card title="Error Handling" icon="triangle-exclamation" href="/errors">
-    Handle errors gracefully
+    API routes, download buttons, and edge runtime
   </Card>
 </CardGroup>

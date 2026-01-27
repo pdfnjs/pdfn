@@ -3,7 +3,13 @@ import type { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "pdfn Cloud - Managed PDF Generation",
-  description: "Managed PDF generation for invoices, contracts, and compliance documents. Same templates, same layout, less operational burden.",
+  description:
+    "Managed PDF generation for invoices, contracts, and compliance documents. Same templates, same layout, less operational burden.",
+  openGraph: {
+    title: "pdfn Cloud - Managed PDF Generation",
+    description:
+      "Managed PDF generation for invoices, contracts, and compliance documents. Same templates, same layout, less operational burden.",
+  },
 };
 
 export default function CloudPage() {
@@ -116,7 +122,7 @@ export default function CloudPage() {
               rel="noopener noreferrer"
               className="inline-flex items-center gap-1.5 text-text-secondary hover:text-primary transition-colors"
             >
-              Get started free
+              Request early access
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
               </svg>

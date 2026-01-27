@@ -1,93 +1,162 @@
 ---
 title: Next.js
-description: Generate PDFs in Next.js with App Router or Pages Router.
+description: App Router and Pages Router patterns for PDF generation.
+keywords: ["Next.js PDF", "App Router", "Pages Router", "PDF API route", "PDF endpoint"]
 ---
 
-Build PDF generation endpoints in Next.js using the App Router or Pages Router.
+This page covers Next.js patterns for both routers. For initial setup, see the [Quickstart](/quickstart).
 
-<Note>
-  New to pdfn? Start with the [Quickstart](/quickstart) guide first.
-</Note>
+## API route
 
-## Installation
+Accept a request body and return a PDF:
 
-<CodeGroup>
-```bash npm
-npm install @pdfn/react
-```
+<Tabs>
+  <Tab title="App Router">
+    ```tsx app/api/invoice/route.tsx
+    import { pdfn } from '@pdfn/react';
+    import Invoice from '@/pdfn-templates/invoice';
 
-```bash yarn
-yarn add @pdfn/react
-```
+    const client = pdfn();
 
-```bash pnpm
-pnpm add @pdfn/react
-```
-</CodeGroup>
+    export async function POST(req: Request) {
+      const body = await req.json();
 
-<Note>
-  Want Tailwind CSS styling? Also install `@pdfn/tailwind`. See [Styling](/styling) for details.
-</Note>
+      const { data, error } = await client.generate(
+        <Invoice
+          number={body.invoiceNumber}
+          customer={body.customerName}
+          total={body.total}
+        />
+      );
 
-## Add a template
+      if (error) {
+        return Response.json(
+          { error: error.code, message: error.message },
+          { status: error.statusCode || 500 }
+        );
+      }
 
-Use the CLI to scaffold a template, or create your own:
+      return new Response(data.buffer, {
+        headers: { 'Content-Type': 'application/pdf' },
+      });
+    }
+    ```
+  </Tab>
+  <Tab title="Pages Router">
+    ```tsx pages/api/invoice.tsx
+    import type { NextApiRequest, NextApiResponse } from 'next';
+    import { pdfn } from '@pdfn/react';
+    import Invoice from '@/pdfn-templates/invoice';
 
-```bash
-npx pdfn add invoice
-```
+    const client = pdfn();
 
-This creates `pdfn-templates/invoice.tsx` with props for `number`, `customer`, and `total`.
+    export default async function handler(
+      req: NextApiRequest,
+      res: NextApiResponse
+    ) {
+      const body = req.body;
 
-To build templates from scratch, see [Components](/components).
+      const { data, error } = await client.generate(
+        <Invoice
+          number={body.invoiceNumber}
+          customer={body.customerName}
+          total={body.total}
+        />
+      );
 
-## App Router
+      if (error) {
+        return res.status(error.statusCode || 500).send(error.message);
+      }
 
-```tsx app/api/invoice/route.tsx
-import { pdfn } from '@pdfn/react';
-import Invoice from '@/pdfn-templates/invoice';
+      res.setHeader('Content-Type', 'application/pdf');
+      res.send(Buffer.from(data.buffer));
+    }
+    ```
+  </Tab>
+</Tabs>
 
-const client = pdfn();
+---
 
-export async function GET() {
-  const { data, error } = await client.generate(
-    <Invoice number="INV-001" customer="Acme Corp" total={1500} />
-  );
+## Download button
 
-  if (error) {
-    return new Response(error.message, { status: 500 });
-  }
+Trigger a PDF download from a client component:
 
-  return new Response(data.buffer, {
-    headers: { 'Content-Type': 'application/pdf' },
-  });
+```tsx app/page.tsx
+'use client';
+
+export default function Page() {
+  const download = async () => {
+    const res = await fetch('/api/invoice', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        invoiceNumber: 'INV-001',
+        customerName: 'Acme Corp',
+        total: 1500,
+      }),
+    });
+    const blob = await res.blob();
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'invoice.pdf';
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  return <button onClick={download}>Download PDF</button>;
 }
 ```
 
-## Pages Router
+---
 
-```tsx pages/api/invoice.tsx
-import type { NextApiRequest, NextApiResponse } from 'next';
-import { pdfn } from '@pdfn/react';
-import Invoice from '@/pdfn-templates/invoice';
+## Client components
 
-const client = pdfn();
+Templates that use `"use client"` components (like Recharts or other chart libraries) need the `withPdfn()` build plugin to pre-bundle them for rendering.
 
-export default async function handler(
-  req: NextApiRequest,
-  res: NextApiResponse
-) {
-  const { data, error } = await client.generate(
-    <Invoice number="INV-001" customer="Acme Corp" total={1500} />
-  );
+If you followed the [Quickstart](/quickstart), this is already set up:
 
-  if (error) {
-    return res.status(500).send(error.message);
-  }
+```ts next.config.ts
+import { withPdfn } from '@pdfn/next';
 
-  res.setHeader('Content-Type', 'application/pdf');
-  res.send(Buffer.from(data.buffer));
-}
+const nextConfig = { /* your existing config */ };
+
+export default withPdfn()(nextConfig);
+```
+
+The plugin detects templates with `"use client"` directives and bundles them at build time. No additional configuration needed.
+
+---
+
+## Edge runtime
+
+Edge runtimes (Vercel Edge, Cloudflare Workers) don't have filesystem access. The `withPdfn()` build plugin handles this by pre-compiling Tailwind CSS at build time.
+
+What to keep in mind on edge:
+
+- **Tailwind works** — pre-compiled by `withPdfn()`, no filesystem needed at runtime
+- **Local images and fonts won't load** — use remote URLs or base64 data URIs instead
+- **`client.generate()` works** — connects to pdfn Cloud for PDF generation, no local dependencies needed
+
+---
+
+## Project structure
+
+```
+app/
+├── api/
+│   ├── invoice/route.tsx     # PDF endpoint
+│   └── receipt/route.tsx
+└── page.tsx                  # UI with download button
+
+pdfn-templates/
+├── invoice.tsx               # PDF templates
+├── receipt.tsx
+├── styles.css                # Tailwind theme (isolated from app styles)
+└── components/
+    └── Header.tsx            # Shared template components
+
+next.config.ts                # withPdfn() build plugin
 ```
 
 ## Environment variables
@@ -98,102 +167,7 @@ PDFN_API_KEY=pdfn_live_...
 
 Get your key at [console.pdfn.dev](https://console.pdfn.dev).
 
-## Local development
-
-Run the pdfn dev server alongside Next.js:
-
-```bash
-# Terminal 1
-npx pdfn dev
-
-# Terminal 2
-npm run dev
-```
-
-Without `PDFN_API_KEY`, the client uses `localhost:3456` automatically.
-
-## Dynamic data
-
-Accept request body for dynamic PDFs:
-
-```tsx app/api/invoice/route.tsx
-import { pdfn } from '@pdfn/react';
-import Invoice from '@/pdfn-templates/invoice';
-
-const client = pdfn();
-
-export async function POST(req: Request) {
-  const body = await req.json();
-
-  const { data, error } = await client.generate(
-    <Invoice
-      number={body.invoiceNumber}
-      customer={body.customerName}
-      total={body.total}
-    />
-  );
-
-  if (error) {
-    return Response.json({ error: error.message }, { status: 500 });
-  }
-
-  return new Response(data.buffer, {
-    headers: { 'Content-Type': 'application/pdf' },
-  });
-}
-```
-
-## Download button
-
-```tsx app/page.tsx
-'use client';
-
-export default function Page() {
-  const download = async () => {
-    const res = await fetch('/api/invoice');
-    const blob = await res.blob();
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'invoice.pdf';
-    a.click();
-  };
-
-  return <button onClick={download}>Download PDF</button>;
-}
-```
-
-## Edge runtime
-
-For Vercel Edge deployment, add the build plugin:
-
-```bash
-npm install @pdfn/next
-```
-
-```ts next.config.ts
-import { withPdfn } from '@pdfn/next';
-
-const nextConfig = {};
-
-export default withPdfn()(nextConfig);
-```
-
-This pre-compiles Tailwind CSS at build time for edge runtimes without filesystem access.
-
-## Project structure
-
-```
-app/
-├── api/invoice/route.tsx
-└── page.tsx
-
-pdfn-templates/
-├── invoice.tsx
-├── receipt.tsx
-└── components/
-    └── Header.tsx
-```
+Without `PDFN_API_KEY`, the client uses `localhost:3456` automatically. Run `npx pdfn dev` alongside your Next.js dev server for local development.
 
 ---
 
@@ -201,9 +175,9 @@ pdfn-templates/
 
 <CardGroup cols={2}>
   <Card title="Components" icon="cube" href="/components">
-    Learn about all available components
+    Document, Page, and layout components
   </Card>
-  <Card title="Styling" icon="paintbrush" href="/styling">
-    Style your PDFs with Tailwind CSS
+  <Card title="Error Handling" icon="triangle-exclamation" href="/errors">
+    Handle errors gracefully
   </Card>
 </CardGroup>

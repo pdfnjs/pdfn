@@ -17,9 +17,9 @@ Options:
 
 | Flag | Default | Description |
 |------|---------|-------------|
-| `--port` | `3456` | Server port |
-| `--templates` | `./pdfn-templates` | Templates directory |
-| `--open` | `false` | Open browser on start |
+| `--port` | `3456` | Port for the dev server |
+| `--open` | — | Open browser automatically |
+| `--mode` | — | Load additional `.env.[mode]` files |
 
 ### `pdfn add`
 

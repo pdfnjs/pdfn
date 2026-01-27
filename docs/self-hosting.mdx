@@ -1,12 +1,13 @@
 ---
 title: Self-Hosting
 description: Generate PDFs with your own Puppeteer or Playwright setup.
+keywords: ["self-host PDF", "Puppeteer PDF", "Playwright PDF", "PDF generation", "self-hosted"]
 ---
 
-Use `client.render()` to get HTML, then convert it to PDF with Puppeteer or Playwright.
+Run PDF generation on your own infrastructure using Puppeteer or Playwright. Use `client.render()` to get HTML, then convert it to PDF.
 
 <Note>
-  This is for running PDF generation on your own infrastructure. For a managed solution, use [pdfn Cloud](https://console.pdfn.dev).
+  Want managed PDF generation? Use `client.generate()` with [pdfn Cloud](https://console.pdfn.dev) — no infra or browser management needed.
 </Note>
 
 ## How it works
@@ -16,105 +17,117 @@ React Component → render() → HTML → Puppeteer/Playwright → PDF
 ```
 
 1. `render()` converts your React template to self-contained HTML
-2. You use Puppeteer or Playwright to convert that HTML to PDF
+2. You pass that HTML to Puppeteer or Playwright to generate a PDF
 
 ---
 
-## With Puppeteer
+## Setup
 
-```bash
-npm install @pdfn/react puppeteer
-```
+<Tabs>
+  <Tab title="Puppeteer">
+    ```bash
+    npm install @pdfn/react puppeteer
+    ```
+
+    ```typescript
+    import { pdfn } from '@pdfn/react';
+    import puppeteer from 'puppeteer';
+    import fs from 'node:fs';
+    import Invoice from './pdfn-templates/invoice';
+
+    async function generatePdf() {
+      const client = pdfn();
+
+      // 1. Render React to HTML
+      const { data, error } = await client.render(<Invoice />);
+
+      if (error) {
+        console.error(error.message);
+        return;
+      }
+
+      // 2. Convert HTML to PDF
+      const browser = await puppeteer.launch();
+      const page = await browser.newPage();
+
+      await page.setContent(data.html, { waitUntil: 'networkidle0' });
+      await page.waitForFunction(() => window.PDFN?.ready === true);
+
+      const pdf = await page.pdf({
+        preferCSSPageSize: true,
+        printBackground: true,
+      });
+
+      await browser.close();
+
+      fs.writeFileSync('invoice.pdf', pdf);
+    }
+
+    generatePdf();
+    ```
+  </Tab>
+  <Tab title="Playwright">
+    ```bash
+    npm install @pdfn/react playwright
+    ```
+
+    ```typescript
+    import { pdfn } from '@pdfn/react';
+    import { chromium } from 'playwright';
+    import fs from 'node:fs';
+    import Invoice from './pdfn-templates/invoice';
+
+    async function generatePdf() {
+      const client = pdfn();
+
+      // 1. Render React to HTML
+      const { data, error } = await client.render(<Invoice />);
+
+      if (error) {
+        console.error(error.message);
+        return;
+      }
+
+      // 2. Convert HTML to PDF
+      const browser = await chromium.launch();
+      const page = await browser.newPage();
+
+      await page.setContent(data.html, { waitUntil: 'networkidle' });
+      await page.waitForFunction(() => window.PDFN?.ready === true);
+
+      const pdf = await page.pdf({
+        preferCSSPageSize: true,
+        printBackground: true,
+      });
+
+      await browser.close();
+
+      fs.writeFileSync('invoice.pdf', pdf);
+    }
+
+    generatePdf();
+    ```
+  </Tab>
+</Tabs>
+
+<Note>
+  Add `@pdfn/tailwind` if your templates use Tailwind CSS. See [Styling](/styling).
+</Note>
+
+---
+
+## Required PDF options
+
+Always use these two options when calling `page.pdf()`:
 
 ```typescript
-import { pdfn } from '@pdfn/react';
-import puppeteer from 'puppeteer';
-import fs from 'fs';
-import Invoice from './pdfn-templates/invoice';
-
-async function generatePdf() {
-  const client = pdfn();
-
-  // 1. Render React to HTML
-  const { data, error } = await client.render(<Invoice />);
-
-  if (error) {
-    console.error(error.message);
-    return;
-  }
-
-  // 2. Convert HTML to PDF with Puppeteer
-  const browser = await puppeteer.launch();
-  const page = await browser.newPage();
-
-  await page.setContent(data.html, { waitUntil: 'networkidle0' });
-  await page.waitForFunction(() => window.PDFN?.ready === true);
-
-  const pdf = await page.pdf({
-    preferCSSPageSize: true,
-    printBackground: true,
-  });
-
-  await browser.close();
-
-  // 3. Save or return the PDF
-  fs.writeFileSync('invoice.pdf', pdf);
-}
-
-generatePdf();
+await page.pdf({
+  preferCSSPageSize: true,  // Respect page size from template
+  printBackground: true,    // Include background colors
+});
 ```
 
----
-
-## With Playwright
-
-```bash
-npm install @pdfn/react playwright
-```
-
-```typescript
-import { pdfn } from '@pdfn/react';
-import { chromium } from 'playwright';
-import fs from 'fs';
-import Invoice from './pdfn-templates/invoice';
-
-async function generatePdf() {
-  const client = pdfn();
-
-  // 1. Render React to HTML
-  const { data, error } = await client.render(<Invoice />);
-
-  if (error) {
-    console.error(error.message);
-    return;
-  }
-
-  // 2. Convert HTML to PDF with Playwright
-  const browser = await chromium.launch();
-  const page = await browser.newPage();
-
-  await page.setContent(data.html, { waitUntil: 'networkidle' });
-  await page.waitForFunction(() => window.PDFN?.ready === true);
-
-  const pdf = await page.pdf({
-    preferCSSPageSize: true,
-    printBackground: true,
-  });
-
-  await browser.close();
-
-  // 3. Save or return the PDF
-  fs.writeFileSync('invoice.pdf', pdf);
-}
-
-generatePdf();
-```
-
----
-
-## Important: Wait for ready
-
-Always wait for pdfn to signal that pagination is complete:
+And always wait for pdfn to finish pagination before generating:
 
 ```typescript
 await page.waitForFunction(() => window.PDFN?.ready === true);
@@ -122,35 +135,24 @@ await page.waitForFunction(() => window.PDFN?.ready === true);
 
 This ensures fonts are loaded and page breaks are calculated.
 
-## Important: PDF options
-
-Always use these options for correct output:
-
-```typescript
-await page.pdf({
-  preferCSSPageSize: true,  // Respect @page size from CSS
-  printBackground: true,    // Include background colors
-});
-```
-
 ---
 
 ## Comparison
 
-| | Self-Hosted | pdfn Cloud |
+| | pdfn Cloud | Self-Hosted |
 |---|---|---|
-| Setup | You manage Chromium | Zero config |
-| Scaling | You handle it | Auto-scales |
-| PDF/A compliance | Not available | Available |
-| Cost | Your infrastructure | Pay per PDF |
+| Setup | Managed — no infra or browser setup | You manage infra and Chromium |
+| Scaling | Auto-scales | You handle scaling |
+| Compliance | PDF/A-1b, PDF/A-2b, PDF/A-3b, PDF/UA (soon) | Not available |
+| Cost | Usage-based pricing | Your infrastructure costs |
 
 ---
 
 ## Next steps
 
 <CardGroup cols={2}>
-  <Card title="Components" icon="cube" href="/components">
-    Learn about all available components
+  <Card title="Styling" icon="paintbrush" href="/styling">
+    Tailwind CSS, custom CSS, and inline styles
   </Card>
   <Card title="Error Handling" icon="triangle-exclamation" href="/errors">
     Handle errors gracefully

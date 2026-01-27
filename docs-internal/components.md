@@ -29,10 +29,11 @@ import { Document } from '@pdfn/react';
 | `title` | `string` | PDF title metadata |
 | `author` | `string` | PDF author metadata |
 | `subject` | `string` | PDF subject metadata |
-| `keywords` | `string` | PDF keywords metadata |
+| `keywords` | `string[]` | PDF keywords metadata |
 | `creator` | `string` | PDF creator metadata |
 | `css` | `string` | Custom CSS injected into document |
 | `fonts` | `FontConfig[]` | Custom fonts to load |
+| `language` | `string` | Document language (default: `"en"`) |
 | `children` | `ReactNode` | Page components |
 
 ### FontConfig
@@ -75,7 +76,7 @@ import { Page, PageNumber } from '@pdfn/react';
 | `size` | `PageSize` | `'A4'` | Page size |
 | `orientation` | `'portrait' \| 'landscape'` | `'portrait'` | Page orientation |
 | `margin` | `string \| MarginConfig` | `'1in'` | Page margins |
-| `background` | `string` | — | Background color |
+| `background` | `string` | `'#ffffff'` | Background color |
 | `header` | `ReactNode` | — | Repeated header |
 | `footer` | `ReactNode` | — | Repeated footer |
 | `watermark` | `string \| WatermarkConfig` | — | Page watermark |
@@ -88,7 +89,7 @@ type PageSize =
   | 'A3' | 'A4' | 'A5'
   | 'Letter' | 'Legal' | 'Tabloid'
   | 'B4' | 'B5'
-  | [number, number]; // [width, height] in inches
+  | [string, string]; // [width, height] e.g. ['8.5in', '11in']
 ```
 
 ### MarginConfig
@@ -117,8 +118,7 @@ watermark="DRAFT"
 watermark={{
   text: 'CONFIDENTIAL',
   opacity: 0.1,
-  rotation: -45,
-  className: 'text-red-500'
+  rotation: -35,
 }}
 ```
 
@@ -146,7 +146,6 @@ import { PageNumber } from '@pdfn/react';
 | Prop | Type | Description |
 |------|------|-------------|
 | `className` | `string` | CSS class |
-| `style` | `CSSProperties` | Inline styles |
 
 ---
 
@@ -171,7 +170,6 @@ import { PageNumber, TotalPages } from '@pdfn/react';
 | Prop | Type | Description |
 |------|------|-------------|
 | `className` | `string` | CSS class |
-| `style` | `CSSProperties` | Inline styles |
 
 ---
 
@@ -222,7 +220,6 @@ import { AvoidBreak } from '@pdfn/react';
 | Prop | Type | Description |
 |------|------|-------------|
 | `className` | `string` | CSS class |
-| `style` | `CSSProperties` | Inline styles |
 | `children` | `ReactNode` | Content to keep together |
 
 ---
@@ -259,7 +256,7 @@ import { Thead, Tr } from '@pdfn/react';
 | Prop | Type | Description |
 |------|------|-------------|
 | `className` | `string` | CSS class |
-| `style` | `CSSProperties` | Inline styles |
+| `repeat` | `boolean` | Repeat header on each page (default: `true`) |
 | `children` | `ReactNode` | Table header rows |
 
 ---
@@ -285,6 +282,7 @@ import { Thead, Tr } from '@pdfn/react';
 |------|------|-------------|
 | `className` | `string` | CSS class |
 | `style` | `CSSProperties` | Inline styles |
+| `keep` | `boolean` | Prevent row from splitting across pages |
 | `children` | `ReactNode` | Table cells |
 
 ---

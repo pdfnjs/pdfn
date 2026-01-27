@@ -1,9 +1,10 @@
 ---
 title: Error Handling
 description: Handle errors gracefully with the { data, error } pattern.
+keywords: ["error handling", "PdfnError", "PDF generation errors", "troubleshooting"]
 ---
 
-pdfn uses a `{ data, error }` response pattern inspired by Go. This makes error handling explicit and avoids try/catch blocks.
+pdfn uses a `{ data, error }` response pattern. This makes error handling explicit and avoids try/catch blocks.
 
 ## Basic pattern
 
@@ -20,12 +21,29 @@ if (error) {
 
 ## Error object
 
+`PdfnError` is a class that extends `Error`:
+
 ```typescript
-interface PdfnError {
-  code: string;        // Machine-readable code
-  message: string;     // Human-readable message
-  suggestion?: string; // How to fix it
-  statusCode?: number; // HTTP status (if applicable)
+import { PdfnError } from '@pdfn/react';
+
+class PdfnError extends Error {
+  code: PdfnErrorCode;      // Machine-readable code
+  message: string;           // Human-readable message
+  suggestion?: string;       // How to fix it
+  statusCode?: number;       // HTTP status (if applicable)
+}
+```
+
+You can use `instanceof` to check for pdfn errors:
+
+```typescript
+import { PdfnError } from '@pdfn/react';
+
+if (error instanceof PdfnError) {
+  console.error(`[${error.code}] ${error.message}`);
+  if (error.suggestion) {
+    console.error(`Fix: ${error.suggestion}`);
+  }
 }
 ```
 
@@ -35,62 +53,12 @@ interface PdfnError {
 |------|-------|----------|
 | `configuration_error` | Missing server config | Run `npx pdfn dev` or set `PDFN_API_KEY` |
 | `authentication_error` | Invalid API key | Check your `PDFN_API_KEY` |
-| `validation_error` | Invalid input | Check your template/options |
-| `rate_limit_error` | Too many requests | Slow down or upgrade plan |
-| `timeout_error` | Generation took too long | Simplify template |
+| `validation_error` | Invalid input | Check your template or options |
+| `rate_limit_error` | Too many requests | Wait and retry, or upgrade at [console.pdfn.dev](https://console.pdfn.dev) |
+| `timeout_error` | Generation took too long | Simplify template or increase timeout |
 | `network_error` | Can't reach server | Check connection, run `npx pdfn dev` |
 | `render_error` | React render failed | Check component for errors |
-| `server_error` | Server-side error | Retry or contact support |
-
-## Examples
-
-### Log with suggestion
-
-```typescript
-const { data, error } = await client.generate(<Invoice />);
-
-if (error) {
-  console.error(`[${error.code}] ${error.message}`);
-  if (error.suggestion) {
-    console.error(`Fix: ${error.suggestion}`);
-  }
-  return;
-}
-```
-
-### HTTP response (Next.js App Router)
-
-```typescript
-import { pdfn } from '@pdfn/react';
-import Invoice from '@/pdfn-templates/invoice';
-
-const client = pdfn();
-
-export async function GET() {
-  const { data, error } = await client.generate(<Invoice />);
-
-  if (error) {
-    return Response.json(
-      { error: error.code, message: error.message },
-      { status: error.statusCode || 500 }
-    );
-  }
-
-  return new Response(data.buffer, {
-    headers: { 'Content-Type': 'application/pdf' },
-  });
-}
-```
-
-### TypeScript type guard
-
-```typescript
-import { PdfnError } from '@pdfn/react';
-
-function isRateLimit(error: PdfnError): boolean {
-  return error.code === 'rate_limit_error';
-}
-```
+| `server_error` | Server-side error | Retry, or contact support at [console.pdfn.dev](https://console.pdfn.dev) |
 
 ## Common issues
 
@@ -100,22 +68,10 @@ function isRateLimit(error: PdfnError): boolean {
 [network_error] Cannot connect to pdfn server at http://localhost:3456
 ```
 
-**Fix:** Start the dev server:
+The dev server isn't running. Start it in a separate terminal:
 
 ```bash
 npx pdfn dev
-```
-
-### Invalid API key
-
-```
-[authentication_error] Invalid API key
-```
-
-**Fix:** Check your environment variable:
-
-```bash
-echo $PDFN_API_KEY
 ```
 
 ### PDF generation timed out
@@ -124,7 +80,7 @@ echo $PDFN_API_KEY
 [timeout_error] PDF generation timed out
 ```
 
-**Fix:** Simplify your template or increase timeout:
+Simplify your template or increase the timeout:
 
 ```typescript
 const client = pdfn({
@@ -137,8 +93,8 @@ const client = pdfn({
 ## Next steps
 
 <CardGroup cols={2}>
-  <Card title="Components" icon="cube" href="/components">
-    Learn about all available components
+  <Card title="Next.js" icon="code" href="/nextjs">
+    API routes, download buttons, and edge runtime
   </Card>
   <Card title="Self-Hosting" icon="server" href="/self-hosting">
     Run PDF generation on your infrastructure

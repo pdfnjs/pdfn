@@ -12,7 +12,7 @@ export function Footer() {
               <span className="text-primary">n</span>
             </Link>
             <span className="text-text-muted">·</span>
-            <span className="text-sm text-text-muted">Open source · MIT</span>
+            <span className="text-sm text-text-muted">MIT License</span>
           </div>
 
           {/* Links */}

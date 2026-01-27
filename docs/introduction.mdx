@@ -1,32 +1,39 @@
 ---
 title: Introduction
-description: The React-to-PDF library for developers.
+description: Reliable PDF generation for Next.js using React components.
+keywords: ["pdfn", "PDF generation", "React", "Next.js", "PDF library", "React components"]
 ---
 
-pdfn is the React-to-PDF library for developers.
+pdfn gives you React components for page layout, pagination, headers, footers, and more. The `pdfn()` client renders them to PDF.
 
-Write React components. Ship pixel-perfect PDFs. Same input, same output.
+Your templates produce the same output locally and in production — no layout shifts between environments.
 
-## Quickstart
+Works with Next.js, Vite, and Node.js.
 
-<Card title="Get Started" icon="rocket" href="/quickstart">
-  Generate your first PDF in under 2 minutes
-</Card>
+## Get started
 
-<Note>
-  Using Next.js? See the [Next.js guide](/nextjs) for App Router and Pages Router integration.
-</Note>
+<CardGroup cols={2}>
+  <Card title="Quickstart" icon="rocket" href="/quickstart">
+    Install, create a template, and generate your first PDF.
+  </Card>
+  <Card title="Dev Workflow" icon="terminal" href="/dev-workflow">
+    Live preview with hot reload using npx pdfn dev.
+  </Card>
+</CardGroup>
 
-## Explore
+## Explore the docs
 
-<CardGroup cols={3}>
+<CardGroup cols={2}>
   <Card title="Components" icon="cube" href="/components">
-    Document, Page, PageNumber, and more
+    Document, Page, PageNumber, PageBreak, AvoidBreak, and table helpers.
   </Card>
   <Card title="Styling" icon="paintbrush" href="/styling">
-    Tailwind CSS and custom styles
+    Tailwind CSS, custom CSS, and inline styles.
+  </Card>
+  <Card title="Next.js" icon="code" href="/nextjs">
+    API routes, download buttons, and edge runtime.
   </Card>
   <Card title="Self-Hosting" icon="server" href="/self-hosting">
-    Run on your own infrastructure
+    Use Puppeteer or Playwright on your own infrastructure.
   </Card>
 </CardGroup>

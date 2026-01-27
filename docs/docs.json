@@ -2,7 +2,7 @@
   "$schema": "https://mintlify.com/docs.json",
   "theme": "maple",
   "name": "pdfn",
-  "description": "Write React. Ship PDFs. Generate production-ready PDFs from React components with pdfn.",
+  "description": "Reliable PDF generation for Next.js using React components.",
   "colors": {
     "primary": "#22d3ee",
     "light": "#22d3ee",
@@ -17,14 +17,15 @@
     "metatags": {
       "og:image": "https://pdfn.dev/opengraph-image",
       "og:site_name": "pdfn",
-      "twitter:card": "summary_large_image"
+      "twitter:card": "summary_large_image",
+      "canonical": "https://pdfn.dev/docs"
     }
   },
   "navigation": {
     "groups": [
       {
         "group": "Getting Started",
-        "pages": ["introduction", "quickstart"]
+        "pages": ["introduction", "quickstart", "dev-workflow"]
       },
       {
         "group": "Core",

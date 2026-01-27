@@ -33,7 +33,7 @@ const TEMPLATES_DIR = "./pdfn-templates";
 interface DevServerOptions {
   port: number;
   open: boolean;
-  mode: string;
+  mode?: string;
 }
 
 async function scanTemplates(templatesDir: string): Promise<TemplateInfo[]> {
@@ -2317,11 +2317,11 @@ async function startDevServer(options: DevServerOptions) {
 
 export const devCommand = new Command("dev")
   .description("Start development server with live preview")
-  .option("--port <number>", "Server port (env: PDFN_PORT)", process.env.PDFN_PORT ?? "3456")
+  .option("--port <number>", "Server port", "3456")
   .option("--open", "Open browser automatically")
-  .option("--mode <mode>", "Environment mode (loads .env.[mode])", "development")
+  .option("--mode <mode>", "Load additional .env.[mode] files")
   .action(async (options) => {
-    // Load environment variables based on mode (Vite pattern)
+    // Load .env and .env.local (+ .env.[mode] if --mode is passed)
     loadEnv(options.mode);
 
     const port = parseInt(options.port, 10);
