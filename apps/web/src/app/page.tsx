@@ -6,17 +6,7 @@ import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { nightOwl } from "react-syntax-highlighter/dist/esm/styles/prism";
 import { templateCode } from "@/lib/template-code";
 import { Header, Footer } from "@/components";
-
-// Page dimensions in points (72 dpi)
-const PAGE_SIZES = {
-  A4: { width: 595, height: 842 },
-  A5: { width: 420, height: 595 },
-  Letter: { width: 612, height: 792 },
-  Legal: { width: 612, height: 1008 },
-  Tabloid: { width: 792, height: 1224 },
-};
-
-type Orientation = "portrait" | "landscape";
+import { PAGE_SIZES, PT_TO_PX, type PageSize, type Orientation } from "@/lib/page-sizes";
 
 // Templates ordered by user priority:
 // 1. Invoice - most common PDF use case
@@ -27,7 +17,7 @@ type Orientation = "portrait" | "landscape";
 const homepageTemplates: Array<{
   id: string;
   name: string;
-  pageSize: keyof typeof PAGE_SIZES;
+  pageSize: PageSize;
   orientation: Orientation;
 }> = [
   { id: "invoice", name: "invoice.tsx", pageSize: "A4", orientation: "portrait" },
@@ -221,7 +211,6 @@ export default function Home() {
   };
 
   // Calculate preview dimensions
-  const PT_TO_PX = 96 / 72;
   const size = PAGE_SIZES[activeTemplate.pageSize];
   const pageW = (activeTemplate.orientation === "landscape" ? size.height : size.width) * PT_TO_PX;
   const pageH = (activeTemplate.orientation === "landscape" ? size.width : size.height) * PT_TO_PX;
@@ -365,7 +354,7 @@ export default function Home() {
                 <div className={`flex-1 min-w-0 border-b lg:border-b-0 lg:border-r border-border bg-[#0d1117] relative ${
                   mobileView === "code" ? "block" : "hidden md:block"
                 }`}>
-                  <div className="h-[400px] md:h-[500px] overflow-auto">
+                  <div className="h-[350px] md:h-[500px] overflow-auto">
                     <SyntaxHighlighter
                       language="tsx"
                       style={nightOwl}
@@ -418,7 +407,7 @@ export default function Home() {
                   {/* Preview content */}
                   <div
                     ref={previewContainerRef}
-                    className={`h-[300px] md:h-[500px] ${
+                    className={`h-[350px] md:h-[500px] ${
                       previewZoom === "100"
                         ? "overflow-auto"
                         : "overflow-hidden flex items-center justify-center p-3"

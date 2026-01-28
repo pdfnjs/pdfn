@@ -138,9 +138,34 @@ type PageSize =
 
 ---
 
-## PageNumber & TotalPages
+## PageNumber
 
-Display the current page number or total page count. Use these in headers or footers.
+Displays the current page number. Use in headers or footers.
+
+```tsx
+import { Document, Page, PageNumber } from '@pdfn/react';
+
+<Document title="Report">
+  <Page
+    size="A4"
+    footer={
+      <div style={{ textAlign: 'center' }}>
+        Page <PageNumber />
+      </div>
+    }
+  >
+    <h1>Report content</h1>
+  </Page>
+</Document>
+```
+
+Accepts a `className` prop for styling.
+
+---
+
+## TotalPages
+
+Displays the total page count. Combine with `PageNumber` for "Page 1 of 5" style footers.
 
 ```tsx
 import { Document, Page, PageNumber, TotalPages } from '@pdfn/react';
@@ -159,7 +184,7 @@ import { Document, Page, PageNumber, TotalPages } from '@pdfn/react';
 </Document>
 ```
 
-Both components accept a `className` prop for styling.
+Accepts a `className` prop for styling.
 
 ---
 

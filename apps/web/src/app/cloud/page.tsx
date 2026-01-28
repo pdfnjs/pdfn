@@ -23,7 +23,7 @@ export default function CloudPage() {
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary text-sm mb-6 animate-fade-in">
             <span>Early Access</span>
           </div>
-          <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold text-text-primary mb-4 leading-tight animate-fade-in whitespace-nowrap">
+          <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold text-text-primary mb-4 leading-tight animate-fade-in">
             <span className="text-text-primary">pdf</span>
             <span className="text-primary">n</span> Cloud
           </h1>
