@@ -11,6 +11,7 @@ export function Header() {
   const navLinks = [
     { href: "https://pdfn.dev/docs", label: "Docs", external: true },
     { href: "/templates", label: "Templates" },
+    { href: "/cloud", label: "Cloud", highlight: true },
   ];
 
   return (
@@ -34,6 +35,18 @@ export function Header() {
               >
                 {link.label}
               </a>
+            ) : "highlight" in link && link.highlight ? (
+              <Link
+                key={link.href}
+                href={link.href}
+                className={
+                  pathname === link.href
+                    ? "text-primary font-medium underline underline-offset-4"
+                    : "text-primary hover:text-primary-hover font-medium transition-colors"
+                }
+              >
+                {link.label}
+              </Link>
             ) : (
               <Link
                 key={link.href}
@@ -48,26 +61,20 @@ export function Header() {
               </Link>
             )
           )}
-          {pathname !== "/cloud" && (
-            <Link
-              href="/cloud"
-              className="text-primary hover:text-primary-hover font-medium transition-colors"
-            >
-              Cloud
-            </Link>
-          )}
         </nav>
 
         {/* Mobile nav controls */}
         <div className="flex md:hidden items-center gap-3">
-          {pathname !== "/cloud" && (
-            <Link
-              href="/cloud"
-              className="text-primary hover:text-primary-hover font-medium transition-colors"
-            >
-              Cloud
-            </Link>
-          )}
+          <Link
+            href="/cloud"
+            className={
+              pathname === "/cloud"
+                ? "text-primary font-medium underline underline-offset-4"
+                : "text-primary hover:text-primary-hover font-medium transition-colors"
+            }
+          >
+            Cloud
+          </Link>
           <button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             className="text-text-secondary hover:text-text-primary transition-colors p-1"
