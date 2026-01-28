@@ -6,6 +6,9 @@ export default function robots(): MetadataRoute.Robots {
       userAgent: "*",
       allow: "/",
     },
-    sitemap: "https://pdfn.dev/sitemap.xml",
+    sitemap: [
+      "https://pdfn.dev/sitemap.xml",
+      "https://pdfn.dev/docs/sitemap.xml",
+    ],
   };
 }
