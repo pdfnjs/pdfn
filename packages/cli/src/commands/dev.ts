@@ -1893,12 +1893,18 @@ async function startDevServer(options: DevServerOptions) {
   ): Promise<string> {
     const mod = await vite.ssrLoadModule(template.path);
     const Component = mod.default;
-    const { render } = await vite.ssrLoadModule("@pdfn/react");
+    const { pdfn } = await vite.ssrLoadModule("@pdfn/react");
+    const client = pdfn();
     // Use React.createElement so element.type === Component (preserves markers)
     // Empty props - component's default parameter values provide sample data
-    return render(React.createElement(Component, {}), {
+    const { data, error } = await client.render({
+      react: React.createElement(Component, {}),
       debug: debugOptions || undefined,
     });
+    if (error) {
+      throw new Error(error.message);
+    }
+    return data.html;
   }
 
   // Parse debug options from query params

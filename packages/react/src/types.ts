@@ -206,7 +206,7 @@ export type { DebugOptions };
  * @example
  * ```tsx
  * // Generate an archival PDF (requires pdfn Cloud)
- * const pdf = await generate(<Invoice />, { standard: "PDF/A-2b" });
+ * const { data } = await client.generate({ react: <Invoice />, standard: "PDF/A-2b" });
  * ```
  */
 export type PDFStandard = "PDF/A-1b" | "PDF/A-2b" | "PDF/A-3b" | "PDF/UA";
@@ -217,10 +217,10 @@ export type PDFStandard = "PDF/A-1b" | "PDF/A-2b" | "PDF/A-3b" | "PDF/UA";
  * @example
  * ```ts
  * // Enable specific debug overlays
- * const html = await render(<MyDoc />, { debug: { grid: true, margins: true } });
+ * const { data } = await client.render({ react: <MyDoc />, debug: { grid: true, margins: true } });
  *
  * // Enable all debug overlays
- * const html = await render(<MyDoc />, { debug: true });
+ * const { data } = await client.render({ react: <MyDoc />, debug: true });
  * ```
  */
 export interface RenderOptions {
@@ -236,25 +236,4 @@ export interface RenderOptions {
    * Pass `true` to enable all overlays, or an object to enable specific ones.
    */
   debug?: DebugOptions | boolean;
-}
-
-/**
- * Options for PDF generation
- *
- * @example
- * ```ts
- * import { generate } from '@pdfn/react';
- *
- * // Local: set PDFN_HOST=http://localhost:3456
- * // Cloud: set PDFN_API_KEY=pdfn_live_...
- * const pdf = await generate(<Invoice />);
- * ```
- */
-export interface PdfOptions {
-  /** PDF page format (overrides Document's Page size) */
-  format?: PageSize;
-  /** Print background graphics (default: true) */
-  printBackground?: boolean;
-  /** Page ranges to print (e.g., '1-3', '1,3,5') */
-  pageRanges?: string;
 }

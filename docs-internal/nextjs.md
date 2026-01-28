@@ -44,9 +44,9 @@ import Invoice from '@/pdfn-templates/invoice';
 const client = pdfn(); // Auto-reads PDFN_API_KEY from env
 
 export async function GET() {
-  const { data, error } = await client.generate(
-    <Invoice number="INV-001" customer="Acme Corp" total={1500} />
-  );
+  const { data, error } = await client.generate({
+    react: <Invoice number="INV-001" customer="Acme Corp" total={1500} />,
+  });
 
   if (error) {
     return new Response(error.message, { status: 500 });
@@ -72,9 +72,9 @@ export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
-  const { data, error } = await client.generate(
-    <Invoice number="INV-001" customer="Acme Corp" total={1500} />
-  );
+  const { data, error } = await client.generate({
+    react: <Invoice number="INV-001" customer="Acme Corp" total={1500} />,
+  });
 
   if (error) {
     return res.status(500).send(error.message);
@@ -136,13 +136,15 @@ pdfn-templates/
 export async function POST(req: Request) {
   const body = await req.json();
 
-  const { data, error } = await client.generate(
-    <Invoice
-      number={body.invoiceNumber}
-      customer={body.customerName}
-      total={body.total}
-    />
-  );
+  const { data, error } = await client.generate({
+    react: (
+      <Invoice
+        number={body.invoiceNumber}
+        customer={body.customerName}
+        total={body.total}
+      />
+    ),
+  });
 
   if (error) {
     return Response.json({ error: error.message }, { status: 500 });
@@ -164,14 +166,14 @@ export async function GET(req: Request) {
   const { searchParams } = new URL(req.url);
 
   if (searchParams.get('format') === 'html') {
-    const { data, error } = await client.render(<Invoice {...props} />);
+    const { data, error } = await client.render({ react: <Invoice {...props} /> });
     if (error) return new Response(error.message, { status: 500 });
     return new Response(data.html, {
       headers: { 'Content-Type': 'text/html' },
     });
   }
 
-  const { data, error } = await client.generate(<Invoice {...props} />);
+  const { data, error } = await client.generate({ react: <Invoice {...props} /> });
   if (error) return new Response(error.message, { status: 500 });
   return new Response(data.buffer, {
     headers: { 'Content-Type': 'application/pdf' },
@@ -187,13 +189,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   const { format } = req.query;
 
   if (format === 'html') {
-    const { data, error } = await client.render(<Invoice {...props} />);
+    const { data, error } = await client.render({ react: <Invoice {...props} /> });
     if (error) return res.status(500).send(error.message);
     res.setHeader('Content-Type', 'text/html');
     return res.send(data.html);
   }
 
-  const { data, error } = await client.generate(<Invoice {...props} />);
+  const { data, error } = await client.generate({ react: <Invoice {...props} /> });
   if (error) return res.status(500).send(error.message);
   res.setHeader('Content-Type', 'application/pdf');
   res.send(Buffer.from(data.buffer));

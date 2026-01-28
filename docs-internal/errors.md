@@ -5,7 +5,7 @@ pdfn uses a `{ data, error }` pattern. No try/catch needed.
 ## Basic Pattern
 
 ```typescript
-const { data, error } = await client.generate(<Invoice />);
+const { data, error } = await client.generate({ react: <Invoice /> });
 
 if (error) {
   console.error(error.code, error.message);
@@ -44,7 +44,7 @@ interface PdfnError {
 ### Log with suggestion
 
 ```typescript
-const { data, error } = await client.generate(<Invoice />);
+const { data, error } = await client.generate({ react: <Invoice /> });
 
 if (error) {
   console.error(`[${error.code}] ${error.message}`);
@@ -59,7 +59,7 @@ if (error) {
 
 ```typescript
 export async function GET() {
-  const { data, error } = await client.generate(<Invoice />);
+  const { data, error } = await client.generate({ react: <Invoice /> });
 
   if (error) {
     return Response.json(

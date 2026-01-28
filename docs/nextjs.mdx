@@ -21,13 +21,15 @@ Accept a request body and return a PDF:
     export async function POST(req: Request) {
       const body = await req.json();
 
-      const { data, error } = await client.generate(
-        <Invoice
-          number={body.invoiceNumber}
-          customer={body.customerName}
-          total={body.total}
-        />
-      );
+      const { data, error } = await client.generate({
+        react: (
+          <Invoice
+            number={body.invoiceNumber}
+            customer={body.customerName}
+            total={body.total}
+          />
+        ),
+      });
 
       if (error) {
         return Response.json(
@@ -56,13 +58,15 @@ Accept a request body and return a PDF:
     ) {
       const body = req.body;
 
-      const { data, error } = await client.generate(
-        <Invoice
-          number={body.invoiceNumber}
-          customer={body.customerName}
-          total={body.total}
-        />
-      );
+      const { data, error } = await client.generate({
+        react: (
+          <Invoice
+            number={body.invoiceNumber}
+            customer={body.customerName}
+            total={body.total}
+          />
+        ),
+      });
 
       if (error) {
         return res.status(error.statusCode || 500).send(error.message);

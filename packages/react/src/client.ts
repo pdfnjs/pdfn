@@ -1,5 +1,9 @@
 import type { ReactElement } from "react";
-import type { GenerateOptions, RenderOptions } from "./types/options";
+import type {
+  GenerateOptions,
+  GenerateInput,
+  RenderInput,
+} from "./types/options";
 import type {
   GenerateResponse,
   RenderResponse,
@@ -26,51 +30,21 @@ export interface PdfnConfig {
 }
 
 /**
- * HTML input configuration for generate()
- */
-export interface HtmlConfig {
-  /** HTML string to convert to PDF */
-  html: string;
-  /** PDF document metadata */
-  metadata?: {
-    title?: string;
-    author?: string;
-    subject?: string;
-    keywords?: string;
-    creator?: string;
-  };
-  /** PDF/A or PDF/UA standard */
-  standard?: PDFStandard;
-  /** Filename for Content-Disposition header */
-  filename?: string;
-  /** Idempotency key for deduplication */
-  idempotencyKey?: string;
-}
-
-/**
  * The pdfn client for PDF generation
  */
 export interface PdfnClient {
   /**
-   * Generate PDF from a React component
+   * Generate a PDF from a React element or HTML string
    *
-   * @example
+   * @example React input
    * ```typescript
-   * const { data, error } = await client.generate(<Invoice data={...} />);
-   * if (!error) {
-   *   fs.writeFileSync('invoice.pdf', data.buffer);
-   * }
+   * const { data, error } = await client.generate({
+   *   react: <Invoice data={...} />,
+   *   filename: 'invoice.pdf',
+   * });
    * ```
-   */
-  generate(
-    element: ReactElement,
-    options?: GenerateOptions
-  ): Promise<GenerateResponse>;
-
-  /**
-   * Generate PDF from an HTML string
    *
-   * @example
+   * @example HTML input
    * ```typescript
    * const { data, error } = await client.generate({
    *   html: '<h1>Hello World</h1>',
@@ -78,22 +52,22 @@ export interface PdfnClient {
    * });
    * ```
    */
-  generate(config: HtmlConfig): Promise<GenerateResponse>;
+  generate(input: GenerateInput): Promise<GenerateResponse>;
 
   /**
-   * Render React component to HTML (no server required)
+   * Render a React element to HTML (no server required)
    *
    * Use this for preview or when you have your own Puppeteer setup.
    *
    * @example
    * ```typescript
-   * const { data, error } = await client.render(<Invoice />);
-   * if (!error) {
-   *   console.log(data.html);
-   * }
+   * const { data, error } = await client.render({
+   *   react: <Invoice />,
+   *   debug: true,
+   * });
    * ```
    */
-  render(element: ReactElement, options?: RenderOptions): Promise<RenderResponse>;
+  render(input: RenderInput): Promise<RenderResponse>;
 }
 
 /**
@@ -184,52 +158,25 @@ export function pdfn(configOrKey?: string | PdfnConfig): PdfnClient {
 }
 
 /**
- * Type guard to check if input is an HtmlConfig
- */
-function isHtmlConfig(input: ReactElement | HtmlConfig): input is HtmlConfig {
-  return (
-    typeof input === "object" &&
-    input !== null &&
-    "html" in input &&
-    typeof (input as HtmlConfig).html === "string"
-  );
-}
-
-/**
  * Create the client implementation
  */
 function createClient(config: ResolvedConfig): PdfnClient {
   return {
-    async generate(
-      elementOrConfig: ReactElement | HtmlConfig,
-      options: GenerateOptions = {}
-    ): Promise<GenerateResponse> {
+    async generate(input: GenerateInput): Promise<GenerateResponse> {
       const startTime = performance.now();
 
       try {
         let html: string;
 
-        // Handle HTML string input
-        if (isHtmlConfig(elementOrConfig)) {
-          html = elementOrConfig.html;
-          // Merge metadata from HtmlConfig into options
-          if (elementOrConfig.metadata) {
-            options.metadata = { ...options.metadata, ...elementOrConfig.metadata };
-          }
-          if (elementOrConfig.standard) {
-            options.standard = elementOrConfig.standard;
-          }
-          if (elementOrConfig.filename) {
-            options.filename = elementOrConfig.filename;
-          }
-          if (elementOrConfig.idempotencyKey) {
-            options.idempotencyKey = elementOrConfig.idempotencyKey;
-          }
+        // Handle HTML string input vs React element input
+        if ("html" in input && typeof input.html === "string") {
+          html = input.html;
         } else {
           // Render React element to HTML
-          const renderResult = await renderInternal(elementOrConfig, {
-            debug: options.debug,
-          });
+          const renderResult = await renderInternal(
+            (input as { react: ReactElement }).react,
+            { debug: input.debug }
+          );
           html = renderResult;
         }
 
@@ -246,8 +193,8 @@ function createClient(config: ResolvedConfig): PdfnClient {
         }
 
         // Add idempotency key if provided
-        if (options.idempotencyKey) {
-          headers["Idempotency-Key"] = options.idempotencyKey;
+        if (input.idempotencyKey) {
+          headers["Idempotency-Key"] = input.idempotencyKey;
         }
 
         // Build request body
@@ -258,17 +205,17 @@ function createClient(config: ResolvedConfig): PdfnClient {
           metadata?: GenerateOptions["metadata"];
         } = { html };
 
-        if (options.standard) {
-          body.standard = options.standard;
+        if (input.standard) {
+          body.standard = input.standard;
         }
-        if (options.filename) {
-          body.filename = options.filename;
+        if (input.filename) {
+          body.filename = input.filename;
         }
-        if (options.metadata) {
-          body.metadata = options.metadata;
+        if (input.metadata) {
+          body.metadata = input.metadata;
         }
 
-        const timeout = options.timeout ?? config.timeout;
+        const timeout = input.timeout ?? config.timeout;
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), timeout);
 
@@ -331,15 +278,12 @@ function createClient(config: ResolvedConfig): PdfnClient {
       }
     },
 
-    async render(
-      element: ReactElement,
-      options: RenderOptions = {}
-    ): Promise<RenderResponse> {
+    async render(input: RenderInput): Promise<RenderResponse> {
       const startTime = performance.now();
 
       try {
-        const html = await renderInternal(element, {
-          debug: options.debug,
+        const html = await renderInternal(input.react, {
+          debug: input.debug,
         });
         const totalTime = performance.now() - startTime;
 

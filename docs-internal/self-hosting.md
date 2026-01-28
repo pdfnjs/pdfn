@@ -32,7 +32,7 @@ import Invoice from './templates/invoice';
 const client = pdfn();
 
 // 1. Render to HTML
-const { data, error } = await client.render(<Invoice />);
+const { data, error } = await client.render({ react: <Invoice /> });
 
 if (error) {
   console.error(error.message);
@@ -74,7 +74,7 @@ import Invoice from './templates/invoice';
 
 const client = pdfn();
 
-const { data, error } = await client.render(<Invoice />);
+const { data, error } = await client.render({ react: <Invoice /> });
 
 if (error) {
   console.error(error.message);
@@ -135,7 +135,7 @@ const client = pdfn();
 let browser;
 
 app.post('/pdf', async (req, res) => {
-  const { data, error } = await client.render(<Invoice data={req.body} />);
+  const { data, error } = await client.render({ react: <Invoice data={req.body} /> });
 
   if (error) {
     return res.status(500).json({ error: error.message });

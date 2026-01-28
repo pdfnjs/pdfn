@@ -1,0 +1,230 @@
+---
+title: Generate & Render
+description: Create the pdfn client and use generate() and render() to produce PDFs.
+keywords: ["pdfn client", "generate PDF", "render HTML", "PDF options", "PDF metadata", "PDF/A"]
+---
+
+The `pdfn()` client is how you generate PDFs from your templates. Use `generate()` to get a PDF buffer, or `render()` to get HTML for self-hosted setups.
+
+## Client setup
+
+```typescript
+import { pdfn } from '@pdfn/react';
+
+const client = pdfn();
+```
+
+`pdfn()` reads the `PDFN_API_KEY` environment variable automatically. If set, it connects to pdfn Cloud. If not, it falls back to `localhost:3456` for local development.
+
+### Client options
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `apiKey` | `string` | `process.env.PDFN_API_KEY` | API key for pdfn Cloud or custom server |
+| `baseUrl` | `string` | Auto-detected | Server URL (Cloud if apiKey set, otherwise `localhost:3456`) |
+| `timeout` | `number` | `30000` | Default request timeout in ms |
+
+```typescript
+// Shorthand — API key string
+const client = pdfn('pdfn_live_...');
+
+// Full config
+const client = pdfn({
+  apiKey: process.env.PDFN_API_KEY,
+  baseUrl: 'https://my-pdfn-server.com',
+  timeout: 60000,
+});
+```
+
+---
+
+## generate()
+
+Generates a PDF and returns a buffer. Requires a running pdfn server (local dev server or pdfn Cloud).
+
+```typescript
+const { data, error } = await client.generate({
+  react: <Invoice data={invoiceData} />,
+});
+
+if (error) {
+  console.error(error.code, error.message);
+  return;
+}
+
+fs.writeFileSync('invoice.pdf', data.buffer);
+```
+
+### Generate parameters
+
+Pass a single object with either `react` or `html`, plus any options:
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `react` | `ReactElement` | One of `react` or `html` | React component to render and convert to PDF |
+| `html` | `string` | One of `react` or `html` | Raw HTML string to convert to PDF |
+| `debug` | `DebugOptions \| boolean` | No | Enable debug overlays (grid, margins, headers, breaks) |
+| `standard` | `PDFStandard` | No | PDF/A or PDF/UA archival standard (pdfn Cloud only) |
+| `filename` | `string` | No | Filename for `Content-Disposition` header |
+| `metadata` | `object` | No | PDF document metadata (see below) |
+| `idempotencyKey` | `string` | No | Deduplication key — identical keys return cached results |
+| `timeout` | `number` | No | Request timeout in ms (overrides client default) |
+
+<Note>
+  You must pass either `react` or `html`, not both. TypeScript enforces this at compile time.
+</Note>
+
+### Metadata fields
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `title` | `string` | Document title (shows in PDF readers) |
+| `author` | `string` | Author name |
+| `subject` | `string` | Document subject |
+| `keywords` | `string` | Keywords for search |
+| `creator` | `string` | Application that created the document |
+
+### Generate response
+
+```typescript
+// Success
+{
+  data: {
+    buffer: Buffer,          // PDF file contents
+    id: string,              // Generation ID
+    metrics: {
+      durationMs: number,    // Time to generate
+      sizeBytes: number,     // PDF file size
+    },
+    standard?: string,       // PDF/A standard (if requested)
+    createdAt: string,       // ISO timestamp
+  },
+  error: null
+}
+
+// Error
+{ data: null, error: PdfnError }
+```
+
+### Examples
+
+**React component with options:**
+
+```typescript
+const { data, error } = await client.generate({
+  react: <Invoice number="INV-001" customer="Acme Corp" />,
+  filename: 'invoice-001.pdf',
+  metadata: { title: 'Invoice #001', author: 'Acme Corp' },
+  standard: 'PDF/A-2b',
+});
+```
+
+**HTML string:**
+
+```typescript
+const { data, error } = await client.generate({
+  html: '<h1>Hello World</h1><p>Generated at ' + new Date().toISOString() + '</p>',
+  filename: 'hello.pdf',
+});
+```
+
+**With debug overlays (development):**
+
+```typescript
+const { data, error } = await client.generate({
+  react: <Invoice />,
+  debug: { grid: true, margins: true },
+});
+```
+
+**With idempotency key (deduplication):**
+
+```typescript
+const { data, error } = await client.generate({
+  react: <Invoice id={order.id} />,
+  idempotencyKey: `invoice-${order.id}`,
+});
+```
+
+---
+
+## render()
+
+Renders a React component to a self-contained HTML string. Runs locally — no server required.
+
+Use this when you want to preview HTML or convert to PDF with your own Puppeteer/Playwright setup (see [Self-Hosting](/self-hosting)).
+
+```typescript
+const { data, error } = await client.render({
+  react: <Invoice data={invoiceData} />,
+});
+
+if (error) {
+  console.error(error.message);
+  return;
+}
+
+console.log(data.html); // Full HTML document
+```
+
+### Render parameters
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `react` | `ReactElement` | Yes | React component to render to HTML |
+| `debug` | `DebugOptions \| boolean` | No | Enable debug overlays |
+
+### Render response
+
+```typescript
+// Success
+{
+  data: {
+    html: string,            // Self-contained HTML document
+    metrics: {
+      totalTime: number,     // Render time in ms
+    },
+  },
+  error: null
+}
+
+// Error
+{ data: null, error: PdfnError }
+```
+
+---
+
+## Debug options
+
+Both `generate()` and `render()` accept a `debug` option for development overlays:
+
+```typescript
+// Enable all overlays
+client.render({ react: <Invoice />, debug: true });
+
+// Enable specific overlays
+client.render({
+  react: <Invoice />,
+  debug: { grid: true, margins: true, headers: false, breaks: false },
+});
+```
+
+| Option | Description |
+|--------|-------------|
+| `grid` | Shows a baseline grid overlay |
+| `margins` | Highlights page margins |
+| `headers` | Shows header/footer regions |
+| `breaks` | Marks page break positions |
+
+---
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="Error Handling" icon="triangle-exclamation" href="/errors">
+    Handle errors with the data/error response pattern.
+  </Card>
+  <Card title="Self-Hosting" icon="server" href="/self-hosting">
+    Use render() with your own Puppeteer or Playwright.
+  </Card>
+</CardGroup>

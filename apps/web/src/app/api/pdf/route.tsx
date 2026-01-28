@@ -308,7 +308,7 @@ export async function GET(request: NextRequest) {
   try {
     // HTML preview - use render() from client
     if (wantHtml) {
-      const { data, error } = await client.render(<Component />, { debug: debug || undefined });
+      const { data, error } = await client.render({ react: <Component />, debug: debug || undefined });
 
       if (error) {
         throw new Error(error.message);
@@ -345,7 +345,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Generate PDF using client.generate()
-    const { data, error } = await client.generate(<Component />, { debug: debug || undefined });
+    const { data, error } = await client.generate({ react: <Component />, debug: debug || undefined });
 
     if (error) {
       throw new Error(error.message);

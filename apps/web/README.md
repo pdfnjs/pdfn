@@ -104,7 +104,7 @@ export async function GET(request: Request) {
   const html = searchParams.get('html');
 
   if (html) {
-    const { data, error } = await client.render(<Invoice />);
+    const { data, error } = await client.render({ react: <Invoice /> });
     if (error) {
       return new Response(error.message, { status: 500 });
     }
@@ -113,7 +113,7 @@ export async function GET(request: Request) {
     });
   }
 
-  const { data, error } = await client.generate(<Invoice />);
+  const { data, error } = await client.generate({ react: <Invoice /> });
   if (error) {
     return new Response(error.message, { status: 500 });
   }

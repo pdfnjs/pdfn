@@ -16,13 +16,15 @@ import fs from 'fs';
 
 const client = pdfn(); // Auto-reads PDFN_API_KEY env var
 
-const { data, error } = await client.generate(
-  <Document>
-    <Page size="A4">
-      <h1>Hello World</h1>
-    </Page>
-  </Document>
-);
+const { data, error } = await client.generate({
+  react: (
+    <Document>
+      <Page size="A4">
+        <h1>Hello World</h1>
+      </Page>
+    </Document>
+  ),
+});
 
 if (error) {
   console.error(error.message);
@@ -63,15 +65,17 @@ npm install @pdfn/tailwind
 ```typescript
 import { Tailwind } from '@pdfn/tailwind';
 
-const { data } = await client.generate(
-  <Document>
-    <Tailwind>
-      <Page size="A4">
-        <h1 className="text-2xl font-bold">Styled PDF</h1>
-      </Page>
-    </Tailwind>
-  </Document>
-);
+const { data } = await client.generate({
+  react: (
+    <Document>
+      <Tailwind>
+        <Page size="A4">
+          <h1 className="text-2xl font-bold">Styled PDF</h1>
+        </Page>
+      </Tailwind>
+    </Document>
+  ),
+});
 ```
 
 ### With Page Numbers
@@ -102,7 +106,7 @@ const { data } = await client.generate({
 ## Error Handling
 
 ```typescript
-const { data, error } = await client.generate(<Invoice />);
+const { data, error } = await client.generate({ react: <Invoice /> });
 
 if (error) {
   console.error(error.code);    // "authentication_error"
@@ -130,13 +134,14 @@ pdfn({ apiKey, baseUrl, timeout })  // Custom config
 
 ```typescript
 // React component
-const { data, error } = await client.generate(<Invoice />);
+const { data, error } = await client.generate({ react: <Invoice /> });
 
 // HTML string
 const { data, error } = await client.generate({ html: '<h1>Hello</h1>' });
 
 // With options
-const { data, error } = await client.generate(<Invoice />, {
+const { data, error } = await client.generate({
+  react: <Invoice />,
   standard: 'PDF/A-2b',  // Archival compliance
   timeout: 60000,
 });
@@ -145,7 +150,7 @@ const { data, error } = await client.generate(<Invoice />, {
 ### `client.render()`
 
 ```typescript
-const { data, error } = await client.render(<Invoice />);
+const { data, error } = await client.render({ react: <Invoice /> });
 // data.html = self-contained HTML string
 ```
 

@@ -54,7 +54,7 @@ import Invoice from './pdfn-templates/invoice';
 const client = pdfn(process.env.PDFN_API_KEY);
 
 export async function generateInvoice() {
-  const { data, error } = await client.generate(<Invoice />);
+  const { data, error } = await client.generate({ react: <Invoice /> });
 
   if (error) {
     console.error(error.message);

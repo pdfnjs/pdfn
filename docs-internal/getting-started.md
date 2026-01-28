@@ -58,9 +58,9 @@ import fs from 'fs';
 
 const client = pdfn();
 
-const { data, error } = await client.generate(
-  <Invoice number="INV-001" customer="Acme Corp" total={148} />
-);
+const { data, error } = await client.generate({
+  react: <Invoice number="INV-001" customer="Acme Corp" total={148} />,
+});
 
 if (error) {
   console.error(error.message);
@@ -80,13 +80,14 @@ npx pdfn dev --open
 
 ```typescript
 const client = pdfn(); // No PDFN_API_KEY set → uses localhost:3456
-const { data } = await client.generate(<Invoice />);
+const { data } = await client.generate({ react: <Invoice /> });
 ```
 
 ## PDF/A Compliance
 
 ```typescript
-const { data } = await client.generate(<Invoice />, {
+const { data } = await client.generate({
+  react: <Invoice />,
   standard: 'PDF/A-2b',
 });
 ```

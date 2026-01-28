@@ -45,7 +45,7 @@ const client = pdfn();
 // Or pdfn Cloud
 // const client = pdfn(process.env.PDFN_API_KEY);
 
-const { data, error } = await client.generate(<Invoice />);
+const { data, error } = await client.generate({ react: <Invoice /> });
 
 if (error) {
   console.error(error.message);

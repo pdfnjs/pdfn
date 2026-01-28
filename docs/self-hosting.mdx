@@ -39,7 +39,7 @@ React Component → render() → HTML → Puppeteer/Playwright → PDF
       const client = pdfn();
 
       // 1. Render React to HTML
-      const { data, error } = await client.render(<Invoice />);
+      const { data, error } = await client.render({ react: <Invoice /> });
 
       if (error) {
         console.error(error.message);
@@ -81,7 +81,7 @@ React Component → render() → HTML → Puppeteer/Playwright → PDF
       const client = pdfn();
 
       // 1. Render React to HTML
-      const { data, error } = await client.render(<Invoice />);
+      const { data, error } = await client.render({ react: <Invoice /> });
 
       if (error) {
         console.error(error.message);

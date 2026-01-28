@@ -82,9 +82,9 @@ import Invoice from '@/pdfn-templates/invoice';
 const client = pdfn();
 
 export async function GET() {
-  const { data, error } = await client.generate(
-    <Invoice number="INV-001" customer="Acme Corp" total={1500} />
-  );
+  const { data, error } = await client.generate({
+    react: <Invoice number="INV-001" customer="Acme Corp" total={1500} />,
+  });
 
   if (error) {
     return Response.json(

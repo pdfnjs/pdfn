@@ -29,7 +29,7 @@
       },
       {
         "group": "Core",
-        "pages": ["components", "styling"]
+        "pages": ["components", "styling", "generate"]
       },
       {
         "group": "Guides",

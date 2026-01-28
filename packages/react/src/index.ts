@@ -5,7 +5,7 @@
 
 // Client factory (main API)
 export { pdfn } from "./client";
-export type { PdfnConfig, PdfnClient, HtmlConfig } from "./client";
+export type { PdfnConfig, PdfnClient } from "./client";
 
 // Components
 export { Document } from "./components/Document";
@@ -31,7 +31,12 @@ export type {
 } from "./types/responses";
 
 // Option types
-export type { GenerateOptions, RenderOptions } from "./types/options";
+export type {
+  GenerateOptions,
+  RenderOptions,
+  GenerateInput,
+  RenderInput,
+} from "./types/options";
 
 // Types
 export type {

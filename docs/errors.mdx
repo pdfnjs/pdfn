@@ -9,7 +9,7 @@ pdfn uses a `{ data, error }` response pattern. This makes error handling explic
 ## Basic pattern
 
 ```typescript
-const { data, error } = await client.generate(<Invoice />);
+const { data, error } = await client.generate({ react: <Invoice /> });
 
 if (error) {
   console.error(error.code, error.message);

@@ -21,13 +21,15 @@ import fs from 'fs';
 
 const client = pdfn(); // Auto-reads PDFN_API_KEY env var
 
-const { data, error } = await client.generate(
-  <Document>
-    <Page size="A4">
-      <h1>Hello World</h1>
-    </Page>
-  </Document>
-);
+const { data, error } = await client.generate({
+  react: (
+    <Document>
+      <Page size="A4">
+        <h1>Hello World</h1>
+      </Page>
+    </Document>
+  ),
+});
 
 if (error) {
   console.error(error.message);
@@ -103,9 +105,9 @@ import Invoice from '@/pdfn-templates/invoice';
 const client = pdfn(process.env.PDFN_API_KEY);
 
 export async function GET() {
-  const { data, error } = await client.generate(
-    <Invoice number="INV-001" customer="Acme Corp" total={1500} />
-  );
+  const { data, error } = await client.generate({
+    react: <Invoice number="INV-001" customer="Acme Corp" total={1500} />,
+  });
 
   if (error) {
     return new Response(error.message, { status: 500 });
