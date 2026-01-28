@@ -1,5 +1,12 @@
 # @pdfn/vite
 
+## 2.0.0
+
+### Patch Changes
+
+- Updated dependencies [b52e5cf]
+  - @pdfn/react@1.1.0
+
 ## 1.0.0
 
 ### Patch Changes

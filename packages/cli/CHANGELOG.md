@@ -1,5 +1,14 @@
 # pdfn
 
+## 0.8.8
+
+### Patch Changes
+
+- b52e5cf: Simplify CLI starter templates with shorter default data and updated component names
+- Updated dependencies [b52e5cf]
+  - @pdfn/react@1.1.0
+  - @pdfn/vite@2.0.0
+
 ## 0.8.7
 
 ### Patch Changes

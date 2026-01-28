@@ -1,5 +1,11 @@
 # @pdfn/react
 
+## 1.1.0
+
+### Minor Changes
+
+- b52e5cf: Rename AvoidBreak to NoBreak, remove Tr component, default Thead repeat to true
+
 ## 1.0.0
 
 ### Major Changes
