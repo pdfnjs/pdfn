@@ -1,5 +1,13 @@
 # web
 
+## 0.1.22
+
+### Patch Changes
+
+- Updated dependencies [b865ab9]
+  - @pdfn/react@1.0.0
+  - @pdfn/next@1.0.0
+
 ## 0.1.21
 
 ### Patch Changes
