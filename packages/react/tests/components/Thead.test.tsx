@@ -19,7 +19,7 @@ describe("Thead", () => {
     expect(html).toContain("Price");
   });
 
-  it("renders without repeat styles by default", () => {
+  it("repeats by default", () => {
     const html = renderToStaticMarkup(
       <table>
         <Thead>
@@ -30,14 +30,14 @@ describe("Thead", () => {
       </table>
     );
     expect(html).toContain("data-pdfn-thead");
-    expect(html).not.toContain("display:table-header-group");
-    expect(html).not.toContain("data-repeat");
+    expect(html).toContain("display:table-header-group");
+    expect(html).toContain('data-repeat="true"');
   });
 
-  it("renders with repeat styles when repeat prop is true", () => {
+  it("does not repeat when repeat={false}", () => {
     const html = renderToStaticMarkup(
       <table>
-        <Thead repeat>
+        <Thead repeat={false}>
           <tr>
             <th>Column</th>
           </tr>
@@ -45,8 +45,8 @@ describe("Thead", () => {
       </table>
     );
     expect(html).toContain("data-pdfn-thead");
-    expect(html).toContain("display:table-header-group");
-    expect(html).toContain('data-repeat="true"');
+    expect(html).not.toContain("display:table-header-group");
+    expect(html).not.toContain("data-repeat");
   });
 
   it("applies custom className", () => {

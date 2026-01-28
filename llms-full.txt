@@ -155,24 +155,24 @@ Forces content to next page.
 <h1>Chapter 2</h1>
 ```
 
-### AvoidBreak
+### NoBreak
 
 Keeps content together on same page.
 
 ```tsx
-<AvoidBreak>
+<NoBreak>
   <h2>Section Title</h2>
   <p>This stays with its heading.</p>
-</AvoidBreak>
+</NoBreak>
 ```
 
-### Thead (with repeat prop)
+### Thead
 
-Table header that repeats on every page. The `repeat` prop is a boolean (shorthand for `repeat={true}`).
+Table header that repeats on every page by default. Pass `repeat={false}` to disable.
 
 ```tsx
 <table>
-  <Thead repeat>
+  <Thead>
     <tr>
       <th>Item</th>
       <th>Price</th>
@@ -180,24 +180,16 @@ Table header that repeats on every page. The `repeat` prop is a boolean (shortha
   </Thead>
   <tbody>
     {items.map(item => (
-      <Tr key={item.id} keep>
+      <tr key={item.id}>
         <td>{item.name}</td>
         <td>${item.price}</td>
-      </Tr>
+      </tr>
     ))}
   </tbody>
 </table>
 ```
 
-### Tr (with keep prop)
-
-Table row that won't split across pages. The `keep` prop is a boolean (shorthand for `keep={true}`).
-
-```tsx
-<Tr keep>
-  <td>This row stays together</td>
-</Tr>
-```
+> **Tip:** To prevent a table row from splitting across pages, use CSS: `<tr style={{ breakInside: "avoid" }}>`.
 
 ## Styling
 
@@ -312,7 +304,7 @@ main();
 ### Multi-page Table
 
 ```tsx
-import { Document, Page, PageNumber, TotalPages, Thead, Tr } from '@pdfn/react';
+import { Document, Page, PageNumber, TotalPages, Thead } from '@pdfn/react';
 
 function Report({ items }) {
   return (
@@ -324,7 +316,7 @@ function Report({ items }) {
         footer={<div>Page <PageNumber /> of <TotalPages /></div>}
       >
         <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-          <Thead repeat>
+          <Thead>
             <tr>
               <th style={{ borderBottom: '2px solid #333', padding: 8 }}>Item</th>
               <th style={{ borderBottom: '2px solid #333', padding: 8 }}>Amount</th>
@@ -332,10 +324,10 @@ function Report({ items }) {
           </Thead>
           <tbody>
             {items.map(item => (
-              <Tr key={item.id} keep>
+              <tr key={item.id}>
                 <td style={{ padding: 8, borderBottom: '1px solid #ddd' }}>{item.name}</td>
                 <td style={{ padding: 8, borderBottom: '1px solid #ddd' }}>${item.amount}</td>
-              </Tr>
+              </tr>
             ))}
           </tbody>
         </table>

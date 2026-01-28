@@ -17,7 +17,7 @@ import { Page } from "../../src/components/Page";
 import { PageBreak } from "../../src/components/PageBreak";
 import { PageNumber } from "../../src/components/PageNumber";
 import { TotalPages } from "../../src/components/TotalPages";
-import { AvoidBreak } from "../../src/components/AvoidBreak";
+import { NoBreak } from "../../src/components/NoBreak";
 import { Thead } from "../../src/components/Thead";
 import { getPdfInfo } from "../helpers/pdf-utils";
 
@@ -304,15 +304,15 @@ describe.skipIf(isCI)("PDF Features Integration", () => {
     });
   });
 
-  describe("AvoidBreak component", () => {
-    it("renders AvoidBreak with proper attributes", async () => {
+  describe("NoBreak component", () => {
+    it("renders NoBreak with proper attributes", async () => {
       const { html } = await generateHtmlAndPdf(
         <Document title="Test">
           <Page size="A4">
-            <AvoidBreak>
+            <NoBreak>
               <div>This content should stay together</div>
               <div>And not be split across pages</div>
-            </AvoidBreak>
+            </NoBreak>
           </Page>
         </Document>
       );
@@ -321,18 +321,18 @@ describe.skipIf(isCI)("PDF Features Integration", () => {
       expect(html).toContain("break-inside");
     });
 
-    it("generates PDF with AvoidBreak content", async () => {
+    it("generates PDF with NoBreak content", async () => {
       const pdf = await generatePdf(
         <Document title="Test">
           <Page size="A4">
             <div>Some initial content</div>
-            <AvoidBreak>
+            <NoBreak>
               <div style={{ border: "1px solid black", padding: "20px" }}>
                 <h2>Keep Together Block</h2>
                 <p>This paragraph and heading should stay together.</p>
                 <p>They should not be split across pages.</p>
               </div>
-            </AvoidBreak>
+            </NoBreak>
           </Page>
         </Document>
       );
@@ -341,13 +341,13 @@ describe.skipIf(isCI)("PDF Features Integration", () => {
       expect(info.pageCount).toBeGreaterThanOrEqual(1);
     });
 
-    it("AvoidBreak with className", async () => {
+    it("NoBreak with className", async () => {
       const { html } = await generateHtmlAndPdf(
         <Document title="Test">
           <Page size="A4">
-            <AvoidBreak className="keep-together">
+            <NoBreak className="keep-together">
               <div>Content</div>
-            </AvoidBreak>
+            </NoBreak>
           </Page>
         </Document>
       );
@@ -362,7 +362,7 @@ describe.skipIf(isCI)("PDF Features Integration", () => {
         <Document title="Test">
           <Page size="A4">
             <table>
-              <Thead repeat>
+              <Thead>
                 <tr>
                   <th>Column 1</th>
                   <th>Column 2</th>
@@ -398,7 +398,7 @@ describe.skipIf(isCI)("PDF Features Integration", () => {
         <Document title="Test">
           <Page size="A4">
             <table style={{ width: "100%", borderCollapse: "collapse" }}>
-              <Thead repeat>
+              <Thead>
                 <tr style={{ backgroundColor: "#f0f0f0" }}>
                   <th style={{ border: "1px solid black", padding: "8px" }}>ID</th>
                   <th style={{ border: "1px solid black", padding: "8px" }}>Value</th>
@@ -434,16 +434,16 @@ describe.skipIf(isCI)("PDF Features Integration", () => {
           >
             <h1>Document Title</h1>
 
-            <AvoidBreak>
+            <NoBreak>
               <h2>Section 1</h2>
               <p>This section should stay together.</p>
-            </AvoidBreak>
+            </NoBreak>
 
             <PageBreak />
 
             <h2>Data Table</h2>
             <table style={{ width: "100%", borderCollapse: "collapse" }}>
-              <Thead repeat>
+              <Thead>
                 <tr>
                   <th style={{ border: "1px solid black", padding: "5px" }}>Item</th>
                   <th style={{ border: "1px solid black", padding: "5px" }}>Value</th>

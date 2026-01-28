@@ -1,5 +1,5 @@
 import React from "react";
-import { Document, Page, PageNumber, TotalPages, AvoidBreak } from "@pdfn/react";
+import { Document, Page, PageNumber, TotalPages, NoBreak } from "@pdfn/react";
 import { Tailwind } from "@pdfn/tailwind";
 
 /**
@@ -7,9 +7,9 @@ import { Tailwind } from "@pdfn/tailwind";
  *
  * Demonstrates:
  * - Watermark (e.g., "CONFIDENTIAL", "DRAFT")
- * - Repeating header and footer
- * - Multi-page content with numbered terms
- * - AvoidBreak for signature block
+ * - Repeating header and footer with PageNumber
+ * - Numbered terms
+ * - NoBreak for signature block
  */
 
 interface ContractProps {
@@ -183,7 +183,7 @@ export default function Contract({
           </div>
 
           {/* Signatures */}
-          <AvoidBreak>
+          <NoBreak>
             <div className="grid grid-cols-2 gap-10">
               {/* Provider Signature */}
               <div>
@@ -213,7 +213,7 @@ export default function Contract({
                 </div>
               </div>
             </div>
-          </AvoidBreak>
+          </NoBreak>
         </Page>
       </Tailwind>
     </Document>

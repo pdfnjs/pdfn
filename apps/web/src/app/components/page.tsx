@@ -139,14 +139,14 @@ export default function Invoice() {
   },
   // Content Control
   {
-    name: "AvoidBreak",
+    name: "NoBreak",
     category: "content",
     description: "Keeps wrapped content together on the same page. Prevents awkward breaks in the middle of a section.",
     code: `{sections.map((section) => (
-  <AvoidBreak key={section.id}>
+  <NoBreak key={section.id}>
     <h2 className="text-xl font-bold">{section.title}</h2>
     <p className="mt-2">{section.content}</p>
-  </AvoidBreak>
+  </NoBreak>
 ))}`,
     props: [
       { name: "children", type: "ReactNode", description: "Content to keep together" },
@@ -156,9 +156,9 @@ export default function Invoice() {
   {
     name: "Thead",
     category: "content",
-    description: "Enhanced <thead> - add repeat prop to repeat headers on each page when a table spans multiple pages.",
+    description: "Enhanced <thead> that repeats headers on each page when a table spans multiple pages. Headers repeat by default.",
     code: `<table className="w-full">
-  <Thead repeat>
+  <Thead>
     <tr className="border-b">
       <th className="text-left py-2">Item</th>
       <th className="text-right py-2">Qty</th>
@@ -167,35 +167,17 @@ export default function Invoice() {
   </Thead>
   <tbody>
     {items.map((item) => (
-      <Tr key={item.id} keep>
+      <tr key={item.id}>
         <td className="py-2">{item.name}</td>
         <td className="text-right py-2">{item.quantity}</td>
         <td className="text-right py-2">\${item.price}</td>
-      </Tr>
+      </tr>
     ))}
   </tbody>
 </table>`,
     props: [
       { name: "children", type: "ReactNode", description: "Table row(s) for header" },
       { name: "repeat", type: "boolean", description: "Repeat header on each page" },
-      { name: "className", type: "string", description: "Additional CSS classes" },
-    ],
-  },
-  {
-    name: "Tr",
-    category: "content",
-    description: "Enhanced <tr> - add keep prop to prevent row from splitting across pages.",
-    code: `<tbody>
-  {items.map((item) => (
-    <Tr key={item.id} keep>
-      <td>{item.name}</td>
-      <td>{item.price}</td>
-    </Tr>
-  ))}
-</tbody>`,
-    props: [
-      { name: "children", type: "ReactNode", description: "Table cells" },
-      { name: "keep", type: "boolean", description: "Prevent row from splitting across pages" },
       { name: "className", type: "string", description: "Additional CSS classes" },
     ],
   },
@@ -275,7 +257,7 @@ export default function ComponentsPage() {
             React components for building structured, paginated PDFs.
           </p>
           <CodeBlock
-            code={`import { Document, Page, PageNumber, TotalPages, PageBreak, AvoidBreak, Thead, Tr } from "@pdfn/react";`}
+            code={`import { Document, Page, PageNumber, TotalPages, PageBreak, NoBreak, Thead } from "@pdfn/react";`}
             language="typescript"
           />
         </div>

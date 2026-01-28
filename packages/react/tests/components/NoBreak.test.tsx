@@ -1,13 +1,13 @@
 import { describe, it, expect } from "vitest";
 import { renderToStaticMarkup } from "react-dom/server";
-import { AvoidBreak } from "../../src/components/AvoidBreak";
+import { NoBreak } from "../../src/components/NoBreak";
 
-describe("AvoidBreak", () => {
+describe("NoBreak", () => {
   it("renders children with correct attributes and print styles", () => {
     const html = renderToStaticMarkup(
-      <AvoidBreak>
+      <NoBreak>
         <p>Keep together</p>
-      </AvoidBreak>
+      </NoBreak>
     );
 
     // Children are rendered
@@ -25,9 +25,9 @@ describe("AvoidBreak", () => {
 
   it("applies custom className", () => {
     const html = renderToStaticMarkup(
-      <AvoidBreak className="custom-class">
+      <NoBreak className="custom-class">
         <p>Content</p>
-      </AvoidBreak>
+      </NoBreak>
     );
     expect(html).toContain('class="custom-class"');
   });

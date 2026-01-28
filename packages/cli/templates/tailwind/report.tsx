@@ -24,7 +24,7 @@ import {
  * Demonstrates:
  * - "use client" directive for client-side rendering
  * - Recharts integration (BarChart, LineChart, PieChart)
- * - Multi-page layout with headers and footers
+ * - Data visualization in PDF reports
  *
  * Requirements:
  * - recharts package: npm install recharts
@@ -70,22 +70,14 @@ interface ReportProps {
 const COLORS = ["#3b82f6", "#10b981", "#f59e0b", "#ef4444", "#8b5cf6"];
 
 export default function Report({
-  title = "Annual Sales Report",
-  period = "January - December 2024",
+  title = "Quarterly Sales Report",
+  period = "Q4 2024",
   generatedDate = "January 15, 2025",
   monthlySales = [
-    { month: "Jan", revenue: 45000, expenses: 32000, profit: 13000 },
-    { month: "Feb", revenue: 52000, expenses: 35000, profit: 17000 },
-    { month: "Mar", revenue: 48000, expenses: 33000, profit: 15000 },
-    { month: "Apr", revenue: 61000, expenses: 38000, profit: 23000 },
-    { month: "May", revenue: 55000, expenses: 36000, profit: 19000 },
-    { month: "Jun", revenue: 67000, expenses: 41000, profit: 26000 },
-    { month: "Jul", revenue: 72000, expenses: 44000, profit: 28000 },
-    { month: "Aug", revenue: 69000, expenses: 42000, profit: 27000 },
-    { month: "Sep", revenue: 78000, expenses: 47000, profit: 31000 },
     { month: "Oct", revenue: 82000, expenses: 49000, profit: 33000 },
     { month: "Nov", revenue: 91000, expenses: 53000, profit: 38000 },
     { month: "Dec", revenue: 98000, expenses: 56000, profit: 42000 },
+    { month: "Jan", revenue: 45000, expenses: 32000, profit: 13000 },
   ],
   categoryBreakdown = [
     { name: "Electronics", value: 35, color: "#3b82f6" },

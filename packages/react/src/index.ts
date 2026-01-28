@@ -11,11 +11,11 @@ export type { PdfnConfig, PdfnClient } from "./client";
 export { Document } from "./components/Document";
 export { Page } from "./components/Page";
 export { PageBreak } from "./components/PageBreak";
-export { AvoidBreak } from "./components/AvoidBreak";
+export { NoBreak } from "./components/NoBreak";
 export { PageNumber } from "./components/PageNumber";
 export { TotalPages } from "./components/TotalPages";
 export { Thead } from "./components/Thead";
-export { Tr } from "./components/Tr";
+
 
 // Error types
 export { PdfnError, Errors } from "./errors";
@@ -51,8 +51,8 @@ export type {
 } from "./types";
 
 // Component prop types
-export type { AvoidBreakProps } from "./components/AvoidBreak";
+export type { NoBreakProps } from "./components/NoBreak";
 export type { PageNumberProps } from "./components/PageNumber";
 export type { TotalPagesProps } from "./components/TotalPages";
 export type { TheadProps } from "./components/Thead";
-export type { TrProps } from "./components/Tr";
+

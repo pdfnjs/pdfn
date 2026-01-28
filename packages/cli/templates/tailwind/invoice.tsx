@@ -1,12 +1,12 @@
 import React from "react";
-import { Document, Page, Thead, PageNumber, TotalPages } from "@pdfn/react";
+import { Document, Page, PageNumber, TotalPages } from "@pdfn/react";
 import { Tailwind } from "@pdfn/tailwind";
 
 /**
  * Professional Invoice template using Tailwind CSS
  *
  * Demonstrates:
- * - Thead with repeat for multi-page tables
+ * - Tailwind CSS styling
  * - PageNumber and TotalPages in footer
  * - Configurable tax rate
  */
@@ -125,14 +125,14 @@ export default function Invoice({
 
           {/* Items Table */}
           <table className="w-full mb-6 border-collapse">
-            <Thead repeat>
+            <thead>
               <tr className="bg-gray-800 text-white">
                 <th className="text-left py-3 px-4 text-xs font-semibold uppercase">Description</th>
                 <th className="text-center py-3 px-4 text-xs font-semibold uppercase w-16">Qty</th>
                 <th className="text-right py-3 px-4 text-xs font-semibold uppercase w-24">Rate</th>
                 <th className="text-right py-3 px-4 text-xs font-semibold uppercase w-28">Amount</th>
               </tr>
-            </Thead>
+            </thead>
             <tbody>
               {items.map((item, i) => (
                 <tr key={i} className={i % 2 === 0 ? "bg-white" : "bg-gray-50"}>

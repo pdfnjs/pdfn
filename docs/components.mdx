@@ -185,21 +185,21 @@ import { Document, Page, PageBreak } from '@pdfn/react';
 
 ---
 
-## AvoidBreak
+## NoBreak
 
 Keeps its children together on the same page. If the content doesn't fit, it moves to the next page as a unit.
 
 ```tsx
-import { Document, Page, AvoidBreak } from '@pdfn/react';
+import { Document, Page, NoBreak } from '@pdfn/react';
 
 <Document title="Invoice">
   <Page size="A4">
     {items.map(item => (
-      <AvoidBreak key={item.id}>
+      <NoBreak key={item.id}>
         <h3>{item.title}</h3>
         <p>{item.description}</p>
         <p>${item.price}</p>
-      </AvoidBreak>
+      </NoBreak>
     ))}
   </Page>
 </Document>
@@ -209,22 +209,22 @@ Use this for content blocks that shouldn't be split across pages, like invoice l
 
 ---
 
-## Thead & Tr
+## Thead
 
-For tables that span multiple pages, use `Thead` and `Tr` to make headers repeat on each page.
+For tables that span multiple pages, use `Thead` to make headers repeat on each page.
 
 ```tsx
-import { Document, Page, Thead, Tr } from '@pdfn/react';
+import { Document, Page, Thead } from '@pdfn/react';
 
 <Document title="Report">
   <Page size="A4">
     <table>
       <Thead>
-        <Tr>
+        <tr>
           <th>Item</th>
           <th>Quantity</th>
           <th>Price</th>
-        </Tr>
+        </tr>
       </Thead>
       <tbody>
         {items.map(item => (
@@ -240,11 +240,15 @@ import { Document, Page, Thead, Tr } from '@pdfn/react';
 </Document>
 ```
 
-`Thead` accepts a `repeat` prop (default: `true`) to control whether headers repeat on each page. `Tr` accepts a `keep` prop to prevent a row from splitting across pages.
+`Thead` repeats headers on each page by default. Pass `repeat={false}` to disable.
 
 <Note>
-  Standard HTML `<thead>` and `<tr>` work but won't repeat headers across pages. Use `Thead` and `Tr` for multi-page tables.
+  Standard HTML `<thead>` works but won't repeat headers across pages. Use `Thead` for multi-page tables.
 </Note>
+
+<Tip>
+  To prevent a table row from splitting across pages, use CSS: `<tr style={{ breakInside: "avoid" }}>`.
+</Tip>
 
 ---
 

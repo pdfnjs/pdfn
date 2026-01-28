@@ -70,9 +70,8 @@ main();
 | `<PageNumber>` | Current page number |
 | `<TotalPages>` | Total page count |
 | `<PageBreak>` | Force page break |
-| `<AvoidBreak>` | Keep content together |
-| `<Thead repeat>` | Repeating table header (`repeat` is a boolean prop) |
-| `<Tr keep>` | Non-splitting table row (`keep` is a boolean prop) |
+| `<NoBreak>` | Keep content together |
+| `<Thead>` | Repeating table header (repeats by default) |
 
 ### Functions
 

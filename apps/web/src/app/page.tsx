@@ -180,8 +180,8 @@ export default function Home() {
       if (entry) {
         const { width, height } = entry.contentRect;
         setPreviewDimensions({
-          width: Math.max(width - 32, 200),
-          height: Math.max(height - 32, 300),
+          width: Math.max(width - 24, 200),
+          height: Math.max(height - 24, 300),
         });
       }
     });
@@ -303,13 +303,12 @@ export default function Home() {
           {/* Resend-style unified preview container */}
           <div className="rounded-2xl border border-border overflow-hidden fade-in-section">
             {/* Header with traffic lights */}
-            <header className="flex items-center justify-between h-12 px-4 border-b border-border bg-surface-1">
+            <header className="flex items-center h-12 px-4 border-b border-border bg-surface-1">
               <div className="flex items-center gap-2">
                 <div className="w-3 h-3 rounded-full bg-[#ff5f56]" />
                 <div className="w-3 h-3 rounded-full bg-[#ffbd2e]" />
                 <div className="w-3 h-3 rounded-full bg-[#27ca40]" />
               </div>
-              <CopyButton text={activeCode} />
             </header>
 
             {/* Main content area */}
@@ -363,7 +362,7 @@ export default function Home() {
                 </div>
 
                 {/* Code Panel - visible on desktop, or mobile when code tab selected */}
-                <div className={`flex-1 min-w-0 border-b lg:border-b-0 lg:border-r border-border bg-[#0d1117] ${
+                <div className={`flex-1 min-w-0 border-b lg:border-b-0 lg:border-r border-border bg-[#0d1117] relative ${
                   mobileView === "code" ? "block" : "hidden md:block"
                 }`}>
                   <div className="h-[400px] md:h-[500px] overflow-auto">
@@ -393,19 +392,36 @@ export default function Home() {
                       {activeCode}
                     </SyntaxHighlighter>
                   </div>
+                  <CopyButton
+                    text={activeCode}
+                    className="absolute top-3 right-3 !p-1.5 bg-black/60 rounded-md !text-white/60 hover:!text-white hover:!bg-black/60"
+                  />
                 </div>
 
                 {/* Preview Panel - visible on desktop, or mobile when preview tab selected */}
                 <div className={`flex-1 min-w-0 relative ${
                   mobileView === "preview" ? "block" : "hidden md:block"
                 }`}>
+                  {/* Open in new tab - top right */}
+                  <a
+                    href={previewUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="absolute top-3 right-3 z-10 flex items-center justify-center w-7 h-7 bg-black/60 rounded-md text-white/60 hover:text-white transition-colors"
+                    title="Open in new tab"
+                  >
+                    <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                    </svg>
+                  </a>
+
                   {/* Preview content */}
                   <div
                     ref={previewContainerRef}
                     className={`h-[300px] md:h-[500px] ${
                       previewZoom === "100"
                         ? "overflow-auto"
-                        : "overflow-hidden flex items-center justify-center p-6"
+                        : "overflow-hidden flex items-center justify-center p-3"
                     }`}
                   >
                     {isLoading && (

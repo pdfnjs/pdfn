@@ -1,11 +1,11 @@
 import React from "react";
-import { Document, Page, Thead, PageNumber, TotalPages } from "@pdfn/react";
+import { Document, Page, PageNumber, TotalPages } from "@pdfn/react";
 
 /**
  * Professional Invoice template using inline styles
  *
  * Demonstrates:
- * - Thead with repeat for multi-page tables
+ * - Inline styles (no Tailwind)
  * - PageNumber and TotalPages in footer
  * - Configurable tax rate
  */
@@ -123,14 +123,14 @@ export default function Invoice({
 
         {/* Items Table */}
         <table style={{ width: "100%", marginBottom: "24px", borderCollapse: "collapse" }}>
-          <Thead repeat>
+          <thead>
             <tr style={{ backgroundColor: "#1f2937", color: "white" }}>
               <th style={{ textAlign: "left", padding: "12px 16px", fontSize: "10px", fontWeight: "600", textTransform: "uppercase" }}>Description</th>
               <th style={{ textAlign: "center", padding: "12px 16px", fontSize: "10px", fontWeight: "600", textTransform: "uppercase", width: "64px" }}>Qty</th>
               <th style={{ textAlign: "right", padding: "12px 16px", fontSize: "10px", fontWeight: "600", textTransform: "uppercase", width: "96px" }}>Rate</th>
               <th style={{ textAlign: "right", padding: "12px 16px", fontSize: "10px", fontWeight: "600", textTransform: "uppercase", width: "112px" }}>Amount</th>
             </tr>
-          </Thead>
+          </thead>
           <tbody>
             {items.map((item, i) => (
               <tr key={i} style={{ backgroundColor: i % 2 === 0 ? "white" : "#f9fafb" }}>

@@ -197,20 +197,20 @@ None.
 
 ---
 
-## AvoidBreak
+## NoBreak
 
 Keeps content together, preventing page breaks within.
 
 ```tsx
-import { AvoidBreak } from '@pdfn/react';
+import { NoBreak } from '@pdfn/react';
 
 <Page>
   {items.map(item => (
-    <AvoidBreak key={item.id}>
+    <NoBreak key={item.id}>
       <h3>{item.title}</h3>
       <p>{item.description}</p>
       <p>{item.price}</p>
-    </AvoidBreak>
+    </NoBreak>
   ))}
 </Page>
 ```
@@ -229,15 +229,15 @@ import { AvoidBreak } from '@pdfn/react';
 Table header that repeats on each page when table spans multiple pages.
 
 ```tsx
-import { Thead, Tr } from '@pdfn/react';
+import { Thead } from '@pdfn/react';
 
 <table>
   <Thead>
-    <Tr>
+    <tr>
       <th>Item</th>
       <th>Qty</th>
       <th>Price</th>
-    </Tr>
+    </tr>
   </Thead>
   <tbody>
     {items.map(item => (
@@ -259,31 +259,7 @@ import { Thead, Tr } from '@pdfn/react';
 | `repeat` | `boolean` | Repeat header on each page (default: `true`) |
 | `children` | `ReactNode` | Table header rows |
 
----
-
-## Tr
-
-Table row component. Use inside Thead for repeating headers.
-
-```tsx
-import { Thead, Tr } from '@pdfn/react';
-
-<Thead>
-  <Tr className="bg-gray-100">
-    <th>Column 1</th>
-    <th>Column 2</th>
-  </Tr>
-</Thead>
-```
-
-### Props
-
-| Prop | Type | Description |
-|------|------|-------------|
-| `className` | `string` | CSS class |
-| `style` | `CSSProperties` | Inline styles |
-| `keep` | `boolean` | Prevent row from splitting across pages |
-| `children` | `ReactNode` | Table cells |
+> **Tip:** To prevent a table row from splitting across pages, use CSS: `<tr style={{ breakInside: "avoid" }}>`.
 
 ---
 

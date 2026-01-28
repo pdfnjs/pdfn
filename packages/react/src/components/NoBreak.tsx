@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 
-export interface AvoidBreakProps {
+export interface NoBreakProps {
   /** Content that should stay together on the same page */
   children: ReactNode;
   /** Additional CSS classes */
@@ -8,7 +8,7 @@ export interface AvoidBreakProps {
 }
 
 /**
- * AvoidBreak - Keeps content together on the same page
+ * NoBreak - Keeps content together on the same page
  *
  * Wraps content with break-inside: avoid to prevent page breaks
  * within the wrapped content. If the content exceeds a single page,
@@ -16,13 +16,13 @@ export interface AvoidBreakProps {
  *
  * @example
  * ```tsx
- * <AvoidBreak>
+ * <NoBreak>
  *   <h2>Section Title</h2>
  *   <p>This content will stay together with the title.</p>
- * </AvoidBreak>
+ * </NoBreak>
  * ```
  */
-export function AvoidBreak({ children, className }: AvoidBreakProps) {
+export function NoBreak({ children, className }: NoBreakProps) {
   return (
     <div
       data-pdfn-avoid-break

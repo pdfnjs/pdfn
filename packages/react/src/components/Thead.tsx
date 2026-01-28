@@ -1,23 +1,23 @@
-import type { ReactNode, ThHTMLAttributes } from "react";
+import type { ReactNode } from "react";
 
 export interface TheadProps
   extends Omit<React.HTMLAttributes<HTMLTableSectionElement>, "style"> {
   /** Table header content (tr with th elements) */
   children: ReactNode;
-  /** Repeat header on each page when table spans multiple pages */
+  /** Repeat header on each page when table spans multiple pages (default: true) */
   repeat?: boolean;
 }
 
 /**
- * Thead - Table header element with optional repeat across pages
+ * Thead - Table header that repeats across pages
  *
- * Use the `repeat` prop to ensure the header row repeats when
- * the table spans multiple pages in PDFs.
+ * Headers repeat by default when the table spans multiple pages.
+ * Pass `repeat={false}` to disable.
  *
  * @example
  * ```tsx
  * <table>
- *   <Thead repeat>
+ *   <Thead>
  *     <tr>
  *       <th>Item</th>
  *       <th>Price</th>
@@ -36,7 +36,7 @@ export interface TheadProps
  * </table>
  * ```
  */
-export function Thead({ children, repeat, className, ...props }: TheadProps) {
+export function Thead({ children, repeat = true, className, ...props }: TheadProps) {
   return (
     <thead
       data-pdfn-thead

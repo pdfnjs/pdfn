@@ -163,9 +163,8 @@ const { data, error } = await client.render({ react: <Invoice /> });
 | `<PageNumber>` | Current page number |
 | `<TotalPages>` | Total page count |
 | `<PageBreak>` | Force page break |
-| `<AvoidBreak>` | Keep content together |
+| `<NoBreak>` | Keep content together |
 | `<Thead>` | Repeating table header |
-| `<Tr>` | Non-breaking table row |
 
 ## Page Sizes
 

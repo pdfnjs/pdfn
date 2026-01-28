@@ -55,8 +55,7 @@ export default function Letter({
   date = "January 15, 2025",
   subject = "Partnership Proposal",
   body = [
-    "I hope this letter finds you well. Following our conversation last month, I wanted to formally present our partnership proposal for your consideration.",
-    "Our solution has helped over 500 companies streamline their workflows, reducing development time by an average of 60%. We believe our platform would be an excellent fit for your needs.",
+    "Following our conversation last month, I wanted to formally present our partnership proposal. Our platform has helped over 500 companies streamline their workflows, and we believe it would be an excellent fit for your needs.",
     "I would welcome the opportunity to schedule a technical demo with your team. Please let me know if you would be available for a call next week.",
   ],
   closing = "Best regards",

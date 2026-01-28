@@ -1,76 +1,25 @@
-import { Document, Page, Thead, PageNumber, TotalPages } from "@pdfn/react";
+import { Document, Page, PageNumber, TotalPages } from "@pdfn/react";
 import { Tailwind } from "@pdfn/tailwind";
 
 /**
  * Professional Invoice template using Tailwind CSS
  *
  * Demonstrates:
- * - Local image embedding (logo.svg)
- * - Thead with repeat for multi-page tables
- * - PageNumber and TotalPages in footer
- * - Configurable tax rate
+ * - Tailwind CSS styling
+ * - Page footer with PageNumber and TotalPages
+ * - Calculated totals with tax
  */
 
-interface InvoiceProps {
-  number?: string;
-  date?: string;
-  dueDate?: string;
-  customer?: {
-    name: string;
-    address: string;
-    city: string;
-  };
-  items?: Array<{
-    name: string;
-    description?: string;
-    qty: number;
-    price: number;
-  }>;
-  taxRate?: number;
-  notes?: string;
-  company?: {
-    name: string;
-    address: string;
-    email: string;
-    phone: string;
-  };
-}
+const items = [
+  { name: "Enterprise License", description: "Annual subscription — unlimited PDFs", qty: 1, price: 4999 },
+  { name: "API Integration Setup", description: "Custom endpoint configuration", qty: 1, price: 1500 },
+  { name: "Custom Template", description: "Branded invoice template", qty: 2, price: 800 },
+  { name: "Priority Support", description: "24/7 support with 1-hour SLA", qty: 12, price: 99 },
+];
 
-export default function Invoice({
-  number = "INV-2026-001",
-  date = "January 15, 2026",
-  dueDate = "February 14, 2026",
-  customer = {
-    name: "Acme Corporation",
-    address: "456 Enterprise Blvd, Suite 100",
-    city: "Austin, TX 78701",
-  },
-  items = [
-    { name: "PDFN Enterprise License", description: "Annual subscription - unlimited PDF generation", qty: 1, price: 4999 },
-    { name: "API Integration Setup", description: "Custom API configuration and endpoint setup", qty: 1, price: 1500 },
-    { name: "Custom Template: Invoice", description: "Professional invoice with company branding", qty: 1, price: 800 },
-    { name: "Custom Template: Contract", description: "Legal contract with digital signatures", qty: 1, price: 950 },
-    { name: "Custom Template: Report", description: "Monthly report with charts and graphs", qty: 1, price: 1200 },
-    { name: "Training: Development Team", description: "2-hour hands-on workshop for developers", qty: 3, price: 200 },
-    { name: "Training: Executive Overview", description: "1-hour strategic overview session", qty: 1, price: 150 },
-    { name: "Data Migration Service", description: "Import templates from legacy PDF system", qty: 1, price: 750 },
-    { name: "SSO Integration", description: "SAML/OAuth integration with corporate identity", qty: 1, price: 500 },
-    { name: "Webhook Configuration", description: "Event notifications for PDF generation", qty: 1, price: 300 },
-    { name: "Custom Domain Setup", description: "Configure docs.acmecorp.com subdomain", qty: 1, price: 200 },
-    { name: "Priority Support (Monthly)", description: "24/7 phone support with 1-hour SLA", qty: 12, price: 99 },
-    { name: "Cloud Storage Add-on", description: "Extra 100GB storage for templates", qty: 5, price: 25 },
-    { name: "Compliance Audit", description: "SOC 2 Type II compliance documentation", qty: 1, price: 1500 },
-    { name: "Performance Review", description: "Template rendering optimization analysis", qty: 1, price: 600 },
-  ],
-  taxRate = 0.0875,
-  notes = "Thank you for choosing PDFN! Payment is due within 30 days. For questions, contact billing@pdfn.dev.",
-  company = {
-    name: "PDFN",
-    address: "548 Market St, Suite 835, San Francisco, CA 94104",
-    email: "billing@pdfn.dev",
-    phone: "+1 (415) 555-0132",
-  },
-}: InvoiceProps) {
+const taxRate = 0.0875;
+
+export default function Invoice({ number = "INV-2026-001" }: { number?: string }) {
   const subtotal = items.reduce((sum, item) => sum + item.qty * item.price, 0);
   const tax = subtotal * taxRate;
   const total = subtotal + tax;
@@ -87,7 +36,7 @@ export default function Invoice({
           footer={
             <div className="flex justify-between items-center text-xs text-gray-500 border-t border-gray-200 pt-3">
               <div>
-                {company.name} • {company.email} • {company.phone}
+                PDFN • billing@pdfn.dev • +1 (415) 555-0132
               </div>
               <div>
                 Page <PageNumber /> of <TotalPages />
@@ -99,7 +48,7 @@ export default function Invoice({
           <div className="flex justify-between items-start mb-8">
             <div>
               <img src="https://pdfn.dev/logo-dark.svg" alt="Company Logo" className="h-10 mb-2" />
-              <div className="text-xs text-gray-500">{company.address}</div>
+              <div className="text-xs text-gray-500">548 Market St, Suite 835, San Francisco, CA 94104</div>
             </div>
             <div className="text-right">
               <div className="text-3xl font-bold text-gray-900 tracking-tight">INVOICE</div>
@@ -111,20 +60,20 @@ export default function Invoice({
           <div className="flex justify-between mb-8">
             <div>
               <div className="text-xs font-semibold text-gray-500 uppercase mb-2">Bill To</div>
-              <div className="text-sm font-semibold text-gray-900">{customer.name}</div>
-              <div className="text-sm text-gray-600 mt-0.5">{customer.address}</div>
-              <div className="text-sm text-gray-600">{customer.city}</div>
+              <div className="text-sm font-semibold text-gray-900">Acme Corporation</div>
+              <div className="text-sm text-gray-600 mt-0.5">456 Enterprise Blvd, Suite 100</div>
+              <div className="text-sm text-gray-600">Austin, TX 78701</div>
             </div>
             <div className="text-right">
               <table className="ml-auto text-sm">
                 <tbody>
                   <tr>
                     <td className="text-gray-500 pr-4 py-0.5">Invoice Date:</td>
-                    <td className="text-gray-900 py-0.5">{date}</td>
+                    <td className="text-gray-900 py-0.5">January 15, 2026</td>
                   </tr>
                   <tr>
                     <td className="text-gray-500 pr-4 py-0.5">Due Date:</td>
-                    <td className="text-gray-900 py-0.5">{dueDate}</td>
+                    <td className="text-gray-900 py-0.5">February 14, 2026</td>
                   </tr>
                   <tr>
                     <td className="text-gray-500 pr-4 py-1.5 font-semibold">Amount Due:</td>
@@ -137,14 +86,14 @@ export default function Invoice({
 
           {/* Items Table */}
           <table className="w-full mb-6 border-collapse">
-            <Thead repeat>
+            <thead>
               <tr className="bg-gray-800 text-white">
                 <th className="text-left py-3 px-4 text-xs font-semibold uppercase">Description</th>
                 <th className="text-center py-3 px-4 text-xs font-semibold uppercase w-16">Qty</th>
                 <th className="text-right py-3 px-4 text-xs font-semibold uppercase w-24">Rate</th>
                 <th className="text-right py-3 px-4 text-xs font-semibold uppercase w-28">Amount</th>
               </tr>
-            </Thead>
+            </thead>
             <tbody>
               {items.map((item, i) => (
                 <tr key={i} className={i % 2 === 0 ? "bg-white" : "bg-gray-50"}>
@@ -191,12 +140,12 @@ export default function Invoice({
           </div>
 
           {/* Notes */}
-          {notes && (
-            <div className="bg-gray-50 p-4 rounded-lg">
-              <div className="text-xs font-semibold text-gray-700 uppercase mb-1">Notes</div>
-              <div className="text-sm text-gray-600">{notes}</div>
+          <div className="bg-gray-50 p-4 rounded-lg">
+            <div className="text-xs font-semibold text-gray-700 uppercase mb-1">Notes</div>
+            <div className="text-sm text-gray-600">
+              Thank you for choosing PDFN! Payment is due within 30 days.
             </div>
-          )}
+          </div>
         </Page>
       </Tailwind>
     </Document>

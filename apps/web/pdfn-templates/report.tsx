@@ -1,6 +1,6 @@
 "use client";
 
-import { Document, Page, PageNumber, TotalPages, AvoidBreak } from "@pdfn/react";
+import { Document, Page, PageNumber, TotalPages, NoBreak } from "@pdfn/react";
 import { Tailwind } from "@pdfn/tailwind";
 import { RevenueChart, CategoryChart, RegionChart } from "./components/Charts";
 
@@ -10,71 +10,41 @@ import { RevenueChart, CategoryChart, RegionChart } from "./components/Charts";
  * Demonstrates:
  * - Recharts integration (LineChart, BarChart, PieChart)
  * - Data visualization in PDF reports
- * - Client-side chart rendering
- *
- * Note: Charts require browser APIs and render client-side.
- * pdfn handles hydration automatically for "use client" components.
+ * - Client-side chart rendering ("use client")
  */
 
-interface ReportProps {
-  title?: string;
-  period?: string;
-  generatedAt?: string;
-  monthlyRevenue?: Array<{ month: string; revenue: number; target: number }>;
-  salesByCategory?: Array<{ category: string; sales: number }>;
-  revenueByRegion?: Array<{ region: string; value: number }>;
-  summary?: {
-    totalRevenue: number;
-    growth: number;
-    newCustomers: number;
-    avgOrderValue: number;
-  };
-}
+const monthlyRevenue = [
+  { month: "Oct", revenue: 48000, target: 45000 },
+  { month: "Nov", revenue: 52000, target: 48000 },
+  { month: "Dec", revenue: 61000, target: 55000 },
+  { month: "Jan", revenue: 58000, target: 58000 },
+];
 
-export default function Report({
-  title = "Monthly Sales Report",
-  period = "January 2026",
-  generatedAt = "February 1, 2026",
-  monthlyRevenue = [
-    { month: "Aug", revenue: 42000, target: 40000 },
-    { month: "Sep", revenue: 45000, target: 42000 },
-    { month: "Oct", revenue: 48000, target: 45000 },
-    { month: "Nov", revenue: 52000, target: 48000 },
-    { month: "Dec", revenue: 61000, target: 55000 },
-    { month: "Jan", revenue: 58000, target: 58000 },
-  ],
-  salesByCategory = [
-    { category: "Enterprise", sales: 125000 },
-    { category: "Pro", sales: 89000 },
-    { category: "Starter", sales: 45000 },
-    { category: "API", sales: 32000 },
-    { category: "Support", sales: 18000 },
-  ],
-  revenueByRegion = [
-    { region: "North America", value: 145000 },
-    { region: "Europe", value: 98000 },
-    { region: "Asia Pacific", value: 67000 },
-    { region: "Latin America", value: 23000 },
-  ],
-  summary = {
-    totalRevenue: 333000,
-    growth: 12.5,
-    newCustomers: 847,
-    avgOrderValue: 393,
-  },
-}: ReportProps) {
-  const formatCurrency = (value: number) =>
-    "$" + value.toLocaleString("en-US");
+const salesByCategory = [
+  { category: "Enterprise", sales: 125000 },
+  { category: "Pro", sales: 89000 },
+  { category: "Starter", sales: 45000 },
+];
 
+const revenueByRegion = [
+  { region: "North America", value: 145000 },
+  { region: "Europe", value: 98000 },
+  { region: "Asia Pacific", value: 67000 },
+];
+
+const formatCurrency = (value: number) =>
+  "$" + value.toLocaleString("en-US");
+
+export default function Report({ period = "January 2026" }: { period?: string }) {
   return (
-    <Document title={title}>
+    <Document title="Monthly Sales Report">
       <Tailwind>
         <Page
           size="A4"
           margin="0.75in"
           footer={
             <div className="flex justify-between items-center text-xs text-gray-600 border-t border-gray-200 pt-3">
-              <div>Generated on {generatedAt}</div>
+              <div>Generated on February 1, 2026</div>
               <div>
                 Page <PageNumber /> of <TotalPages />
               </div>
@@ -85,7 +55,7 @@ export default function Report({
           <div className="mb-8">
             <div className="flex justify-between items-start">
               <div>
-                <h1 className="text-2xl font-bold text-gray-900">{title}</h1>
+                <h1 className="text-2xl font-bold text-gray-900">Monthly Sales Report</h1>
                 <p className="text-gray-600 mt-1">{period}</p>
               </div>
               <img
@@ -103,7 +73,7 @@ export default function Report({
                 Total Revenue
               </div>
               <div className="text-xl font-bold text-gray-900 mt-1">
-                {formatCurrency(summary.totalRevenue)}
+                $333,000
               </div>
             </div>
             <div className="bg-green-50 rounded-lg p-4">
@@ -111,7 +81,7 @@ export default function Report({
                 Growth
               </div>
               <div className="text-xl font-bold text-gray-900 mt-1">
-                +{summary.growth}%
+                +12.5%
               </div>
             </div>
             <div className="bg-purple-50 rounded-lg p-4">
@@ -119,7 +89,7 @@ export default function Report({
                 New Customers
               </div>
               <div className="text-xl font-bold text-gray-900 mt-1">
-                {summary.newCustomers}
+                847
               </div>
             </div>
             <div className="bg-orange-50 rounded-lg p-4">
@@ -127,7 +97,7 @@ export default function Report({
                 Avg Order Value
               </div>
               <div className="text-xl font-bold text-gray-900 mt-1">
-                {formatCurrency(summary.avgOrderValue)}
+                $393
               </div>
             </div>
           </div>
@@ -135,7 +105,7 @@ export default function Report({
           {/* Revenue Trend Chart */}
           <div className="mb-8">
             <h2 className="text-lg font-semibold text-gray-900 mb-4">
-              Revenue Trend (6 Months)
+              Revenue Trend
             </h2>
             <div className="bg-gray-50 rounded-lg p-4">
               <RevenueChart data={monthlyRevenue} />
@@ -144,7 +114,6 @@ export default function Report({
 
           {/* Two Column Charts */}
           <div className="grid grid-cols-2 gap-6">
-            {/* Sales by Category */}
             <div>
               <h2 className="text-lg font-semibold text-gray-900 mb-4">
                 Sales by Category
@@ -154,7 +123,6 @@ export default function Report({
               </div>
             </div>
 
-            {/* Revenue by Region */}
             <div>
               <h2 className="text-lg font-semibold text-gray-900 mb-4">
                 Revenue by Region
@@ -166,7 +134,7 @@ export default function Report({
           </div>
 
           {/* Data Table */}
-          <AvoidBreak>
+          <NoBreak>
             <div className="mt-8">
               <h2 className="text-lg font-semibold text-gray-900 mb-4">
                 Monthly Breakdown
@@ -187,9 +155,7 @@ export default function Report({
                 <tbody>
                   {monthlyRevenue.map((row, i) => {
                     const variance = row.revenue - row.target;
-                    const variancePct = ((variance / row.target) * 100).toFixed(
-                      1
-                    );
+                    const variancePct = ((variance / row.target) * 100).toFixed(1);
                     return (
                       <tr
                         key={i}
@@ -214,7 +180,7 @@ export default function Report({
                 </tbody>
               </table>
             </div>
-          </AvoidBreak>
+          </NoBreak>
         </Page>
       </Tailwind>
     </Document>

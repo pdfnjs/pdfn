@@ -1,14 +1,14 @@
 import React from "react";
-import { Document, Page, PageNumber, TotalPages, AvoidBreak } from "@pdfn/react";
+import { Document, Page, PageNumber, TotalPages, NoBreak } from "@pdfn/react";
 
 /**
  * Service Agreement Contract template - Legal size (inline styles)
  *
  * Demonstrates:
  * - Watermark (e.g., "CONFIDENTIAL", "DRAFT")
- * - Repeating header and footer
- * - Multi-page content with numbered terms
- * - AvoidBreak for signature block
+ * - Repeating header and footer with PageNumber
+ * - Numbered terms
+ * - NoBreak for signature block
  */
 
 interface ContractProps {
@@ -181,7 +181,7 @@ export default function Contract({
         </div>
 
         {/* Signatures */}
-        <AvoidBreak>
+        <NoBreak>
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "40px" }}>
             {/* Provider Signature */}
             <div>
@@ -211,7 +211,7 @@ export default function Contract({
               </div>
             </div>
           </div>
-        </AvoidBreak>
+        </NoBreak>
       </Page>
     </Document>
   );

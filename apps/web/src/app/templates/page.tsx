@@ -54,7 +54,7 @@ const templates: Template[] = [
     description: "Multi-page legal contract with watermark, headers, and footers.",
     pageSize: "Legal",
     orientation: "portrait",
-    components: ["Document", "Page", "PageNumber", "TotalPages", "AvoidBreak"],
+    components: ["Document", "Page", "PageNumber", "TotalPages", "NoBreak"],
     highlights: ["Watermark", "Header/Footer", "Keep sections together"],
     styling: "tailwind",
   },
@@ -286,18 +286,6 @@ export default function TemplatesPage() {
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                         </svg>
                         Preview
-                      </a>
-                      <a
-                        href={`/api/pdf?template=${template.id}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex items-center justify-center gap-2 text-sm font-medium text-text-secondary hover:text-text-primary px-3 py-2.5 rounded-lg border border-border hover:border-border-hover transition-colors"
-                        title="Download PDF"
-                      >
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-                        </svg>
-                        PDF
                       </a>
                     </div>
                   </div>

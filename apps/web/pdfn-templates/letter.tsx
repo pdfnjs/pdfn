@@ -10,31 +10,6 @@ import { Document, Page } from "@pdfn/react";
  * - Inline styles (no Tailwind)
  */
 
-interface LetterProps {
-  sender?: {
-    name: string;
-    title?: string;
-    company: string;
-    address: string;
-    city: string;
-    email: string;
-    phone: string;
-  };
-  recipient?: {
-    name: string;
-    title?: string;
-    company: string;
-    address: string;
-    city: string;
-  };
-  date?: string;
-  subject?: string;
-  body?: string[];
-  closing?: string;
-  signature?: string;
-}
-
-// Color palette (matching Tailwind gray scale)
 const colors = {
   gray900: "#111827",
   gray800: "#1f2937",
@@ -45,34 +20,7 @@ const colors = {
   gray50: "#f9fafb",
 };
 
-export default function Letter({
-  sender = {
-    name: "Alex Chen",
-    title: "Head of Partnerships",
-    company: "PDFN",
-    address: "548 Market St, Suite 835",
-    city: "San Francisco, CA 94104",
-    email: "alex@pdfn.dev",
-    phone: "+1 (415) 555-0132",
-  },
-  recipient = {
-    name: "Sarah Johnson",
-    title: "Chief Technology Officer",
-    company: "Acme Corporation",
-    address: "456 Enterprise Blvd, Suite 100",
-    city: "Austin, TX 78701",
-  },
-  date = "January 15, 2026",
-  subject = "PDFN Enterprise Partnership Proposal",
-  body = [
-    "I hope this letter finds you well. Following our conversation at React Summit last month, I wanted to formally present our enterprise partnership proposal for your consideration.",
-    "PDFN provides server-side PDF generation using React components and Tailwind CSS. Our solution has helped over 500 companies streamline their document workflows, reducing development time by an average of 60%.",
-    "We believe PDFN would be an excellent fit for Acme Corporation's document generation needs. Our enterprise plan includes unlimited PDF generation, priority support, and custom integrations tailored to your existing infrastructure.",
-    "I would welcome the opportunity to schedule a technical demo with your team. Please let me know if you would be available for a call next week to discuss how PDFN can help Acme Corporation.",
-  ],
-  closing = "Best regards",
-  signature = "Alex Chen",
-}: LetterProps) {
+export default function Letter({ subject = "Enterprise Partnership Proposal" }: { subject?: string }) {
   return (
     <Document title={`Letter - ${subject}`}>
       <Page size="Letter" margin="1in">
@@ -98,7 +46,7 @@ export default function Letter({
                 style={{ height: "2rem", marginBottom: "0.5rem" }}
               />
               <div style={{ fontSize: "0.75rem", color: colors.gray500 }}>
-                {sender.address} • {sender.city}
+                548 Market St, Suite 835 • San Francisco, CA 94104
               </div>
             </div>
             <div
@@ -108,8 +56,8 @@ export default function Letter({
                 color: colors.gray500,
               }}
             >
-              <div>{sender.email}</div>
-              <div>{sender.phone}</div>
+              <div>alex@pdfn.dev</div>
+              <div>+1 (415) 555-0132</div>
             </div>
           </div>
         </div>
@@ -122,7 +70,7 @@ export default function Letter({
             marginBottom: "1.5rem",
           }}
         >
-          {date}
+          January 15, 2026
         </div>
 
         {/* Recipient Info */}
@@ -134,18 +82,16 @@ export default function Letter({
               color: colors.gray900,
             }}
           >
-            {recipient.name}
+            Sarah Johnson
           </div>
-          {recipient.title && (
-            <div style={{ fontSize: "0.875rem", color: colors.gray600 }}>
-              {recipient.title}
-            </div>
-          )}
           <div style={{ fontSize: "0.875rem", color: colors.gray600 }}>
-            {recipient.company}
+            Chief Technology Officer
+          </div>
+          <div style={{ fontSize: "0.875rem", color: colors.gray600 }}>
+            Acme Corporation
           </div>
           <div style={{ fontSize: "0.875rem", color: colors.gray500 }}>
-            {recipient.address}, {recipient.city}
+            456 Enterprise Blvd, Suite 100, Austin, TX 78701
           </div>
         </div>
 
@@ -190,25 +136,37 @@ export default function Letter({
             marginBottom: "0.75rem",
           }}
         >
-          Dear {recipient.name},
+          Dear Sarah Johnson,
         </div>
 
         {/* Body */}
         <div style={{ marginBottom: "1.5rem" }}>
-          {body.map((paragraph, i) => (
-            <p
-              key={i}
-              style={{
-                fontSize: "0.875rem",
-                color: colors.gray700,
-                lineHeight: 1.625,
-                marginTop: i > 0 ? "0.75rem" : 0,
-                marginBottom: 0,
-              }}
-            >
-              {paragraph}
-            </p>
-          ))}
+          <p
+            style={{
+              fontSize: "0.875rem",
+              color: colors.gray700,
+              lineHeight: 1.625,
+              marginTop: 0,
+              marginBottom: 0,
+            }}
+          >
+            Following our conversation at React Summit, I wanted to formally present our
+            enterprise partnership proposal. PDFN provides server-side PDF generation using
+            React components, and we believe it would be an excellent fit for Acme
+            Corporation's document workflows.
+          </p>
+          <p
+            style={{
+              fontSize: "0.875rem",
+              color: colors.gray700,
+              lineHeight: 1.625,
+              marginTop: "0.75rem",
+              marginBottom: 0,
+            }}
+          >
+            I would welcome the opportunity to schedule a technical demo with your team.
+            Please let me know if you are available for a call next week to discuss next steps.
+          </p>
         </div>
 
         {/* Closing & Signature */}
@@ -220,7 +178,7 @@ export default function Letter({
               marginBottom: "1.5rem",
             }}
           >
-            {closing},
+            Best regards,
           </div>
           <div
             style={{
@@ -236,13 +194,11 @@ export default function Letter({
               color: colors.gray900,
             }}
           >
-            {signature}
+            Alex Chen
           </div>
-          {sender.title && (
-            <div style={{ fontSize: "0.75rem", color: colors.gray600 }}>
-              {sender.title}, {sender.company}
-            </div>
-          )}
+          <div style={{ fontSize: "0.75rem", color: colors.gray600 }}>
+            Head of Partnerships, PDFN
+          </div>
         </div>
       </Page>
     </Document>

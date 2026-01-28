@@ -150,7 +150,7 @@ Need to run on your own infrastructure? See [Self-Hosting Guide](https://pdfn.de
 | `<PageNumber>` | Current page number |
 | `<TotalPages>` | Total page count |
 | `<PageBreak>` | Force page break |
-| `<AvoidBreak>` | Keep content together |
+| `<NoBreak>` | Keep content together |
 
 ## CLI
 

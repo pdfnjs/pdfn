@@ -5,6 +5,6 @@ export { Page } from "./Page";
 // export { PageNumber } from "./PageNumber";
 // export { TotalPages } from "./TotalPages";
 // export { PageBreak } from "./PageBreak";
-// export { AvoidBreak } from "./AvoidBreak";
+// export { NoBreak } from "./NoBreak";
 // export { Thead } from "./Thead";
-// export { Tr } from "./Tr";
+
