@@ -4,9 +4,9 @@
   "name": "pdfn",
   "description": "Reliable PDF generation for Next.js using React components.",
   "colors": {
-    "primary": "#22d3ee",
-    "light": "#22d3ee",
-    "dark": "#0891b2"
+    "primary": "#58c4dc",
+    "light": "#0e7490",
+    "dark": "#7dd3e8"
   },
   "logo": {
     "light": "/logo/light.svg",
@@ -33,7 +33,7 @@
       },
       {
         "group": "Guides",
-        "pages": ["nextjs", "self-hosting", "errors"]
+        "pages": ["nextjs", "migrate-from-puppeteer", "self-hosting", "errors"]
       }
     ]
   },

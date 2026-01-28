@@ -1,0 +1,170 @@
+---
+title: Migrate from Puppeteer
+description: Switch from raw Puppeteer PDF generation to pdfn.
+keywords: ["migrate Puppeteer", "replace Puppeteer", "Puppeteer to pdfn", "PDF migration"]
+---
+
+Already using Puppeteer to generate PDFs? Here's how to switch to pdfn.
+
+## Why migrate
+
+Puppeteer gives you low-level browser control, but you end up managing a lot yourself:
+
+- Installing and updating Chromium binaries (250MB+)
+- Launching, reusing, and closing browser instances
+- Writing and managing print-related CSS for pagination
+- Working around Puppeteer's limited header/footer API
+- Debugging layout differences between local and production Chromium versions
+
+| | Puppeteer | pdfn |
+|---|---|---|
+| **Templates** | HTML strings or template engines | React components |
+| **Pagination** | Manual | Automatic |
+| **Headers / footers** | Limited | Built-in with `<PageNumber>`, `<TotalPages>` |
+| **Dev workflow** | No preview | Live preview with hot reload |
+| **Infrastructure** | You manage Chromium, browser lifecycle, and deployment | Managed by pdfn Cloud (or self-host) |
+| **Dev / production parity** | Varies by Chromium version | Identical output everywhere |
+
+---
+
+## Step 1: Install
+
+```bash
+npm install @pdfn/react
+```
+
+<Note>
+  Add `@pdfn/tailwind` for Tailwind CSS support, and `@pdfn/next` for Next.js. See the [Quickstart](/quickstart) for details.
+</Note>
+
+---
+
+## Step 2: Convert your templates
+
+Replace HTML strings with React components using `<Document>` and `<Page>`:
+
+<Tabs>
+  <Tab title="Before">
+    ```typescript
+    function getInvoiceHtml(data: InvoiceData) {
+      return `
+        <html>
+          <head>
+            <style>
+              body { font-family: Arial; padding: 40px; }
+              h1 { font-size: 24px; }
+              .total { font-weight: bold; font-size: 18px; }
+            </style>
+          </head>
+          <body>
+            <h1>Invoice #${data.number}</h1>
+            <p>Customer: ${data.customer}</p>
+            <p class="total">Total: $${data.total}</p>
+          </body>
+        </html>
+      `;
+    }
+    ```
+  </Tab>
+  <Tab title="After">
+    ```tsx pdfn-templates/invoice.tsx
+    import { Document, Page, PageNumber } from '@pdfn/react';
+
+    export default function Invoice({ data }: { data: InvoiceData }) {
+      return (
+        <Document title={`Invoice ${data.number}`}>
+          <Page size="A4" margin="1in" footer={<PageNumber />}>
+            <h1 style={{ fontSize: 24 }}>Invoice #{data.number}</h1>
+            <p>Customer: {data.customer}</p>
+            <p style={{ fontWeight: 'bold', fontSize: 18 }}>
+              Total: ${data.total}
+            </p>
+          </Page>
+        </Document>
+      );
+    }
+    ```
+  </Tab>
+</Tabs>
+
+Page size, margins, headers, and footers are declared in the template — no more passing options to `page.pdf()` or writing `@page` CSS.
+
+---
+
+## Step 3: Replace the generation code
+
+<Tabs>
+  <Tab title="Before">
+    ```typescript
+    import puppeteer from 'puppeteer';
+
+    async function generatePdf(data: InvoiceData) {
+      const browser = await puppeteer.launch();
+      const page = await browser.newPage();
+
+      await page.setContent(getInvoiceHtml(data), {
+        waitUntil: 'networkidle0',
+      });
+
+      const pdf = await page.pdf({
+        format: 'A4',
+        printBackground: true,
+        margin: { top: '1in', bottom: '1in', left: '1in', right: '1in' },
+      });
+
+      await browser.close();
+      return pdf;
+    }
+    ```
+  </Tab>
+  <Tab title="After">
+    ```tsx
+    import { pdfn } from '@pdfn/react';
+    import Invoice from '@/pdfn-templates/invoice';
+
+    const client = pdfn();
+
+    async function generatePdf(data: InvoiceData) {
+      const { data: result, error } = await client.generate({
+        react: <Invoice data={data} />,
+      });
+
+      if (error) {
+        throw new Error(error.message);
+      }
+
+      return result.buffer;
+    }
+    ```
+  </Tab>
+</Tabs>
+
+No browser to launch, no page lifecycle to manage.
+
+---
+
+## Step 4: Remove Puppeteer
+
+```bash
+npm uninstall puppeteer
+```
+
+<Note>
+  If you prefer to keep running your own Chromium, use `client.render()` instead of `client.generate()`. See [Self-Hosting](/self-hosting).
+</Note>
+
+---
+
+## Next steps
+
+<CardGroup cols={3}>
+  <Card title="Components" icon="cube" href="/components">
+    Document, Page, and layout components
+  </Card>
+  <Card title="Styling" icon="paintbrush" href="/styling">
+    Tailwind CSS, custom CSS, and inline styles
+  </Card>
+  <Card title="Self-Hosting" icon="server" href="/self-hosting">
+    Run PDF generation on your own infrastructure
+  </Card>
+</CardGroup>
