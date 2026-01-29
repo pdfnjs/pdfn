@@ -1,7 +1,7 @@
 ---
-title: Error Handling
-description: Handle errors gracefully with the { data, error } pattern.
-keywords: ["error handling", "PdfnError", "PDF generation errors", "troubleshooting"]
+title: Troubleshooting
+description: Error handling pattern, error codes, and common issues.
+keywords: ["troubleshooting", "error handling", "PdfnError", "PDF generation errors"]
 ---
 
 pdfn uses a `{ data, error }` response pattern. This makes error handling explicit and avoids try/catch blocks.
@@ -87,6 +87,66 @@ const client = pdfn({
   timeout: 60000, // 60 seconds
 });
 ```
+
+### Invalid API key
+
+```
+[authentication_error] Invalid API key.
+```
+
+Check that `PDFN_API_KEY` is set correctly in your environment. Keys start with `pdfn_test_` or `pdfn_live_`. Get a new key at [console.pdfn.dev](https://console.pdfn.dev).
+
+### render() called in the browser
+
+```
+render() can only be used on the server.
+```
+
+`render()` uses `react-dom/server` which isn't available in browsers. In Next.js, make sure this code runs in a Server Component or API route — not a Client Component.
+
+### Local fonts or images on edge runtimes
+
+```
+Local font paths detected: ./fonts/custom.woff2
+Edge runtimes don't have filesystem access.
+```
+
+Edge runtimes (Vercel Edge, Cloudflare Workers) can't read local files. Options:
+
+- Use Google Fonts instead of local font files
+- Use remote URLs for images instead of local paths
+- Pre-encode assets as base64 data URIs
+- Switch to Node.js runtime (Vercel Serverless instead of Edge)
+
+### Client components not rendering
+
+Templates that use `"use client"` components (like chart libraries) need a build plugin. Make sure `@pdfn/next` or `@pdfn/vite` is installed and configured:
+
+```ts
+// next.config.ts
+import { withPdfn } from '@pdfn/next';
+export default withPdfn()(nextConfig);
+
+// vite.config.ts
+import { pdfn } from '@pdfn/vite';
+export default { plugins: [pdfn()] };
+```
+
+See [Next.js](/nextjs#client-components) for details.
+
+### React component threw during render
+
+```
+[render_error] Failed to render: ...
+```
+
+Common causes:
+
+- Using async components (not supported in static rendering)
+- Component threw an error during render
+- Invalid React element passed to `render()`
+
+Check your template renders correctly in `npx pdfn dev` before calling `generate()`.
 
 ---
 

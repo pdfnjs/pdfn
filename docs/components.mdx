@@ -63,8 +63,47 @@ export default function MyPdf() {
 | `creator` | `string` | Application name that created the PDF |
 | `language` | `string` | Document language (default: `"en"`) |
 | `css` | `string` | Custom CSS injected into the document |
-| `fonts` | `FontConfig[]` | Custom fonts to load |
+| `fonts` | `(string \| FontConfig)[]` | Custom fonts to load |
 | `children` | `ReactNode` | Page components (required) |
+
+### Fonts
+
+Pass font names for Google Fonts, or `FontConfig` objects for more control:
+
+```tsx
+// Google Fonts — just pass the name
+<Document fonts={["Inter", "Roboto Mono"]}>
+
+// Google Fonts with specific weights
+<Document fonts={[{ family: "Inter", weights: [400, 500, 700] }]}>
+
+// Local fonts — embedded as base64 in the PDF
+<Document fonts={[
+  { family: "CustomFont", src: "./fonts/custom.woff2", weight: 400 },
+  { family: "CustomFont", src: "./fonts/custom-bold.woff2", weight: 700 },
+]}>
+```
+
+**Google Font config:**
+
+| Field | Type | Default | Description |
+|-------|------|---------|-------------|
+| `family` | `string` | — | Font family name (must match Google Fonts) |
+| `weights` | `number[]` | `[400, 500, 600, 700]` | Font weights to include |
+| `style` | `"normal" \| "italic"` | `"normal"` | Font style |
+
+**Local font config:**
+
+| Field | Type | Default | Description |
+|-------|------|---------|-------------|
+| `family` | `string` | — | Font family name |
+| `src` | `string` | — | Path to font file (`.woff2`, `.woff`, `.ttf`, `.otf`) |
+| `weight` | `number` | `400` | Font weight |
+| `style` | `"normal" \| "italic"` | `"normal"` | Font style |
+
+<Note>
+  Local fonts and images require a server environment and won't work on edge runtimes. Use web fonts and remote URLs for edge compatibility.
+</Note>
 
 ---
 
