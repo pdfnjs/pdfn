@@ -4,7 +4,7 @@ description: Reference for Document, Page, PageNumber, TotalPages, PageBreak, No
 keywords: ["PDF components", "Document", "Page", "PageNumber", "PageBreak", "React PDF layout"]
 ---
 
-This page explains how to build PDF templates from scratch. If you're just getting started, use `npx pdfn add invoice` to scaffold a template first (see [Quickstart](/quickstart)).
+This page explains how to build PDF templates from scratch. To scaffold a template, run `npx pdfn add invoice` (see [Quickstart](/quickstart)).
 
 ## Template structure
 
@@ -71,7 +71,7 @@ export default function MyPdf() {
 Pass font names for Google Fonts, or `FontConfig` objects for more control:
 
 ```tsx
-// Google Fonts — just pass the name
+// Google Fonts — pass the name
 <Document fonts={["Inter", "Roboto Mono"]}>
 
 // Google Fonts with specific weights
