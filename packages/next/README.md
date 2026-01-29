@@ -2,9 +2,9 @@
 
 Next.js plugin for pdfn. Pre-compiles Tailwind CSS for edge deployment.
 
-## When Needed
+## When needed
 
-Only for Vercel Edge Runtime. Not required for Node.js runtime.
+Recommended for all Next.js projects. Handles Tailwind pre-compilation for edge runtimes and client component bundling.
 
 ## Installation
 

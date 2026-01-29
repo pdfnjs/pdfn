@@ -95,14 +95,6 @@ import { Document, Page, PageNumber, TotalPages } from '@pdfn/react';
 </Page>
 ```
 
-### From HTML String
-
-```typescript
-const { data } = await client.generate({
-  html: '<h1>Invoice</h1><p>Amount: $500</p>',
-});
-```
-
 ## Error Handling
 
 ```typescript
@@ -133,13 +125,6 @@ pdfn({ apiKey, baseUrl, timeout })  // Custom config
 ### `client.generate()`
 
 ```typescript
-// React component
-const { data, error } = await client.generate({ react: <Invoice /> });
-
-// HTML string
-const { data, error } = await client.generate({ html: '<h1>Hello</h1>' });
-
-// With options
 const { data, error } = await client.generate({
   react: <Invoice />,
   standard: 'PDF/A-2b',  // Archival compliance

@@ -37,13 +37,11 @@ Client rendering (hooks execute):
 
 ## Installation
 
-```bash
-npm install @pdfn/client
-```
+`@pdfn/client` is included automatically when you install `@pdfn/next` or `@pdfn/vite`. You don't need to install it separately.
 
 ## Usage
 
-### Automatic Detection
+### Automatic detection
 
 When using `@pdfn/next` or `@pdfn/vite`, client components are detected automatically via the `"use client"` directive:
 
