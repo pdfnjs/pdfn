@@ -274,11 +274,77 @@ export default function Home() {
               Star us on GitHub
             </a>
           </p>
+
+          <p className="text-sm text-text-muted mt-3 animate-fade-in-delay-2">
+            What you preview locally is what ships in production.
+          </p>
+        </div>
+      </section>
+
+      {/* Build with confidence */}
+      <section className="py-20 md:py-28 px-6 bg-surface-1">
+        <div className="max-w-3xl mx-auto">
+          <div className="text-center mb-12 fade-in-section">
+            <h2 className="text-3xl md:text-4xl font-bold text-text-primary mb-4">
+              Build with confidence
+            </h2>
+            <p className="text-lg text-text-secondary">
+              What you preview is what you ship — invoices, receipts, reports, and contracts.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 fade-in-section">
+            {([
+              {
+                label: "Predictable layouts",
+                description: "Page breaks, headers, and footers that work exactly as expected.",
+                icon: (
+                  <svg className="w-6 h-6 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z" />
+                  </svg>
+                ),
+              },
+              {
+                label: "Identical output everywhere",
+                description: "Same result locally, in CI, and in production. Next.js, Vite, and Node.js.",
+                icon: (
+                  <svg className="w-6 h-6 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                  </svg>
+                ),
+              },
+              {
+                label: "Live preview and debug tools",
+                description: "Hot reload as you edit. Inspect layouts before shipping.",
+                icon: (
+                  <svg className="w-6 h-6 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                  </svg>
+                ),
+              },
+              {
+                label: "Compliance ready",
+                description: "PDF/A archival standards and metadata built in. Meet regulatory requirements.",
+                icon: (
+                  <svg className="w-6 h-6 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                  </svg>
+                ),
+              },
+            ] as const).map((item) => (
+              <div key={item.label} className="border border-border rounded-xl p-5 bg-background">
+                <div className="mb-3">{item.icon}</div>
+                <h3 className="text-sm font-semibold text-text-primary mb-1">{item.label}</h3>
+                <p className="text-sm text-text-muted">{item.description}</p>
+              </div>
+            ))}
+          </div>
         </div>
       </section>
 
       {/* How it works - Code + Preview */}
-      <section className="py-20 md:py-28 px-6 bg-surface-1">
+      <section className="py-20 md:py-28 px-6 bg-background">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-12 fade-in-section">
             <h2 className="text-3xl md:text-4xl font-bold text-text-primary mb-4">
@@ -482,52 +548,6 @@ export default function Home() {
                 </div>
               </div>
             </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Build with confidence */}
-      <section className="py-20 md:py-28 px-6 bg-background">
-        <div className="max-w-2xl mx-auto">
-          <div className="text-center mb-10 fade-in-section">
-            <h2 className="text-3xl md:text-4xl font-bold text-text-primary mb-4">
-              Build with confidence
-            </h2>
-            <p className="text-lg text-text-secondary">
-              What you preview is what you ship.
-            </p>
-          </div>
-
-          <ul className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-3 mb-10 mx-auto w-fit fade-in-section">
-            {[
-              "Predictable page breaks, headers, and footers",
-              "Identical output locally and in production",
-              "Live preview with hot reload",
-              "Works with Next.js, Vite, and Node.js",
-            ].map((item) => (
-              <li key={item} className="flex items-start gap-3 text-text-secondary">
-                <svg className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                </svg>
-                <span className="text-sm">{item}</span>
-              </li>
-            ))}
-          </ul>
-
-          <div className="max-w-md mx-auto mb-10 fade-in-section">
-            <TerminalCommand command="npx pdfn dev" />
-          </div>
-
-          <div className="text-center fade-in-section">
-            <a
-              href="https://pdfn.dev/docs/dev-workflow"
-              className="inline-flex items-center gap-1.5 text-text-secondary hover:text-primary transition-colors"
-            >
-              Learn about the dev workflow
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-              </svg>
-            </a>
           </div>
         </div>
       </section>
