@@ -57,22 +57,15 @@ fs.writeFileSync('invoice.pdf', data.buffer);
 
 ### Generate parameters
 
-Pass a single object with either `react` or `html`, plus any options:
-
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|
-| `react` | `ReactElement` | One of `react` or `html` | React component to render and convert to PDF |
-| `html` | `string` | One of `react` or `html` | Raw HTML string to convert to PDF |
+| `react` | `ReactElement` | Yes | React component to render and convert to PDF |
 | `debug` | `DebugOptions \| boolean` | No | Enable debug overlays (grid, margins, headers, breaks) |
 | `standard` | `PDFStandard` | No | PDF/A or PDF/UA archival standard (pdfn Cloud only) |
 | `filename` | `string` | No | Filename for `Content-Disposition` header |
 | `metadata` | `object` | No | PDF document metadata (see below) |
 | `idempotencyKey` | `string` | No | Deduplication key — identical keys return cached results |
 | `timeout` | `number` | No | Request timeout in ms (overrides client default) |
-
-<Note>
-  You must pass either `react` or `html`, not both. TypeScript enforces this at compile time.
-</Note>
 
 ### Metadata fields
 
@@ -83,6 +76,10 @@ Pass a single object with either `react` or `html`, plus any options:
 | `subject` | `string` | Document subject |
 | `keywords` | `string` | Keywords for search |
 | `creator` | `string` | Application that created the document |
+
+<Note>
+  These fields override the matching props on `<Document>`. If you set `title` on both `<Document>` and `metadata`, the `metadata` value wins.
+</Note>
 
 ### Generate response
 
@@ -116,15 +113,6 @@ const { data, error } = await client.generate({
   filename: 'invoice-001.pdf',
   metadata: { title: 'Invoice #001', author: 'Acme Corp' },
   standard: 'PDF/A-2b',
-});
-```
-
-**HTML string:**
-
-```typescript
-const { data, error } = await client.generate({
-  html: '<h1>Hello World</h1><p>Generated at ' + new Date().toISOString() + '</p>',
-  filename: 'hello.pdf',
 });
 ```
 

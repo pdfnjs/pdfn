@@ -32,7 +32,7 @@ The preview UI shows all top-level `.tsx` files in your templates directory with
 
 By default, pdfn looks for templates in `pdfn-templates/` at your project root:
 
-```
+```text
 your-project/
 ├── pdfn-templates/
 │   ├── invoice.tsx
@@ -66,6 +66,10 @@ export default function Invoice({ data = sampleData }: { data?: InvoiceData }) {
 }
 ```
 
+## Debug overlays
+
+You can enable visual overlays for grid, margins, headers, and page breaks to debug layout issues. See [Generate & Render](/generate#debug-options) for all options.
+
 ---
 
 ## Next steps
@@ -74,7 +78,7 @@ export default function Invoice({ data = sampleData }: { data?: InvoiceData }) {
   <Card title="Components" icon="cube" href="/components">
     Document, Page, and layout components
   </Card>
-  <Card title="Styling" icon="paintbrush" href="/styling">
-    Tailwind CSS, custom CSS, and inline styles
+  <Card title="Generate & Render" icon="file-pdf" href="/generate">
+    Client setup, generate() and render() parameters
   </Card>
 </CardGroup>
