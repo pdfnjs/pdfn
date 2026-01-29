@@ -1,10 +1,10 @@
 ---
 title: Generate & Render
-description: Create the pdfn client and use generate() and render() to produce PDFs.
+description: Create a pdfn client with pdfn(), then call generate() to produce a PDF buffer or render() to get self-contained HTML for self-hosted setups.
 keywords: ["pdfn client", "generate PDF", "render HTML", "PDF options", "PDF metadata", "PDF/A"]
 ---
 
-The `pdfn()` client is how you generate PDFs from your templates. Use `generate()` to get a PDF buffer, or `render()` to get HTML for self-hosted setups.
+Import `pdfn` from `@pdfn/react` and create a client. It auto-detects your environment — local dev server, pdfn Cloud, or a custom endpoint.
 
 ## Client setup
 
@@ -225,6 +225,6 @@ client.render({
     Error codes, common issues, and fixes
   </Card>
   <Card title="Self-Hosting" icon="server" href="/self-hosting">
-    Use render() with your own Puppeteer or Playwright.
+    Run PDF generation on your own infrastructure
   </Card>
 </CardGroup>

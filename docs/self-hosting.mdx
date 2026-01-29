@@ -1,10 +1,10 @@
 ---
 title: Self-Hosting
-description: Generate PDFs with your own Puppeteer or Playwright setup.
+description: Run PDF generation on your own infrastructure using Puppeteer or Playwright. Use client.render() to get HTML, then convert to PDF with your own browser.
 keywords: ["self-host PDF", "Puppeteer PDF", "Playwright PDF", "PDF generation", "self-hosted"]
 ---
 
-Run PDF generation on your own infrastructure using Puppeteer or Playwright. Use `client.render()` to get HTML, then convert it to PDF.
+Skip pdfn Cloud and run the full pipeline yourself. You control the browser, the infrastructure, and the output.
 
 <Note>
   Want managed PDF generation? Use `client.generate()` with [pdfn Cloud](https://console.pdfn.dev) — no infra or browser management needed.
@@ -12,7 +12,7 @@ Run PDF generation on your own infrastructure using Puppeteer or Playwright. Use
 
 ## How it works
 
-```
+```text
 React Component → render() → HTML → Puppeteer/Playwright → PDF
 ```
 
@@ -143,7 +143,7 @@ This ensures fonts are loaded and page breaks are calculated.
 |---|---|---|
 | Setup | Managed — no infra or browser setup | You manage infra and Chromium |
 | Scaling | Auto-scales | You handle scaling |
-| Compliance | PDF/A-1b, PDF/A-2b, PDF/A-3b, PDF/UA (soon) | Not available |
+| Compliance | PDF/A-1b, PDF/A-2b, PDF/A-3b | Not available |
 | Cost | Usage-based pricing | Your infrastructure costs |
 
 ---

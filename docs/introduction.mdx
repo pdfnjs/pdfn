@@ -1,23 +1,69 @@
 ---
 title: Introduction
-description: Reliable PDF generation for Next.js using React components.
+description: Build PDF templates with React components. pdfn handles pagination, headers, footers, and rendering — with consistent output across local dev and production.
 keywords: ["pdfn", "PDF generation", "React", "Next.js", "PDF library", "React components"]
 ---
 
-pdfn gives you React components for page layout, pagination, headers, footers, and more. The `pdfn()` client renders them to PDF.
+pdfn turns React components into production-ready PDFs — invoices, receipts, reports. It works with Next.js, Vite, and Node.js.
 
-Your templates produce the same output locally and in production — no layout shifts between environments.
+## How it works
 
-Works with Next.js, Vite, and Node.js.
+You write templates using `<Document>` and `<Page>` components. pdfn takes care of the rest:
+
+```tsx
+import { Document, Page, PageNumber } from '@pdfn/react';
+
+export default function Invoice({ data }) {
+  return (
+    <Document title={`Invoice ${data.number}`}>
+      <Page size="A4" margin="1in" footer={<PageNumber />}>
+        <h1>Invoice #{data.number}</h1>
+        <p>Customer: {data.customer}</p>
+        <p>Total: ${data.total}</p>
+      </Page>
+    </Document>
+  );
+}
+```
+
+Then generate a PDF with one call:
+
+```typescript
+import { pdfn } from '@pdfn/react';
+
+const client = pdfn();
+const { data, error } = await client.generate({ react: <Invoice data={invoiceData} /> });
+```
+
+## Key concepts
+
+- **Automatic pagination** — content flows across pages. No manual `page-break` CSS.
+- **Repeating headers and footers** — defined as React components with `<PageNumber>` and `<TotalPages>`.
+- **Same output everywhere** — your template produces identical PDFs locally and in production.
+- **Dev preview** — `npx pdfn dev` gives you live preview with hot reload. Edit a template, see the PDF update.
+
+## How templates become PDFs
+
+```text
+React Component → render() → HTML → PDF
+```
+
+- **Local development** — `npx pdfn dev` runs a preview server with embedded Puppeteer. No setup needed.
+- **Production** — `client.generate()` sends the template to pdfn Cloud and returns a PDF buffer. Set `PDFN_API_KEY` and deploy.
+- **Self-hosted** — `client.render()` gives you HTML. Pass it to your own Puppeteer or Playwright setup.
+
+All three paths produce the same layout. Your templates don't change between environments.
+
+---
 
 ## Get started
 
 <CardGroup cols={2}>
   <Card title="Quickstart" icon="rocket" href="/quickstart">
-    Install, create a template, and generate your first PDF.
+    Install, create a template, and generate your first PDF
   </Card>
   <Card title="Dev Workflow" icon="terminal" href="/dev-workflow">
-    Live preview with hot reload using npx pdfn dev.
+    Live preview with hot reload using npx pdfn dev
   </Card>
 </CardGroup>
 
@@ -25,24 +71,21 @@ Works with Next.js, Vite, and Node.js.
 
 <CardGroup cols={2}>
   <Card title="Components" icon="cube" href="/components">
-    Document, Page, PageNumber, PageBreak, NoBreak, and table helpers.
+    Document, Page, and layout components
   </Card>
   <Card title="Generate & Render" icon="file-pdf" href="/generate">
-    Client setup, generate() and render() parameters, and response format.
+    Client setup, generate() and render() parameters
   </Card>
   <Card title="Styling" icon="paintbrush" href="/styling">
-    Tailwind CSS, custom CSS, and inline styles.
+    Tailwind CSS, custom CSS, and inline styles
   </Card>
   <Card title="Next.js" icon="code" href="/nextjs">
-    API routes, download buttons, and edge runtime.
-  </Card>
-  <Card title="Self-Hosting" icon="server" href="/self-hosting">
-    Use Puppeteer or Playwright on your own infrastructure.
+    API routes, download buttons, and edge runtime
   </Card>
   <Card title="Migrate from Puppeteer" icon="arrow-right-arrow-left" href="/migrate-from-puppeteer">
-    Switch from raw Puppeteer to pdfn.
+    Switch from raw Puppeteer to pdfn
   </Card>
-  <Card title="Troubleshooting" icon="triangle-exclamation" href="/troubleshooting">
-    Error codes, common issues, and fixes.
+  <Card title="Self-Hosting" icon="server" href="/self-hosting">
+    Run PDF generation on your own infrastructure
   </Card>
 </CardGroup>

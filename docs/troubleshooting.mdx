@@ -1,10 +1,10 @@
 ---
 title: Troubleshooting
-description: Error handling pattern, error codes, and common issues.
+description: Handle pdfn errors using the { data, error } response pattern. Includes error codes, common issues like connection failures, and step-by-step fixes.
 keywords: ["troubleshooting", "error handling", "PdfnError", "PDF generation errors"]
 ---
 
-pdfn uses a `{ data, error }` response pattern. This makes error handling explicit and avoids try/catch blocks.
+Every `generate()` and `render()` call returns `{ data, error }` instead of throwing. Check `error` before using `data`.
 
 ## Basic pattern
 
@@ -64,7 +64,7 @@ if (error instanceof PdfnError) {
 
 ### Cannot connect to pdfn server
 
-```
+```text
 [network_error] Cannot connect to pdfn server at http://localhost:3456
 ```
 
@@ -76,7 +76,7 @@ npx pdfn dev
 
 ### PDF generation timed out
 
-```
+```text
 [timeout_error] PDF generation timed out
 ```
 
@@ -90,7 +90,7 @@ const client = pdfn({
 
 ### Invalid API key
 
-```
+```text
 [authentication_error] Invalid API key.
 ```
 
@@ -98,7 +98,7 @@ Check that `PDFN_API_KEY` is set correctly in your environment. Keys start with 
 
 ### render() called in the browser
 
-```
+```text
 render() can only be used on the server.
 ```
 
@@ -106,7 +106,7 @@ render() can only be used on the server.
 
 ### Local fonts or images on edge runtimes
 
-```
+```text
 Local font paths detected: ./fonts/custom.woff2
 Edge runtimes don't have filesystem access.
 ```
@@ -136,7 +136,7 @@ See [Next.js](/nextjs#client-components) for details.
 
 ### React component threw during render
 
-```
+```text
 [render_error] Failed to render: ...
 ```
 
@@ -157,6 +157,6 @@ Check your template renders correctly in `npx pdfn dev` before calling `generate
     API routes, download buttons, and edge runtime
   </Card>
   <Card title="Self-Hosting" icon="server" href="/self-hosting">
-    Run PDF generation on your infrastructure
+    Run PDF generation on your own infrastructure
   </Card>
 </CardGroup>
