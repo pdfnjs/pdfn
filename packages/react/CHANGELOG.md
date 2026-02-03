@@ -1,5 +1,13 @@
 # @pdfn/react
 
+## 1.1.1
+
+### Patch Changes
+
+- Updated dependencies
+  - @pdfn/core@0.1.2
+  - @pdfn/client@0.1.2
+
 ## 1.1.0
 
 ### Minor Changes

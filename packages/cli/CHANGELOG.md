@@ -1,5 +1,15 @@
 # pdfn
 
+## 0.8.10
+
+### Patch Changes
+
+- Fix tailwindcss resolution to use user's project node_modules
+- Updated dependencies
+  - @pdfn/vite@2.0.1
+  - @pdfn/client@0.1.2
+  - @pdfn/react@1.1.1
+
 ## 0.8.9
 
 ### Patch Changes

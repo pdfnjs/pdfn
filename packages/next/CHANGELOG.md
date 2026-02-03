@@ -1,5 +1,15 @@
 # @pdfn/next
 
+## 2.0.1
+
+### Patch Changes
+
+- Updated dependencies
+  - @pdfn/core@0.1.2
+  - @pdfn/client@0.1.2
+  - @pdfn/react@1.1.1
+  - @pdfn/tailwind@0.2.2
+
 ## 2.0.0
 
 ### Patch Changes

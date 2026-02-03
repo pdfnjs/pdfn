@@ -1,5 +1,11 @@
 # @pdfn/core
 
+## 0.1.2
+
+### Patch Changes
+
+- Fix tailwindcss resolution to use user's project node_modules
+
 ## 0.1.1
 
 ### Patch Changes
