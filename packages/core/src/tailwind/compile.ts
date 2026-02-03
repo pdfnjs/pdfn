@@ -8,6 +8,7 @@ import fg from "fast-glob";
 import { readFileSync, existsSync } from "node:fs";
 import { resolve, dirname, join } from "node:path";
 import { createRequire } from "node:module";
+import { pathToFileURL } from "node:url";
 import { PDF_STYLES_PATH } from "../constants/index.js";
 import { extractClassesFromContent } from "../utils/index.js";
 
@@ -118,8 +119,27 @@ export async function compileTailwind(
     if (debug) console.log(logPrefix, ...args);
   };
 
-  // Dynamically import tailwindcss (it's a peer dependency)
-  const { compile } = await import("tailwindcss");
+  // Create require from user's project to resolve peer dependencies
+  const req = createRequire(join(cwd, "package.json"));
+
+  // Dynamically import tailwindcss from the user's project (peer dependency)
+  let compile: (css: string, opts?: unknown) => Promise<{ build: (classes: string[]) => string }>;
+  try {
+    const tailwindPath = req.resolve("tailwindcss");
+    // Convert to file URL for proper ESM dynamic import
+    const tailwindcss = await import(pathToFileURL(tailwindPath).href);
+    compile = tailwindcss.compile ?? tailwindcss.default?.compile;
+    if (typeof compile !== "function") {
+      throw new Error("compile function not found in tailwindcss");
+    }
+  } catch (err) {
+    if (err instanceof Error && err.message.includes("compile function not found")) {
+      throw err;
+    }
+    throw new Error(
+      "tailwindcss not found. Install it in your project: npm install tailwindcss"
+    );
+  }
 
   // Find all template files
   const files = await fg(templatePatterns, {
@@ -148,8 +168,7 @@ export async function compileTailwind(
   // Get base CSS
   const baseCss = getBaseCss(cwd, cssPath, log);
 
-  // Find tailwindcss package
-  const req = createRequire(join(cwd, "package.json"));
+  // Find tailwindcss package root for stylesheet loading
   let tailwindRoot: string;
   try {
     const tailwindPkgPath = req.resolve("tailwindcss/package.json");
