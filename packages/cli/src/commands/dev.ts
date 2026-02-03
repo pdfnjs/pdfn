@@ -204,6 +204,19 @@ function createPreviewHTML(templates: TemplateInfo[], activeTemplate: string | n
       border-right: 1px solid var(--border);
       padding: 16px;
       overflow-y: auto;
+      transition: width 0.15s ease, padding 0.15s ease;
+    }
+
+    .sidebar.collapsed {
+      width: 40px;
+      padding: 8px 0;
+      overflow: hidden;
+    }
+
+    .sidebar.collapsed .sidebar-title,
+    .sidebar.collapsed .template-btn,
+    .sidebar.collapsed .empty-state {
+      display: none;
     }
 
     .sidebar-title {
@@ -375,6 +388,17 @@ function createPreviewHTML(templates: TemplateInfo[], activeTemplate: string | n
       display: flex;
       flex-direction: column;
       overflow-y: auto;
+      transition: width 0.15s ease;
+    }
+
+    .inspector-panel.collapsed {
+      width: 40px;
+      overflow: hidden;
+    }
+
+    .inspector-panel.collapsed .inspector-title,
+    .inspector-panel.collapsed .inspector-content {
+      display: none;
     }
 
     .inspector-title {
@@ -783,6 +807,52 @@ function createPreviewHTML(templates: TemplateInfo[], activeTemplate: string | n
       word-break: break-all;
     }
 
+    /* Panel toggle buttons */
+    .panel-toggle {
+      width: 40px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      flex-shrink: 0;
+      transition: color 0.15s;
+    }
+
+    .panel-toggle:hover {
+      color: var(--text);
+    }
+
+    .sidebar .panel-toggle {
+      margin: -8px -8px 8px -8px;
+    }
+
+    .sidebar.collapsed .panel-toggle {
+      margin: 0 auto 0 auto;
+    }
+
+    .inspector-panel .panel-toggle {
+      margin-left: auto;
+      margin-right: 4px;
+    }
+
+    .inspector-panel.collapsed .panel-toggle {
+      margin: 4px auto;
+    }
+
+    .inspector-toggle-row {
+      display: flex;
+      align-items: center;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .inspector-panel.collapsed .inspector-toggle-row {
+      border-bottom: none;
+    }
+
     /* Buttons */
     .btn {
       padding: 6px 10px;
@@ -884,7 +954,12 @@ function createPreviewHTML(templates: TemplateInfo[], activeTemplate: string | n
   </header>
 
   <div class="container">
-    <aside class="sidebar">
+    <aside class="sidebar" id="sidebar">
+      <button class="panel-toggle" id="sidebar-toggle" title="Toggle sidebar (${"`"}Cmd+B${"`"})">
+        <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+        </svg>
+      </button>
       <div class="sidebar-title">Templates</div>
       ${
         templates.length > 0
@@ -952,6 +1027,13 @@ function createPreviewHTML(templates: TemplateInfo[], activeTemplate: string | n
 
       <!-- Inspector panel: right side -->
       <aside class="inspector-panel" id="inspector-panel">
+        <div class="inspector-toggle-row">
+          <button class="panel-toggle" id="inspector-toggle" title="Toggle inspector (${"`"}Cmd+J${"`"})">
+            <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+            </svg>
+          </button>
+        </div>
         <div class="inspector-title">Inspector</div>
         <div class="inspector-content">
           <div class="inspector-section">
@@ -1075,7 +1157,9 @@ function createPreviewHTML(templates: TemplateInfo[], activeTemplate: string | n
         breaks: false,
       },
       a11yExpanded: true,
-      consoleExpanded: true
+      consoleExpanded: true,
+      sidebarCollapsed: false,
+      inspectorCollapsed: false
     };
 
     // Console messages
@@ -1128,6 +1212,10 @@ function createPreviewHTML(templates: TemplateInfo[], activeTemplate: string | n
         consoleContent.style.display = 'none';
         consoleToggle.classList.add('collapsed');
       }
+
+      // Panel collapsed state
+      applySidebarState();
+      applyInspectorState();
     }
 
     // Toggle accessibility expanded state
@@ -1142,6 +1230,48 @@ function createPreviewHTML(templates: TemplateInfo[], activeTemplate: string | n
       inspectorState.consoleExpanded = !inspectorState.consoleExpanded;
       saveState();
       applyState();
+    }
+
+    // Toggle sidebar collapsed state
+    function toggleSidebar() {
+      inspectorState.sidebarCollapsed = !inspectorState.sidebarCollapsed;
+      saveState();
+      applySidebarState();
+    }
+
+    // Toggle inspector collapsed state
+    function toggleInspector() {
+      inspectorState.inspectorCollapsed = !inspectorState.inspectorCollapsed;
+      saveState();
+      applyInspectorState();
+    }
+
+    function applySidebarState() {
+      const sidebar = document.getElementById('sidebar');
+      const toggleBtn = document.getElementById('sidebar-toggle');
+      if (inspectorState.sidebarCollapsed) {
+        sidebar.classList.add('collapsed');
+        toggleBtn.innerHTML = '<svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>';
+        toggleBtn.title = 'Expand sidebar (Cmd+B)';
+      } else {
+        sidebar.classList.remove('collapsed');
+        toggleBtn.innerHTML = '<svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>';
+        toggleBtn.title = 'Collapse sidebar (Cmd+B)';
+      }
+    }
+
+    function applyInspectorState() {
+      const panel = document.getElementById('inspector-panel');
+      const toggleBtn = document.getElementById('inspector-toggle');
+      if (inspectorState.inspectorCollapsed) {
+        panel.classList.add('collapsed');
+        toggleBtn.innerHTML = '<svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>';
+        toggleBtn.title = 'Expand inspector (Cmd+J)';
+      } else {
+        panel.classList.remove('collapsed');
+        toggleBtn.innerHTML = '<svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>';
+        toggleBtn.title = 'Collapse inspector (Cmd+J)';
+      }
     }
 
     // Add console message
@@ -1235,10 +1365,12 @@ function createPreviewHTML(templates: TemplateInfo[], activeTemplate: string | n
     // Update template list in sidebar (called when templates are added/removed)
     function updateTemplateList(templates) {
       const sidebar = document.querySelector('.sidebar');
+      const toggleBtn = document.getElementById('sidebar-toggle');
       const titleEl = sidebar.querySelector('.sidebar-title');
 
       // Clear existing buttons
       sidebar.innerHTML = '';
+      sidebar.appendChild(toggleBtn);
       sidebar.appendChild(titleEl);
 
       if (templates.length === 0) {
@@ -1617,6 +1749,24 @@ function createPreviewHTML(templates: TemplateInfo[], activeTemplate: string | n
 
     // Console header click handler
     document.getElementById('console-header').onclick = toggleConsole;
+
+    // Panel toggle click handlers
+    document.getElementById('sidebar-toggle').onclick = toggleSidebar;
+    document.getElementById('inspector-toggle').onclick = toggleInspector;
+
+    // Keyboard shortcuts for panel toggles
+    document.addEventListener('keydown', function(e) {
+      // Cmd/Ctrl+B — toggle sidebar
+      if ((e.metaKey || e.ctrlKey) && e.key === 'b') {
+        e.preventDefault();
+        toggleSidebar();
+      }
+      // Cmd/Ctrl+J — toggle inspector
+      if ((e.metaKey || e.ctrlKey) && e.key === 'j') {
+        e.preventDefault();
+        toggleInspector();
+      }
+    });
 
     let resizeTimeout;
     window.addEventListener('resize', () => {
