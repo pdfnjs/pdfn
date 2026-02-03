@@ -1,5 +1,11 @@
 # pdfn
 
+## 0.8.11
+
+### Patch Changes
+
+- Fix pdfn Cloud API endpoint from /v1/generate to /v1/pdfs
+
 ## 0.8.10
 
 ### Patch Changes
