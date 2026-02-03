@@ -1,5 +1,11 @@
 # pdfn
 
+## 0.8.9
+
+### Patch Changes
+
+- Add collapsible sidebar and inspector panels in dev server
+
 ## 0.8.8
 
 ### Patch Changes

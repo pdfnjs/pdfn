@@ -1,6 +1,6 @@
 {
   "name": "pdfn",
-  "version": "0.8.8",
+  "version": "0.8.9",
   "description": "Dev server and PDF generation for print-ready PDFs",
   "type": "module",
   "bin": {
