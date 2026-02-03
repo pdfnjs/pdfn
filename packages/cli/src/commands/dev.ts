@@ -2205,7 +2205,7 @@ async function startDevServer(options: DevServerOptions) {
       const html = await renderTemplate(template, false);
 
       // Call pdfn Cloud API with standard
-      const response = await fetch("https://api.pdfn.dev/v1/generate", {
+      const response = await fetch("https://api.pdfn.dev/v1/pdfs", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
