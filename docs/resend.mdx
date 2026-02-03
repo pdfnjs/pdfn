@@ -1,0 +1,167 @@
+---
+title: Send PDF email attachments with Resend
+description: Generate invoices, receipts, and reports with pdfn and send them as email attachments using Resend. Includes Next.js examples for App Router and Pages Router.
+keywords: ["PDF email attachment", "Resend PDF", "send invoice email", "email PDF Node.js", "React PDF email", "transactional PDF email"]
+---
+
+Generate PDFs with pdfn and send them as email attachments using [Resend](https://resend.com). Works with invoices, receipts, order confirmations, and reports.
+
+## Setup
+
+Install Resend alongside your existing pdfn setup:
+
+```bash
+npm install resend
+```
+
+Add your Resend API key:
+
+```bash .env.local
+PDFN_API_KEY=pdfn_live_...
+RESEND_API_KEY=re_...
+```
+
+---
+
+## API route
+
+Generate a PDF and send it as an attachment:
+
+<Tabs>
+  <Tab title="App Router">
+    ```tsx app/api/send-invoice/route.tsx
+    import { Resend } from 'resend';
+    import { pdfn } from '@pdfn/react';
+    import Invoice from '@/pdfn-templates/invoice';
+    import { InvoiceEmail } from '@/emails/invoice-email';
+
+    const resend = new Resend(process.env.RESEND_API_KEY);
+    const client = pdfn();
+
+    export async function POST(req: Request) {
+      const { invoiceNumber, customerName, customerEmail, total } = await req.json();
+
+      // Generate PDF
+      const { data: pdf, error: pdfError } = await client.generate({
+        react: <Invoice number={invoiceNumber} customer={customerName} total={total} />,
+      });
+
+      if (pdfError) {
+        return Response.json({ error: pdfError.message }, { status: 500 });
+      }
+
+      // Send email with attachment
+      const { data: email, error: emailError } = await resend.emails.send({
+        from: 'Billing <billing@yourdomain.com>',
+        to: customerEmail,
+        subject: `Invoice ${invoiceNumber}`,
+        react: <InvoiceEmail customerName={customerName} invoiceNumber={invoiceNumber} />,
+        attachments: [
+          {
+            filename: `invoice-${invoiceNumber}.pdf`,
+            content: pdf.buffer,
+          },
+        ],
+      });
+
+      if (emailError) {
+        return Response.json({ error: emailError.message }, { status: 500 });
+      }
+
+      return Response.json({ id: email.id });
+    }
+    ```
+  </Tab>
+  <Tab title="Pages Router">
+    ```tsx pages/api/send-invoice.tsx
+    import type { NextApiRequest, NextApiResponse } from 'next';
+    import { Resend } from 'resend';
+    import { pdfn } from '@pdfn/react';
+    import Invoice from '@/pdfn-templates/invoice';
+    import { InvoiceEmail } from '@/emails/invoice-email';
+
+    const resend = new Resend(process.env.RESEND_API_KEY);
+    const client = pdfn();
+
+    export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+      const { invoiceNumber, customerName, customerEmail, total } = req.body;
+
+      // Generate PDF
+      const { data: pdf, error: pdfError } = await client.generate({
+        react: <Invoice number={invoiceNumber} customer={customerName} total={total} />,
+      });
+
+      if (pdfError) {
+        return res.status(500).json({ error: pdfError.message });
+      }
+
+      // Send email with attachment
+      const { data: email, error: emailError } = await resend.emails.send({
+        from: 'Billing <billing@yourdomain.com>',
+        to: customerEmail,
+        subject: `Invoice ${invoiceNumber}`,
+        react: <InvoiceEmail customerName={customerName} invoiceNumber={invoiceNumber} />,
+        attachments: [
+          {
+            filename: `invoice-${invoiceNumber}.pdf`,
+            content: pdf.buffer,
+          },
+        ],
+      });
+
+      if (emailError) {
+        return res.status(500).json({ error: emailError.message });
+      }
+
+      return res.json({ id: email.id });
+    }
+    ```
+  </Tab>
+</Tabs>
+
+The example uses two React components:
+- `Invoice` — pdfn template for the PDF attachment
+- `InvoiceEmail` — email template for the email body
+
+You can also use `html` or `text` instead of `react` for the email body if you don't need a React component.
+
+---
+
+## Multiple attachments
+
+Generate and attach multiple PDFs:
+
+```tsx
+const [invoice, receipt] = await Promise.all([
+  client.generate({ react: <Invoice {...invoiceData} /> }),
+  client.generate({ react: <Receipt {...receiptData} /> }),
+]);
+
+await resend.emails.send({
+  from: 'Billing <billing@yourdomain.com>',
+  to: customerEmail,
+  subject: 'Your order documents',
+  react: <OrderEmail customerName={customerName} />,
+  attachments: [
+    { filename: 'invoice.pdf', content: invoice.data.buffer },
+    { filename: 'receipt.pdf', content: receipt.data.buffer },
+  ],
+});
+```
+
+<Note>
+  Resend has a 40MB limit per email. For large PDFs, send download links instead.
+</Note>
+
+---
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="Generate & Render" icon="code" href="/generate">
+    Client setup, generate() and render() parameters
+  </Card>
+  <Card title="Components" icon="cube" href="/components">
+    Document, Page, and layout components
+  </Card>
+</CardGroup>

@@ -33,7 +33,7 @@
       },
       {
         "group": "Guides",
-        "pages": ["nextjs", "migrate-from-puppeteer", "self-hosting", "troubleshooting"]
+        "pages": ["nextjs", "resend", "migrate-from-puppeteer", "self-hosting", "troubleshooting"]
       }
     ]
   },

@@ -73,7 +73,7 @@ Accept a request body and return a PDF:
       }
 
       res.setHeader('Content-Type', 'application/pdf');
-      res.send(Buffer.from(data.buffer));
+      res.send(data.buffer);
     }
     ```
   </Tab>
