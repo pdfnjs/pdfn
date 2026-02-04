@@ -30,7 +30,11 @@ const terms = [
   },
 ];
 
-export default function Contract({ watermark = "CONFIDENTIAL" }: { watermark?: string }) {
+interface ContractProps {
+  watermark: string;
+}
+
+function Contract({ watermark }: ContractProps) {
   const title = "ENTERPRISE SERVICE AGREEMENT";
   const effectiveDate = "January 1, 2026";
 
@@ -157,3 +161,9 @@ export default function Contract({ watermark = "CONFIDENTIAL" }: { watermark?: s
     </Document>
   );
 }
+
+Contract.PreviewProps = {
+  watermark: "CONFIDENTIAL",
+} satisfies ContractProps;
+
+export default Contract;

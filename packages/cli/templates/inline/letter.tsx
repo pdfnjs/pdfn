@@ -11,7 +11,7 @@ import { Document, Page } from "@pdfn/react";
  */
 
 interface LetterProps {
-  sender?: {
+  sender: {
     name: string;
     title?: string;
     company: string;
@@ -20,45 +20,28 @@ interface LetterProps {
     email: string;
     phone: string;
   };
-  recipient?: {
+  recipient: {
     name: string;
     title?: string;
     company: string;
     address: string;
     city: string;
   };
-  date?: string;
-  subject?: string;
-  body?: string[];
-  closing?: string;
-  signature?: string;
+  date: string;
+  subject: string;
+  body: string[];
+  closing: string;
+  signature: string;
 }
 
-export default function Letter({
-  sender = {
-    name: "Alex Chen",
-    title: "Head of Partnerships",
-    company: "Your Company",
-    address: "123 Business St, Suite 100",
-    city: "San Francisco, CA 94102",
-    email: "alex@yourcompany.com",
-    phone: "+1 (555) 123-4567",
-  },
-  recipient = {
-    name: "Sarah Johnson",
-    title: "Chief Technology Officer",
-    company: "Acme Corporation",
-    address: "456 Enterprise Blvd, Suite 100",
-    city: "Austin, TX 78701",
-  },
-  date = "January 15, 2025",
-  subject = "Partnership Proposal",
-  body = [
-    "Following our conversation last month, I wanted to formally present our partnership proposal. Our platform has helped over 500 companies streamline their workflows, and we believe it would be an excellent fit for your needs.",
-    "I would welcome the opportunity to schedule a technical demo with your team. Please let me know if you would be available for a call next week.",
-  ],
-  closing = "Best regards",
-  signature = "Alex Chen",
+function Letter({
+  sender,
+  recipient,
+  date,
+  subject,
+  body,
+  closing,
+  signature,
 }: LetterProps) {
   return (
     <Document title={`Letter - ${subject}`}>
@@ -127,3 +110,32 @@ export default function Letter({
     </Document>
   );
 }
+
+Letter.PreviewProps = {
+  sender: {
+    name: "Alex Chen",
+    title: "Head of Partnerships",
+    company: "Your Company",
+    address: "123 Business St, Suite 100",
+    city: "San Francisco, CA 94102",
+    email: "alex@yourcompany.com",
+    phone: "+1 (555) 123-4567",
+  },
+  recipient: {
+    name: "Sarah Johnson",
+    title: "Chief Technology Officer",
+    company: "Acme Corporation",
+    address: "456 Enterprise Blvd, Suite 100",
+    city: "Austin, TX 78701",
+  },
+  date: "January 15, 2025",
+  subject: "Partnership Proposal",
+  body: [
+    "Following our conversation last month, I wanted to formally present our partnership proposal. Our platform has helped over 500 companies streamline their workflows, and we believe it would be an excellent fit for your needs.",
+    "I would welcome the opportunity to schedule a technical demo with your team. Please let me know if you would be available for a call next week.",
+  ],
+  closing: "Best regards",
+  signature: "Alex Chen",
+} satisfies LetterProps;
+
+export default Letter;

@@ -35,7 +35,11 @@ const revenueByRegion = [
 const formatCurrency = (value: number) =>
   "$" + value.toLocaleString("en-US");
 
-export default function Report({ period = "January 2026" }: { period?: string }) {
+interface ReportProps {
+  period: string;
+}
+
+function Report({ period }: ReportProps) {
   return (
     <Document title="Monthly Sales Report">
       <Tailwind>
@@ -186,3 +190,10 @@ export default function Report({ period = "January 2026" }: { period?: string })
     </Document>
   );
 }
+
+Report.PreviewProps = {
+  period: "January 2026",
+} satisfies ReportProps;
+
+export default Report;
+

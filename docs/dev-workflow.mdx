@@ -46,25 +46,77 @@ your-project/
 
 Files inside `pdfn-templates/components/` are not treated as templates — only top-level `.tsx` files appear in the preview.
 
-## Default props for preview
+## PreviewProps for dev preview
 
-Templates should use default parameters so the preview renders without an API call:
+Templates use a static `PreviewProps` property to provide sample data for the dev server preview:
 
 ```tsx pdfn-templates/invoice.tsx
 import { Document, Page } from '@pdfn/react';
 
-const sampleData = { number: 'INV-001', customer: 'Acme Corp', total: 148 };
+interface InvoiceProps {
+  number: string;
+  customer: string;
+  total: number;
+}
 
-export default function Invoice({ data = sampleData }: { data?: InvoiceData }) {
+function Invoice({ number, customer, total }: InvoiceProps) {
   return (
-    <Document title={`Invoice ${data.number}`}>
+    <Document title={`Invoice ${number}`}>
       <Page size="A4" margin="1in">
         {/* template content */}
       </Page>
     </Document>
   );
 }
+
+Invoice.PreviewProps = {
+  number: 'INV-001',
+  customer: 'Acme Corp',
+  total: 148,
+} satisfies InvoiceProps;
+
+export default Invoice;
 ```
+
+This pattern keeps props required (better type safety) while providing sample data that the dev server uses automatically.
+
+## Production usage
+
+In production, pass actual data as props when calling `generate()`:
+
+```tsx app/api/invoice/route.tsx
+import { pdfn } from '@pdfn/react';
+import Invoice from '@/pdfn-templates/invoice';
+
+const client = pdfn();
+
+export async function GET(request: Request) {
+  // Fetch real data from your database
+  const invoiceData = await db.invoices.findUnique({ where: { id: '123' } });
+
+  // Pass data as props — PreviewProps is ignored in production
+  const { data, error } = await client.generate({
+    react: <Invoice
+      number={invoiceData.number}
+      customer={invoiceData.customer}
+      total={invoiceData.total}
+    />,
+  });
+
+  if (error) {
+    return Response.json({ error: error.message }, { status: 500 });
+  }
+
+  return new Response(data.buffer, {
+    headers: { 'Content-Type': 'application/pdf' },
+  });
+}
+```
+
+**Key points:**
+- `PreviewProps` is only used by the dev server (`pdfn dev`) for preview
+- In production, you pass props directly to the component like any React component
+- Props are required in the interface, so TypeScript ensures you pass all necessary data
 
 ## Debug overlays
 

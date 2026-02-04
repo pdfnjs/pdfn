@@ -15,14 +15,14 @@ import { Document, Page } from "@pdfn/react";
  */
 
 interface PosterProps {
-  headline?: string;
-  year?: string;
-  subheadline?: string;
-  date?: string;
-  venue?: string;
-  highlights?: string[];
-  cta?: string;
-  website?: string;
+  headline: string;
+  year: string;
+  subheadline: string;
+  date: string;
+  venue: string;
+  highlights: string[];
+  cta: string;
+  website: string;
 }
 
 // CSS styles as a string for the css prop
@@ -190,15 +190,15 @@ const posterStyles = `
   }
 `;
 
-export default function Poster({
-  headline = "React PDF Summit",
-  year = "2026",
-  subheadline = "Innovation Meets Inspiration",
-  date = "March 15-17, 2026",
-  venue = "Moscone Center, San Francisco",
-  highlights = ["50+ Speakers", "React & PDFs", "Workshops"],
-  cta = "Get Tickets",
-  website = "summit.pdfn.dev",
+function Poster({
+  headline,
+  year,
+  subheadline,
+  date,
+  venue,
+  highlights,
+  cta,
+  website,
 }: PosterProps) {
   // Tabloid landscape dimensions
   const pageHeight = "792pt"; // 11 inches
@@ -270,3 +270,16 @@ export default function Poster({
     </Document>
   );
 }
+
+Poster.PreviewProps = {
+  headline: "React PDF Summit",
+  year: "2026",
+  subheadline: "Innovation Meets Inspiration",
+  date: "March 15-17, 2026",
+  venue: "Moscone Center, San Francisco",
+  highlights: ["50+ Speakers", "React & PDFs", "Workshops"],
+  cta: "Get Tickets",
+  website: "summit.pdfn.dev",
+} satisfies PosterProps;
+
+export default Poster;

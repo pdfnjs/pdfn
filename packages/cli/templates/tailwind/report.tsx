@@ -37,31 +37,31 @@ import {
  */
 
 interface ReportProps {
-  title?: string;
-  period?: string;
-  generatedDate?: string;
-  monthlySales?: Array<{
+  title: string;
+  period: string;
+  generatedDate: string;
+  monthlySales: Array<{
     month: string;
     revenue: number;
     expenses: number;
     profit: number;
   }>;
-  categoryBreakdown?: Array<{
+  categoryBreakdown: Array<{
     name: string;
     value: number;
     color: string;
   }>;
-  quarterlyGrowth?: Array<{
+  quarterlyGrowth: Array<{
     quarter: string;
     growth: number;
   }>;
-  summary?: {
+  summary: {
     totalRevenue: number;
     totalExpenses: number;
     netProfit: number;
     growthRate: number;
   };
-  company?: {
+  company: {
     name: string;
     department: string;
   };
@@ -69,38 +69,15 @@ interface ReportProps {
 
 const COLORS = ["#3b82f6", "#10b981", "#f59e0b", "#ef4444", "#8b5cf6"];
 
-export default function Report({
-  title = "Quarterly Sales Report",
-  period = "Q4 2024",
-  generatedDate = "January 15, 2025",
-  monthlySales = [
-    { month: "Oct", revenue: 82000, expenses: 49000, profit: 33000 },
-    { month: "Nov", revenue: 91000, expenses: 53000, profit: 38000 },
-    { month: "Dec", revenue: 98000, expenses: 56000, profit: 42000 },
-    { month: "Jan", revenue: 45000, expenses: 32000, profit: 13000 },
-  ],
-  categoryBreakdown = [
-    { name: "Electronics", value: 35, color: "#3b82f6" },
-    { name: "Software", value: 28, color: "#10b981" },
-    { name: "Services", value: 22, color: "#f59e0b" },
-    { name: "Hardware", value: 15, color: "#ef4444" },
-  ],
-  quarterlyGrowth = [
-    { quarter: "Q1", growth: 12 },
-    { quarter: "Q2", growth: 18 },
-    { quarter: "Q3", growth: 24 },
-    { quarter: "Q4", growth: 31 },
-  ],
-  summary = {
-    totalRevenue: 818000,
-    totalExpenses: 506000,
-    netProfit: 312000,
-    growthRate: 31,
-  },
-  company = {
-    name: "Your Company",
-    department: "Finance Department",
-  },
+function Report({
+  title,
+  period,
+  generatedDate,
+  monthlySales,
+  categoryBreakdown,
+  quarterlyGrowth,
+  summary,
+  company,
 }: ReportProps) {
   const formatCurrency = (value: number) =>
     "$" + value.toLocaleString("en-US");
@@ -259,3 +236,39 @@ export default function Report({
     </Document>
   );
 }
+
+Report.PreviewProps = {
+  title: "Quarterly Sales Report",
+  period: "Q4 2024",
+  generatedDate: "January 15, 2025",
+  monthlySales: [
+    { month: "Oct", revenue: 82000, expenses: 49000, profit: 33000 },
+    { month: "Nov", revenue: 91000, expenses: 53000, profit: 38000 },
+    { month: "Dec", revenue: 98000, expenses: 56000, profit: 42000 },
+    { month: "Jan", revenue: 45000, expenses: 32000, profit: 13000 },
+  ],
+  categoryBreakdown: [
+    { name: "Electronics", value: 35, color: "#3b82f6" },
+    { name: "Software", value: 28, color: "#10b981" },
+    { name: "Services", value: 22, color: "#f59e0b" },
+    { name: "Hardware", value: 15, color: "#ef4444" },
+  ],
+  quarterlyGrowth: [
+    { quarter: "Q1", growth: 12 },
+    { quarter: "Q2", growth: 18 },
+    { quarter: "Q3", growth: 24 },
+    { quarter: "Q4", growth: 31 },
+  ],
+  summary: {
+    totalRevenue: 818000,
+    totalExpenses: 506000,
+    netProfit: 312000,
+    growthRate: 31,
+  },
+  company: {
+    name: "Your Company",
+    department: "Finance Department",
+  },
+} satisfies ReportProps;
+
+export default Report;

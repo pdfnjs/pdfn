@@ -81,7 +81,10 @@ async function scanTemplates(templatesDir: string): Promise<TemplateInfo[]> {
     try {
       const content = readFileSync(filePath, "utf-8");
       // Must have a default export that looks like a component
-      if (!content.includes("export default") || !content.includes("function")) {
+      // Support: export default function, function X + export default X, const X = () => + export default X
+      const hasDefaultExport = content.includes("export default");
+      const hasComponent = content.includes("function") || /const\s+\w+\s*=\s*\(/.test(content);
+      if (!hasDefaultExport || !hasComponent) {
         continue;
       }
       // Skip files that are clearly not templates (no Document/Page imports)
@@ -2036,7 +2039,7 @@ async function startDevServer(options: DevServerOptions) {
   });
 
   // Helper: Render a template to HTML using Vite
-  // Templates use default parameter values for sample data (React Email pattern)
+  // Templates use PreviewProps static property for sample data (React Email pattern)
   async function renderTemplate(
     template: TemplateInfo,
     debugOptions: DebugOptions | false = false
@@ -2046,9 +2049,10 @@ async function startDevServer(options: DevServerOptions) {
     const { pdfn } = await vite.ssrLoadModule("@pdfn/react");
     const client = pdfn();
     // Use React.createElement so element.type === Component (preserves markers)
-    // Empty props - component's default parameter values provide sample data
+    // Pass PreviewProps if defined on the component, otherwise empty object
+    const previewProps = Component.PreviewProps || {};
     const { data, error } = await client.render({
-      react: React.createElement(Component, {}),
+      react: React.createElement(Component, previewProps),
       debug: debugOptions || undefined,
     });
     if (error) {

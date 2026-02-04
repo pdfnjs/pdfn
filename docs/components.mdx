@@ -13,7 +13,12 @@ Every template is a React component that exports a `Document` containing one or 
 ```tsx pdfn-templates/my-template.tsx
 import { Document, Page } from '@pdfn/react';
 
-export default function MyTemplate({ title, content }) {
+interface MyTemplateProps {
+  title: string;
+  content: string;
+}
+
+function MyTemplate({ title, content }: MyTemplateProps) {
   return (
     <Document title={title}>
       <Page size="A4" margin="1in">
@@ -23,6 +28,14 @@ export default function MyTemplate({ title, content }) {
     </Document>
   );
 }
+
+// PreviewProps provides sample data for dev server preview
+MyTemplate.PreviewProps = {
+  title: 'My Document',
+  content: 'Hello, world!',
+} satisfies MyTemplateProps;
+
+export default MyTemplate;
 ```
 
 Save this file in `pdfn-templates/` and it will appear in the dev server preview (`npx pdfn dev`).

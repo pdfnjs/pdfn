@@ -12,31 +12,31 @@ import { Tailwind } from "@pdfn/tailwind";
  */
 
 interface TicketProps {
-  event?: string;
-  year?: string;
-  tagline?: string;
-  date?: string;
-  time?: string;
-  venue?: string;
-  venueAddress?: string;
-  attendee?: string;
-  ticketType?: string;
-  ticketNumber?: string;
-  price?: string;
+  event: string;
+  year: string;
+  tagline: string;
+  date: string;
+  time: string;
+  venue: string;
+  venueAddress: string;
+  attendee: string;
+  ticketType: string;
+  ticketNumber: string;
+  price: string;
 }
 
-export default function Ticket({
-  event = "Tech Conference",
-  year = "2025",
-  tagline = "Innovation Meets Inspiration",
-  date = "March 15, 2025",
-  time = "9:00 AM - 6:00 PM",
-  venue = "Convention Center",
-  venueAddress = "123 Main St, San Francisco, CA",
-  attendee = "John Smith",
-  ticketType = "VIP Access",
-  ticketNumber = "TC25-VIP-001234",
-  price = "$599.00",
+function Ticket({
+  event,
+  year,
+  tagline,
+  date,
+  time,
+  venue,
+  venueAddress,
+  attendee,
+  ticketType,
+  ticketNumber,
+  price,
 }: TicketProps) {
   return (
     <Document title={`Ticket - ${event}`}>
@@ -139,3 +139,19 @@ export default function Ticket({
     </Document>
   );
 }
+
+Ticket.PreviewProps = {
+  event: "Tech Conference",
+  year: "2025",
+  tagline: "Innovation Meets Inspiration",
+  date: "March 15, 2025",
+  time: "9:00 AM - 6:00 PM",
+  venue: "Convention Center",
+  venueAddress: "123 Main St, San Francisco, CA",
+  attendee: "John Smith",
+  ticketType: "VIP Access",
+  ticketNumber: "TC25-VIP-001234",
+  price: "$599.00",
+} satisfies TicketProps;
+
+export default Ticket;

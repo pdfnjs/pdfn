@@ -11,23 +11,23 @@ import { Document, Page, PageNumber, TotalPages } from "@pdfn/react";
  */
 
 interface InvoiceProps {
-  number?: string;
-  date?: string;
-  dueDate?: string;
-  customer?: {
+  number: string;
+  date: string;
+  dueDate: string;
+  customer: {
     name: string;
     address: string;
     city: string;
   };
-  items?: Array<{
+  items: Array<{
     name: string;
     description?: string;
     qty: number;
     price: number;
   }>;
-  taxRate?: number;
-  notes?: string;
-  company?: {
+  taxRate: number;
+  notes: string;
+  company: {
     name: string;
     address: string;
     email: string;
@@ -35,28 +35,15 @@ interface InvoiceProps {
   };
 }
 
-export default function Invoice({
-  number = "INV-2025-001",
-  date = "January 15, 2025",
-  dueDate = "February 14, 2025",
-  customer = {
-    name: "Acme Corporation",
-    address: "456 Enterprise Blvd, Suite 100",
-    city: "Austin, TX 78701",
-  },
-  items = [
-    { name: "Web Development", description: "Frontend development with React", qty: 40, price: 150 },
-    { name: "API Integration", description: "REST API setup and configuration", qty: 20, price: 175 },
-    { name: "UI/UX Design", description: "User interface design", qty: 15, price: 125 },
-  ],
-  taxRate = 0.1,
-  notes = "Payment is due within 30 days. Thank you for your business!",
-  company = {
-    name: "Your Company",
-    address: "123 Business St, San Francisco, CA 94102",
-    email: "hello@yourcompany.com",
-    phone: "+1 (555) 123-4567",
-  },
+function Invoice({
+  number,
+  date,
+  dueDate,
+  customer,
+  items,
+  taxRate,
+  notes,
+  company,
 }: InvoiceProps) {
   const subtotal = items.reduce((sum, item) => sum + item.qty * item.price, 0);
   const tax = subtotal * taxRate;
@@ -187,3 +174,29 @@ export default function Invoice({
     </Document>
   );
 }
+
+Invoice.PreviewProps = {
+  number: "INV-2025-001",
+  date: "January 15, 2025",
+  dueDate: "February 14, 2025",
+  customer: {
+    name: "Acme Corporation",
+    address: "456 Enterprise Blvd, Suite 100",
+    city: "Austin, TX 78701",
+  },
+  items: [
+    { name: "Web Development", description: "Frontend development with React", qty: 40, price: 150 },
+    { name: "API Integration", description: "REST API setup and configuration", qty: 20, price: 175 },
+    { name: "UI/UX Design", description: "User interface design", qty: 15, price: 125 },
+  ],
+  taxRate: 0.1,
+  notes: "Payment is due within 30 days. Thank you for your business!",
+  company: {
+    name: "Your Company",
+    address: "123 Business St, San Francisco, CA 94102",
+    email: "hello@yourcompany.com",
+    phone: "+1 (555) 123-4567",
+  },
+} satisfies InvoiceProps;
+
+export default Invoice;

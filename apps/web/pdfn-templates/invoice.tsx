@@ -19,7 +19,11 @@ const items = [
 
 const taxRate = 0.0875;
 
-export default function Invoice({ number = "INV-2026-001" }: { number?: string }) {
+interface InvoiceProps {
+  number: string;
+}
+
+function Invoice({ number }: InvoiceProps) {
   const subtotal = items.reduce((sum, item) => sum + item.qty * item.price, 0);
   const tax = subtotal * taxRate;
   const total = subtotal + tax;
@@ -151,3 +155,9 @@ export default function Invoice({ number = "INV-2026-001" }: { number?: string }
     </Document>
   );
 }
+
+Invoice.PreviewProps = {
+  number: "INV-2026-001",
+} satisfies InvoiceProps;
+
+export default Invoice;

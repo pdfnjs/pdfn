@@ -13,25 +13,25 @@ import { Tailwind } from "@pdfn/tailwind";
  */
 
 interface PosterProps {
-  headline?: string;
-  year?: string;
-  subheadline?: string;
-  date?: string;
-  venue?: string;
-  highlights?: string[];
-  cta?: string;
-  website?: string;
+  headline: string;
+  year: string;
+  subheadline: string;
+  date: string;
+  venue: string;
+  highlights: string[];
+  cta: string;
+  website: string;
 }
 
-export default function Poster({
-  headline = "Tech Conference",
-  year = "2025",
-  subheadline = "Innovation Meets Inspiration",
-  date = "March 15-17, 2025",
-  venue = "Convention Center, San Francisco",
-  highlights = ["50+ Speakers", "Workshops", "Networking"],
-  cta = "Get Tickets",
-  website = "techconf2025.com",
+function Poster({
+  headline,
+  year,
+  subheadline,
+  date,
+  venue,
+  highlights,
+  cta,
+  website,
 }: PosterProps) {
   // Tabloid landscape dimensions
   const pageHeight = "792pt"; // 11 inches
@@ -123,3 +123,16 @@ export default function Poster({
     </Document>
   );
 }
+
+Poster.PreviewProps = {
+  headline: "Tech Conference",
+  year: "2025",
+  subheadline: "Innovation Meets Inspiration",
+  date: "March 15-17, 2025",
+  venue: "Convention Center, San Francisco",
+  highlights: ["50+ Speakers", "Workshops", "Networking"],
+  cta: "Get Tickets",
+  website: "techconf2025.com",
+} satisfies PosterProps;
+
+export default Poster;

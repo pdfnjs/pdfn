@@ -20,7 +20,11 @@ const colors = {
   gray50: "#f9fafb",
 };
 
-export default function Letter({ subject = "Enterprise Partnership Proposal" }: { subject?: string }) {
+interface LetterProps {
+  subject: string;
+}
+
+function Letter({ subject }: LetterProps) {
   return (
     <Document title={`Letter - ${subject}`}>
       <Page size="Letter" margin="1in">
@@ -204,3 +208,9 @@ export default function Letter({ subject = "Enterprise Partnership Proposal" }: 
     </Document>
   );
 }
+
+Letter.PreviewProps = {
+  subject: "Enterprise Partnership Proposal",
+} satisfies LetterProps;
+
+export default Letter;

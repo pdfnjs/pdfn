@@ -12,10 +12,10 @@ import { Document, Page, PageNumber, TotalPages, NoBreak } from "@pdfn/react";
  */
 
 interface ContractProps {
-  title?: string;
-  effectiveDate?: string;
-  watermark?: string;
-  parties?: {
+  title: string;
+  effectiveDate: string;
+  watermark: string;
+  parties: {
     provider: {
       name: string;
       address: string;
@@ -27,58 +27,23 @@ interface ContractProps {
       representative: string;
     };
   };
-  terms?: Array<{
+  terms: Array<{
     title: string;
     content: string;
   }>;
-  signatures?: {
+  signatures: {
     provider: { name: string; title: string };
     client: { name: string; title: string };
   };
 }
 
-export default function Contract({
-  title = "SERVICE AGREEMENT",
-  effectiveDate = "January 1, 2025",
-  watermark = "DRAFT",
-  parties = {
-    provider: {
-      name: "Your Company, Inc.",
-      address: "123 Business St, San Francisco, CA 94102",
-      representative: "Alex Chen, CEO",
-    },
-    client: {
-      name: "Acme Corporation",
-      address: "456 Enterprise Blvd, Austin, TX 78701",
-      representative: "Sarah Johnson, CTO",
-    },
-  },
-  terms = [
-    {
-      title: "Services",
-      content:
-        "Provider agrees to deliver the Platform including all features and any updates released during the term of this Agreement.",
-    },
-    {
-      title: "Compensation",
-      content:
-        "Client shall pay Provider an annual license fee as specified in the Order Form. All fees are non-refundable and exclusive of applicable taxes.",
-    },
-    {
-      title: "Term and Termination",
-      content:
-        "This Agreement shall commence on the Effective Date and continue for twelve (12) months, automatically renewing unless either party provides written notice at least thirty (30) days prior.",
-    },
-    {
-      title: "Confidentiality",
-      content:
-        "Both parties agree to maintain the confidentiality of any proprietary information disclosed during this engagement. This obligation shall survive termination for three (3) years.",
-    },
-  ],
-  signatures = {
-    provider: { name: "Alex Chen", title: "CEO" },
-    client: { name: "Sarah Johnson", title: "CTO" },
-  },
+function Contract({
+  title,
+  effectiveDate,
+  watermark,
+  parties,
+  terms,
+  signatures,
 }: ContractProps) {
   return (
     <Document title={title}>
@@ -216,3 +181,49 @@ export default function Contract({
     </Document>
   );
 }
+
+Contract.PreviewProps = {
+  title: "SERVICE AGREEMENT",
+  effectiveDate: "January 1, 2025",
+  watermark: "DRAFT",
+  parties: {
+    provider: {
+      name: "Your Company, Inc.",
+      address: "123 Business St, San Francisco, CA 94102",
+      representative: "Alex Chen, CEO",
+    },
+    client: {
+      name: "Acme Corporation",
+      address: "456 Enterprise Blvd, Austin, TX 78701",
+      representative: "Sarah Johnson, CTO",
+    },
+  },
+  terms: [
+    {
+      title: "Services",
+      content:
+        "Provider agrees to deliver the Platform including all features and any updates released during the term of this Agreement.",
+    },
+    {
+      title: "Compensation",
+      content:
+        "Client shall pay Provider an annual license fee as specified in the Order Form. All fees are non-refundable and exclusive of applicable taxes.",
+    },
+    {
+      title: "Term and Termination",
+      content:
+        "This Agreement shall commence on the Effective Date and continue for twelve (12) months, automatically renewing unless either party provides written notice at least thirty (30) days prior.",
+    },
+    {
+      title: "Confidentiality",
+      content:
+        "Both parties agree to maintain the confidentiality of any proprietary information disclosed during this engagement. This obligation shall survive termination for three (3) years.",
+    },
+  ],
+  signatures: {
+    provider: { name: "Alex Chen", title: "CEO" },
+    client: { name: "Sarah Johnson", title: "CTO" },
+  },
+} satisfies ContractProps;
+
+export default Contract;

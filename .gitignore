@@ -53,5 +53,6 @@ pnpm-debug.log*
 
 # Project documentation - DO NOT REMOVE
 references/
+docs-internal/
 CLAUDE.md
 tasks.md
