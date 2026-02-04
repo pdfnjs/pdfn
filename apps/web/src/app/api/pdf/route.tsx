@@ -20,6 +20,37 @@ const templateComponents: Record<string, React.ComponentType<any>> = {
   poster: Poster,
 };
 
+// Preview props for all templates (sample data for website preview)
+const templatePreviewProps: Record<string, Record<string, unknown>> = {
+  invoice: { number: "INV-2026-001" },
+  letter: { subject: "Enterprise Partnership Proposal" },
+  contract: { watermark: "CONFIDENTIAL" },
+  ticket: {
+    event: "React PDF Summit",
+    year: "2026",
+    tagline: "Build What's Next",
+    date: "March 15, 2026",
+    time: "9:00 AM - 6:00 PM",
+    venue: "Moscone Center",
+    venueAddress: "747 Howard St, San Francisco, CA",
+    attendee: "John Smith",
+    ticketType: "VIP Access",
+    ticketNumber: "RPS26-VIP-001234",
+    price: "$599.00",
+  },
+  poster: {
+    headline: "React PDF Summit",
+    year: "2026",
+    subheadline: "Innovation Meets Inspiration",
+    date: "March 15-17, 2026",
+    venue: "Moscone Center, San Francisco",
+    highlights: ["50+ Speakers", "React & PDFs", "Workshops"],
+    cta: "Get Tickets",
+    website: "summit.pdfn.dev",
+  },
+  report: { period: "January 2026" },
+};
+
 // Create pdfn client for server-side rendering
 const client = pdfn();
 
@@ -84,7 +115,7 @@ export async function GET(request: NextRequest) {
 
     try {
       const { html } = await renderTemplate(templateId, {
-        props: {},
+        props: templatePreviewProps[templateId] || {},
         title: name,
         pageSize,
         orientation,
@@ -123,7 +154,8 @@ export async function GET(request: NextRequest) {
   console.log(`[pdf] render "${name}" (${pageSize} ${orientation})`);
 
   try {
-    const { data, error } = await client.render({ react: <Component />, debug: debug || undefined });
+    const previewProps = templatePreviewProps[templateId] || {};
+    const { data, error } = await client.render({ react: <Component {...previewProps} />, debug: debug || undefined });
 
     if (error) {
       throw new Error(error.message);
