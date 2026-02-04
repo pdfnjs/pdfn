@@ -1,6 +1,6 @@
 {
   "name": "@pdfn/vite",
-  "version": "2.0.1",
+  "version": "2.0.2",
   "description": "Vite plugin for pdfn - Pre-compiles Tailwind CSS for edge runtime support",
   "type": "module",
   "exports": {

@@ -1,5 +1,12 @@
 # @pdfn/tailwind
 
+## 0.2.3
+
+### Patch Changes
+
+- Updated dependencies [5d1dfd0]
+  - @pdfn/core@0.2.0
+
 ## 0.2.2
 
 ### Patch Changes

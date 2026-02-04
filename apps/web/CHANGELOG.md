@@ -1,5 +1,14 @@
 # web
 
+## 0.1.25
+
+### Patch Changes
+
+- @pdfn/client@0.1.3
+- @pdfn/next@2.0.2
+- @pdfn/react@1.1.2
+- @pdfn/tailwind@0.2.3
+
 ## 0.1.24
 
 ### Patch Changes
