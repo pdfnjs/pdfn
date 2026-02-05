@@ -44,7 +44,10 @@ your-project/
 └── package.json
 ```
 
-Files inside `pdfn-templates/components/` are not treated as templates — only top-level `.tsx` files appear in the preview.
+Only top-level `.tsx` files appear in the preview sidebar. Files are excluded if they:
+
+- Are inside subdirectories (e.g., `components/Header.tsx`)
+- Start with `_` (e.g., `_utils.tsx`, `_shared.tsx`)
 
 ## PreviewProps for dev preview
 
@@ -121,6 +124,31 @@ export async function GET(request: Request) {
 ## Debug overlays
 
 You can enable visual overlays for grid, margins, headers, and page breaks to debug layout issues. See [Generate & Render](/generate#debug-options) for all options.
+
+## FAQ
+
+<AccordionGroup>
+  <Accordion title="How do I add sample data for preview?">
+    Use the `PreviewProps` static property on your template component. The dev server uses this data automatically. See [PreviewProps for dev preview](#previewprops-for-dev-preview).
+  </Accordion>
+  <Accordion title="How do I exclude files from the template list?">
+    Two options:
+    - **Subdirectory**: Put shared components in `pdfn-templates/components/`
+    - **Underscore prefix**: Name files with `_` prefix (e.g., `_utils.tsx`, `_shared.tsx`)
+
+    Both are excluded from the preview sidebar.
+  </Accordion>
+  <Accordion title="What files are recognized as templates?">
+    A file appears in the preview sidebar if it:
+    - Is a `.tsx` file in the root of `pdfn-templates/`
+    - Has a default export (component function)
+    - Imports `Document` or `Page` from `@pdfn/react`
+    - Does not start with `_`
+  </Accordion>
+  <Accordion title="Why don't my images or fonts work in production?">
+    pdfn Cloud renders PDFs on remote servers that cannot access your local filesystem. Use absolute URLs for images and Google Fonts instead of local files. See [Styling — Images](/styling#images) and [Styling — Fonts](/styling#fonts).
+  </Accordion>
+</AccordionGroup>
 
 ---
 

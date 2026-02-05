@@ -67,7 +67,9 @@ async function scanTemplates(templatesDir: string): Promise<TemplateInfo[]> {
     }
   }
 
-  const files = readdirSync(templatesDir).filter((f) => f.endsWith(".tsx"));
+  const files = readdirSync(templatesDir).filter(
+    (f) => f.endsWith(".tsx") && !f.startsWith("_")
+  );
 
   // Filter to only include files that look like templates
   // (have "export default function" or similar patterns)
@@ -1919,6 +1921,8 @@ async function startDevServer(options: DevServerOptions) {
     const fileName = filePath.split("/").pop() || "";
     // Must be a .tsx file in the root of templates dir (not in subdirectories)
     if (!fileName.endsWith(".tsx")) return false;
+    // Files prefixed with _ are excluded from the template list
+    if (fileName.startsWith("_")) return false;
     // Check if it's a direct child of templates dir
     const relativePath = filePath.replace(absoluteTemplatesDir + "/", "");
     if (relativePath.includes("/")) return false;

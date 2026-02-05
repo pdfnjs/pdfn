@@ -1,6 +1,6 @@
 ---
 title: Components
-description: Reference for Document, Page, PageNumber, TotalPages, PageBreak, NoBreak, and table helper components. Includes props, fonts, and usage examples.
+description: Reference for Document, Page, PageNumber, TotalPages, PageBreak, NoBreak, and table helper components. Includes props and usage examples.
 keywords: ["PDF components", "Document", "Page", "PageNumber", "PageBreak", "React PDF layout"]
 ---
 
@@ -81,42 +81,19 @@ export default function MyPdf() {
 
 ### Fonts
 
-Pass font names for Google Fonts, or `FontConfig` objects for more control:
+Pass font names for Google Fonts, or font config objects for local files:
 
 ```tsx
-// Google Fonts — pass the name
+// Google Fonts
 <Document fonts={["Inter", "Roboto Mono"]}>
 
-// Google Fonts with specific weights
-<Document fonts={[{ family: "Inter", weights: [400, 500, 700] }]}>
-
-// Local fonts — embedded as base64 in the PDF
+// Local fonts
 <Document fonts={[
   { family: "CustomFont", src: "./fonts/custom.woff2", weight: 400 },
-  { family: "CustomFont", src: "./fonts/custom-bold.woff2", weight: 700 },
 ]}>
 ```
 
-**Google Font config:**
-
-| Field | Type | Default | Description |
-|-------|------|---------|-------------|
-| `family` | `string` | — | Font family name (must match Google Fonts) |
-| `weights` | `number[]` | `[400, 500, 600, 700]` | Font weights to include |
-| `style` | `"normal" \| "italic"` | `"normal"` | Font style |
-
-**Local font config:**
-
-| Field | Type | Default | Description |
-|-------|------|---------|-------------|
-| `family` | `string` | — | Font family name |
-| `src` | `string` | — | Path to font file (`.woff2`, `.woff`, `.ttf`, `.otf`) |
-| `weight` | `number` | `400` | Font weight |
-| `style` | `"normal" \| "italic"` | `"normal"` | Font style |
-
-<Note>
-  Local fonts and images require a server environment and won't work on edge runtimes. Use web fonts and remote URLs for edge compatibility.
-</Note>
+See [Styling — Fonts](/styling#fonts) for configuration options and edge runtime considerations.
 
 ---
 

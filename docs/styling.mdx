@@ -1,7 +1,7 @@
 ---
 title: Styling
-description: Style PDF templates with Tailwind CSS, custom stylesheets, or inline styles. Covers the Tailwind component, custom themes, and print CSS notes.
-keywords: ["PDF styling", "Tailwind CSS", "custom CSS", "inline styles", "PDF design"]
+description: Style PDF templates with Tailwind CSS, custom stylesheets, or inline styles. Covers fonts, images, custom themes, and print CSS notes.
+keywords: ["PDF styling", "Tailwind CSS", "custom CSS", "inline styles", "PDF fonts", "PDF images", "Google Fonts"]
 ---
 
 Pdfn supports three styling approaches. Choose based on your needs:
@@ -191,6 +191,117 @@ You can mix all three approaches. Styles are applied in this order (later wins):
   </Tailwind>
 </Document>
 ```
+
+---
+
+## Fonts
+
+Load custom fonts via the `fonts` prop on `Document`. Pdfn supports Google Fonts and local font files.
+
+### Google Fonts
+
+Pass font names as strings, or configure weights and styles:
+
+```tsx
+import { Document, Page } from '@pdfn/react';
+
+// Simple — default weights (400, 500, 600, 700)
+<Document fonts={["Inter", "Roboto Mono"]}>
+  <Page size="A4">
+    <h1 style={{ fontFamily: 'Inter' }}>Styled heading</h1>
+    <code style={{ fontFamily: 'Roboto Mono' }}>console.log('hello')</code>
+  </Page>
+</Document>
+
+// With specific weights
+<Document fonts={[{ family: "Inter", weights: [400, 700] }]}>
+```
+
+| Field | Type | Default | Description |
+|-------|------|---------|-------------|
+| `family` | `string` | — | Font family name (must match Google Fonts) |
+| `weights` | `number[]` | `[400, 500, 600, 700]` | Font weights to include |
+| `style` | `"normal" \| "italic"` | `"normal"` | Font style |
+
+### Local fonts
+
+Embed custom font files directly. The font is base64-encoded into the PDF.
+
+```tsx
+<Document fonts={[
+  { family: "CustomFont", src: "./fonts/custom.woff2", weight: 400 },
+  { family: "CustomFont", src: "./fonts/custom-bold.woff2", weight: 700 },
+]}>
+  <Page size="A4">
+    <p style={{ fontFamily: 'CustomFont' }}>Custom font text</p>
+  </Page>
+</Document>
+```
+
+| Field | Type | Default | Description |
+|-------|------|---------|-------------|
+| `family` | `string` | — | Font family name (use in CSS) |
+| `src` | `string` | — | Path to font file (`.woff2`, `.woff`, `.ttf`, `.otf`) |
+| `weight` | `number` | `400` | Font weight |
+| `style` | `"normal" \| "italic"` | `"normal"` | Font style |
+
+<Note>
+  Local fonts require filesystem access and won't work on edge runtimes (Vercel Edge, Cloudflare Workers). Use Google Fonts for edge compatibility.
+</Note>
+
+---
+
+## Images
+
+Images must be accessible when the PDF is generated. Since pdfn Cloud renders on remote servers, local filesystem paths won't work in production.
+
+### Next.js public folder
+
+Put images in your `public/` folder and reference them with absolute URLs. These deploy with your app and work everywhere.
+
+```tsx
+function Invoice() {
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+
+  return (
+    <Document title="Invoice">
+      <Page size="A4">
+        <img src={`${baseUrl}/logo.png`} alt="Company logo" />
+      </Page>
+    </Document>
+  );
+}
+```
+
+### CDN-hosted images
+
+For large assets or images shared across projects, host them on a CDN (Cloudflare R2, AWS S3, Vercel Blob).
+
+```tsx
+<img src="https://cdn.example.com/assets/logo.png" alt="Company logo" />
+```
+
+### Base64 data URLs
+
+For small images like logos or icons (under 10KB), embed them directly.
+
+```tsx
+const logo = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAA...';
+
+function Invoice() {
+  return (
+    <Document title="Invoice">
+      <Page size="A4">
+        <img src={logo} alt="Company logo" />
+      </Page>
+    </Document>
+  );
+}
+```
+
+<Note>
+  Local image paths (like `./images/logo.png`) work during development but fail in production. Always use absolute URLs or base64.
+</Note>
 
 ---
 
