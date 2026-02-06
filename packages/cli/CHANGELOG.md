@@ -1,5 +1,11 @@
 # pdfn
 
+## 0.9.1
+
+### Patch Changes
+
+- 545ed6b: Add underscore prefix convention to exclude files from template list. Files starting with `_` (e.g., `_utils.tsx`, `_shared.tsx`) are now excluded from the preview sidebar, similar to how subdirectories are excluded.
+
 ## 0.9.0
 
 ### Minor Changes
