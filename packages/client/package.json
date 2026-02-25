@@ -61,15 +61,15 @@
   "devDependencies": {
     "@pdfn/eslint-config": "workspace:*",
     "@pdfn/typescript-config": "workspace:*",
-    "@types/node": "^25.0.10",
+    "@types/node": "^25.3.0",
     "@types/react": "19.2.9",
     "@types/react-dom": "19.2.3",
-    "@vitejs/plugin-react": "^5.1.2",
-    "jsdom": "^27.4.0",
+    "@vitejs/plugin-react": "^5.1.4",
+    "jsdom": "^28.1.0",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
     "tsup": "^8.5.1",
     "typescript": "^5.9.3",
-    "vitest": "^4.0.17"
+    "vitest": "^4.0.18"
   }
 }
