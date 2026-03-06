@@ -102,7 +102,7 @@ export default function PDFValidatorPage() {
       const form = new FormData();
       form.append("file", file);
 
-      const res = await fetch(`https://api.pdfn.dev/v1/validate?profile=${profile}`, {
+      const res = await fetch(`https://api.pdfn.dev/v1/pdfs/validate?profile=${profile}`, {
         method: "POST",
         body: form,
       });
