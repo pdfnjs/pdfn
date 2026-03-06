@@ -23,12 +23,12 @@ interface Result {
     passedChecks: number;
     failedChecks: number;
   };
-  issues: Issue[];
-  summary: Record<string, number>;
+  issues?: Issue[];
+  summary?: Record<string, number>;
   meta: {
-    fileSize: number;
-    fileName: string;
-    durationMs: number;
+    file_size: number;
+    file_name: string;
+    duration_ms: number;
   };
 }
 
@@ -338,19 +338,19 @@ export default function PDFValidatorPage() {
                         Does not meet {result.profile.replace(" validation profile", "")} standards
                       </p>
                       <p className="text-text-muted text-sm mt-1">
-                        {result.issues.length} issue{result.issues.length !== 1 ? "s" : ""} found
+                        {result.details.failedRules} failed rule{result.details.failedRules !== 1 ? "s" : ""} found
                       </p>
                     </>
                   )}
                 </div>
 
                 <div className="flex items-center justify-center gap-6 text-sm text-text-muted mb-8">
-                  <span>{result.meta.fileName}</span>
-                  <span>{formatSize(result.meta.fileSize)}</span>
-                  <span>{result.meta.durationMs}ms</span>
+                  <span>{result.meta.file_name}</span>
+                  <span>{formatSize(result.meta.file_size)}</span>
+                  <span>{result.meta.duration_ms}ms</span>
                 </div>
 
-                {result.issues.length > 0 && (
+                {result.issues && result.issues.length > 0 && (
                   <div className="bg-surface-1 rounded-xl border border-border overflow-hidden mb-8">
                     <div className="px-5 py-4 border-b border-border flex items-center justify-between">
                       <h3 className="font-medium text-text-primary">Issues to Fix</h3>
@@ -390,7 +390,7 @@ export default function PDFValidatorPage() {
                   </div>
                 )}
 
-                {result.compliant && (
+                {result.compliant ? (
                   <div className="grid grid-cols-2 gap-4 mb-8">
                     <div className="bg-surface-1 rounded-xl p-4 text-center">
                       <div className="text-2xl font-bold text-green-400">{result.details.passedRules}</div>
@@ -399,6 +399,17 @@ export default function PDFValidatorPage() {
                     <div className="bg-surface-1 rounded-xl p-4 text-center">
                       <div className="text-2xl font-bold text-green-400">{result.details.passedChecks}</div>
                       <div className="text-xs text-text-muted">Checks Passed</div>
+                    </div>
+                  </div>
+                ) : (!result.issues || result.issues.length === 0) && (
+                  <div className="grid grid-cols-2 gap-4 mb-8">
+                    <div className="bg-surface-1 rounded-xl p-4 text-center">
+                      <div className="text-2xl font-bold text-amber-400">{result.details.failedRules}</div>
+                      <div className="text-xs text-text-muted">Rules Failed</div>
+                    </div>
+                    <div className="bg-surface-1 rounded-xl p-4 text-center">
+                      <div className="text-2xl font-bold text-amber-400">{result.details.failedChecks}</div>
+                      <div className="text-xs text-text-muted">Checks Failed</div>
                     </div>
                   </div>
                 )}
