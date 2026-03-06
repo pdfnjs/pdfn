@@ -1,5 +1,12 @@
 # web
 
+## 0.1.26
+
+### Patch Changes
+
+- Updated dependencies
+  - @pdfn/next@2.0.3
+
 ## 0.1.25
 
 ### Patch Changes

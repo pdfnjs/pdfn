@@ -1,5 +1,11 @@
 # @pdfn/next
 
+## 2.0.3
+
+### Patch Changes
+
+- Fix transform-loader inserting imports before "use client" directive
+
 ## 2.0.2
 
 ### Patch Changes
