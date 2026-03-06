@@ -65,6 +65,12 @@ npm i @pdfn/vite
 
 See [@pdfn/next](../next) or [@pdfn/vite](../vite) for setup.
 
+## Requirements
+
+- Node.js 22+
+- Tailwind CSS 4+
+- React 18 or 19
+
 ## License
 
 MIT

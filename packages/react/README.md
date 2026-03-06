@@ -171,6 +171,11 @@ import type {
 } from '@pdfn/react';
 ```
 
+## Requirements
+
+- Node.js 22+
+- React 18 or 19
+
 ## License
 
 MIT

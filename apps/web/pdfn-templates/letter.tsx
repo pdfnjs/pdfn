@@ -157,7 +157,7 @@ function Letter({ subject }: LetterProps) {
             Following our conversation at React Summit, I wanted to formally present our
             enterprise partnership proposal. PDFN provides server-side PDF generation using
             React components, and we believe it would be an excellent fit for Acme
-            Corporation's document workflows.
+            Corporation&apos;s document workflows.
           </p>
           <p
             style={{

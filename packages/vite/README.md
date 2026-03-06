@@ -74,6 +74,7 @@ export async function generateInvoice() {
 
 ## Requirements
 
+- Node.js 22+
 - Vite 5+
 - Tailwind CSS 4+
 

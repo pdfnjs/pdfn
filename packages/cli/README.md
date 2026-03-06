@@ -55,6 +55,10 @@ if (error) {
 // Use data.buffer
 ```
 
+## Requirements
+
+- Node.js 22+
+
 ## License
 
 MIT

@@ -29,12 +29,12 @@ export function PdfPreview({
   showOpenButton = true,
   onLoad,
 }: PdfPreviewProps) {
-  const [isLoading, setIsLoading] = useState(true);
+  const [loadedSrc, setLoadedSrc] = useState<string | null>(null);
   const [previewZoom, setPreviewZoom] = useState<"fit" | "100">("fit");
   const [containerDimensions, setContainerDimensions] = useState({ width: 400, height: typeof height === "number" ? height : 500 });
   const containerRef = useRef<HTMLDivElement>(null);
-
   const isFillMode = height === "fill";
+  const isLoading = loadedSrc !== src;
 
   const { width: pageW, height: pageH } = getPageDimensions(size, orientation);
 
@@ -59,14 +59,9 @@ export function PdfPreview({
   }, []);
 
   const handleIframeLoad = () => {
-    setIsLoading(false);
+    setLoadedSrc(src);
     onLoad?.();
   };
-
-  // Reset loading state when src changes
-  useEffect(() => {
-    setIsLoading(true);
-  }, [src]);
 
   const fitScale = Math.min(
     containerDimensions.width / pageW,

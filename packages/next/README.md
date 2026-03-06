@@ -87,6 +87,7 @@ export async function GET() {
 
 ## Requirements
 
+- Node.js 22+
 - Next.js 14+
 - Tailwind CSS 4+
 
