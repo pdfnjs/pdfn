@@ -218,21 +218,26 @@ export default function PDFValidatorPage() {
             <div className="mt-6 h-12 flex items-center justify-center gap-3">
               {status === "ready" && (
                 <>
-                  <select
-                    value={profile}
-                    onChange={(e) => setProfile(e.target.value)}
-                    className="bg-surface-1 border border-border rounded-xl px-4 py-3 text-sm text-text-primary focus:outline-none focus:border-primary min-w-[180px]"
-                  >
-                    {PROFILE_GROUPS.map((group) => (
-                      <optgroup key={group.label} label={group.label}>
-                        {group.options.map((option) => (
-                          <option key={option.value} value={option.value}>
-                            {option.label}
-                          </option>
-                        ))}
-                      </optgroup>
-                    ))}
-                  </select>
+                  <div className="relative">
+                    <select
+                      value={profile}
+                      onChange={(e) => setProfile(e.target.value)}
+                      className="appearance-none bg-surface-1 border border-border rounded-xl pl-4 pr-10 py-3 text-sm text-text-primary focus:outline-none focus:border-primary min-w-[180px] cursor-pointer [&>option]:bg-surface-1 [&>option]:text-text-primary [&>optgroup]:bg-surface-1 [&>optgroup]:text-text-secondary"
+                    >
+                      {PROFILE_GROUPS.map((group) => (
+                        <optgroup key={group.label} label={group.label}>
+                          {group.options.map((option) => (
+                            <option key={option.value} value={option.value}>
+                              {option.label}
+                            </option>
+                          ))}
+                        </optgroup>
+                      ))}
+                    </select>
+                    <svg className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-text-muted pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                    </svg>
+                  </div>
                   <button
                     onClick={validate}
                     className="px-8 py-3 bg-primary hover:bg-primary-hover text-black font-semibold rounded-xl transition-colors"

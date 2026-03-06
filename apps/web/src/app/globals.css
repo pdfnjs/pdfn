@@ -108,15 +108,6 @@ body {
   border-color: var(--border-hover);
 }
 
-/* Button glow effect */
-.btn-glow {
-  transition: all 0.2s ease;
-}
-
-.btn-glow:hover {
-  box-shadow: 0 0 20px rgba(34, 211, 238, 0.35);
-}
-
 /* Fade in animation */
 @keyframes fadeInUp {
   from {
@@ -160,16 +151,6 @@ body {
   transform: translateY(0);
 }
 
-/* Hide scrollbar utility */
-.scrollbar-hide {
-  -ms-overflow-style: none;
-  scrollbar-width: none;
-}
-
-.scrollbar-hide::-webkit-scrollbar {
-  display: none;
-}
-
 /* Respect reduced motion preference */
 @media (prefers-reduced-motion: reduce) {
   .animate-fade-in,
@@ -195,7 +176,4 @@ body {
     transform: none;
   }
 
-  .btn-glow:hover {
-    box-shadow: none;
-  }
 }
