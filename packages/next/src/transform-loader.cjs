@@ -133,7 +133,7 @@ module.exports = function pdfnTransformLoader(source) {
   if (source.includes("@pdfn/tailwind") && source.includes("<Tailwind")) {
     // Check if file already has pre-compiled CSS import
     if (!source.includes("__pdfnPrecompiledCss__")) {
-      // Add import for pre-compiled CSS at the top
+      // Add import for pre-compiled CSS (after "use client" directive if present)
       const importStatement = `import { css as __pdfnPrecompiledCss__ } from "${CSS_MODULE_PATH}";\n`;
 
       // Replace <Tailwind> with <Tailwind css={__pdfnPrecompiledCss__}>
@@ -151,7 +151,18 @@ module.exports = function pdfnTransformLoader(source) {
 
       // Only add import if we made changes
       if (transformed !== source) {
-        transformed = importStatement + transformed;
+        // Insert after "use client" directive to avoid breaking it
+        if (hasUseClient) {
+          const directiveMatch = transformed.match(/^(\s*["']use client["'];?\s*\n?)/);
+          if (directiveMatch) {
+            const directive = directiveMatch[1];
+            transformed = directive + importStatement + transformed.slice(directive.length);
+          } else {
+            transformed = importStatement + transformed;
+          }
+        } else {
+          transformed = importStatement + transformed;
+        }
       }
     }
   }
@@ -161,7 +172,7 @@ module.exports = function pdfnTransformLoader(source) {
   if (source.includes("@pdfn/next") && source.includes("renderTemplate")) {
     // Check if already has the bundle manifest import
     if (!source.includes("__pdfnBundleManifest__")) {
-      // Add import for bundles manifest + CSS + setters at the top
+      // Add import for bundles manifest + CSS + setters (after "use client" if present)
       const imports = [
         `import { manifest as __pdfnBundleManifest__ } from "${BUNDLES_MODULE_PATH}";`,
         `import { css as __pdfnPrecompiledCssForClient__ } from "${CSS_MODULE_PATH}";`,
@@ -169,7 +180,18 @@ module.exports = function pdfnTransformLoader(source) {
         `__pdfnSetBundleManifest__(__pdfnBundleManifest__);`,
         `__pdfnSetPrecompiledCss__(__pdfnPrecompiledCssForClient__);`,
       ].join("\n") + "\n";
-      transformed = imports + transformed;
+      // Insert after "use client" directive to avoid breaking it
+      if (hasUseClient) {
+        const directiveMatch = transformed.match(/^(\s*["']use client["'];?\s*\n?)/);
+        if (directiveMatch) {
+          const directive = directiveMatch[1];
+          transformed = directive + imports + transformed.slice(directive.length);
+        } else {
+          transformed = imports + transformed;
+        }
+      } else {
+        transformed = imports + transformed;
+      }
     }
   }
 

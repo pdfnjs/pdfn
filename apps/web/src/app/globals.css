@@ -1,4 +1,3 @@
-@import url("https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Great+Vibes&display=swap");
 @import "tailwindcss";
 
 /*
@@ -55,8 +54,6 @@ html {
   --color-error: var(--error);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
-  --font-display: "Playfair Display", Georgia, serif;
-  --font-script: "Great Vibes", cursive;
 }
 
 body {
