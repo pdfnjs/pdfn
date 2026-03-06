@@ -1,11 +1,10 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import Link from "next/link";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { nightOwl } from "react-syntax-highlighter/dist/esm/styles/prism";
 import { templateCode } from "@/lib/template-code";
-import { Header, Footer } from "@/components";
+import { Header, Footer, CopyButton } from "@/components";
 import { PAGE_SIZES, PT_TO_PX, type PageSize, type Orientation } from "@/lib/page-sizes";
 
 // Templates ordered by user priority:
@@ -26,48 +25,6 @@ const homepageTemplates: Array<{
   { id: "letter", name: "letter.tsx", pageSize: "Letter", orientation: "portrait" },
   { id: "ticket", name: "ticket.tsx", pageSize: "A5", orientation: "portrait" },
 ];
-
-// Copy button component
-function CopyButton({ text, className = "" }: { text: string; className?: string }) {
-  const [copied, setCopied] = useState(false);
-
-  const handleCopy = async () => {
-    await navigator.clipboard.writeText(text);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-  };
-
-  return (
-    <button
-      onClick={handleCopy}
-      className={`p-2 rounded-md transition-all ${copied ? "text-green-400" : "text-text-muted hover:text-text-primary hover:bg-surface-2"} ${className}`}
-      title={copied ? "Copied!" : "Copy to clipboard"}
-    >
-      {copied ? (
-        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-        </svg>
-      ) : (
-        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
-        </svg>
-      )}
-    </button>
-  );
-}
-
-// Terminal command component - minimal style
-function TerminalCommand({ command, className = "" }: { command: string; className?: string }) {
-  return (
-    <div className={`flex items-center justify-between gap-4 px-4 py-3 rounded-lg border border-border bg-surface-1 font-mono text-sm ${className}`}>
-      <div>
-        <span className="text-text-muted">$</span>{" "}
-        <span className="text-text-primary">{command}</span>
-      </div>
-      <CopyButton text={command} />
-    </div>
-  );
-}
 
 // TSX file icon component (similar to Resend's TS icon)
 function TsxIcon({ className = "" }: { className?: string }) {
@@ -124,7 +81,7 @@ function DeployTabs() {
       </div>
 
       {/* Tab content - fixed height */}
-      <div className="p-5 bg-[#0d1117] h-[200px]">
+      <div className="p-5 bg-background h-[200px]">
         {activeTab === "development" ? (
           <div className="font-mono text-sm space-y-1">
             <div><span className="text-text-muted">$</span> <span className="text-text-primary">npm install @pdfn/react @pdfn/tailwind @pdfn/next</span></div>
@@ -265,17 +222,6 @@ export default function Home() {
           </div>
 
           <p className="text-sm text-text-muted mt-8 animate-fade-in-delay-2">
-            <a
-              href="https://github.com/pdfnjs/pdfn"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-text-secondary hover:text-text-primary transition-colors underline underline-offset-4"
-            >
-              Star us on GitHub
-            </a>
-          </p>
-
-          <p className="text-sm text-text-muted mt-3 animate-fade-in-delay-2">
             What you preview locally is what ships in production.
           </p>
         </div>
@@ -333,7 +279,7 @@ export default function Home() {
                 ),
               },
             ] as const).map((item) => (
-              <div key={item.label} className="border border-border rounded-xl p-5 bg-background">
+              <div key={item.label} className="card-hover border border-border rounded-xl p-5 bg-background">
                 <div className="mb-3">{item.icon}</div>
                 <h3 className="text-sm font-semibold text-text-primary mb-1">{item.label}</h3>
                 <p className="text-sm text-text-muted">{item.description}</p>
