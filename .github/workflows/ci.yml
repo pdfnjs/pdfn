@@ -32,7 +32,7 @@ jobs:
           cache: 'pnpm'
 
       - name: Cache Turbo
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: ${{ env.TURBO_CACHE_DIR }}
           key: turbo-${{ runner.os }}-node${{ matrix.node-version }}-${{ github.sha }}
@@ -74,7 +74,7 @@ jobs:
           cache: 'pnpm'
 
       - name: Cache Turbo
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: ${{ env.TURBO_CACHE_DIR }}
           key: turbo-${{ runner.os }}-node22.x-${{ github.sha }}
