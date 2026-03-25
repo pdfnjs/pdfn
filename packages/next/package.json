@@ -78,13 +78,13 @@
   "devDependencies": {
     "@pdfn/eslint-config": "workspace:*",
     "@pdfn/typescript-config": "workspace:*",
-    "@types/node": "^25.0.10",
+    "@types/node": "^25.5.0",
     "next": "16.1.4",
     "react": "19.2.3",
     "react-dom": "19.2.3",
     "tsup": "^8.5.1",
-    "typescript": "^5.9.3",
+    "typescript": "^6.0.2",
     "tailwindcss": "^4",
-    "vitest": "^4.0.17"
+    "vitest": "^4.1.1"
   }
 }
